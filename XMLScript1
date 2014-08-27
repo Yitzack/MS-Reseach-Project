@@ -1,0 +1,28 @@
+BEGIN{
+	print "<?xml version='1.0'?>\n<!DOCTYPE Expression SYSTEM 'http://www.wolfram.com/XML/notebookml1.dtd'>\n<Expression xmlns:mathematica='http://www.wolfram.com/XML/'\n    xmlns='http://www.wolfram.com/XML/'>\n <Function>\n  <Symbol>List</Symbol>"
+}
+
+{
+	if (length($0) == 0) {}
+	else
+	{
+		if(NR%82 == 1) #Beginning of new P
+		{
+			if(NR > 1){print "  </Function>"}
+			print "  <Function>"
+			print "   <Symbol>List</Symbol>"
+		}
+		if($5 != 0)
+		{
+			print "   <Function>"
+			print "    <Symbol>List</Symbol>"
+			printf "    <Number>%s</Number>\n", $3
+			printf "    <Number>%s</Number>\n", $4
+			print "   </Function>"
+		}
+	}
+}
+
+END{
+	print "  </Function>\n </Function>\n</Expression>"
+}
