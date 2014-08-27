@@ -256,6 +256,7 @@ long double Integrate1(long double*** Table, long double E, long double z)
 		a = b;
 	};	//For part of the integral that uses an interpolation table
 
+//This code is for integating out to a z dependant boundary and may be used.
 	/*for(int j = b/stride; j < 1000; j++)	//need to start the count off from where it left off in the previous integration block
 	{
 		b += stride;
