@@ -33,3 +33,4 @@ Fourier.cpp is the program that calculates the correlator.
 Spectral.h is a common header file. The reason for this is because the Fourier.cpp has in past needed approximations that are held there. It may need access to them in future.
 Derive.m is the Mathematica script that calculates the derivitives that Fourier.cpp needs.
 Epsilon.m calculates the parameters of the approximation that Fourier.cpp may use.
+XMLScript and XMLScript1 are awk scripts that change the text output from Spectral.cpp into .xml files that Mathematica will undersetand. XMLScript is for Derive.m and XMLScript1 is for Epsilon.m
