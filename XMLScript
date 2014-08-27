@@ -1,0 +1,23 @@
+BEGIN{
+	print "<?xml version='1.0'?>\n<!DOCTYPE Expression SYSTEM 'http://www.wolfram.com/XML/notebookml1.dtd'>\n<Expression xmlns:mathematica='http://www.wolfram.com/XML/'\n    xmlns='http://www.wolfram.com/XML/'>\n <Function>\n  <Symbol>List</Symbol>"
+}
+
+{
+	if (length($0) == 0) {}
+	else
+	{
+		print "  <Function>"
+		print "   <Symbol>List</Symbol>"
+		print "   <Function>"
+		print "    <Symbol>List</Symbol>"
+		printf "    <Number>%s</Number>\n", $2
+		printf "    <Number>%s</Number>\n", $3
+		print "   </Function>"
+		printf "   <Number>%s</Number>\n", $4
+		print "  </Function>"
+	}
+}
+
+END{
+	print " </Function>\n</Expression>"
+}
