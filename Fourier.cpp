@@ -267,8 +267,8 @@ long double Spectral(long double*** Table, long double E, long double p, long do
 	t -= i;	//Removes the index leaving the fractional part
 	u -= j;
 
-	if(z > 0 && p > ((long double)(int(600*z/(2.*M_PI)))+.25)*2.*M_PI/z)	//Should cause the program to return the last interpolatable value in the table before the table ends.
-		return(Spectral(Table, E, ((long double)(int(600*z/(2.*M_PI)))+.25)*2.*M_PI/z, z));
+	if(z > 0 && p > ((long double)(int(600*z/(2.*M_PI)))-.25)*2.*M_PI/z)	//Should cause the program to return the last interpolatable value in the table at a node in the integrand before the table ends.
+		return(Spectral(Table, E, ((long double)(int(600*z/(2.*M_PI)))-.25)*2.*M_PI/z, z));
 
 	if(Table[i][j][4] == 0 || Table[i+1][j][4] == 0 || Table[i][j+1][4] == 0 || Table[i+1][j+1][4] == 0)	//If any of the required points have been invalidated, calculate points from integrals.
 	{
