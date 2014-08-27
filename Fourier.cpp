@@ -182,7 +182,6 @@ long double Integrate2(long double*** Table, long double z)
 	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 	a = b;
 
-
 	b = 23.5;
 	F_a = F_b = 0;	//Start integration at 0
 	for(j = 0; j < 24; j++)
@@ -268,7 +267,7 @@ long double Spectral(long double*** Table, long double E, long double p, long do
 	t -= i;	//Removes the index leaving the fractional part
 	u -= j;
 
-	if(p > ((long double)(int(600*z/(2.*M_PI)))+.25)*2.*M_PI/z)	//Should cause the program to return the last interpolatable value in the table before the table ends.
+	if(z > 0 && p > ((long double)(int(600*z/(2.*M_PI)))+.25)*2.*M_PI/z)	//Should cause the program to return the last interpolatable value in the table before the table ends.
 		return(Spectral(Table, E, ((long double)(int(600*z/(2.*M_PI)))+.25)*2.*M_PI/z, z));
 
 	if(Table[i][j][4] == 0 || Table[i+1][j][4] == 0 || Table[i][j+1][4] == 0 || Table[i+1][j+1][4] == 0)	//If any of the required points have been invalidated, calculate points from integrals.
@@ -331,8 +330,8 @@ void Validate(long double***& Table, int M, int N)
 		{
 			i = P/.8;	//returns the p index without the fractional part
 
-			Test = Spectral(Table, (E[j]+E[j+1])/2., P);	//Checks the point on the mid-point E
-			Average = (Spectral(Table, E[j], P)+Spectral(Table, E[j+1], P))/2.;
+			Test = Spectral(Table, (E[j]+E[j+1])/2., P, 0);	//Checks the point on the mid-point E
+			Average = (Spectral(Table, E[j], P, 0)+Spectral(Table, E[j+1], P, 0))/2.;
 			if(Test < 0)// || abs(Average-Test)/Average < 1.15)	//The Spectral function must be positive and resonably close to the linear interpolation
 			{
 				Table[i][j][4] = 0;	//Invalidates the data around the point
@@ -341,8 +340,8 @@ void Validate(long double***& Table, int M, int N)
 				Table[i+1][j+1][4] = 0;
 			}
 
-			Test = Spectral(Table, E[j], P+.4);	//Checks the point on the mid-point P
-			Average = (Spectral(Table, E[j], P)+Spectral(Table, E[j], P+.8))/2.;
+			Test = Spectral(Table, E[j], P+.4, 0);	//Checks the point on the mid-point P
+			Average = (Spectral(Table, E[j], P, 0)+Spectral(Table, E[j], P+.8, 0))/2.;
 			if(Test < 0)// || abs(Average-Test)/Average < 1.15)	//The Spectral function must be positive and resonably close to the linear interpolation
 			{
 				Table[i][j][4] = 0;	//Invalidates the data around the point
@@ -351,8 +350,8 @@ void Validate(long double***& Table, int M, int N)
 				Table[i+1][j+1][4] = 0;
 			}
 
-			Test = Spectral(Table, (E[j]+E[j+1])/2., P+.4);	//Checks the point on the mid-point E,P
-			Average = (Spectral(Table, E[j], P)+Spectral(Table, E[j+1], P)+Spectral(Table, E[j], P+.8)+Spectral(Table, E[j+1], P+.8))/4.;
+			Test = Spectral(Table, (E[j]+E[j+1])/2., P+.4, 0);	//Checks the point on the mid-point E,P
+			Average = (Spectral(Table, E[j], P, 0)+Spectral(Table, E[j+1], P, 0)+Spectral(Table, E[j], P+.8, 0)+Spectral(Table, E[j+1], P+.8, 0))/4.;
 			if(Test < 0)// || abs(Average-Test)/Average < 1.15)	//The Spectral function must be positive and resonably close to the linear interpolation
 			{
 				Table[i][j][4] = 0;	//Invalidates the data around the point
