@@ -8,7 +8,7 @@
 #include"Spectral.h"
 using namespace std;
 
-void ReadIn(long double***&, int, int, int, int);	//Read in from file the contents of the matrix. It includes 2 offsets for multiple file read in and for padding due to negative momentum not being in the file
+void ReadIn(long double***&, int, int, int, int, char*);	//Read in from file the contents of the matrix. It includes 2 offsets for multiple file read in and for padding due to negative momentum not being in the file
 void Init(long double***&, int, int);	//Initialize the table to the correct size
 void Copy(long double***&, int, int);	//Copies the positive definiate momentum to the negative definiate momentum as the function is even symmetric in momentum and these are needed to properly calculate the slopes
 void Deriv(long double***&, int, int);	//Takes all of the finite differences and stores them to the table
@@ -23,7 +23,8 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-	char File[25] = "Fourier Full.";	//Name of the file
+	char* File = new char[25];	//Name of the file
+	strcpy(File, argv[4]);
 	Process = argv[1];
 	strcat(File, Process);			//Appends the process number to the file name
 	ofstream TPlot(File);
@@ -39,7 +40,7 @@ int main(int argc, char* argv[])
 	const int Total = atoi(argv[2]);
 
 	Init(Table, N, M);
-	ReadIn(Table, n_offset, m_offset, N-n_offset, M);
+	ReadIn(Table, n_offset, m_offset, N-n_offset, M, argv[4]);
 	Copy(Table, M, n_offset);
 	Validate(Table, N-n_offset-1, M-1);
 
@@ -421,9 +422,9 @@ void Copy(long double***& Table, int M, int n_offset)
 	return;
 }
 
-void ReadIn(long double***& Table, int n_offset, int m_offset, int N, int M)
+void ReadIn(long double***& Table, int n_offset, int m_offset, int N, int M, char* FileReadIn)
 {
-	ifstream File("Table0");
+	ifstream File(FileReadIn);
 	int i,j,k;	//Counters
 	float Dump;
 	float Energy;
