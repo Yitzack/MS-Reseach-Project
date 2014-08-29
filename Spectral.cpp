@@ -16,10 +16,12 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-	char File[25] = "Spectral";	//Name of the file
+	char File[25] = "Spectral.";	//Name of the file
 	Process = argv[1];
+	strcat(File, argv[3]);
+	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
-	ofstream TPlot(File);
+	ofstream TPlot(File, ios::app);
 	const long double Temp = atof(argv[3]);
 	const long double Mass_c = 1.8;		//Mass of the quarks (charm = 1.8GeV, bottom = 5GeV)
 	const long double Mass_b = 5.25;		//Mass of the quarks (charm = 1.8GeV, bottom = 5GeV)
@@ -38,10 +40,10 @@ int main(int argc, char* argv[])
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 
-	for(i = 0; i <= 375; i++)
+	for(i = 750; i <= 750; i++)
 	{
 		P = i*.8;
-//		#pragma omp parallel for
+		#pragma omp parallel for
 #ifdef DELTAE
 		for(j = 81*iProcess/(Total); j < 81*(iProcess+1)/Total; j++)	//Does the subset of E that has been assigned to this process
 #else

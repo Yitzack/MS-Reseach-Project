@@ -85,23 +85,16 @@ long double Analytic(long double E, long double Epsilon)
 	long double CC = -127.995280691106;
 	long double Lambda = 1.4049344847006076;
 
-	complex<long double> SMEpsilon(E*E/4.-M*M,Epsilon*E*Self_E_Depends(E/2.,0));	//The analytic needs to divide the energy by 2 to match what the integration is doing
-	complex<long double> SEpsilon(E*E/4.,Epsilon*E*Self_E_Depends(E/2.,0));
+	complex<long double> SMEpsilon(E*E/4.-M*M,Epsilon*E*Self_E_Depends(E,0));	//The analytic needs to divide the energy by 2 to match what the integration is doing
+	complex<long double> SEpsilon(E*E/4.,Epsilon*E*Self_E_Depends(E,0));
 	complex<long double> MLambda1(pow(Lambda/2.,2)-M*M,0);
 	complex<long double> MLambda2(pow(M/Lambda,2)-.25,0);
-	complex<long double> SMLambdaEpsilon((E*E+pow(Lambda,2))/4.-M*M,Epsilon*E*Self_E_Depends(E/2.,0));
+	complex<long double> SMLambdaEpsilon((E*E+pow(Lambda,2))/4.-M*M,Epsilon*E*Self_E_Depends(E,0));
 	complex<long double> Num, Den, Non;
 
 	Num = complex<long double>(pow(Lambda*M/(4.*M_PI),2),0)*(complex<long double>(2,0)*sqrt(MLambda1*SMEpsilon)*arctan(sqrt(-SEpsilon/SMEpsilon))-complex<long double>(Lambda,0)*sqrt(SEpsilon)*arctan(complex<long double>(2,0)*sqrt(MLambda2)))/(sqrt(SEpsilon*-MLambda1)*SMLambdaEpsilon);
 	Den = complex<long double>(CC*pow(Lambda*Lambda*M/(8*M_PI),2),0)/pow(SMLambdaEpsilon,2)*(SMLambdaEpsilon/MLambda1+(complex<long double>(pow(Lambda,4)/4.-pow(Lambda*M,2)/2,0)+complex<long double>(2*M*M,0)*SMEpsilon)/(complex<long double>(Lambda,0)*pow(-MLambda1,(long double)(1.5)))*arctan(complex<long double>(2,0)*sqrt(MLambda2))+complex<long double>(2,0)*sqrt(-SMEpsilon/SEpsilon)*arctan(sqrt(-SEpsilon/SMEpsilon)));
 	Non = complex<long double>(M*M/(2.*M_PI*M_PI),0)*sqrt(SMEpsilon/SEpsilon)*arctanh(sqrt(SEpsilon/SMEpsilon));
-
-	/*if(E < 2.*M)	//There is an issue below threshold where the imaginary part is too big by a factor 4.
-	{
-		Num = complex<long double>(Num.real(),Num.imag()/4.);
-		Den = complex<long double>(Den.real(),Den.imag()/4.);
-		Non /= 4.;
-	}*/
 
 	//cout << E << " " << Num.real() << " " << Num.imag() << " " << Den.real() << " " << Den.imag() << " " << -18./M_PI*Non.imag() << endl;
 
@@ -122,10 +115,7 @@ inline long double Self_E_Depends(long double E, long double Temp)
 
 long double Spectral(long double M, long double P, long double E, long double Temp)
 {
-	if(P >= 100 && E >= 2.*M)
-		return(nanl(""));
-
-	long double Par[6] = {CC, Lambda, M, P, E, -.032};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
+	long double Par[6] = {CC, Lambda, M, P, E};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
 	long double G_0;	//The imaginary part of G_0
 	complex<long double> TMat = TMatrix(M, P, E, Temp);
 	complex<long double> Num;	//The integral in the numerator of Delta G
@@ -202,7 +192,7 @@ inline long double Potential1(long double Par[6], long double k, long double the
 complex<long double> TMatrix(long double M, long double P, long double E, long double Temp)
 {
 	complex<long double> Int_Holder;	//Holder for the result of the integration, allows it to be calculated once
-	long double Parameters[6] = {CC, Lambda, M, P, E, -.032};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
+	long double Parameters[6] = {CC, Lambda, M, P, E};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
 	long double F_a, a = 0.;
 	long double F_b, b = M_PI;
 	long double F_c, c = 0.;
@@ -245,25 +235,17 @@ long double ImInt(long double Par[6], long double k, long double theta, long dou
 
 inline long double Common(long double Par[6], long double k, long double theta, long double Temp)	//Returns the common part of both propagators
 {
-#ifdef DELTAE
-	return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))+Self_E_Depends(Par[4]/2.,Temp)*Par[5], 2)));
-#else
-	return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))+Self_E_Depends(Par[4]/2.,Temp)*sqrt(Par[4])*Par[5], 2)));
-#endif
+	return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4]*Self_E_Depends(Par[4],Temp), 2)));
 }
 
 inline long double ReProp(long double Par[6], long double k, long double theta, long double Temp)	//Returns the real part of the propagator
 {
-	return(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2));
+	return(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2));
 }
 
 inline long double ImProp(long double Par[6], long double k, long double theta, long double Temp)	//Returns the imaginary part of the propagator
 {
-#ifdef DELTAE
-	return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))+Self_E_Depends(Par[4]/2.,Temp)*Par[5]);
-#else
-	return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))+Self_E_Depends(Par[4]/2.,Temp)*sqrt(Par[4])*Par[5]);
-#endif
+	return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4]*Self_E_Depends(Par[4],Temp));
 }
 
 inline long double Potential(long double Par[6], long double k, long double theta)	//Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
@@ -459,9 +441,9 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 	}
 	else
 	{
-		long double distance[] = {2.5,5,7.5,10,100};	//magic numbers that indicates the distance from k=0GeV
+		long double distance[] = {2.5,5,7.5,10,50,100,200,400,500};	//magic numbers that indicates the distance from k=0GeV
 		a = 0;	//0GeV to 2.5GeV
-		for(j = 0; j < 5; j++)
+		for(j = 0; j < 9; j++)
 		{
 			b = distance[j];	//New upper boundary
 			F_a = F_b = 0;	//Start integration at 0
