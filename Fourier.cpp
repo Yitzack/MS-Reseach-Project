@@ -24,7 +24,7 @@ char* Process;
 int main(int argc, char* argv[])
 {
 	char* File = new char[25];	//Name of the file
-	strcpy(File, argv[4]);
+	strcpy(File, argv[3]);
 	Process = argv[1];
 	strcat(File, Process);			//Appends the process number to the file name
 	ofstream TPlot(File);
@@ -237,7 +237,7 @@ long double Integrate1(long double*** Table, long double E, long double z)
 	long double F_a, F_b, F_ave;
 	long double a = 0;
 	long double b = 0;
-	long double P_Max = 600;
+	long double P_Max = 300;
 	int i;
 
 	while(b < P_Max-2.*stride)
@@ -275,7 +275,7 @@ long double Integrate1(long double*** Table, long double E, long double z)
 		a = b;
 	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result*/
 
-	b += stride/4.;	//Evaluate to the end
+	b = P_Max;//3.*stride/4.;	//Evaluate to the end
 	F_a = F_b = 0;	//Start integration at 0
 	for(i = 0; i < 24; i++)
 	{
