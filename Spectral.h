@@ -104,7 +104,6 @@ long double Analytic(long double E, long double Epsilon)
 inline long double Self_E_Depends(long double E, long double Temp)
 {
 //	return(1);
-	E *= 2;	//Undoes the division by 2 to get where the energy is really at.
 	if(E > 2.)
 		return(1.);
 	else if(E < 1.)
