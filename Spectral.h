@@ -79,14 +79,14 @@ inline complex<long double> arctanh(complex<long double>x)
 	return(complex<long double>(.5,0)*log((one+x)/(one-x)));
 }
 
-long double Analytic(long double E, long double Epsilon)
+long double Analytic(long double E, long double Epsilon)	//This strictly vacuum, the width has no depandance beside the E, ever. The epsilon is .008GeV for the correct natural width.
 {//Stupid complex number object doesn't include binary functions of reals and complex numbers
 	long double M = 1.8;
 	long double CC = -127.995280691106;
 	long double Lambda = 1.4049344847006076;
 
-	complex<long double> SMEpsilon(E*E/4.-M*M,Epsilon*E*Self_E_Depends(E,0));	//The analytic needs to divide the energy by 2 to match what the integration is doing
-	complex<long double> SEpsilon(E*E/4.,Epsilon*E*Self_E_Depends(E,0));
+	complex<long double> SMEpsilon(E*E/4.-M*M,Epsilon*E);	//The analytic needs to divide the energy by 2 to match what the integration is doing
+	complex<long double> SEpsilon(E*E/4.,Epsilon*E);
 	complex<long double> MLambda1(pow(Lambda/2.,2)-M*M,0);
 	complex<long double> MLambda2(pow(M/Lambda,2)-.25,0);
 	complex<long double> SMLambdaEpsilon((E*E+pow(Lambda,2))/4.-M*M,Epsilon*E*Self_E_Depends(E,0));
@@ -103,13 +103,7 @@ long double Analytic(long double E, long double Epsilon)
 
 inline long double Self_E_Depends(long double E, long double Temp)
 {
-//	return(1);
-	if(E > 2.)
-		return(1.);
-	else if(E < 1.)
-		return(0.);
-	else
-		return(E-1.);
+	return(tanh(E));	//I'm trying tanh({1,2,4}E/GeV) and exp(-{.2,.1,.05}GeV/E)
 }
 
 long double Spectral(long double M, long double P, long double E, long double Temp)
@@ -234,7 +228,7 @@ long double ImInt(long double Par[6], long double k, long double theta, long dou
 
 inline long double Common(long double Par[6], long double k, long double theta, long double Temp)	//Returns the common part of both propagators
 {
-	return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4]*Self_E_Depends(Par[4],Temp), 2)));
+	return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4], 2)));
 }
 
 inline long double ReProp(long double Par[6], long double k, long double theta, long double Temp)	//Returns the real part of the propagator
@@ -244,7 +238,7 @@ inline long double ReProp(long double Par[6], long double k, long double theta, 
 
 inline long double ImProp(long double Par[6], long double k, long double theta, long double Temp)	//Returns the imaginary part of the propagator
 {
-	return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4]*Self_E_Depends(Par[4],Temp));
+	return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4]);
 }
 
 inline long double Potential(long double Par[6], long double k, long double theta)	//Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
