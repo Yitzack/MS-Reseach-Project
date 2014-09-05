@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 	strcat(File, argv[3]);
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
-	ofstream TPlot(File, ios::app);
+	ofstream TPlot(File);
 	const long double Temp = atof(argv[3]);
 	const long double Mass_c = 1.8;		//Mass of the quarks (charm = 1.8GeV, bottom = 5GeV)
 	const long double Mass_b = 5.25;		//Mass of the quarks (charm = 1.8GeV, bottom = 5GeV)
