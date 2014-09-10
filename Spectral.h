@@ -103,7 +103,11 @@ long double Analytic(long double E, long double Epsilon)	//This strictly vacuum,
 
 inline long double Self_E_Depends(long double E, long double Temp)
 {
-	return(tanh(E));	//I'm trying tanh({1,2,4}E/GeV) and exp(-{.2,.1,.05}GeV/E)
+	long double Slope = -.0215068367*Temp+.2541153776;
+	long double Norm = .0140327335*exp(1.3960998749*Temp);
+	long double Scale = .2946883673*Temp+.0135782245;
+	long double x0 = -.1318438776*Temp+1.6325854082;
+	return(Norm/M_PI*tanh(Slope*E)*Scale/(pow(E-x0,2)+pow(Scale,2);
 }
 
 long double Spectral(long double M, long double P, long double E, long double Temp)
