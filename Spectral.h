@@ -108,7 +108,7 @@ inline long double Self_E_Depends(long double E, long double Temp)
 	long double Scale = .2946883673*Temp+.0135782245;	//Scale/shape factor of Lorentz distribution
 	long double x0 = -.1318438776*Temp+1.6325854082;	//Center point of Lorentz distribution
 	long double On_shell = 1.4774044808*pow(Temp,-.1820953988);	//Location and then value of self-energy
-	On_shell = Norm/M_PI*tanh(Slope*On_shell)*Scale/(pow(On_shell-x0,2)+pow(Scale,2))
+	On_shell = Norm/M_PI*tanh(Slope*On_shell)*Scale/(pow(On_shell-x0,2)+pow(Scale,2));
 	return(Norm/M_PI*tanh(Slope*E)*Scale/(pow(E-x0,2)+pow(Scale,2))/On_shell);
 }
 
