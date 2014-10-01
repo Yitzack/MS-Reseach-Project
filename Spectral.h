@@ -104,12 +104,11 @@ long double Analytic(long double E, long double Epsilon)	//This strictly vacuum,
 inline long double Self_E_Depends(long double E, int Temp)
 {
 	E /= 2.;
-	long double Slope = .007085102x+.5463516735;	//slope of tanh(Slope E) when E=0
-	long double Norm = .0096110705*exp(1.4915353721*Temp);	//Area of the Lorentz distribution
-	long double Scale = .3133436801*pow(Temp,1.1036545737);	//Scale/shape factor of Lorentz distribution
-	long double x0 = -.2456153061*Temp+1.7335339796;	//Center point of Lorentz distribution
-	long double On_shell = 1.4774044808*pow(Temp,-.1820953988);	//Location and then value of self-energy
-	On_shell = Norm*Scale/M_PI*pow(tanh(Slope*On_shell),2)*(1/(pow(On_shell-x0,2)+pow(Scale,2))-1/(pow(On_shell+x0,2)+pow(Scale,2)));
+	long double Slope;	//slope of tanh(Slope E) when E=0
+	long double Norm;	//Area of the Lorentz distribution
+	long double Scale;	//Scale/shape factor of Lorentz distribution
+	long double x0;	//Center point of Lorentz distribution
+	long double On_shell;	//Location and then value of self-energy
 
 	switch(Temp)
 	{
@@ -135,6 +134,8 @@ inline long double Self_E_Depends(long double E, int Temp)
 			On_shell=1.304878049;
 			break;
 	}
+
+	On_shell = Norm*Scale/M_PI*pow(tanh(Slope*On_shell),2)*(1/(pow(On_shell-x0,2)+pow(Scale,2))-1/(pow(On_shell+x0,2)+pow(Scale,2)));
 
 	return(Norm*Scale/M_PI*pow(tanh(Slope*E),2)*(1/(pow(E-x0,2)+pow(Scale,2))-1/(pow(E+x0,2)+pow(Scale,2)))/On_shell);
 }
