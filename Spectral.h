@@ -110,6 +110,7 @@ inline long double Self_E_Depends(long double E, long double Temp)
 	long double x0 = -.2456153061*Temp+1.7335339796;	//Center point of Lorentz distribution
 	long double On_shell = 1.4774044808*pow(Temp,-.1820953988);	//Location and then value of self-energy
 	On_shell = Norm*Scale/M_PI*pow(tanh(Slope*On_shell),2)*(1/(pow(On_shell-x0,2)+pow(Scale,2))-1/(pow(On_shell+x0,2)+pow(Scale,2)));
+	
 	return(Norm*Scale/M_PI*pow(tanh(Slope*E),2)*(1/(pow(E-x0,2)+pow(Scale,2))-1/(pow(E+x0,2)+pow(Scale,2)))/On_shell);
 }
 
@@ -265,6 +266,29 @@ inline long double LawCosines(long double P, long double k, long double theta)	/
 
 long double Self_Energy(long double Temp, long double P) //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)) as an approximation to the self-energy
 {
+	switch(Temp)
+	{
+		case 1.2:
+			a=.752195818;
+			Sigma=.020920502;
+			sigma1=7.216088615;
+			sigma2=1.817672774;
+			break;
+		case 1.5:
+			a=.747642318;
+			Sigma=.023096234;
+			sigma1=7.335460483;
+			sigma2=1.790144764;
+			break;
+		case 2:
+			a=.749248895;
+			Sigma=.033138075;
+			sigma1=7.528045113;
+			sigma2=1.696495633;
+			break;
+	}
+	
+	
 	long double a = -.0029798968*Temp+.7543641819;
 	long double Sigma = -.0170377213*pow(Temp,(long double).9171377573);
 	long double sigma1 = .3894582392*Temp+6.7497134958;
