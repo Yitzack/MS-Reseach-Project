@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
 	ofstream TPlot(File);
-	const long double Temp = atof(argv[3]);
+	const int Temp = atoi(argv[3]);
 	const long double Mass_c = 1.8;		//Mass of the quarks (charm = 1.8GeV, bottom = 5GeV)
 	const long double Mass_b = 5.25;		//Mass of the quarks (charm = 1.8GeV, bottom = 5GeV)
 #ifdef DELTAE
@@ -33,14 +33,14 @@ int main(int argc, char* argv[])
 	long double P = 5;	//Momentum and sqrt(s)
 	int Frame = 0;	//Frame count
 	int i,j;	//counters
-	const int iProcess = atoi(argv[1]);
+	const int iProcess = atoi(argv[1]) % atoi(argv[2]);
 	const int Total = atoi(argv[2]);
 	complex<long double> TMat;
 	long double Table[462][2];
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 
-	for(i = 750; i <= 750; i++)
+	for(i = 0; i <= 751; i++)
 	{
 		P = i*.8;
 		#pragma omp parallel for
