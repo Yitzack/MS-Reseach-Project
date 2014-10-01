@@ -6,24 +6,24 @@
 using namespace std;
 
 inline long double Energy(long double, long double, long double, long double);	//Returns sqrt(M^2+p^2+k^2-pk cos(theta))
-long double ReInt(long double[6], long double, long double, long double);	//Returns the real part of the integrad from 2p_0 to infinity
-long double ImInt(long double[6], long double, long double, long double);	//Returns the imaginary part of the integrad from 2p_0 to infinity
-long double Integrate1(long double, long double, long double, long double, long double(*)(long double[6], long double, long double, long double), long double[6], long double, long double);	//Integrates the part that it is told to integrate. It uses the difference in evaluating the trapaziod rule and Simpson's rule to pick the points that it integrate between. Since the Gaussian quadrature is very accuate for using very few points (2n-1 order polynomial accurate with n points), it then returns the Gaussian quadrature for 3 points on that subinterval.
-long double Integrate2(long double, long double, long double, long double, long double, long double, long double(*)(long double[6], long double, long double, long double), long double[6], long double);	//Contains more brains than Integrate1() as it will need to divide the integral into 2 parts and pass the endpoints down for faster times but it uses the same algorithm to acheive its results.
-long double Self_Energy(long double, long double); //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)), this is my choice of function for the self-energy
-inline long double ReProp(long double[6], long double, long double, long double);	//Returns the real part of the propagator
-inline long double ImProp(long double[6], long double, long double, long double);	//Returns the imaginary part of the propagator
+long double ReInt(long double[6], long double, long double, int);	//Returns the real part of the integrad from 2p_0 to infinity
+long double ImInt(long double[6], long double, long double, int);	//Returns the imaginary part of the integrad from 2p_0 to infinity
+long double Integrate1(long double, long double, long double, long double, long double(*)(long double[6], long double, long double, int), long double[6], long double, int);	//Integrates the part that it is told to integrate. It uses the difference in evaluating the trapaziod rule and Simpson's rule to pick the points that it integrate between. Since the Gaussian quadrature is very accuate for using very few points (2n-1 order polynomial accurate with n points), it then returns the Gaussian quadrature for 3 points on that subinterval.
+long double Integrate2(long double, long double, long double, long double, long double, long double, long double(*)(long double[6], long double, long double, int), long double[6], int);	//Contains more brains than Integrate1() as it will need to divide the integral into 2 parts and pass the endpoints down for faster times but it uses the same algorithm to acheive its results.
+long double Self_Energy(int, long double); //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)), this is my choice of function for the self-energy
+inline long double ReProp(long double[6], long double, long double, int);	//Returns the real part of the propagator
+inline long double ImProp(long double[6], long double, long double, int);	//Returns the imaginary part of the propagator
 inline long double LawCosines(long double, long double, long double);	//Returns the law of cosines for two vectors with an angle inbetween.
 inline long double Potential(long double[6], long double, long double);	//Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
-inline long double Common(long double[6], long double, long double, long double);	//Returns the common part of propagators
-inline long double Self_E_Depends(long double, long double);	//Contains a function that will give a dependance on E and Temp for the self-energy
-complex<long double> TMatrix(long double, long double, long double, long double);	//Returns the T-matrix for a given M, P, E=sqrt(s), and T
-long double Spectral(long double, long double, long double, long double);	//Returns the spectral function of the T-matrix
-long double G_0Int(long double[6], long double, long double, long double);	//Returns the integrand for G_0. This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
-long double ReDelta_GInt(long double[6], long double, long double, long double);	//Returns the real part of the Delta G integrand
-long double ImDelta_GInt(long double[6], long double, long double, long double);	//Returns the imaginary part of the Delta G integrand
+inline long double Common(long double[6], long double, long double, int);	//Returns the common part of propagators
+inline long double Self_E_Depends(long double, int);	//Contains a function that will give a dependance on E and Temp for the self-energy
+complex<long double> TMatrix(long double, long double, long double, int);	//Returns the T-matrix for a given M, P, E=sqrt(s), and T
+long double Spectral(long double, long double, long double, int);	//Returns the spectral function of the T-matrix
+long double G_0Int(long double[6], long double, long double, int);	//Returns the integrand for G_0. This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
+long double ReDelta_GInt(long double[6], long double, long double, int);	//Returns the real part of the Delta G integrand
+long double ImDelta_GInt(long double[6], long double, long double, int);	//Returns the imaginary part of the Delta G integrand
 inline long double Potential1(long double[6], long double, long double);	//Returns one of the factors of the potiential that is in Potential() without the coupling constant.
-long double Fermi(long double[6], long double, long double, long double);	//Returns the fermi factor (1-2n_f(E;T))
+long double Fermi(long double[6], long double, long double, int);	//Returns the fermi factor (1-2n_f(E;T))
 long double Analytic(long double, long double);	//The analytic spectral function for vacuum, which is constant in P
 long double ApproxSpectral(long double, long double);
 inline complex<long double> arctan(complex<long double>);
@@ -101,7 +101,7 @@ long double Analytic(long double E, long double Epsilon)	//This strictly vacuum,
 	return(-18./M_PI*(Non+CC*(pow(Num,(long double)(2.))/(complex<long double>(1.,0)-Den))).imag());
 }
 
-inline long double Self_E_Depends(long double E, long double Temp)
+inline long double Self_E_Depends(long double E, int Temp)
 {
 	E /= 2.;
 	long double Slope = .007085102x+.5463516735;	//slope of tanh(Slope E) when E=0
@@ -110,11 +110,36 @@ inline long double Self_E_Depends(long double E, long double Temp)
 	long double x0 = -.2456153061*Temp+1.7335339796;	//Center point of Lorentz distribution
 	long double On_shell = 1.4774044808*pow(Temp,-.1820953988);	//Location and then value of self-energy
 	On_shell = Norm*Scale/M_PI*pow(tanh(Slope*On_shell),2)*(1/(pow(On_shell-x0,2)+pow(Scale,2))-1/(pow(On_shell+x0,2)+pow(Scale,2)));
-	
+
+	switch(Temp)
+	{
+		case 0:
+			Slope=.557694;
+			Norm=.0575641;
+			Scale=.378521;
+			x0=1.43594;
+			On_shell=1.432926829;
+			break;
+		case 1:
+			Slope=.552435;
+			Norm=.0900165;
+			Scale=.500969;
+			x0=1.36968;
+			On_shell=1.365853659;
+			break;
+		case 2:
+			Slope=.562226;
+			Norm=.189819;
+			Scale=.667003;
+			x0=1.24059;
+			On_shell=1.304878049;
+			break;
+	}
+
 	return(Norm*Scale/M_PI*pow(tanh(Slope*E),2)*(1/(pow(E-x0,2)+pow(Scale,2))-1/(pow(E+x0,2)+pow(Scale,2)))/On_shell);
 }
 
-long double Spectral(long double M, long double P, long double E, long double Temp)
+long double Spectral(long double M, long double P, long double E, int Temp)
 {
 	long double Par[6] = {CC, Lambda, M, P, E};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
 	long double G_0;	//The imaginary part of G_0
@@ -160,7 +185,7 @@ long double Spectral(long double M, long double P, long double E, long double Te
 	return(-2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag()));
 }
 
-long double Fermi(long double Par[6], long double k, long double theta, long double T)
+long double Fermi(long double Par[6], long double k, long double theta, int T)
 {
 	long double Temp = .196*T;	//T_c = .196GeV = 196MeV
 
@@ -170,17 +195,17 @@ long double Fermi(long double Par[6], long double k, long double theta, long dou
 		return(1./(exp(Energy(Par[2], Par[3]/2., k, theta)/Temp)+1.));	//Fermi factor
 }
 
-long double G_0Int(long double Par[6], long double k, long double theta, long double Temp)	//This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
+long double G_0Int(long double Par[6], long double k, long double theta, int Temp)	//This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 {
 	return(ImProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp))*sin(theta)*k*k);
 }
 
-long double ReDelta_GInt(long double Par[6], long double k, long double theta, long double Temp)
+long double ReDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
 {
 	return(k*k*sin(theta)*ReProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*Potential1(Par, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
 }
 
-long double ImDelta_GInt(long double Par[6], long double k, long double theta, long double Temp)
+long double ImDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
 {
 	return(k*k*sin(theta)*ImProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*Potential1(Par, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
 }
@@ -190,7 +215,7 @@ inline long double Potential1(long double Par[6], long double k, long double the
 	return(pow(Par[1],2)/(pow(Par[1],2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.));
 }
 
-complex<long double> TMatrix(long double M, long double P, long double E, long double Temp)
+complex<long double> TMatrix(long double M, long double P, long double E, int Temp)
 {
 	complex<long double> Int_Holder;	//Holder for the result of the integration, allows it to be calculated once
 	long double Parameters[6] = {CC, Lambda, M, P, E};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
@@ -224,27 +249,27 @@ complex<long double> TMatrix(long double M, long double P, long double E, long d
 }
 
 //Parameters = g, Lambda, M, |vec p|, E=sqrt(s)
-long double ReInt(long double Par[6], long double k, long double theta, long double Temp)	//Returns the real part of the integrand
+long double ReInt(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the integrand
 {
 	return(ReProp(Par, k, theta, Temp)*Potential(Par, k, theta)*Common(Par,k,theta,Temp)*sin(theta)*k*k);
 }
 
-long double ImInt(long double Par[6], long double k, long double theta, long double Temp)	//Returns the imaginary part of the integrand
+long double ImInt(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the integrand
 {
 	return(ImProp(Par, k, theta, Temp)*Potential(Par, k, theta)*Common(Par,k,theta,Temp)*sin(theta)*k*k);
 }
 
-inline long double Common(long double Par[6], long double k, long double theta, long double Temp)	//Returns the common part of both propagators
+inline long double Common(long double Par[6], long double k, long double theta, int Temp)	//Returns the common part of both propagators
 {
 	return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4], 2)));
 }
 
-inline long double ReProp(long double Par[6], long double k, long double theta, long double Temp)	//Returns the real part of the propagator
+inline long double ReProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the propagator
 {
 	return(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2));
 }
 
-inline long double ImProp(long double Par[6], long double k, long double theta, long double Temp)	//Returns the imaginary part of the propagator
+inline long double ImProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the propagator
 {
 	return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4]);
 }
@@ -264,17 +289,22 @@ inline long double LawCosines(long double P, long double k, long double theta)	/
 	return(sqrt(pow(P,2)+pow(k,2)-2.*P*k*cos(theta)));
 }
 
-long double Self_Energy(long double Temp, long double P) //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)) as an approximation to the self-energy
+long double Self_Energy(int Temp, long double P) //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)) as an approximation to the self-energy
 {
+	long double a;
+	long double Sigma;
+	long double sigma1;
+	long double sigma2;
+
 	switch(Temp)
 	{
-		case 1.2:
+		case 0:
 			a=.752195818;
 			Sigma=.020920502;
 			sigma1=7.216088615;
 			sigma2=1.817672774;
 			break;
-		case 1.5:
+		case 1:
 			a=.747642318;
 			Sigma=.023096234;
 			sigma1=7.335460483;
@@ -288,17 +318,11 @@ long double Self_Energy(long double Temp, long double P) //Returns Sigma*(a*Lamb
 			break;
 	}
 	
-	
-	long double a = -.0029798968*Temp+.7543641819;
-	long double Sigma = -.0170377213*pow(Temp,(long double).9171377573);
-	long double sigma1 = .3894582392*Temp+6.7497134958;
-	long double sigma2 = -.1551272263*Temp+2.0111370449;
-
 	return(Sigma*(a*exp(-P*P/(sigma1*sigma1))+(1-a)*exp(-P*P/(sigma2*sigma2))));
 }
 
 
-long double Integrate2(long double a, long double b, long double F_a, long double F_b, long double c, long double d, long double(*Integrand)(long double[6], long double, long double, long double), long double Parameters[6], long double Temp)
+long double Integrate2(long double a, long double b, long double F_a, long double F_b, long double c, long double d, long double(*Integrand)(long double[6], long double, long double, int), long double Parameters[6], int Temp)
 {
 	long double F_c = Integrand(Parameters, c, (a+b)/2., Temp);	//Inital end points of the boundary
 	long double F_d = Integrand(Parameters, d, (a+b)/2., Temp);
@@ -334,7 +358,7 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 	}
 }
 
-long double Integrate1(long double a, long double b, long double F_a, long double F_b, long double(*Integrand)(long double[6], long double, long double, long double), long double Parameters[6], long double theta, long double Temp)
+long double Integrate1(long double a, long double b, long double F_a, long double F_b, long double(*Integrand)(long double[6], long double, long double, int), long double Parameters[6], long double theta, int Temp)
 {
 	long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center for Gauss-Legendre integration
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of the function at Disp
