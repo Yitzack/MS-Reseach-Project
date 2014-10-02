@@ -113,25 +113,25 @@ inline long double Self_E_Depends(long double E, int Temp)
 	switch(Temp)
 	{
 		case 0:
-			Slope=.557694;
-			Norm=.0575641;
-			Scale=.378521;
-			x0=1.43594;
-			On_shell=1.432926829;
+			Slope = .557694;
+			Norm = .0575641;
+			Scale = .378521;
+			x0 = 1.43594;
+			On_shell = 1.432926829;
 			break;
 		case 1:
-			Slope=.552435;
-			Norm=.0900165;
-			Scale=.500969;
-			x0=1.36968;
-			On_shell=1.365853659;
+			Slope = .552435;
+			Norm = .0900165;
+			Scale = .500969;
+			x0 = 1.36968;
+			On_shell = 1.365853659;
 			break;
 		case 2:
-			Slope=.562226;
-			Norm=.189819;
-			Scale=.667003;
-			x0=1.24059;
-			On_shell=1.304878049;
+			Slope = .562226;
+			Norm = .189819;
+			Scale = .667003;
+			x0 = 1.24059;
+			On_shell = 1.304878049;
 			break;
 	}
 
@@ -300,22 +300,22 @@ long double Self_Energy(int Temp, long double P) //Returns Sigma*(a*Lambda^2/(La
 	switch(Temp)
 	{
 		case 0:
-			a=.752195818;
-			Sigma=.020920502;
-			sigma1=7.216088615;
-			sigma2=1.817672774;
+			a = .752195818;
+			Sigma = -.020920502;
+			sigma1 = 7.216088615;
+			sigma2 = 1.817672774;
 			break;
 		case 1:
-			a=.747642318;
-			Sigma=.023096234;
-			sigma1=7.335460483;
-			sigma2=1.790144764;
+			a = .747642318;
+			Sigma = -.023096234;
+			sigma1 = 7.335460483;
+			sigma2 = 1.790144764;
 			break;
 		case 2:
-			a=.749248895;
-			Sigma=.033138075;
-			sigma1=7.528045113;
-			sigma2=1.696495633;
+			a = .749248895;
+			Sigma = -.033138075;
+			sigma1 = 7.528045113;
+			sigma2 = 1.696495633;
 			break;
 	}
 	
