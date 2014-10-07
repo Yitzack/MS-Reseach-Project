@@ -72,7 +72,7 @@ long double Integrate2(long double*** Table, long double z)
 	long double distance[] = {5e-2, 2e-2, 1.5e-2, 1e-2, 2.5e-3, 1e-4, 1e-5, 1e-6};	//Stride of the integral
 	long double Answer = 0;
 	long double F_a, F_b, F_ave;
-	long double a = 1;
+	long double a = 0;
 	long double b = 0;
 	int i, j;
 
