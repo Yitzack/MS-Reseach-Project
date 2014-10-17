@@ -113,20 +113,23 @@ inline long double Self_E_Depends(long double E, int Temp)
 	switch(Temp)
 	{
 		case 0:
+			return(0);	//Return 0 because we have zero temp, vacuum
+			break;
+		case 1:
 			Slope = .557694;
 			Norm = .0575641;
 			Scale = .378521;
 			x0 = 1.43594;
 			On_shell = 1.432926829;
 			break;
-		case 1:
+		case 2:
 			Slope = .552435;
 			Norm = .0900165;
 			Scale = .500969;
 			x0 = 1.36968;
 			On_shell = 1.365853659;
 			break;
-		case 2:
+		case 3:
 			Slope = .562226;
 			Norm = .189819;
 			Scale = .667003;
@@ -188,12 +191,25 @@ long double Spectral(long double M, long double P, long double E, int Temp)
 
 long double Fermi(long double Par[6], long double k, long double theta, int T)
 {
-	long double Temp = .196*T;	//T_c = .196GeV = 196MeV
+	long double Temp;	//T_c = .196GeV = 196MeV
 
-	if(T == 0)
-		return(0);
-	else
-		return(1./(exp(Energy(Par[2], Par[3]/2., k, theta)/Temp)+1.));	//Fermi factor
+	switch(T)
+	{
+		case 0:
+			return(0);
+			break;
+		case 1:
+			Temp = .196*1.2;
+			break;
+		case 2:
+			Temp = .196*1.5;
+			break;
+		case 3:
+			Temp = .196*2.;
+			break;
+	}
+
+	return(1./(exp(Energy(Par[2], Par[3]/2., k, theta)/Temp)+1.));	//Fermi factor
 }
 
 long double G_0Int(long double Par[6], long double k, long double theta, int Temp)	//This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
@@ -300,18 +316,21 @@ long double Self_Energy(int Temp, long double P) //Returns Sigma*(a*Lambda^2/(La
 	switch(Temp)
 	{
 		case 0:
+			return(0);	//Return 0 because we have zero temp, vacuum
+			break;
+		case 1:
 			a = .752195818;
 			Sigma = -.020920502;
 			sigma1 = 7.216088615;
 			sigma2 = 1.817672774;
 			break;
-		case 1:
+		case 2:
 			a = .747642318;
 			Sigma = -.023096234;
 			sigma1 = 7.335460483;
 			sigma2 = 1.790144764;
 			break;
-		case 2:
+		case 3:
 			a = .749248895;
 			Sigma = -.033138075;
 			sigma1 = 7.528045113;
