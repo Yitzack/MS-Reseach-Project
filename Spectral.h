@@ -104,7 +104,7 @@ long double Analytic(long double E, long double Epsilon)	//Vacuum doesn't need s
 inline long double Self_E_Depends(long double E, long double Temp)
 {
 	E /= 2.;
-	long double Slope = .007085102x+.5463516735;	//slope of tanh(Slope E) when E=0
+	long double Slope = .007085102*Temp+.5463516735;	//slope of tanh(Slope E) when E=0
 	long double Norm = .0096110705*exp(1.4915353721*Temp);	//Area of the Lorentz distribution
 	long double Scale = .3133436801*pow(Temp,1.1036545737);	//Scale/shape factor of Lorentz distribution
 	long double x0 = -.2456153061*Temp+1.7335339796;	//Center point of Lorentz distribution
