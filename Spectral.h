@@ -220,7 +220,7 @@ long double Spectral(long double M, long double P, long double E, int Temp)
 	F_b = Integrate1(c, d, F_c, F_d, ImDelta_GInt, Par, b, Temp);
 
 	Num += complex<long double>(0,Integrate2(a, b, F_a, F_b, c, d, ImDelta_GInt, Par, Temp));
-	long double CC = Par[0]-.3*Par[0]*Self_Energy(Par[3], Temp);	//Will cause the value to start at .7 of initial value and return to the vacuum value as momentum increases
+	long double CC = Par[0]-.3*Par[0]*Self_Energy(Temp, Par[3]);	//Will cause the value to start at .7 of initial value and return to the vacuum value as momentum increases
 
 	return(-2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag()));
 }
@@ -265,7 +265,7 @@ long double ImDelta_GInt(long double Par[6], long double k, long double theta, i
 
 inline long double Potential1(long double Par[6], long double k, long double theta, int Temp)
 {
-	long double Lambda = Par[1]-.3*Par[1]*Self_Energy(Par[3], Temp);	//Will cause the value to start at .7 of initial value and return to the vacuum value as momentum increases
+	long double Lambda = Par[1]-.3*Par[1]*Self_Energy(Temp, Par[3]);	//Will cause the value to start at .7 of initial value and return to the vacuum value as momentum increases
 
 	return(pow(Lambda,2)/(pow(Lambda,2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.));
 }
@@ -331,8 +331,8 @@ inline long double ImProp(long double Par[6], long double k, long double theta, 
 
 inline long double Potential(long double Par[6], long double k, long double theta, int Temp)	//Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
 {
-	long double Lambda = Par[1]-.3*Par[1]*Self_Energy(Par[3], Temp);	//Will cause the value to start at .7 of initial value and return to the vacuum value as momentum increases
-	long double CC = Par[0]-.3*Par[0]*Self_Energy(Par[3], Temp);
+	long double Lambda = Par[1]-.3*Par[1]*Self_Energy(Temp, Par[3]);	//Will cause the value to start at .7 of initial value and return to the vacuum value as momentum increases
+	long double CC = Par[0]-.3*Par[0]*Self_Energy(Temp, Par[3]);
 	
 	return(CC*pow(pow(Lambda,2)/(pow(Lambda,2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.), 2));
 }
