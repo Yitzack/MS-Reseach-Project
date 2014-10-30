@@ -16,7 +16,7 @@ inline long double ImProp(long double[6], long double, long double, int);	//Retu
 inline long double LawCosines(long double, long double, long double);	//Returns the law of cosines for two vectors with an angle inbetween.
 inline long double Potential(long double[6], long double, long double, int);	//Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
 inline long double Common(long double[6], long double, long double, int);	//Returns the common part of propagators
-inline long double Self_E_Depends(long double, int);	//Contains a function that will give a dependance on E and Temp for the self-energy
+inline long double Self_E_Depends(long double, long double, int);	//Contains a function that will give a dependance on E and Temp for the self-energy
 complex<long double> TMatrix(long double, long double, long double, int);	//Returns the T-matrix for a given M, P, E=sqrt(s), and T
 long double Spectral(long double, long double, long double, int);	//Returns the spectral function of the T-matrix
 long double G_0Int(long double[6], long double, long double, int);	//Returns the integrand for G_0. This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
@@ -89,7 +89,7 @@ long double Analytic(long double E, long double Epsilon)	//This strictly vacuum,
 	complex<long double> SEpsilon(E*E/4.,Epsilon*E);
 	complex<long double> MLambda1(pow(Lambda/2.,2)-M*M,0);
 	complex<long double> MLambda2(pow(M/Lambda,2)-.25,0);
-	complex<long double> SMLambdaEpsilon((E*E+pow(Lambda,2))/4.-M*M,Epsilon*E*Self_E_Depends(E,0));
+	complex<long double> SMLambdaEpsilon((E*E+pow(Lambda,2))/4.-M*M,Epsilon*E*Self_E_Depends(E,1.,0));
 	complex<long double> Num, Den, Non;
 
 	Num = complex<long double>(pow(Lambda*M/(4.*M_PI),2),0)*(complex<long double>(2,0)*sqrt(MLambda1*SMEpsilon)*arctan(sqrt(-SEpsilon/SMEpsilon))-complex<long double>(Lambda,0)*sqrt(SEpsilon)*arctan(complex<long double>(2,0)*sqrt(MLambda2)))/(sqrt(SEpsilon*-MLambda1)*SMLambdaEpsilon);
@@ -132,7 +132,7 @@ long double Self_Energy(int Temp, long double P) //Returns Sigma*(a*Lambda^2/(La
 	return(a*exp(-P*P/(sigma1*sigma1))+(1-a)*exp(-P*P/(sigma2*sigma2)));
 }
 
-long double Self_E_Depends(long double E, int Temp)
+long double Self_E_Depends(long double E, long double P, int Temp)
 {
 	E /= 2.;
 	long double Sigma;	//Value of self-energy when E is on-shell
@@ -172,6 +172,9 @@ long double Self_E_Depends(long double E, int Temp)
 			On_shell = 1.304878049;
 			break;
 	}
+	
+	x0 *= 1.+Self_Energy(Temp, P)/6.;	//This will add 1/6 of the orginal value for the position parameters and move them up to where the bound state is and it should track it back to vacuum as the momentum increases
+	On_shell *= 1.+Self_Energy(Temp, P)/6.;
 
 	On_shell = pow(tanh(Slope*On_shell),2)*(1/(pow(On_shell-x0,2)+pow(Scale,2))-1/(pow(On_shell+x0,2)+pow(Scale,2)));
 
@@ -316,17 +319,17 @@ long double ImInt(long double Par[6], long double k, long double theta, int Temp
 
 inline long double Common(long double Par[6], long double k, long double theta, int Temp)	//Returns the common part of both propagators
 {
-	return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4], 2)));
+	return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Par[3]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Par[3]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Par[3]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Par[3]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4], 2)));
 }
 
 inline long double ReProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the propagator
 {
-	return(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2));
+	return(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Par[3]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Par[3]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2));
 }
 
 inline long double ImProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the propagator
 {
-	return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4]);
+	return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Par[3]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Par[3]/2.,Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4]);
 }
 
 inline long double Potential(long double Par[6], long double k, long double theta, int Temp)	//Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
