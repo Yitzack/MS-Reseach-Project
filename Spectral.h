@@ -14,7 +14,7 @@ long double Self_Energy(int, long double); //Returns Sigma*(a*Lambda^2/(Lambda^2
 inline long double ReProp(long double[6], long double, long double, int);	//Returns the real part of the propagator
 inline long double ImProp(long double[6], long double, long double, int);	//Returns the imaginary part of the propagator
 inline long double LawCosines(long double, long double, long double);	//Returns the law of cosines for two vectors with an angle inbetween.
-inline long double Potential(long double[6], long double, long double);	//Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
+inline long double Potential(long double[6], long double, long double, int);	//Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
 inline long double Common(long double[6], long double, long double, int);	//Returns the common part of propagators
 inline long double Self_E_Depends(long double, int);	//Contains a function that will give a dependance on E and Temp for the self-energy
 complex<long double> TMatrix(long double, long double, long double, int);	//Returns the T-matrix for a given M, P, E=sqrt(s), and T
@@ -22,7 +22,7 @@ long double Spectral(long double, long double, long double, int);	//Returns the 
 long double G_0Int(long double[6], long double, long double, int);	//Returns the integrand for G_0. This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 long double ReDelta_GInt(long double[6], long double, long double, int);	//Returns the real part of the Delta G integrand
 long double ImDelta_GInt(long double[6], long double, long double, int);	//Returns the imaginary part of the Delta G integrand
-inline long double Potential1(long double[6], long double, long double);	//Returns one of the factors of the potiential that is in Potential() without the coupling constant.
+inline long double Potential1(long double[6], long double, long double, int);	//Returns one of the factors of the potiential that is in Potential() without the coupling constant.
 long double Fermi(long double[6], long double, long double, int);	//Returns the fermi factor (1-2n_f(E;T))
 long double Analytic(long double, long double);	//The analytic spectral function for vacuum, which is constant in P
 long double ApproxSpectral(long double, long double);
@@ -101,9 +101,41 @@ long double Analytic(long double E, long double Epsilon)	//This strictly vacuum,
 	return(-18./M_PI*(Non+CC*(pow(Num,(long double)(2.))/(complex<long double>(1.,0)-Den))).imag());
 }
 
-inline long double Self_E_Depends(long double E, int Temp)
+long double Self_Energy(int Temp, long double P) //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)) as an approximation to the self-energy
+{
+	long double a;		//Amount of mixing linear combinition of the gaussian terms
+	long double sigma1;	//Scale of the first gaussian term
+	long double sigma2;	//Scale of the second gaussian term
+
+	switch(Temp)
+	{
+		case 0:
+			return(0);	//Return 0 because we have zero temp, vacuum
+			break;
+		case 1:
+			a = .752195818;
+			sigma1 = 7.216088615;
+			sigma2 = 1.817672774;
+			break;
+		case 2:
+			a = .747642318;
+			sigma1 = 7.335460483;
+			sigma2 = 1.790144764;
+			break;
+		case 3:
+			a = .749248895;
+			sigma1 = 7.528045113;
+			sigma2 = 1.696495633;
+			break;
+	}
+	
+	return(a*exp(-P*P/(sigma1*sigma1))+(1-a)*exp(-P*P/(sigma2*sigma2)));
+}
+
+long double Self_E_Depends(long double E, int Temp)
 {
 	E /= 2.;
+	long double Sigma;	//Value of self-energy when E is on-shell
 	long double Slope;	//slope of tanh(Slope E) when E=0
 	long double Norm;	//Area of the Lorentz distribution
 	long double Scale;	//Scale/shape factor of Lorentz distribution
@@ -116,6 +148,7 @@ inline long double Self_E_Depends(long double E, int Temp)
 			return(0);	//Return 0 because we have zero temp, vacuum
 			break;
 		case 1:
+			Sigma = -.020920502;
 			Slope = .557694;
 			Norm = .0575641;
 			Scale = .378521;
@@ -123,6 +156,7 @@ inline long double Self_E_Depends(long double E, int Temp)
 			On_shell = 1.432926829;
 			break;
 		case 2:
+			Sigma = -.023096234;
 			Slope = .552435;
 			Norm = .0900165;
 			Scale = .500969;
@@ -130,6 +164,7 @@ inline long double Self_E_Depends(long double E, int Temp)
 			On_shell = 1.365853659;
 			break;
 		case 3:
+			Sigma = -.033138075;
 			Slope = .562226;
 			Norm = .189819;
 			Scale = .667003;
@@ -138,9 +173,9 @@ inline long double Self_E_Depends(long double E, int Temp)
 			break;
 	}
 
-	On_shell = Norm*Scale/M_PI*pow(tanh(Slope*On_shell),2)*(1/(pow(On_shell-x0,2)+pow(Scale,2))-1/(pow(On_shell+x0,2)+pow(Scale,2)));
+	On_shell = pow(tanh(Slope*On_shell),2)*(1/(pow(On_shell-x0,2)+pow(Scale,2))-1/(pow(On_shell+x0,2)+pow(Scale,2)));
 
-	return(Norm*Scale/M_PI*pow(tanh(Slope*E),2)*(1/(pow(E-x0,2)+pow(Scale,2))-1/(pow(E+x0,2)+pow(Scale,2)))/On_shell);
+	return(Sigma*pow(tanh(Slope*E),2)*(1/(pow(E-x0,2)+pow(Scale,2))-1/(pow(E+x0,2)+pow(Scale,2)))/On_shell);
 }
 
 long double Spectral(long double M, long double P, long double E, int Temp)
@@ -185,6 +220,7 @@ long double Spectral(long double M, long double P, long double E, int Temp)
 	F_b = Integrate1(c, d, F_c, F_d, ImDelta_GInt, Par, b, Temp);
 
 	Num += complex<long double>(0,Integrate2(a, b, F_a, F_b, c, d, ImDelta_GInt, Par, Temp));
+	long double CC = Par[0]-.3*Par[0]*Self_Energy(Par[3], Temp);	//Will cause the value to start at .7 of initial value and return to the vacuum value as momentum increases
 
 	return(-2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag()));
 }
@@ -219,17 +255,19 @@ long double G_0Int(long double Par[6], long double k, long double theta, int Tem
 
 long double ReDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
 {
-	return(k*k*sin(theta)*ReProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*Potential1(Par, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
+	return(k*k*sin(theta)*ReProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*Potential1(Par, k, theta, Temp)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
 }
 
 long double ImDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
 {
-	return(k*k*sin(theta)*ImProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*Potential1(Par, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
+	return(k*k*sin(theta)*ImProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*Potential1(Par, k, theta, Temp)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
 }
 
 inline long double Potential1(long double Par[6], long double k, long double theta)
 {
-	return(pow(Par[1],2)/(pow(Par[1],2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.));
+	long double Lambda = Par[1]-.3*Par[1]*Self_Energy(Par[3], Temp);	//Will cause the value to start at .7 of initial value and return to the vacuum value as momentum increases
+
+	return(pow(Lambda,2)/(pow(Lambda,2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.));
 }
 
 complex<long double> TMatrix(long double M, long double P, long double E, int Temp)
@@ -268,12 +306,12 @@ complex<long double> TMatrix(long double M, long double P, long double E, int Te
 //Parameters = g, Lambda, M, |vec p|, E=sqrt(s)
 long double ReInt(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the integrand
 {
-	return(ReProp(Par, k, theta, Temp)*Potential(Par, k, theta)*Common(Par,k,theta,Temp)*sin(theta)*k*k);
+	return(ReProp(Par, k, theta, Temp)*Potential(Par, k, theta, Temp)*Common(Par,k,theta,Temp)*sin(theta)*k*k);
 }
 
 long double ImInt(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the integrand
 {
-	return(ImProp(Par, k, theta, Temp)*Potential(Par, k, theta)*Common(Par,k,theta,Temp)*sin(theta)*k*k);
+	return(ImProp(Par, k, theta, Temp)*Potential(Par, k, theta, Temp)*Common(Par,k,theta,Temp)*sin(theta)*k*k);
 }
 
 inline long double Common(long double Par[6], long double k, long double theta, int Temp)	//Returns the common part of both propagators
@@ -293,7 +331,10 @@ inline long double ImProp(long double Par[6], long double k, long double theta, 
 
 inline long double Potential(long double Par[6], long double k, long double theta)	//Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
 {
-	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.), 2));
+	long double Lambda = Par[1]-.3*Par[1]*Self_Energy(Par[3], Temp);	//Will cause the value to start at .7 of initial value and return to the vacuum value as momentum increases
+	long double CC = Par[0]-.3*Par[0]*Self_Energy(Par[3], Temp);
+	
+	return(CC*pow(pow(Lambda,2)/(pow(Lambda,2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.), 2));
 }
 
 inline long double Energy(long double M, long double P, long double k, long double theta)	//Returns twice the energy sqrt(M^2+(vec P/2+vec k)^2)
@@ -305,42 +346,6 @@ inline long double LawCosines(long double P, long double k, long double theta)	/
 {
 	return(sqrt(pow(P,2)+pow(k,2)-2.*P*k*cos(theta)));
 }
-
-long double Self_Energy(int Temp, long double P) //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)) as an approximation to the self-energy
-{
-	long double a;
-	long double Sigma;
-	long double sigma1;
-	long double sigma2;
-
-	switch(Temp)
-	{
-		case 0:
-			return(0);	//Return 0 because we have zero temp, vacuum
-			break;
-		case 1:
-			a = .752195818;
-			Sigma = -.020920502;
-			sigma1 = 7.216088615;
-			sigma2 = 1.817672774;
-			break;
-		case 2:
-			a = .747642318;
-			Sigma = -.023096234;
-			sigma1 = 7.335460483;
-			sigma2 = 1.790144764;
-			break;
-		case 3:
-			a = .749248895;
-			Sigma = -.033138075;
-			sigma1 = 7.528045113;
-			sigma2 = 1.696495633;
-			break;
-	}
-	
-	return(Sigma*(a*exp(-P*P/(sigma1*sigma1))+(1-a)*exp(-P*P/(sigma2*sigma2))));
-}
-
 
 long double Integrate2(long double a, long double b, long double F_a, long double F_b, long double c, long double d, long double(*Integrand)(long double[6], long double, long double, int), long double Parameters[6], int Temp)
 {
