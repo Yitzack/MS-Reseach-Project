@@ -135,10 +135,10 @@ long double Self_Energy(int Temp, long double P) //Returns Sigma*(a*Lambda^2/(La
 inline long double Self_E_Depends(long double E, int Temp)
 {
 	E /= 2.;
-	Sigma;	//size of energy dependance
-	gamma;	//width of lorentzian
-	x_0;	//location of lorentzian
-	a, b;	//Exponential parameters, length and power
+	long double Sigma;	//size of energy dependance
+	long double gamma;	//width of lorentzian
+	long double E_0;	//location of lorentzian
+	long double a, b;	//Exponential parameters, length and power
 
 	switch(Temp)
 	{
@@ -148,28 +148,28 @@ inline long double Self_E_Depends(long double E, int Temp)
 		case 1:
 			Sigma = .136974;
 			gamma = .322873;
-			x_0 = 1.65527;
+			E_0 = 1.65527;
 			a = .99384;
 			b = 8.04018;
 			break;
 		case 2:
 			Sigma = .125014;
 			gamma = .385614;
-			x_0 = 1.54976;
+			E_0 = 1.54976;
 			a = .830611;
 			b = 5.21037;
 			break;
 		case 3:
 			Sigma = .165478;
 			gamma = .540142;
-			x_0 = 1.53581;
+			E_0 = 1.53581;
 			a = .666388;
 			b = 6.76661;
 			break;
 	}
 
 
-	return(exp(-pow(abs(a/x),b))*Sigma*gamma/M_PI*(1/(pow(x+x_0,2)+pow(gamma,2))-1/(pow(x-x_0,2)+pow(gamma,2))));
+	return(exp(-pow(abs(a/E),b))*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
 }
 
 long double Spectral(long double M, long double P, long double E, int Temp)
