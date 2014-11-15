@@ -101,14 +101,11 @@ long double Analytic(long double E, long double Epsilon)	//This strictly vacuum,
 	return(-18./M_PI*(Non+CC*(pow(Num,(long double)(2.))/(complex<long double>(1.,0)-Den))).imag());
 }
 
-inline long double Self_E_Depends(long double E, int Temp)
+long double Self_Energy(int Temp, long double P) //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)) as an approximation to the self-energy
 {
-	E /= 2.;
-	long double Slope;	//slope of tanh(Slope E) when E=0
-	long double Norm;	//Area of the Lorentz distribution
-	long double Scale;	//Scale/shape factor of Lorentz distribution
-	long double x0;	//Center point of Lorentz distribution
-	long double On_shell;	//Location and then value of self-energy
+	long double a;
+	long double sigma1;
+	long double sigma2;
 
 	switch(Temp)
 	{
@@ -116,35 +113,90 @@ inline long double Self_E_Depends(long double E, int Temp)
 			return(0);	//Return 0 because we have zero temp, vacuum
 			break;
 		case 1:
-			Slope = .557694;
-			Norm = .0575641;
-			Scale = .378521;
-			x0 = 1.43594;
-			On_shell = 1.432926829;
+			a = .754419572;
+			sigma1 = 7.381325744;
+			sigma2 = 1.761645239;
 			break;
 		case 2:
-			Slope = .552435;
-			Norm = .0900165;
-			Scale = .500969;
-			x0 = 1.36968;
-			On_shell = 1.365853659;
+			a = .775293966;
+			sigma1 = 7.580476948;
+			sigma2 = 1.650232458;
 			break;
 		case 3:
-			Slope = .562226;
-			Norm = .189819;
-			Scale = .667003;
-			x0 = 1.24059;
-			On_shell = 1.304878049;
+			a = .761585379;
+			sigma1 = 7.9799853517;
+			sigma2 = 1.6664531561;
+			break;
+	}
+	
+	return(a*exp(-P*P/(sigma1*sigma1))+(1-a)*exp(-P*P/(sigma2*sigma2)));
+}
+
+inline long double Self_E_Depends(long double E, int Temp)
+{
+	E /= 2.;
+	Sigma;	//size of energy dependance
+	gamma;	//width of lorentzian
+	x_0;	//location of lorentzian
+	a, b;	//Exponential parameters, length and power
+
+	switch(Temp)
+	{
+		case 0:
+			return(0);	//Return 0 because we have zero temp, vacuum
+			break;
+		case 1:
+			Sigma = .136974;
+			gamma = .322873;
+			x_0 = 1.65527;
+			a = .99384;
+			b = 8.04018;
+			break;
+		case 2:
+			Sigma = .125014;
+			gamma = .385614;
+			x_0 = 1.54976;
+			a = .830611;
+			b = 5.21037;
+			break;
+		case 3:
+			Sigma = .165478;
+			gamma = .540142;
+			x_0 = 1.53581;
+			a = .666388;
+			b = 6.76661;
 			break;
 	}
 
-	On_shell = Norm*Scale/M_PI*pow(tanh(Slope*On_shell),2)*(1/(pow(On_shell-x0,2)+pow(Scale,2))-1/(pow(On_shell+x0,2)+pow(Scale,2)));
 
-	return(Norm*Scale/M_PI*pow(tanh(Slope*E),2)*(1/(pow(E-x0,2)+pow(Scale,2))-1/(pow(E+x0,2)+pow(Scale,2)))/On_shell);
+	return(exp(-pow(abs(a/x),b))*Sigma*gamma/M_PI*(1/(pow(x+x_0,2)+pow(gamma,2))-1/(pow(x-x_0,2)+pow(gamma,2))));
 }
 
 long double Spectral(long double M, long double P, long double E, int Temp)
 {
+	switch(Temp)
+	{
+		case 0:
+			M = 1.8;
+			CC = -127.995280691106;
+			Lambda = 1.4049344847006076;
+			break;
+		case 1:
+			M = 1.79;	//1.65527
+			CC = -152.185;	//-185.199
+			Lambda = 1.19409;	//1.10706
+			break;
+		case 2:
+			M = 1.62;	//1.54976
+			CC = -103.959;	//-115.871
+			Lambda = 1.23606;	//1.18374
+			break;
+		case 3:
+			M = 1.49;	//1.53581
+			CC = -37.7552;	//-35.3587
+			Lambda = 1.59073;	//1.63743
+			break;
+	}
 	long double Par[6] = {CC, Lambda, M, P, E};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
 	long double G_0;	//The imaginary part of G_0
 	complex<long double> TMat = TMatrix(M, P, E, Temp);
@@ -234,6 +286,29 @@ inline long double Potential1(long double Par[6], long double k, long double the
 
 complex<long double> TMatrix(long double M, long double P, long double E, int Temp)
 {
+	switch(Temp)
+	{
+		case 0:
+			M = 1.8;
+			CC = -127.995280691106;
+			Lambda = 1.4049344847006076;
+			break;
+		case 1:
+			M = 1.79;	//1.65527
+			CC = -152.185;	//-185.199
+			Lambda = 1.19409;	//1.10706
+			break;
+		case 2:
+			M = 1.62;	//1.54976
+			CC = -103.959;	//-115.871
+			Lambda = 1.23606;	//1.18374
+			break;
+		case 3:
+			M = 1.49;	//1.53581
+			CC = -37.7552;	//-35.3587
+			Lambda = 1.59073;	//1.63743
+			break;
+	}
 	complex<long double> Int_Holder;	//Holder for the result of the integration, allows it to be calculated once
 	long double Parameters[6] = {CC, Lambda, M, P, E};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
 	long double F_a, a = 0.;
@@ -305,42 +380,6 @@ inline long double LawCosines(long double P, long double k, long double theta)	/
 {
 	return(sqrt(pow(P,2)+pow(k,2)-2.*P*k*cos(theta)));
 }
-
-long double Self_Energy(int Temp, long double P) //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)) as an approximation to the self-energy
-{
-	long double a;
-	long double Sigma;
-	long double sigma1;
-	long double sigma2;
-
-	switch(Temp)
-	{
-		case 0:
-			return(0);	//Return 0 because we have zero temp, vacuum
-			break;
-		case 1:
-			a = .752195818;
-			Sigma = -.020920502;
-			sigma1 = 7.216088615;
-			sigma2 = 1.817672774;
-			break;
-		case 2:
-			a = .747642318;
-			Sigma = -.023096234;
-			sigma1 = 7.335460483;
-			sigma2 = 1.790144764;
-			break;
-		case 3:
-			a = .749248895;
-			Sigma = -.033138075;
-			sigma1 = 7.528045113;
-			sigma2 = 1.696495633;
-			break;
-	}
-	
-	return(Sigma*(a*exp(-P*P/(sigma1*sigma1))+(1-a)*exp(-P*P/(sigma2*sigma2))));
-}
-
 
 long double Integrate2(long double a, long double b, long double F_a, long double F_b, long double c, long double d, long double(*Integrand)(long double[6], long double, long double, int), long double Parameters[6], int Temp)
 {
