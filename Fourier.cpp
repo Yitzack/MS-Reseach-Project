@@ -28,9 +28,9 @@ int main(int argc, char* argv[])
 	long double holder;
 	const int iProcess = atoi(argv[1]);
 	const int Total = atoi(argv[2]);
-	long double Par[6] = {};
-	long double SelfPPar[3] = {};
-	long double SelfEPar[5] = {};
+	long double Par[6] = {1.4049344847006076, -127.995280691106, 1.8, 0, 0};	//g, Lambda, M, |vec p|, E=sqrt(s)
+	long double SelfPPar[3] = {.75, 1, 1};	//a, Sigma1, Sigma2
+	long double SelfEPar[5] = {0, 1, 1.8, 1, 1};	//Sigma, gamma, E_0, a, b
 
 	#pragma omp parallel for private(z, holder)
 	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i++)
@@ -189,6 +189,7 @@ long double Integrate2(long double Par[6], long double SelfPPar[3], long double 
 
 long double Integrate1(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double E, long double z)
 {
+	Par[4] = E;
 	long double Value = Spectral(Par, SelfPPar, SelfEPar, E, 3);
 	if(abs(z-.5) <= .005)
 		cout << E << " " << Value << endl;
