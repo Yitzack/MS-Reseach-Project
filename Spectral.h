@@ -17,7 +17,7 @@ inline long double LawCosines(long double, long double, long double); //Returns 
 inline long double Potential(long double[6], long double, long double); //Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
 inline long double Common(long double[6], long double [3], long double[5], long double, long double, int); //Returns the common part of propagators
 inline long double Self_E_Depends(long double[5], long double); //Contains a function that will give a dependance on E and Temp for the self-energy
-long double TMatrix(long double[6], long double[3], long double[5], long double, int); //Returns the T-matrix
+complex<long double> TMatrix(long double[6], long double[3], long double[5], long double, int); //Returns the T-matrix
 long double Spectral(long double[6], long double[3], long double[5], long double, int); //Returns the spectral function of the T-matrix
 long double G_0Int(long double[6], long double [3], long double[5], long double, long double, int); //Returns the integrand for G_0. This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 long double ReDelta_GInt(long double[6], long double [3], long double[5], long double, long double, int); //Returns the real part of the Delta G integrand
@@ -46,7 +46,6 @@ inline long double Self_E_Depends(long double Par[5], long double E)
 complex<long double> TMatrix(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double E, int Temp)
 {
 	complex<long double> Int_Holder; //Holder for the result of the integration, allows it to be calculated once
-	long double Parameters[6] = {CC, Lambda, M, P, E};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
 	long double F_a, a = 0.;
 	long double F_b, b = M_PI;
 	long double F_c, c = 0.;
@@ -97,7 +96,7 @@ long double Spectral(long double Par[6], long double SelfPPar[3], long double Se
 		i++;	//If not found, increament i and try again
 	}
 	
-	TMat = TMatrix(M, P, E, Temp);
+	TMat = TMatrix(Par, SelfPPar, SelfEPar, E, Temp);
 	
 	F_c = G_0Int(Par, SelfPPar, SelfEPar, a, c, Temp); //Inital end points of the boundary
 	F_d = G_0Int(Par, SelfPPar, SelfEPar, a, d, Temp);
@@ -178,12 +177,12 @@ long double G_0Int(long double Par[6], long double SelfPPar[3], long double Self
 
 long double ReDelta_GInt(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp)
 {
-	return(k*k*sin(theta)*ReProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential1(Par, SelfPPar, SelfEPar, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
+	return(k*k*sin(theta)*ReProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential1(Par, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
 }
 
 long double ImDelta_GInt(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp)
 {
-	return(k*k*sin(theta)*ImProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential1(Par, SelfPPar, SelfEPar, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
+	return(k*k*sin(theta)*ImProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential1(Par, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
 }
 
 inline long double Potential1(long double Par[6], long double k, long double theta)
