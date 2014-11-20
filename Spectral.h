@@ -6,199 +6,45 @@
 using namespace std;
 
 inline long double Energy(long double, long double, long double, long double); //Returns sqrt(M^2+p^2+k^2-pk cos(theta))
-long double ReInt(long double[6], long double, long double, int); //Returns the real part of the integrad from 2p_0 to infinity
-long double ImInt(long double[6], long double, long double, int); //Returns the imaginary part of the integrad from 2p_0 to infinity
-long double Integrate1(long double, long double, long double, long double, long double(*)(long double[6], long double, long double, int), long double[6], long double, int); //Integrates the part that it is told to integrate. It uses the difference in evaluating the trapaziod rule and Simpson's rule to pick the points that it integrate between. Since the Gaussian quadrature is very accuate for using very few points (2n-1 order polynomial accurate with n points), it then returns the Gaussian quadrature for 3 points on that subinterval.
-long double Integrate2(long double, long double, long double, long double, long double, long double, long double(*)(long double[6], long double, long double, int), long double[6], int); //Contains more brains than Integrate1() as it will need to divide the integral into 2 parts and pass the endpoints down for faster times but it uses the same algorithm to acheive its results.
-long double Self_Energy(int, long double); //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)), this is my choice of function for the self-energy
-inline long double ReProp(long double[6], long double, long double, int); //Returns the real part of the propagator
-inline long double ImProp(long double[6], long double, long double, int); //Returns the imaginary part of the propagator
+long double ReInt(long double[6], long double [3], long double[5], long double, long double, int); //Returns the real part of the integrad from 2p_0 to infinity
+long double ImInt(long double[6], long double [3], long double[5], long double, long double, int); //Returns the imaginary part of the integrad from 2p_0 to infinity
+long double Integrate1(long double, long double, long double, long double, long double(*)(long double[6], long double [3], long double[5], long double, long double, int), long double[6], long double [3], long double[5], long double, int); //Integrates the part that it is told to integrate. It uses the difference in evaluating the trapaziod rule and Simpson's rule to pick the points that it integrate between. Since the Gaussian quadrature is very accuate for using very few points (2n-1 order polynomial accurate with n points), it then returns the Gaussian quadrature for 3 points on that subinterval.
+long double Integrate2(long double, long double, long double, long double, long double, long double, long double(*)(long double[6], long double [3], long double[5], long double, long double, int), long double[6], long double [3], long double[5], int); //Contains more brains than Integrate1() as it will need to divide the integral into 2 parts and pass the endpoints down for faster times but it uses the same algorithm to acheive its results.
+long double Self_Energy(long double[3], long double); //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)), this is my choice of function for the self-energy
+inline long double ReProp(long double[6], long double [3], long double[5], long double, long double, int); //Returns the real part of the propagator
+inline long double ImProp(long double[6], long double [3], long double[5], long double, long double, int); //Returns the imaginary part of the propagator
 inline long double LawCosines(long double, long double, long double); //Returns the law of cosines for two vectors with an angle inbetween.
 inline long double Potential(long double[6], long double, long double); //Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
-inline long double Common(long double[6], long double, long double, int); //Returns the common part of propagators
-inline long double Self_E_Depends(long double, int); //Contains a function that will give a dependance on E and Temp for the self-energy
-complex<long double> TMatrix(long double, long double, long double, int); //Returns the T-matrix for a given M, P, E=sqrt(s), and T
-long double Spectral(long double, long double, long double, int); //Returns the spectral function of the T-matrix
-long double G_0Int(long double[6], long double, long double, int); //Returns the integrand for G_0. This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
-long double ReDelta_GInt(long double[6], long double, long double, int); //Returns the real part of the Delta G integrand
-long double ImDelta_GInt(long double[6], long double, long double, int); //Returns the imaginary part of the Delta G integrand
+inline long double Common(long double[6], long double [3], long double[5], long double, long double, int); //Returns the common part of propagators
+inline long double Self_E_Depends(long double[5], long double); //Contains a function that will give a dependance on E and Temp for the self-energy
+long double Spectral(long double[6], long double[3], long double[5], long double, int); //Returns the spectral function of the T-matrix
+long double G_0Int(long double[6], long double [3], long double[5], long double, long double, int); //Returns the integrand for G_0. This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
+long double ReDelta_GInt(long double[6], long double [3], long double[5], long double, long double, int); //Returns the real part of the Delta G integrand
+long double ImDelta_GInt(long double[6], long double [3], long double[5], long double, long double, int); //Returns the imaginary part of the Delta G integrand
 inline long double Potential1(long double[6], long double, long double); //Returns one of the factors of the potiential that is in Potential() without the coupling constant.
 long double Fermi(long double[6], long double, long double, int); //Returns the fermi factor (1-2n_f(E;T))
-long double Analytic(long double, long double); //The analytic spectral function for vacuum, which is constant in P
-long double ApproxSpectral(long double, long double);
-inline complex<long double> arctan(complex<long double>);
-inline complex<long double> arctanh(complex<long double>);
 
 long double Lambda = 1.4049344847006076;//I found it to be 1.405 GeV
 long double CC = -127.995280691106; //I found it to be -127.973 GeV^-2
 
-long double ApproxSpectral(long double E, long double P)
+long double Self_Energy(long double Par[3], long double P)
 {
-	long double Epsilon;
-	static long double Table[375][2];
-	static bool Run = false;
-	ifstream List("./Epsilon List");
-	int i;
-
-	if(!Run)
-	{
-		for(i = 0; i < 375; i++)
-		{
-			List >> Table[i][0]; //Grab the first column and overwrite the previous fourth column
-			List >> Table[i][1] >> Table[i][1]; //Grab the second and then over write with the third column
-			if(i != 401)
-			List >> Table[i+1][0]; //Grab the fourth column except for the last one as it will go into oblivion which may cause segfault
-		}
-		Run = true; //prevent a run of this code
-	}
-
-	if(P <= 256.8) //Last reasonable P for measured epsilon
-	{
-		i = P/.8;
-		Epsilon = Table[i][1]*(1.+i-1.25*P)+Table[i+1][1]*(1.25*P-i)*2.; //1.25=.8^-1
-	}
-	else
-		Epsilon = .032;
-
-	if(Epsilon < 2.81e-6) //Anything below this is unreliable and should thus be counted as zero width to decent approximation. This is on the edge of resolution of the numerical integrator (Gamma_FWHM<800eV, smallest interval=1keV), While this is true for analytic case, it fails sooner for in-media.
-		Epsilon = .032;
-
-	return(Analytic(E, Epsilon));
+	return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[1],2)));
 }
 
-inline complex<long double> arctan(complex<long double>x)
-{
-	complex<long double> i(0,1);
-	complex<long double> one(1,0);
-	return(complex<long double>(0,.5)*log((one-i*x)/(one+i*x)));
-}
-
-inline complex<long double> arctanh(complex<long double>x)
-{
-	complex<long double> one(1,0);
-	return(complex<long double>(.5,0)*log((one+x)/(one-x)));
-}
-
-long double Analytic(long double E, long double Epsilon) //This strictly vacuum, the width has no depandance beside the E, ever. The epsilon is .008GeV for the correct natural width.
-{//Stupid complex number object doesn't include binary functions of reals and complex numbers
-	long double M = 1.8;
-	long double CC = -127.995280691106;
-	long double Lambda = 1.4049344847006076;
-
-	complex<long double> SMEpsilon(E*E/4.-M*M,Epsilon*E); //The analytic needs to divide the energy by 2 to match what the integration is doing
-	complex<long double> SEpsilon(E*E/4.,Epsilon*E);
-	complex<long double> MLambda1(pow(Lambda/2.,2)-M*M,0);
-	complex<long double> MLambda2(pow(M/Lambda,2)-.25,0);
-	complex<long double> SMLambdaEpsilon((E*E+pow(Lambda,2))/4.-M*M,Epsilon*E*Self_E_Depends(E,0));
-	complex<long double> Num, Den, Non;
-
-	Num = complex<long double>(pow(Lambda*M/(4.*M_PI),2),0)*(complex<long double>(2,0)*sqrt(MLambda1*SMEpsilon)*arctan(sqrt(-SEpsilon/SMEpsilon))-complex<long double>(Lambda,0)*sqrt(SEpsilon)*arctan(complex<long double>(2,0)*sqrt(MLambda2)))/(sqrt(SEpsilon*-MLambda1)*SMLambdaEpsilon);
-	Den = complex<long double>(CC*pow(Lambda*Lambda*M/(8*M_PI),2),0)/pow(SMLambdaEpsilon,2)*(SMLambdaEpsilon/MLambda1+(complex<long double>(pow(Lambda,4)/4.-pow(Lambda*M,2)/2,0)+complex<long double>(2*M*M,0)*SMEpsilon)/(complex<long double>(Lambda,0)*pow(-MLambda1,(long double)(1.5)))*arctan(complex<long double>(2,0)*sqrt(MLambda2))+complex<long double>(2,0)*sqrt(-SMEpsilon/SEpsilon)*arctan(sqrt(-SEpsilon/SMEpsilon)));
-	Non = complex<long double>(M*M/(2.*M_PI*M_PI),0)*sqrt(SMEpsilon/SEpsilon)*arctanh(sqrt(SEpsilon/SMEpsilon));
-
-	//cout << E << " " << Num.real() << " " << Num.imag() << " " << Den.real() << " " << Den.imag() << " " << -18./M_PI*Non.imag() << endl;
-
-	return(-18./M_PI*(Non+CC*(pow(Num,(long double)(2.))/(complex<long double>(1.,0)-Den))).imag());
-}
-
-long double Self_Energy(int Temp, long double P) //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)) as an approximation to the self-energy
-{
-	long double a;
-	long double sigma1;
-	long double sigma2;
-
-	switch(Temp)
-	{
-		case 0:
-			return(0); //Return 0 because we have zero temp, vacuum
-			break;
-		case 1:
-			a = .754419572;
-			sigma1 = 7.381325744;
-			sigma2 = 1.761645239;
-			break;
-		case 2:
-			a = .775293966;
-			sigma1 = 7.580476948;
-			sigma2 = 1.650232458;
-			break;
-		case 3:
-			a = .761585379;
-			sigma1 = 7.9799853517;
-			sigma2 = 1.6664531561;
-			break;
-	}
-
-	return(a*exp(-P*P/(sigma1*sigma1))+(1-a)*exp(-P*P/(sigma2*sigma2)));
-}
-
-inline long double Self_E_Depends(long double E, int Temp)
+inline long double Self_E_Depends(long double Par[5], long double E)
 {
 	E /= 2.;
-	long double Sigma; //size of energy dependance
-	long double gamma; //width of lorentzian
-	long double E_0; //location of lorentzian
-	long double a, b; //Exponential parameters, length and power
-
-	switch(Temp)
-	{
-		case 0:
-			return(0); //Return 0 because we have zero temp, vacuum
-			break;
-		case 1:
-			Sigma = .136974;
-			gamma = .322873;
-			E_0 = 1.65527;
-			a = .99384;
-			b = 8.04018;
-			break;
-		case 2:
-			Sigma = .125014;
-			gamma = .385614;
-			E_0 = 1.54976;
-			a = .830611;
-			b = 5.21037;
-			break;
-		case 3:
-			Sigma = .165478;
-			gamma = .540142;
-			E_0 = 1.53581;
-			a = .666388;
-			b = 6.76661;
-			break;
-	}
-
+	long double Sigma = Par[0]; //size of energy dependance
+	long double gamma = Par[1]; //width of lorentzian
+	long double E_0 = Par[2]; //location of lorentzian
+	long double a = Par[3], b = Par[4]; //Exponential parameters, length and power
 	return(exp(-pow(abs(a/E),b))*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
 }
 
-long double Spectral(long double M, long double P, long double E, int Temp)
+long double Spectral(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double E, int Temp)
 {
-	switch(Temp)
-	{
-		case 0:
-			M = 1.8;
-			CC = -127.995280691106;
-			Lambda = 1.4049344847006076;
-			break;
-		case 1:
-			M = 1.79; //1.65527
-			CC = -152.185; //-185.199
-			Lambda = 1.19409; //1.10706
-			break;
-		case 2:
-			M = 1.62; //1.54976
-			CC = -103.959; //-115.871
-			Lambda = 1.23606; //1.18374
-			break;
-		case 3:
-			M = 1.49; //1.53581
-			CC = -37.7552; //-35.3587
-			Lambda = 1.59073; //1.63743
-			break;
-	}
-	long double Par[6] = {CC, Lambda, M, P, E};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
 	long double G_0; //The imaginary part of G_0
-	complex<long double> TMat = TMatrix(M, P, E, Temp);
 	complex<long double> Num; //The integral in the numerator of Delta G
 	long double F_a, a = 0.;
 	long double F_b, b = M_PI;
@@ -206,36 +52,61 @@ long double Spectral(long double M, long double P, long double E, int Temp)
 	long double F_d, d = 500.;
 	int N_f = 3;
 	int N_c = 3;
+	int i = 0;
+	static long double Done[2][480];	//Needs to be persistant between function executions
 	
-	F_c = G_0Int(Par, a, c, Temp); //Inital end points of the boundary
-	F_d = G_0Int(Par, a, d, Temp);
-	F_a = Integrate1(c, d, F_c, F_d, G_0Int, Par, a, Temp);
+	while(i < 480)	//While I haven't made it to the end of the array
+	{
+		if(Done[0][i] == E)	//If I find E in the array
+			return(Done[1][i]);	//Return the Spectral function value that goes with it
+		i++;	//If not found, increament i and try again
+	}
+	
+	F_c = G_0Int(Par, SelfPPar, SelfEPar, a, c, Temp); //Inital end points of the boundary
+	F_d = G_0Int(Par, SelfPPar, SelfEPar, a, d, Temp);
+	F_a = Integrate1(c, d, F_c, F_d, G_0Int, Par, SelfPPar, SelfEPar, a, Temp);
 
-	F_c = G_0Int(Par, b, c, Temp); //Inital end points of the boundary
-	F_d = G_0Int(Par, b, d, Temp);
-	F_b = Integrate1(c, d, F_c, F_d, G_0Int, Par, b, Temp);
+	F_c = G_0Int(Par, SelfPPar, SelfEPar, b, c, Temp); //Inital end points of the boundary
+	F_d = G_0Int(Par, SelfPPar, SelfEPar, b, d, Temp);
+	F_b = Integrate1(c, d, F_c, F_d, G_0Int, Par, SelfPPar, SelfEPar, b, Temp);
 
-	G_0 = Integrate2(a, b, F_a, F_b, c, d, G_0Int, Par, Temp);
+	G_0 = Integrate2(a, b, F_a, F_b, c, d, G_0Int, Par, SelfPPar, SelfEPar, Temp);
 
-	F_c = ReDelta_GInt(Par, a, c, Temp); //Inital end points of the boundary
-	F_d = ReDelta_GInt(Par, a, d, Temp);
-	F_a = Integrate1(c, d, F_c, F_d, ReDelta_GInt, Par, a, Temp);
+	F_c = ReDelta_GInt(Par, SelfPPar, SelfEPar, a, c, Temp); //Inital end points of the boundary
+	F_d = ReDelta_GInt(Par, SelfPPar, SelfEPar, a, d, Temp);
+	F_a = Integrate1(c, d, F_c, F_d, ReDelta_GInt, Par, SelfPPar, SelfEPar, a, Temp);
 
-	F_c = ReDelta_GInt(Par, b, c, Temp); //Inital end points of the boundary
-	F_d = ReDelta_GInt(Par, b, d, Temp);
-	F_b = Integrate1(c, d, F_c, F_d, ReDelta_GInt, Par, b, Temp);
+	F_c = ReDelta_GInt(Par, SelfPPar, SelfEPar, b, c, Temp); //Inital end points of the boundary
+	F_d = ReDelta_GInt(Par, SelfPPar, SelfEPar, b, d, Temp);
+	F_b = Integrate1(c, d, F_c, F_d, ReDelta_GInt, Par, SelfPPar, SelfEPar, b, Temp);
 
-	Num = complex<long double>(Integrate2(a, b, F_a, F_b, c, d, ReDelta_GInt, Par, Temp),0);
+	Num = complex<long double>(Integrate2(a, b, F_a, F_b, c, d, ReDelta_GInt, Par, SelfPPar, SelfEPar, Temp),0);
 
-	F_c = ImDelta_GInt(Par, a, c, Temp); //Inital end points of the boundary
-	F_d = ImDelta_GInt(Par, a, d, Temp);
-	F_a = Integrate1(c, d, F_c, F_d, ImDelta_GInt, Par, a, Temp);
+	F_c = ImDelta_GInt(Par, SelfPPar, SelfEPar, a, c, Temp); //Inital end points of the boundary
+	F_d = ImDelta_GInt(Par, SelfPPar, SelfEPar, a, d, Temp);
+	F_a = Integrate1(c, d, F_c, F_d, ImDelta_GInt, Par, SelfPPar, SelfEPar, a, Temp);
 
-	F_c = ImDelta_GInt(Par, b, c, Temp); //Inital end points of the boundary
-	F_d = ImDelta_GInt(Par, b, d, Temp);
-	F_b = Integrate1(c, d, F_c, F_d, ImDelta_GInt, Par, b, Temp);
+	F_c = ImDelta_GInt(Par, SelfPPar, SelfEPar, b, c, Temp); //Inital end points of the boundary
+	F_d = ImDelta_GInt(Par, SelfPPar, SelfEPar, b, d, Temp);
+	F_b = Integrate1(c, d, F_c, F_d, ImDelta_GInt, Par, SelfPPar, SelfEPar, b, Temp);
 
-	Num += complex<long double>(0,Integrate2(a, b, F_a, F_b, c, d, ImDelta_GInt, Par, Temp));
+	Num += complex<long double>(0,Integrate2(a, b, F_a, F_b, c, d, ImDelta_GInt, Par, SelfPPar, SelfEPar, Temp));
+
+	#pragma omp critical	//Now that the values are calculated, I need to store it so I don't do it again. This needs to be done with a signle thread because I don't who got here first or in what order, so they need to take their time going through here and make sure we don't have N threads overwritting and duplicating and negacting other points.
+	{
+		i = 0;
+		while(i < 480)	//While I haven't made it to the end of the array
+		{
+			if(Done[0][i] == E)	//If I find E in the array
+				return(Done[1][i]);	//Return the Spectral function value that goes with it
+			i++;	//If not found, increament i and try again
+		}
+		if(i < 480)	//Only do if it will be in the alloted array, otherwise I'll get SigFaulted if I actually do more than 480 points
+		{
+			Done[0][i] = E;
+			Done[1][i] = -2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag());
+		}
+	}
 
 	return(-2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag()));
 }
@@ -263,19 +134,19 @@ long double Fermi(long double Par[6], long double k, long double theta, int T)
 	return(1./(exp(Energy(Par[2], Par[3]/2., k, theta)/Temp)+1.)); //Fermi factor
 }
 
-long double G_0Int(long double Par[6], long double k, long double theta, int Temp) //This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
+long double G_0Int(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 {
-	return(ImProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp))*sin(theta)*k*k);
+	return(ImProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp))*sin(theta)*k*k);
 }
 
-long double ReDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
+long double ReDelta_GInt(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp)
 {
-	return(k*k*sin(theta)*ReProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*Potential1(Par, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
+	return(k*k*sin(theta)*ReProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential1(Par, SelfPPar, SelfEPar, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
 }
 
-long double ImDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
+long double ImDelta_GInt(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp)
 {
-	return(k*k*sin(theta)*ImProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*Potential1(Par, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
+	return(k*k*sin(theta)*ImProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential1(Par, SelfPPar, SelfEPar, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
 }
 
 inline long double Potential1(long double Par[6], long double k, long double theta)
@@ -283,86 +154,30 @@ inline long double Potential1(long double Par[6], long double k, long double the
 	return(pow(Par[1],2)/(pow(Par[1],2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.));
 }
 
-complex<long double> TMatrix(long double M, long double P, long double E, int Temp)
-{
-	switch(Temp)
-	{
-		case 0:
-			M = 1.8;
-			CC = -127.995280691106;
-			Lambda = 1.4049344847006076;
-			break;
-		case 1:
-			M = 1.79; //1.65527
-			CC = -152.185; //-185.199
-			Lambda = 1.19409; //1.10706
-			break;
-		case 2:
-			M = 1.62; //1.54976
-			CC = -103.959; //-115.871
-			Lambda = 1.23606; //1.18374
-			break;
-		case 3:
-			M = 1.49; //1.53581
-			CC = -37.7552; //-35.3587
-			Lambda = 1.59073; //1.63743
-			break;
-	}
-	complex<long double> Int_Holder; //Holder for the result of the integration, allows it to be calculated once
-	long double Parameters[6] = {CC, Lambda, M, P, E};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
-	long double F_a, a = 0.;
-	long double F_b, b = M_PI;
-	long double F_c, c = 0.;
-	long double F_d, d = 100.;
-
-	F_c = ReInt(Parameters, a, c, Temp); //Inital end points of the boundary
-	F_d = ReInt(Parameters, a, d, Temp);
-	F_a = Integrate1(c, d, F_c, F_d, ReInt, Parameters, a, Temp);
-
-	F_c = ReInt(Parameters, b, c, Temp); //Inital end points of the boundary
-	F_d = ReInt(Parameters, b, d, Temp);
-	F_b = Integrate1(c, d, F_c, F_d, ReInt, Parameters, b, Temp);
-
-	Int_Holder = complex<long double>(Integrate2(a, b, F_a, F_b, c, d, ReInt, Parameters, Temp), 0);
-
-	F_c = ImInt(Parameters, a, c, Temp); //Inital end points of the boundary
-	F_d = ImInt(Parameters, a, d, Temp);
-	F_a = Integrate1(c, d, F_c, F_d, ImInt, Parameters, a, Temp);
-
-	F_c = ImInt(Parameters, b, c, Temp); //Inital end points of the boundary
-	F_d = ImInt(Parameters, b, d, Temp);
-	F_b = Integrate1(c, d, F_c, F_d, ImInt, Parameters, b, Temp);
-
-	Int_Holder += complex<long double>(0 ,Integrate2(a, b, F_a, F_b, c, d, ImInt, Parameters, Temp));
-	Int_Holder = complex<long double>(1.,0.)/(complex<long double>(1.,0.)-Int_Holder); //Integrate once, where it says Parameters[6] in the numerator, I need to put V(p,p') in the event that I didn't get that correct
-
-	return(Int_Holder);
-}
-
 //Parameters = g, Lambda, M, |vec p|, E=sqrt(s)
-long double ReInt(long double Par[6], long double k, long double theta, int Temp) //Returns the real part of the integrand
+long double ReInt(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the real part of the integrand
 {
-	return(ReProp(Par, k, theta, Temp)*Potential(Par, k, theta)*Common(Par,k,theta,Temp)*sin(theta)*k*k);
+	return(ReProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential(Par, k, theta)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*sin(theta)*k*k);
 }
 
-long double ImInt(long double Par[6], long double k, long double theta, int Temp) //Returns the imaginary part of the integrand
+long double ImInt(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the imaginary part of the integrand
 {
-	return(ImProp(Par, k, theta, Temp)*Potential(Par, k, theta)*Common(Par,k,theta,Temp)*sin(theta)*k*k);
+	return(ImProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential(Par, k, theta)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*sin(theta)*k*k);
 }
 
-inline long double Common(long double Par[6], long double k, long double theta, int Temp) //Returns the common part of both propagators
+inline long double Common(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the common part of both propagators
 {
-	return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4], 2)));
+	return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4], 2)));
 }
 
-inline long double ReProp(long double Par[6], long double k, long double theta, int Temp) //Returns the real part of the propagator
+inline long double ReProp(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the real part of the propagator
 {
-	return(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2));
+	return(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2));
 }
 
-inline long double ImProp(long double Par[6], long double k, long double theta, int Temp) //Returns the imaginary part of the propagator
+inline long double ImProp(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the imaginary part of the propagator
 {
-	return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4]);
+	return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-.032*Par[4]);
 }
 
 inline long double Potential(long double Par[6], long double k, long double theta) //Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
@@ -380,16 +195,16 @@ inline long double LawCosines(long double P, long double k, long double theta) /
 	return(sqrt(pow(P,2)+pow(k,2)-2.*P*k*cos(theta)));
 }
 
-long double Integrate2(long double a, long double b, long double F_a, long double F_b, long double c, long double d, long double(*Integrand)(long double[6], long double, long double, int), long double Parameters[6], int Temp)
+long double Integrate2(long double a, long double b, long double F_a, long double F_b, long double c, long double d, long double(*Integrand)(long double[6], long double [3], long double[5], long double, long double, int), long double Parameters[6], long double SelfPPar[3], long double SelfEPar[5], int Temp)
 {
-	long double F_c = Integrand(Parameters, c, (a+b)/2., Temp); //Inital end points of the boundary
-	long double F_d = Integrand(Parameters, d, (a+b)/2., Temp);
-	long double F_ave = Integrate1(c, d, F_c, F_d, Integrand, Parameters, a/2.+b/2., Temp); //Evaluate k integral at (a+b)/2
+	long double F_c = Integrand(Parameters, SelfPPar, SelfEPar, c, (a+b)/2., Temp); //Inital end points of the boundary
+	long double F_d = Integrand(Parameters, SelfPPar, SelfEPar, d, (a+b)/2., Temp);
+	long double F_ave = Integrate1(c, d, F_c, F_d, Integrand, Parameters, SelfPPar, SelfEPar, a/2.+b/2., Temp); //Evaluate k integral at (a+b)/2
 
 	long double Trapazoid = (F_a+F_b)*(b-a)/2.; //Trapazoid rule
 	long double Simpsons = (F_a+F_ave*4.+F_b)*(b-a)/6.; //Simpson's rule
 	if(abs(Trapazoid-Simpsons)*2./abs(Trapazoid+Simpsons) > 1 && abs(b-a) > 1e-10) //If difference between measurements is too large and the differnce between the two points is large enough. The accuracy needs to be better than .00005 and the resolution equal to 1e-18 (segfault if too small). Possibly stronger requirements now that epsilon is -.000001
-		return(Integrate2(a, a/2.+b/2., F_a, F_ave, c, d, Integrand, Parameters, Temp)+Integrate2(a/2.+b/2., b, F_ave, F_b, c, d, Integrand, Parameters, Temp)); //subdivide the interval and return integral of two sub-intervals
+		return(Integrate2(a, a/2.+b/2., F_a, F_ave, c, d, Integrand, Parameters, SelfPPar, SelfEPar, Temp)+Integrate2(a/2.+b/2., b, F_ave, F_b, c, d, Integrand, Parameters, SelfPPar, SelfEPar, Temp)); //subdivide the interval and return integral of two sub-intervals
 	else	//else
 	{
 		long double Disp[] = {0.06342068498268678602883, 0.1265859972696720510680, 0.1892415924618135864853, 0.2511351786125772735072, 0.3120175321197487622079, 0.3716435012622848888637, 0.4297729933415765246586, 0.4861719414524920421770, 0.5406132469917260665582, 0.5928776941089007124559, 0.6427548324192376640569, 0.6900438244251321135048, 0.7345542542374026962137, 0.7761068943454466350181, 0.8145344273598554315395, 0.8496821198441657010349, 0.8814084455730089100370, 0.9095856558280732852130, 0.9341002947558101490590, 0.9548536586741372335552, 0.9717622009015553801400, 0.9847578959142130043593, 0.9937886619441677907601, 0.9988201506066353793618}; //Dispacement from center{sqrt(.6)};//
@@ -403,20 +218,20 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-			F_c = Integrand(Parameters, c, x1[i], Temp); //Inital end points of the boundary
-			F_d = Integrand(Parameters, d, x1[i], Temp);
-			F_a += Integrate1(c, d, F_c, F_d, Integrand, Parameters, x1[i], Temp)*w[i+1]; //Evaluate k integral at x1
+			F_c = Integrand(Parameters, SelfPPar, SelfEPar, c, x1[i], Temp); //Inital end points of the boundary
+			F_d = Integrand(Parameters, SelfPPar, SelfEPar, d, x1[i], Temp);
+			F_a += Integrate1(c, d, F_c, F_d, Integrand, Parameters, SelfPPar, SelfEPar, x1[i], Temp)*w[i+1]; //Evaluate k integral at x1
 
-			F_c = Integrand(Parameters, c, x3[i], Temp); //Inital end points of the boundary
-			F_d = Integrand(Parameters, d, x3[i], Temp);
-			F_b += Integrate1(c, d, F_c, F_d, Integrand, Parameters, x3[i], Temp)*w[i+1]; //Evaluate k integral at x3
+			F_c = Integrand(Parameters, SelfPPar, SelfEPar, c, x3[i], Temp); //Inital end points of the boundary
+			F_d = Integrand(Parameters, SelfPPar, SelfEPar, d, x3[i], Temp);
+			F_b += Integrate1(c, d, F_c, F_d, Integrand, Parameters, SelfPPar, SelfEPar, x3[i], Temp)*w[i+1]; //Evaluate k integral at x3
 		}
 		
 	return((F_a+w[0]*F_ave+F_b)*(b-a)/(2.)); //return the best estimate of the integral on the interval*/
 	}
 }
 
-long double Integrate1(long double a, long double b, long double F_a, long double F_b, long double(*Integrand)(long double[6], long double, long double, int), long double Parameters[6], long double theta, int Temp)
+long double Integrate1(long double a, long double b, long double F_a, long double F_b, long double(*Integrand)(long double[6], long double [3], long double[5], long double, long double, int), long double Parameters[6], long double SelfPPar[3], long double SelfEPar[5], long double theta, int Temp)
 {
 	long double Disp[] = {0.06342068498268678602883, 0.1265859972696720510680, 0.1892415924618135864853, 0.2511351786125772735072, 0.3120175321197487622079, 0.3716435012622848888637, 0.4297729933415765246586, 0.4861719414524920421770, 0.5406132469917260665582, 0.5928776941089007124559, 0.6427548324192376640569, 0.6900438244251321135048, 0.7345542542374026962137, 0.7761068943454466350181, 0.8145344273598554315395, 0.8496821198441657010349, 0.8814084455730089100370, 0.9095856558280732852130, 0.9341002947558101490590, 0.9548536586741372335552, 0.9717622009015553801400, 0.9847578959142130043593, 0.9937886619441677907601, 0.9988201506066353793618}; //Dispacement from center for Gauss-Legendre integration
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481}; //Weight of the function at Disp
@@ -448,10 +263,10 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+			F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
 		}
-		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 
 		for(j = start; j < 19; j++)
@@ -464,10 +279,10 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 				x3[i] = (b+a+Disp[i]*(b-a))/2.;
 		
-				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
-				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+				F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+				F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
 			}
-			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+			F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		}
 	
@@ -479,10 +294,10 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 	
-			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+			F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
 		}
-		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 	
 		for(j = 18; j >= 0; j--)
@@ -495,10 +310,10 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 				x3[i] = (b+a+Disp[i]*(b-a))/2.;
 	
-				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
-				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+				F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+				F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
 			}
-			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+			F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		}
 	
@@ -510,10 +325,10 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 	
-			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+			F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
 		}
-		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 	
 		a = b; //near divsion by zero line to +100GeV
@@ -524,10 +339,10 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 	
-			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+			F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
 		}
-		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 	
 		a = b; //near divsion by zero line+100GeV to 500GeV, or back to 500GeV according to P and if the last integral came up short or when past 500GeV
@@ -538,10 +353,10 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 	
-			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+			F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
 		}
-		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 	}
 	else
@@ -557,10 +372,10 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 				x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
-				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+				F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+				F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
 			}
-			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+			F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 			a = b; //New lower boundary
 		}
@@ -573,7 +388,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 	{
 		x1[i] = DispLa[i]+a; //Actual evaluation points
 
-		F_a += Integrand(Parameters, x1[i], theta, Temp)*wLa[i]; //Evaluate function at x1
+		F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*wLa[i]; //Evaluate function at x1
 	}
 	Answer += F_a;
 
