@@ -87,9 +87,9 @@ long double Spectral(long double Par[6], long double SelfPPar[3], long double Se
 	int N_f = 3;
 	int N_c = 3;
 	int i = 0;
-	static long double Done[2][480];	//Needs to be persistant between function executions
+	static long double Done[2][1421];	//Needs to be persistant between function executions
 	
-	while(i < 480)	//While I haven't made it to the end of the array
+	while(i < 1421)	//While I haven't made it to the end of the array
 	{
 		if(Done[0][i] == E)	//If I find E in the array
 			return(Done[1][i]);	//Return the Spectral function value that goes with it
@@ -131,13 +131,13 @@ long double Spectral(long double Par[6], long double SelfPPar[3], long double Se
 	#pragma omp critical	//Now that the values are calculated, I need to store it so I don't do it again. This needs to be done with a signle thread because I don't who got here first or in what order, so they need to take their time going through here and make sure we don't have N threads overwritting and duplicating and negacting other points.
 	{
 		i = 0;
-		while(i < 480)	//While I haven't made it to the end of the array
+		while(i < 1421)	//While I haven't made it to the end of the array
 		{
 			if(Done[0][i] == E)	//If I find E in the array
 				break;	//Return the Spectral function value that goes with it
 			i++;	//If not found, increament i and try again
 		}
-		if(i < 480)	//Only do if it will be in the alloted array, otherwise I'll get SigFaulted if I actually do more than 480 points
+		if(i < 1421)	//Only do if it will be in the alloted array, otherwise I'll get SigFaulted if I actually do more than 480 points
 		{
 			Done[0][i] = E;
 			Done[1][i] = -2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag());
