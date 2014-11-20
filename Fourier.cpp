@@ -191,7 +191,7 @@ long double Integrate1(long double Par[6], long double SelfPPar[3], long double 
 {
 	Par[4] = E;
 	long double Value = Spectral(Par, SelfPPar, SelfEPar, E, 0);
-	if(abs(z-.5) <= .005)
+	if(abs(z-.3) <= .05)
 		cout << E << " " << Value << endl;
 	return(2.*M_PI*exp(-E*z)*Value);	//return the best estimate of the integral on the interval*/
 }
