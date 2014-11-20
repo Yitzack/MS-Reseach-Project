@@ -30,7 +30,7 @@ long double CC = -127.995280691106; //I found it to be -127.973 GeV^-2
 
 long double Self_Energy(long double Par[3], long double P)
 {
-	return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[1],2)));
+	return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2)));
 }
 
 inline long double Self_E_Depends(long double Par[5], long double E)
