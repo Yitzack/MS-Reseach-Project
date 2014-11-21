@@ -302,7 +302,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 				F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
 				F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
 			}
-			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+			F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 			a = b;
 		}
@@ -395,7 +395,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 				F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
 				F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
 			}
-			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+			F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		}
 
@@ -447,7 +447,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 				F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
 				F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
 			}
-			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+			F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		}
 
@@ -462,7 +462,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 			F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
 			F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
 		}
-		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 	}
 
