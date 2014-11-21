@@ -25,10 +25,7 @@ long double ImDelta_GInt(long double[6], long double [3], long double[5], long d
 inline long double Potential1(long double[6], long double, long double); //Returns one of the factors of the potiential that is in Potential() without the coupling constant.
 long double Fermi(long double[6], long double, long double, int); //Returns the fermi factor (1-2n_f(E;T))
 
-long double Lambda = 1.4049344847006076;//I found it to be 1.405 GeV
-long double CC = -127.995280691106; //I found it to be -127.973 GeV^-2
-
-long double Self_Energy(long double Par[3], long double P)
+inline long double Self_Energy(long double Par[3], long double P)
 {
 	return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2)));
 }
@@ -40,7 +37,7 @@ inline long double Self_E_Depends(long double Par[5], long double E)
 	long double gamma = Par[1]; //width of lorentzian
 	long double E_0 = Par[2]; //location of lorentzian
 	long double a = Par[3], b = Par[4]; //Exponential parameters, length and power
-	return(exp(-pow(abs(a/E),b))*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
+	return(pow(tanh(a*E),2)*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
 }
 
 complex<long double> TMatrix(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double E, int Temp)
@@ -128,16 +125,16 @@ long double Spectral(long double Par[6], long double SelfPPar[3], long double Se
 
 	Num += complex<long double>(0,Integrate2(a, b, F_a, F_b, c, d, ImDelta_GInt, Par, SelfPPar, SelfEPar, Temp));
 
-	#pragma omp critical	//Now that the values are calculated, I need to store it so I don't do it again. This needs to be done with a signle thread because I don't who got here first or in what order, so they need to take their time going through here and make sure we don't have N threads overwritting and duplicating and negacting other points.
+	#pragma omp critical	//Now that the values are calculated, I need to store it so I don't do it again. This needs to be done with a signle thread because I don't who got here first or in what order, so they need to take their time going through here and make sure we don't have N threads overwritting and duplicating and negacting points.
 	{
 		i = 0;
 		while(i < 1421)	//While I haven't made it to the end of the array
 		{
 			if(Done[0][i] == E)	//If I find E in the array
-				break;	//Return the Spectral function value that goes with it
+				break;	//Stop, its here already
 			i++;	//If not found, increament i and try again
 		}
-		if(i < 1421)	//Only do if it will be in the alloted array, otherwise I'll get SigFaulted if I actually do more than 480 points
+		if(i < 1421)	//Only do if it will be in the alloted array, otherwise I'll get SigFaulted if I actually do more than 1421 points
 		{
 			Done[0][i] = E;
 			Done[1][i] = -2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag());
@@ -282,7 +279,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 	if(Parameters[4] > 2.*Parameters[2]) //If above threshold, execute this method designed for divisions by zero closely approching the real number line
 	{
 		long double k, k_min, k_max; //Values locating the various values of k where the division by zero gets closest to the real number line
-		long double distance[] = {5e-2, 2e-2, 1.5e-2, 1e-2, 2.5e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 1e-16, 1e-17}; //magic numbers that indicates the distance from the near division by zero.
+		long double distance[] = {1e-1, 7.5e-2, 5e-2, 2.5e-2, 1e-2, 7.5e-3, 5e-3, 2.5e-3, 1e-3, 5e-4, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 1e-16, 1e-17}; //magic numbers that indicates the distance from the near division by zero.
 		k = .5*sqrt((pow(Parameters[4],2)-pow(2.*Parameters[2],2))*(pow(Parameters[4],2)+pow(Parameters[3],2))/(pow(Parameters[4],2)+pow(Parameters[3]*sin(theta),2)));
 		k_min = .5*sqrt((pow(Parameters[4],2)-pow(2.*Parameters[2],2))*(pow(Parameters[4],2)+pow(Parameters[3],2))/(pow(Parameters[4],2)+pow(Parameters[3],2)));
 		k_max = .5*sqrt((pow(Parameters[4],2)-pow(2.*Parameters[2],2))*(pow(Parameters[4],2)+pow(Parameters[3],2))/(pow(Parameters[4],2)));
@@ -291,7 +288,25 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 			start++;
 		}
 		
-		a = 0; //0GeV to near divsion by zero line
+		a = b = 0; //0GeV to near divsion by zero line
+
+		while(b+25 < k_min-2.*distance[start]) //Do the interval 25GeV at a time until k_min-25 is reached, k_min may be out a fair distance
+		{
+			b += 25;
+			F_a = F_b = 0; //Start integration at 0
+			for(i = 0; i < 24; i++)
+			{
+				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+				x3[i] = (b+a+Disp[i]*(b-a))/2.;
+
+				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+			}
+			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+			a = b;
+		}
+
 		b = k_min-2.*distance[start];
 		F_a = F_b = 0; //Start integration at 0
 		for(i = 0; i < 24; i++)
@@ -305,7 +320,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 		F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 
-		for(j = start; j < 19; j++)
+		for(j = start; j < 24; j++)
 		{
 			a = b; //previous location to set distance from division by zero
 			b = k-distance[j];
@@ -336,7 +351,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 		F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 	
-		for(j = 18; j >= 0; j--)
+		for(j = 23; j >= 0; j--)
 		{
 			a = b; //last value to set distance from division by zero
 			b = k+distance[j];
@@ -367,22 +382,25 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 		F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 	
-		a = b; //near divsion by zero line to +100GeV
-		b += 100;
-		F_a = F_b = 0; //Start integration at 0
-		for(i = 0; i < 24; i++)
+		while(b < 660) //Do the integration 25GeV at time until 500GeV is reached. k_max may be a fair distance from 660GeV
 		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-	
-			F_a += Integrand(Parameters, SelfPPar, SelfEPar, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += Integrand(Parameters, SelfPPar, SelfEPar, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+			a = b; //near divsion by zero line to +100GeV
+			b += 25;
+			F_a = F_b = 0; //Start integration at 0
+			for(i = 0; i < 24; i++)
+			{
+				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+				x3[i] = (b+a+Disp[i]*(b-a))/2.;
+
+				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+			}
+			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		}
-		F_ave = Integrand(Parameters, SelfPPar, SelfEPar, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
-		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-	
+
 		a = b; //near divsion by zero line+100GeV to 500GeV, or back to 500GeV according to P and if the last integral came up short or when past 500GeV
-		b = 500;
+		b = 660;
 		F_a = F_b = 0; //Start integration at 0
 		for(i = 0; i < 24; i++)
 		{
@@ -397,9 +415,9 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 	}
 	else
 	{
-		long double distance[] = {2.5,5,7.5,10,50,100,200,400,500}; //magic numbers that indicates the distance from k=0GeV
+		long double distance[] = {2.5,5,7.5,10,50}; //magic numbers that indicates the distance from k=0GeV
 		a = 0; //0GeV to 2.5GeV
-		for(j = 0; j < 9; j++)
+		for(j = 0; j < 5; j++)
 		{
 			b = distance[j]; //New upper boundary
 			F_a = F_b = 0; //Start integration at 0
@@ -415,6 +433,37 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 			a = b; //New lower boundary
 		}
+		
+		while(b < 660) //Do the integration 25GeV at time until 500GeV is reached. k_max may be a fair distance from 660GeV
+		{
+			a = b; //near divsion by zero line to +100GeV
+			b += 25;
+			F_a = F_b = 0; //Start integration at 0
+			for(i = 0; i < 24; i++)
+			{
+				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+				x3[i] = (b+a+Disp[i]*(b-a))/2.;
+
+				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+			}
+			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+		}
+
+		a = b; //near divsion by zero line+100GeV to 500GeV, or back to 500GeV according to P and if the last integral came up short or when past 500GeV
+		b = 660;
+		F_a = F_b = 0; //Start integration at 0
+		for(i = 0; i < 24; i++)
+		{
+			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+			x3[i] = (b+a+Disp[i]*(b-a))/2.;
+
+			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+		}
+		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 	}
 
 	//Gauss-Laguerre integration, needs to be done by both integral methods
