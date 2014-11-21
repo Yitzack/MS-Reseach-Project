@@ -394,9 +394,9 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 
 		a = b = 0;	//0GeV to near divsion by zero line
 
-		while(b+25 < k_min-2.*distance[start])	//Do the interval 25GeV at a time until k_min-25 is reached, k_min may be out a fair distance
+		while(b+10 < k_min-2.*distance[start])	//Do the interval 25GeV at a time until k_min-25 is reached, k_min may be out a fair distance
 		{
-			b += 25;
+			b += 10;
 			F_a = F_b = 0;	//Start integration at 0
 			for(i = 0; i < 24; i++)
 			{
@@ -490,7 +490,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 		while(b < 660)	//Do the integration 25GeV at time until 500GeV is reached. k_max may be a fair distance from 660GeV
 		{
 			a = b;	//near divsion by zero line to +100GeV
-			b += 25;
+			b += 10;
 			F_a = F_b = 0;	//Start integration at 0
 			for(i = 0; i < 24; i++)
 			{
@@ -520,9 +520,9 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 	}
 	else
 	{
-		long double distance[] = {2.5,5,7.5,10,50};	//magic numbers that indicates the distance from k=0GeV
+		long double distance[] = {2.5,5,7.5,10};	//magic numbers that indicates the distance from k=0GeV
 		a = 0;	//0GeV to 2.5GeV
-		for(j = 0; j < 5; j++)
+		for(j = 0; j < 4; j++)
 		{
 			b = distance[j];	//New upper boundary
 			F_a = F_b = 0;	//Start integration at 0
@@ -542,7 +542,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 		while(b < 660)	//Do the integration 25GeV at time until 500GeV is reached. k_max may be a fair distance from 660GeV
 		{
 			a = b;	//near divsion by zero line to +100GeV
-			b += 25;
+			b += 10;
 			F_a = F_b = 0;	//Start integration at 0
 			for(i = 0; i < 24; i++)
 			{
