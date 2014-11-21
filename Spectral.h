@@ -125,9 +125,13 @@ long double Spectral(long double Par[6], long double SelfPPar[3], long double Se
 
 	Num += complex<long double>(0,Integrate2(a, b, F_a, F_b, c, d, ImDelta_GInt, Par, SelfPPar, SelfEPar, Temp));
 
+	i = 0;	//Start at 0
+	while(i < 1421 && Done[0][i] != 0)	//And go find the first point in the array with no values
+		i++;
+
 	if(i < 1421)	//Only do if it will be in the alloted array, otherwise I'll get SigFaulted if I actually do more than 1421 points
 	{
-		Done[0][i] = E;
+		Done[0][i] = E;	//Now that you've found the first 0, store the information here
 		Done[1][i] = -2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag());
 	}
 
