@@ -17,6 +17,7 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
+	cout << argv[3] << endl;
 	char* File = new char[100];
 	strcpy(File, argv[3]);	//Name of the file
 	Process = argv[1];
