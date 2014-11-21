@@ -17,7 +17,7 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-	char* File = new char[25];
+	char* File = new char[100];
 	strcpy(File, argv[3]);	//Name of the file
 	Process = argv[1];
 	strcat(File, Process);			//Appends the process number to the file name
@@ -28,9 +28,9 @@ int main(int argc, char* argv[])
 	long double holder;
 	const int iProcess = atoi(argv[1]);
 	const int Total = atoi(argv[2]);
-	long double Par[6] = {-127.995280691106, 1.4049344847006076, 1.8, 0, 0};	//g, Lambda, M, |vec p|, E=sqrt(s)
-	long double SelfPPar[3] = {.75, 1, 1};	//a, Sigma1, Sigma2
-	long double SelfEPar[5] = {0, 1, 1.8, 1, 1};	//Sigma, gamma, E_0, a, b
+	long double Par[6] = {atof(argv[4]), atof(argv[5]), atof(argv[6]), 0, 0};	//-127.995280691106, 1.4049344847006076, 1.8: g, Lambda, M, |vec p|, E=sqrt(s)
+	long double SelfPPar[3] = {atof(argv[7]), atof(argv[8]), atof(argv[9])};	//a, Sigma1, Sigma2
+	long double SelfEPar[5] = {atof(argv[10]), atof(argv[11]), atof(argv[12]), atof(argv[13]), atof(argv[14])};	//Sigma, gamma, E_0), atof(a, b
 
 	#pragma omp parallel for private(z, holder, Par)
 	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i++)
