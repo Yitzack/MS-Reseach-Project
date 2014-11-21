@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 	long double SelfPPar[3] = {.75, 1, 1};	//a, Sigma1, Sigma2
 	long double SelfEPar[5] = {0, 1, 1.8, 1, 1};	//Sigma, gamma, E_0, a, b
 
-	#pragma omp parallel for private(z, holder)
+	#pragma omp parallel for private(z, holder, Par)
 	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i++)
 	{
 		z = .3+i*.02;
