@@ -125,20 +125,10 @@ long double Spectral(long double Par[6], long double SelfPPar[3], long double Se
 
 	Num += complex<long double>(0,Integrate2(a, b, F_a, F_b, c, d, ImDelta_GInt, Par, SelfPPar, SelfEPar, Temp));
 
-	#pragma omp critical	//Now that the values are calculated, I need to store it so I don't do it again. This needs to be done with a signle thread because I don't who got here first or in what order, so they need to take their time going through here and make sure we don't have N threads overwritting and duplicating and negacting points.
+	if(i < 1421)	//Only do if it will be in the alloted array, otherwise I'll get SigFaulted if I actually do more than 1421 points
 	{
-		i = 0;
-		while(i < 1421)	//While I haven't made it to the end of the array
-		{
-			if(Done[0][i] == E)	//If I find E in the array
-				break;	//Stop, its here already
-			i++;	//If not found, increament i and try again
-		}
-		if(i < 1421)	//Only do if it will be in the alloted array, otherwise I'll get SigFaulted if I actually do more than 1421 points
-		{
-			Done[0][i] = E;
-			Done[1][i] = -2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag());
-		}
+		Done[0][i] = E;
+		Done[1][i] = -2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag());
 	}
 
 	return(-2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag()));
