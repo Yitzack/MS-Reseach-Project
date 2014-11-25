@@ -382,21 +382,19 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 
 	if(Parameters[4] > 2.*Parameters[2])	//If above threshold, execute this method designed for divisions by zero closely approching the real number line
 	{
-		long double k, k_min, k_max;	//Values locating the various values of k where the division by zero gets closest to the real number line
+		long double k;	//Values locating the various values of k where the division by zero gets closest to the real number line
 		long double distance[] = {1e-1, 7.5e-2, 5e-2, 2.5e-2, 1e-2, 7.5e-3, 5e-3, 2.5e-3, 1e-3, 5e-4, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 1e-16, 1e-17};	//magic numbers that indicates the distance from the near division by zero.
 		k = .5*sqrt((pow(Parameters[4],2)-pow(2.*Parameters[2],2))*(pow(Parameters[4],2)+pow(Parameters[3],2))/(pow(Parameters[4],2)+pow(Parameters[3]*sin(theta),2)));
-		k_min = .5*sqrt((pow(Parameters[4],2)-pow(2.*Parameters[2],2))*(pow(Parameters[4],2)+pow(Parameters[3],2))/(pow(Parameters[4],2)+pow(Parameters[3],2)));
-		k_max = .5*sqrt((pow(Parameters[4],2)-pow(2.*Parameters[2],2))*(pow(Parameters[4],2)+pow(Parameters[3],2))/(pow(Parameters[4],2)));
-		while(2.*distance[start] > k_min && start < 14)	//Finds the starting value that won't over run the 0 lower boundary
+		while(2.*distance[start] > k && start < 24)	//Finds the starting value that won't over run the 0 lower boundary
 		{
 			start++;
 		}
 
 		a = b = 0;	//0GeV to near divsion by zero line
 
-		while(b+1 < k_min-2.*distance[start])	//Do the interval 25GeV at a time until k_min-25 is reached, k_min may be out a fair distance
+		while(b+1 < k-2.*distance[start])	//Do the interval 25GeV at a time until k-25 is reached, k may be out a fair distance
 		{
-			b += 1;
+			b += 10;
 			F_a = F_b = 0;	//Start integration at 0
 			for(i = 0; i < 24; i++)
 			{
@@ -411,7 +409,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 			a = b;
 		}
 
-		b = k_min-2.*distance[start];
+		b = k-2.*distance[start];
 		F_a = F_b = 0;	//Start integration at 0
 		for(i = 0; i < 24; i++)
 		{
@@ -474,7 +472,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 		}
 
 		a = b;	//near divsion by zero to near division by zero line
-		b = k_max+distance[0]*2.;
+		b = k+distance[0]*2.;
 		F_a = F_b = 0;	//Start integration at 0
 		for(i = 0; i < 24; i++)
 		{
@@ -520,29 +518,11 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 	}
 	else
 	{
-		//long double distance[] = {2.5,5,7.5,10};	//magic numbers that indicates the distance from k=0GeV
-		a = b = 0;	//0GeV to 2.5GeV
-		/*for(j = 0; j < 4; j++)
-		{
-			b = distance[j];	//New upper boundary
-			F_a = F_b = 0;	//Start integration at 0
-			for(i = 0; i < 24; i++)
-			{
-				x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-				x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1];	//Evaluate function at x1
-				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1];	//Evaluate function at x3
-			}
-			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0];	//Evaluate the function at the center
-			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-			a = b;	//New lower boundary
-		}*/
-		
+		a = b = 0;
 		while(b < 660)	//Do the integration 25GeV at time until 500GeV is reached. k_max may be a fair distance from 660GeV
 		{
 			a = b;	//near divsion by zero line to +100GeV
-			b += 1;
+			b += 10;
 			F_a = F_b = 0;	//Start integration at 0
 			for(i = 0; i < 24; i++)
 			{
