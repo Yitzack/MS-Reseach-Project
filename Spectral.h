@@ -390,7 +390,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 			start++;
 		}
 
-		a = b = 0;	//0GeV to near divsion by zero line
+		a = 0; b = 0;	//0GeV to near divsion by zero line
 
 		while(b+10 < k-2.*distance[start])	//Do the interval 25GeV at a time until k-25 is reached, k may be out a fair distance
 		{
