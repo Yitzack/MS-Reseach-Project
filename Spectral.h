@@ -182,34 +182,16 @@ long double Spectral(long double M, long double P, long double E, int Temp)
 	int N_f = 3;
 	int N_c = 3;
 
-	F_c = G_0Int(Par, a, c, Temp);	//Inital end points of the boundary
-	F_d = G_0Int(Par, a, d, Temp);
-	F_a = Integrate1(c, d, F_c, F_d, G_0Int, Par, a, Temp);
-
-	F_c = G_0Int(Par, b, c, Temp);	//Inital end points of the boundary
-	F_d = G_0Int(Par, b, d, Temp);
-	F_b = Integrate1(c, d, F_c, F_d, G_0Int, Par, b, Temp);
-
+	F_a = Integrate1(G_0Int, Par, a, Temp);
+	F_b = Integrate1(G_0Int, Par, b, Temp);
 	G_0 = Integrate2(a, b, F_a, F_b, c, d, G_0Int, Par, Temp);
 
-	F_c = ReDelta_GInt(Par, a, c, Temp);	//Inital end points of the boundary
-	F_d = ReDelta_GInt(Par, a, d, Temp);
-	F_a = Integrate1(c, d, F_c, F_d, ReDelta_GInt, Par, a, Temp);
-
-	F_c = ReDelta_GInt(Par, b, c, Temp);	//Inital end points of the boundary
-	F_d = ReDelta_GInt(Par, b, d, Temp);
-	F_b = Integrate1(c, d, F_c, F_d, ReDelta_GInt, Par, b, Temp);
-
+	F_a = Integrate1(ReDelta_GInt, Par, a, Temp);
+	F_b = Integrate1(ReDelta_GInt, Par, b, Temp);
 	Num = complex<long double>(Integrate2(a, b, F_a, F_b, c, d, ReDelta_GInt, Par, Temp),0);
 
-	F_c = ImDelta_GInt(Par, a, c, Temp);	//Inital end points of the boundary
-	F_d = ImDelta_GInt(Par, a, d, Temp);
-	F_a = Integrate1(c, d, F_c, F_d, ImDelta_GInt, Par, a, Temp);
-
-	F_c = ImDelta_GInt(Par, b, c, Temp);	//Inital end points of the boundary
-	F_d = ImDelta_GInt(Par, b, d, Temp);
-	F_b = Integrate1(c, d, F_c, F_d, ImDelta_GInt, Par, b, Temp);
-
+	F_a = Integrate1(ImDelta_GInt, Par, a, Temp);
+	F_b = Integrate1(ImDelta_GInt, Par, b, Temp);
 	Num += complex<long double>(0,Integrate2(a, b, F_a, F_b, c, d, ImDelta_GInt, Par, Temp));
 
 	return(-2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag()));
