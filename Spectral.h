@@ -340,7 +340,7 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 
 	long double Trapazoid = (F_a+F_b)*(b-a)/2.;		//Trapazoid rule
 	long double Simpsons = (F_a+F_ave*4.+F_b)*(b-a)/6.;	//Simpson's rule
-	if(abs(Trapazoid-Simpsons)*2./abs(Trapazoid+Simpsons) > 1 && abs(b-a) > 1e-10)	//If difference between measurements is too large and the differnce between the two points is large enough. The accuracy needs to be better than .00005 and the resolution equal to 1e-18 (segfault if too small). Possibly stronger requirements now that epsilon is -.000001
+	if(abs(Trapazoid-Simpsons)*2./abs(Trapazoid+Simpsons) > 1 && abs(b-a) > 1e-10 && abs(Simpsons) > 1e-5)	//If difference between measurements is too large and the differnce between the two points is large enough. The accuracy needs to be better than .00005 and the resolution equal to 1e-18 (segfault if too small). Possibly stronger requirements now that epsilon is -.000001
 		return(Integrate2(a, a/2.+b/2., F_a, F_ave, c, d, Integrand, Parameters, Temp)+Integrate2(a/2.+b/2., b, F_ave, F_b, c, d, Integrand, Parameters, Temp)); //subdivide the interval and return integral of two sub-intervals
 	else	//else
 	{
@@ -488,7 +488,7 @@ long double Integrate1(long double a, long double b, long double F_a, long doubl
 		while(b < 660)	//Do the integration 25GeV at time until 500GeV is reached. k_max may be a fair distance from 660GeV
 		{
 			a = b;	//near divsion by zero line to +100GeV
-			b += 1;
+			b += 10;
 			F_a = F_b = 0;	//Start integration at 0
 			for(i = 0; i < 24; i++)
 			{
