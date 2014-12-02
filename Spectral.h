@@ -249,19 +249,12 @@ complex<long double> TMatrix(long double M, long double P, long double E, int Te
 	long double F_c, c = 0.;
 	long double F_d, d = 100.;
 
-	F_c = ReInt(Parameters, a, c, Temp);	//Inital end points of the boundary
-	F_d = ReInt(Parameters, a, d, Temp);
-	F_a = Integrate1(c, d, F_c, F_d, ReInt, Parameters, a, Temp);
-
-	F_c = ReInt(Parameters, b, c, Temp);	//Inital end points of the boundary
-	F_d = ReInt(Parameters, b, d, Temp);
-	F_b = Integrate1(c, d, F_c, F_d, ReInt, Parameters, b, Temp);
-
+	F_a = Integrate1(ReInt, Parameters, a, Temp);
+	F_b = Integrate1(ReInt, Parameters, b, Temp);
 	Int_Holder = complex<long double>(Integrate2(a, b, F_a, F_b, c, d, ReInt, Parameters, Temp), 0);
 
 	F_a = Integrate1(ImInt, Parameters, a, Temp);
 	F_b = Integrate1(ImInt, Parameters, b, Temp);
-
 	Int_Holder += complex<long double>(0 ,Integrate2(a, b, F_a, F_b, c, d, ImInt, Parameters, Temp));
 	Int_Holder = complex<long double>(1.,0.)/(complex<long double>(1.,0.)-Int_Holder);	//Integrate once, where it says Parameters[6] in the numerator, I need to put V(p,p') in the event that I didn't get that correct
 
