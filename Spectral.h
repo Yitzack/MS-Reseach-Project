@@ -24,6 +24,43 @@ long double ReDelta_GInt(long double[6], long double [3], long double[5], long d
 long double ImDelta_GInt(long double[6], long double [3], long double[5], long double, long double, int); //Returns the imaginary part of the Delta G integrand
 inline long double Potential1(long double[6], long double, long double); //Returns one of the factors of the potiential that is in Potential() without the coupling constant.
 long double Fermi(long double[6], long double, long double, int); //Returns the fermi factor (1-2n_f(E;T))
+long double Analytic(long double, long double); //The analytic spectral function for vacuum, which is constant in P
+inline complex<long double> arctan(complex<long double>);
+inline complex<long double> arctanh(complex<long double>);
+
+inline complex<long double> arctan(complex<long double>x)
+{
+	complex<long double> i(0,1);
+	complex<long double> one(1,0);
+	return(complex<long double>(0,.5)*log((one-i*x)/(one+i*x)));
+}
+
+inline complex<long double> arctanh(complex<long double>x)
+{
+	complex<long double> one(1,0);
+	return(complex<long double>(.5,0)*log((one+x)/(one-x)));
+}
+
+long double Analytic(long double E, long double Epsilon) //This strictly vacuum, the width has no depandance beside the E, ever. The epsilon is .008GeV for the correct natural width.
+{//Stupid complex number object doesn't include binary functions of reals and complex numbers
+	long double M = 1.8;
+	long double CC = -127.995280691106;
+	long double Lambda = 1.4049344847006076;
+
+	complex<long double> SMEpsilon(E*E/4.-M*M,Epsilon*E); //The analytic needs to divide the energy by 2 to match what the integration is doing
+	complex<long double> SEpsilon(E*E/4.,Epsilon*E);
+	complex<long double> MLambda1(pow(Lambda/2.,2)-M*M,0);
+	complex<long double> MLambda2(pow(M/Lambda,2)-.25,0);
+	complex<long double> SMLambdaEpsilon((E*E+pow(Lambda,2))/4.-M*M,Epsilon*E*Self_E_Depends(E,0));
+	complex<long double> Num, Den, Non;
+
+	Num = complex<long double>(pow(Lambda*M/(4.*M_PI),2),0)*(complex<long double>(2,0)*sqrt(MLambda1*SMEpsilon)*arctan(sqrt(-SEpsilon/SMEpsilon))-complex<long double>(Lambda,0)*sqrt(SEpsilon)*arctan(complex<long double>(2,0)*sqrt(MLambda2)))/(sqrt(SEpsilon*-MLambda1)*SMLambdaEpsilon);
+	Den = complex<long double>(CC*pow(Lambda*Lambda*M/(8*M_PI),2),0)/pow(SMLambdaEpsilon,2)*(SMLambdaEpsilon/MLambda1+(complex<long double>(pow(Lambda,4)/4.-pow(Lambda*M,2)/2,0)+complex<long double>(2*M*M,0)*SMEpsilon)/(complex<long double>(Lambda,0)*pow(-MLambda1,(long double)(1.5)))*arctan(complex<long double>(2,0)*sqrt(MLambda2))+complex<long double>(2,0)*sqrt(-SMEpsilon/SEpsilon)*arctan(sqrt(-SEpsilon/SMEpsilon)));
+	Non = complex<long double>(M*M/(2.*M_PI*M_PI),0)*sqrt(SMEpsilon/SEpsilon)*arctanh(sqrt(SEpsilon/SMEpsilon));
+	//cout << E << " " << Num.real() << " " << Num.imag() << " " << Den.real() << " " << Den.imag() << " " << -18./M_PI*Non.imag() << endl;
+
+	return(-18./M_PI*(Non+CC*(pow(Num,(long double)(2.))/(complex<long double>(1.,0)-Den))).imag());
+}
 
 inline long double Self_Energy(long double Par[3], long double P)
 {
