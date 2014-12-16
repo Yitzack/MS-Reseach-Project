@@ -84,6 +84,7 @@ long double Analytic(long double E, long double Epsilon)	//Vacuum doesn't need s
 	long double M = 1.8;
 	long double CC = -127.995280691106;
 	long double Lambda = 1.4049344847006076;
+	Epsilon = Epsilon*pow((E*E-1.258884)/7.984588734864,2.5)*pow(1.618884/(.36+E*E),2);
 
 	complex<long double> SMEpsilon(E*E/4.-M*M,Epsilon*E);	//The analytic needs to divide the energy by 2 to match what the integration is doing
 	complex<long double> SEpsilon(E*E/4.,Epsilon*E);
