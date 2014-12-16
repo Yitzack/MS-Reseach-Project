@@ -90,7 +90,7 @@ long double Analytic(long double E, long double Epsilon)	//Vacuum doesn't need s
 	complex<long double> SEpsilon(E*E/4.,Epsilon*E);
 	complex<long double> MLambda1(pow(Lambda/2.,2)-M*M,0);
 	complex<long double> MLambda2(pow(M/Lambda,2)-.25,0);
-	complex<long double> SMLambdaEpsilon((E*E+pow(Lambda,2))/4.-M*M,Epsilon*E*Self_E_Depends(E,0));
+	complex<long double> SMLambdaEpsilon((E*E+pow(Lambda,2))/4.-M*M,Epsilon*E);
 	complex<long double> Num, Den, Non;
 
 	Num = complex<long double>(pow(Lambda*M/(4.*M_PI),2),0)*(complex<long double>(2,0)*sqrt(MLambda1*SMEpsilon)*arctan(sqrt(-SEpsilon/SMEpsilon))-complex<long double>(Lambda,0)*sqrt(SEpsilon)*arctan(complex<long double>(2,0)*sqrt(MLambda2)))/(sqrt(SEpsilon*-MLambda1)*SMLambdaEpsilon);
