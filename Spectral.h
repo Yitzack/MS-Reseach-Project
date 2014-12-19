@@ -87,7 +87,7 @@ inline long double Self_E_Depends(long double E)
 	}
 
 	i = E/.001;
-	SelfE = 1000.*(i*Table[i+1]-(i+1)*Table[i])-E*(Table[i+1]-Table[i]);
+	SelfE = Table[i+1]*(i-E*1000.)+Table[i]*(E*1000.-i-1);
 
 	return(SelfE);
 }
