@@ -16,7 +16,7 @@ inline long double ImProp(long double[6], long double [3], long double[5], long 
 inline long double LawCosines(long double, long double, long double); //Returns the law of cosines for two vectors with an angle inbetween.
 inline long double Potential(long double[6], long double, long double); //Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
 inline long double Common(long double[6], long double [3], long double[5], long double, long double, int); //Returns the common part of propagators
-inline long double Self_E_Depends(long double[5], long double); //Contains a function that will give a dependance on E and Temp for the self-energy
+inline long double Self_E_Depends(long double); //Contains a function that will give a dependance on E and Temp for the self-energy
 complex<long double> TMatrix(long double[6], long double[3], long double[5], long double, int); //Returns the T-matrix
 long double Spectral(long double[6], long double[3], long double[5], long double, int); //Returns the spectral function of the T-matrix
 long double G_0Int(long double[6], long double [3], long double[5], long double, long double, int); //Returns the integrand for G_0. This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
@@ -68,7 +68,7 @@ inline long double Self_Energy(long double Par[3], long double P)
 	return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2)));
 }
 
-inline long double Self_E_Depends(long double Par[5], long double E)
+inline long double Self_E_Depends(long double E)
 {
 	E /= 2.;
 	long double SelfE;
