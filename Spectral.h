@@ -71,11 +71,25 @@ inline long double Self_Energy(long double Par[3], long double P)
 inline long double Self_E_Depends(long double Par[5], long double E)
 {
 	E /= 2.;
-	long double Sigma = Par[0]; //size of energy dependance
-	long double gamma = Par[1]; //width of lorentzian
-	long double E_0 = Par[2]; //location of lorentzian
-	long double a = Par[3], b = Par[4]; //Exponential parameters, length and power
-	return(pow(tanh(a*E),2)*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
+	long double SelfE;
+	static long double Table[23501];
+	static bool Run = false;
+	ifstream List("./Imaginary.xml");
+	int i;
+
+	if(!Run)
+	{
+		for(i = 0; i < 23501; i++)
+		{
+			List >> Table[i][1]; //Insert the next value into its place
+		}
+		Run = true; //prevent a run of this code
+	}
+
+	i = E/.001;
+	Epsilon = Table[i][1]*(1.+i-1000*P)+Table[i+1][1]*(1000*P-i)*2.;
+
+	return(Epsilon);
 }
 
 complex<long double> TMatrix(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double E, int Temp)
