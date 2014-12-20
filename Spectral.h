@@ -16,7 +16,7 @@ inline long double ImProp(long double[6], long double [3], long double[5], long 
 inline long double LawCosines(long double, long double, long double); //Returns the law of cosines for two vectors with an angle inbetween.
 inline long double Potential(long double[6], long double, long double); //Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
 inline long double Common(long double[6], long double [3], long double[5], long double, long double, int); //Returns the common part of propagators
-inline long double Self_E_Depends(long double); //Contains a function that will give a dependance on E and Temp for the self-energy
+inline long double Self_E_Depends(long double[5], long double); //Contains a function that will give a dependance on E and Temp for the self-energy
 complex<long double> TMatrix(long double[6], long double[3], long double[5], long double, int); //Returns the T-matrix
 long double Spectral(long double[6], long double[3], long double[5], long double, int); //Returns the spectral function of the T-matrix
 long double G_0Int(long double[6], long double [3], long double[5], long double, long double, int); //Returns the integrand for G_0. This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
@@ -68,28 +68,14 @@ inline long double Self_Energy(long double Par[3], long double P)
 	return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2)));
 }
 
-inline long double Self_E_Depends(long double E)
+inline long double Self_E_Depends(long double Par[5], long double E)
 {
 	E /= 2.;
-	long double SelfE;
-	static long double Table[23501];
-	static bool Run = false;
-	ifstream List("./Imaginary.xml");
-	int i;
-
-	if(!Run)
-	{
-		for(i = 0; i < 23501; i++)
-		{
-			List >> Table[i]; //Insert the next value into its place
-		}
-		Run = true; //prevent a run of this code
-	}
-
-	i = E/.001;
-	SelfE = Table[i+1]*(i-E*1000.)+Table[i]*(E*1000.-i-1);
-
-	return(SelfE);
+	long double Sigma = Par[0]; //size of energy dependance
+	long double gamma = Par[1]; //width of lorentzian
+	long double E_0 = Par[2]; //location of lorentzian
+	long double a = Par[3], b = Par[4]; //Exponential parameters, length and power
+	return(pow(tanh(a*E),2)*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
 }
 
 complex<long double> TMatrix(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double E, int Temp)
@@ -247,23 +233,22 @@ long double ImInt(long double Par[6], long double SelfPPar[3], long double SelfE
 inline long double Common(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the common part of both propagators
 {
 	if(Par[4] >= 1.122)
-		return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-Par[5]*pow((pow(Par[4],2)-1.258884)/7.984588734864,2.5)*pow(1.618884/(.36+pow(Par[4],2)),2)*Par[4], 2)));
+		return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-Par[5]*pow((pow(Par[4],2)-1.258884)/7.984588734864,2.5)*pow(1.618884/(.36+pow(Par[4],2)),2)*Par[4], 2)));
 	else
-		return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))), 2)));
-
+		return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))), 2)));
 }
 
 inline long double ReProp(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the real part of the propagator
 {
-	return(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2));
+	return(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2));
 }
 
 inline long double ImProp(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the imaginary part of the propagator
 {
 	if(Par[4] >= 1.122)
-		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-Par[5]*pow((pow(Par[4],2)-1.258884)/7.984588734864,2.5)*pow(1.618884/(.36+pow(Par[4],2)),2)*Par[4]);
+		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-Par[5]*pow((pow(Par[4],2)-1.258884)/7.984588734864,2.5)*pow(1.618884/(.36+pow(Par[4],2)),2)*Par[4]);
 	else
-		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))));
+		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))));
 }
 
 inline long double Potential(long double Par[6], long double k, long double theta) //Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
