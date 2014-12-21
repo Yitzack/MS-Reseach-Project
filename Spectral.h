@@ -23,7 +23,8 @@ long double G_0Int(long double[6], long double [3], long double[5], long double,
 long double ReDelta_GInt(long double[6], long double [3], long double[5], long double, long double, int); //Returns the real part of the Delta G integrand
 long double ImDelta_GInt(long double[6], long double [3], long double[5], long double, long double, int); //Returns the imaginary part of the Delta G integrand
 inline long double Potential1(long double[6], long double, long double); //Returns one of the factors of the potiential that is in Potential() without the coupling constant.
-long double Fermi(long double[6], long double, long double, int); //Returns the fermi factor (1-2n_f(E;T))
+long double Fermi(long double[6], long double, long double, int); //Returns the fermi factor where energy is computed
+long double FermiProp(long double E, int T)//Returns the fermi factor where the energy is given
 long double Analytic(long double, long double); //The analytic spectral function for vacuum, which is constant in P
 inline complex<long double> arctan(complex<long double>);
 inline complex<long double> arctanh(complex<long double>);
@@ -199,19 +200,42 @@ long double Fermi(long double Par[6], long double k, long double theta, int T)
 	return(1./(exp(Energy(Par[2], Par[3]/2., k, theta)/Temp)+1.)); //Fermi factor
 }
 
+long double FermiProp(long double E, int T)
+{
+	long double Temp; //T_c = .196GeV = 196MeV
+
+	switch(T)
+	{
+		case 0:
+			return(0);
+			break;
+		case 1:
+			Temp = .196*1.2;
+			break;
+		case 2:
+			Temp = .196*1.5;
+			break;
+		case 3:
+			Temp = .196*2.;
+			break;
+	}
+
+	return(1./(exp(E/Temp)+1.)); //Fermi factor
+}
+
 long double G_0Int(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 {
-	return(ImProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp))*sin(theta)*k*k);
+	return(ImProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*sin(theta)*k*k);
 }
 
 long double ReDelta_GInt(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp)
 {
-	return(k*k*sin(theta)*ReProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential1(Par, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
+	return(k*k*sin(theta)*ReProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential1(Par, k, theta));
 }
 
 long double ImDelta_GInt(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp)
 {
-	return(k*k*sin(theta)*ImProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential1(Par, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
+	return(k*k*sin(theta)*ImProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential1(Par, k, theta));
 }
 
 inline long double Potential1(long double Par[6], long double k, long double theta)
@@ -222,12 +246,12 @@ inline long double Potential1(long double Par[6], long double k, long double the
 //Parameters = g, Lambda, M, |vec p|, E=sqrt(s)
 long double ReInt(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the real part of the integrand
 {
-	return(ReProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential(Par, k, theta)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*sin(theta)*k*k);
+	return(ReProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential(Par, k, theta)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*sin(theta)*k*k*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
 }
 
 long double ImInt(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the imaginary part of the integrand
 {
-	return(ImProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential(Par, k, theta)*Common(Par, SelfPPar, SelfEPar, k, theta, Temp)*sin(theta)*k*k);
+	return(ImProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*Potential(Par, k, theta)*sin(theta)*k*k);
 }
 
 inline long double Common(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the common part of both propagators
@@ -243,12 +267,14 @@ inline long double ReProp(long double Par[6], long double SelfPPar[3], long doub
 	return(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2));
 }
 
-inline long double ImProp(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the imaginary part of the propagator
+long double ImProp(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the imaginary part of the propagator
 {
-	if(Par[4] >= 1.122)
-		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-Par[5]*pow((pow(Par[4],2)-1.258884)/7.984588734864,2.5)*pow(1.618884/(.36+pow(Par[4],2)),2)*Par[4]);
-	else
-		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))));
+	g
+}
+
+inline long double PropIntegrand(long double omega, long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp)
+{
+	return(Par[2]*Par[2]*Self_E_Depends(SelfEPar, omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))*Self_E_Depends(SelfEPar, Par[4]-omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))/(Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta)*(pow(omega-Energy(Par[2], Par[3]/2., k, theta),2)+pow(Self_E_Depends(SelfEPar, omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta)),2))*(pow(Par[4]-omega-Energy(Par[2], Par[3]/2.,-k, theta),2)+pow(Self_E_Depends(SelfEPar, Par[4]-omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2.,-k, theta)),2))));
 }
 
 inline long double Potential(long double Par[6], long double k, long double theta) //Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
