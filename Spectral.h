@@ -269,7 +269,172 @@ inline long double ReProp(long double Par[6], long double SelfPPar[3], long doub
 
 long double ImProp(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the imaginary part of the propagator
 {
-	g
+	long double Disp[] = {0.06342068498268678602883, 0.1265859972696720510680, 0.1892415924618135864853, 0.2511351786125772735072, 0.3120175321197487622079, 0.3716435012622848888637, 0.4297729933415765246586, 0.4861719414524920421770, 0.5406132469917260665582, 0.5928776941089007124559, 0.6427548324192376640569, 0.6900438244251321135048, 0.7345542542374026962137, 0.7761068943454466350181, 0.8145344273598554315395, 0.8496821198441657010349, 0.8814084455730089100370, 0.9095856558280732852130, 0.9341002947558101490590, 0.9548536586741372335552, 0.9717622009015553801400, 0.9847578959142130043593, 0.9937886619441677907601, 0.9988201506066353793618}; //Dispacement from center for Gauss-Legendre integration
+	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481}; //Weight of the function at Disp
+	long double zero1 = Energy(Par[2], Par[3]/2., k, theta);	//These are the pionts that may cause the greatest problems, but only if they are between 0 and Par[4]=E=sqrt s
+	long double zero2 = Par[4]-Energy(Par[2], Par[3]/2., -k, theta);
+	long double Answer = 0;
+	long double a = 0;
+	long double b;
+
+	if(zero1 > zero2)	//reorder zero1 before zero2
+	{
+		b = zero1;
+		zero1 = zero2;
+		zero2 = zero1;
+	}
+	b = 0;
+
+	if(zero1 > 0 && zero1 < Par[4])	//Integrate from 0 to zero1
+	{
+		if(zero1 < .9)
+			b = 1;
+		else
+			b = zero1-.1;
+
+		while(b < zero1-.1)
+		{
+			F_a = F_b = 0; //Start integration at 0
+			for(i = 0; i < 24; i++)
+			{
+				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+				x3[i] = (b+a+Disp[i]*(b-a))/2.;
+				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+			}
+			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+			a = b;
+			b += 1;
+		}
+
+		b = zero1-.1;
+		F_a = F_b = 0; //Start integration at 0
+		for(i = 0; i < 24; i++)
+		{
+			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+			x3[i] = (b+a+Disp[i]*(b-a))/2.;
+			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+		}
+		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+		a = b;
+
+		b = zero1;
+		F_a = F_b = 0; //Start integration at 0
+		for(i = 0; i < 24; i++)
+		{
+			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+			x3[i] = (b+a+Disp[i]*(b-a))/2.;
+			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+		}
+		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+		a = b;
+
+		if(zero2-zero1 > .1 && zero2 < Par[4])
+		{
+			b = zero1+.1;
+			F_a = F_b = 0; //Start integration at 0
+			for(i = 0; i < 24; i++)
+			{
+				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+				x3[i] = (b+a+Disp[i]*(b-a))/2.;
+				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+			}
+			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+			a = b;
+		}
+	}
+
+	if(zero2 > 0 && zero2 < Par[4])	//Integrate from 0 or zero1 to zero2, zero2 at this point is going to be bigger than zero1
+	{
+		if(b < zero2-1.1)
+			b += 1;
+		else
+			b = zero2-.1;
+
+		while(b < zero2-.1)
+		{
+			F_a = F_b = 0; //Start integration at 0
+			for(i = 0; i < 24; i++)
+			{
+				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+				x3[i] = (b+a+Disp[i]*(b-a))/2.;
+				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+			}
+			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+			a = b;
+			b += 1;
+		}
+
+		b = zero2-.1;
+		F_a = F_b = 0; //Start integration at 0
+		for(i = 0; i < 24; i++)
+		{
+			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+			x3[i] = (b+a+Disp[i]*(b-a))/2.;
+			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+		}
+		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+		a = b;
+
+		b = zero2;
+		F_a = F_b = 0; //Start integration at 0
+		for(i = 0; i < 24; i++)
+		{
+			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+			x3[i] = (b+a+Disp[i]*(b-a))/2.;
+			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+		}
+		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+		a = b;
+	}
+	
+	if(Par[4]-zero2 > .1)
+	{
+		b = zero2+.1;
+		F_a = F_b = 0; //Start integration at 0
+		for(i = 0; i < 24; i++)
+		{
+			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+			x3[i] = (b+a+Disp[i]*(b-a))/2.;
+			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+		}
+		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+		a = b;
+	}
+
+	//Integrate from 0, zero1, or zero2 to Par[4]=E=sqrt(s)
+	while(b < Par[4])
+	{
+		b += 1;
+		F_a = F_b = 0; //Start integration at 0
+		for(i = 0; i < 24; i++)
+		{
+			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
+			x3[i] = (b+a+Disp[i]*(b-a))/2.;
+			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1]; //Evaluate function at x3
+		}
+		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+		a = b;
+	}
+
+	return(Answer);
 }
 
 inline long double PropIntegrand(long double omega, long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp)
