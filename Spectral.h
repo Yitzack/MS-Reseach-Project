@@ -13,6 +13,7 @@ long double Integrate2(long double, long double, long double, long double, long 
 long double Self_Energy(long double[3], long double); //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)), this is my choice of function for the self-energy
 inline long double ReProp(long double[6], long double [3], long double[5], long double, long double, int); //Returns the real part of the propagator
 inline long double ImProp(long double[6], long double [3], long double[5], long double, long double, int); //Returns the imaginary part of the propagator
+inline long double PropIntegrand(long double, long double, long double, long double, long double, long double, int);
 inline long double LawCosines(long double, long double, long double); //Returns the law of cosines for two vectors with an angle inbetween.
 inline long double Potential(long double[6], long double, long double); //Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
 inline long double Common(long double[6], long double [3], long double[5], long double, long double, int); //Returns the common part of propagators
@@ -28,7 +29,6 @@ long double FermiProp(long double E, int T)//Returns the fermi factor where the 
 long double Analytic(long double, long double); //The analytic spectral function for vacuum, which is constant in P
 inline complex<long double> arctan(complex<long double>);
 inline complex<long double> arctanh(complex<long double>);
-
 inline complex<long double> arctan(complex<long double>x)
 {
 	complex<long double> i(0,1);
