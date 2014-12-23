@@ -302,10 +302,10 @@ long double ImProp(long double Par[6], long double SelfPPar[3], long double Self
 			{
 				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 				x3[i] = (b+a+Disp[i]*(b-a))/2.;
-				F_a += PropIntegrand(x1[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x1
-				F_b += PropIntegrand(x3[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x3
+				F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
+				F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
 			}
-			F_ave = PropIntegrand((a+b)/2., Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[0]; //Evaluate the function at the center
+			F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
 			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 			a = b;
 			b += 1;
@@ -317,10 +317,10 @@ long double ImProp(long double Par[6], long double SelfPPar[3], long double Self
 		{
 			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-			F_a += PropIntegrand(x1[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += PropIntegrand(x3[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x3
+			F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
 		}
-		F_ave = PropIntegrand((a+b)/2., Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[0]; //Evaluate the function at the center
+		F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
 
@@ -330,10 +330,10 @@ long double ImProp(long double Par[6], long double SelfPPar[3], long double Self
 		{
 			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-			F_a += PropIntegrand(x1[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += PropIntegrand(x3[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x3
+			F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
 		}
-		F_ave = PropIntegrand((a+b)/2., Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[0]; //Evaluate the function at the center
+		F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
 
@@ -345,10 +345,10 @@ long double ImProp(long double Par[6], long double SelfPPar[3], long double Self
 			{
 				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 				x3[i] = (b+a+Disp[i]*(b-a))/2.;
-				F_a += PropIntegrand(x1[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x1
-				F_b += PropIntegrand(x3[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x3
+				F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
+				F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
 			}
-			F_ave = PropIntegrand((a+b)/2., Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[0]; //Evaluate the function at the center
+			F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
 			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 			a = b;
 		}
@@ -368,10 +368,10 @@ long double ImProp(long double Par[6], long double SelfPPar[3], long double Self
 			{
 				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 				x3[i] = (b+a+Disp[i]*(b-a))/2.;
-				F_a += PropIntegrand(x1[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x1
-				F_b += PropIntegrand(x3[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x3
+				F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
+				F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
 			}
-			F_ave = PropIntegrand((a+b)/2., Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[0]; //Evaluate the function at the center
+			F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
 			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 			a = b;
 			b += 1;
@@ -383,10 +383,10 @@ long double ImProp(long double Par[6], long double SelfPPar[3], long double Self
 		{
 			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-			F_a += PropIntegrand(x1[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += PropIntegrand(x3[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x3
+			F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
 		}
-		F_ave = PropIntegrand((a+b)/2., Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[0]; //Evaluate the function at the center
+		F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
 
@@ -396,10 +396,10 @@ long double ImProp(long double Par[6], long double SelfPPar[3], long double Self
 		{
 			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-			F_a += PropIntegrand(x1[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += PropIntegrand(x3[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x3
+			F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
 		}
-		F_ave = PropIntegrand((a+b)/2., Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[0]; //Evaluate the function at the center
+		F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}
@@ -412,10 +412,10 @@ long double ImProp(long double Par[6], long double SelfPPar[3], long double Self
 		{
 			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-			F_a += PropIntegrand(x1[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += PropIntegrand(x3[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x3
+			F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
 		}
-		F_ave = PropIntegrand((a+b)/2., Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[0]; //Evaluate the function at the center
+		F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}
@@ -429,10 +429,10 @@ long double ImProp(long double Par[6], long double SelfPPar[3], long double Self
 		{
 			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-			F_a += PropIntegrand(x1[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += PropIntegrand(x3[i], Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[i+1]; //Evaluate function at x3
+			F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
+			F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
 		}
-		F_ave = PropIntegrand((a+b)/2., Par[6], SelfPPar[3], SelfEPar[5], k, theta, Temp)*w[0]; //Evaluate the function at the center
+		F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}
