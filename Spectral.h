@@ -25,7 +25,7 @@ long double ReDelta_GInt(long double[6], long double [3], long double[5], long d
 long double ImDelta_GInt(long double[6], long double [3], long double[5], long double, long double, int); //Returns the imaginary part of the Delta G integrand
 inline long double Potential1(long double[6], long double, long double); //Returns one of the factors of the potiential that is in Potential() without the coupling constant.
 long double Fermi(long double[6], long double, long double, int); //Returns the fermi factor where energy is computed
-long double FermiProp(long double E, int T)//Returns the fermi factor where the energy is given
+long double FermiProp(long double E, int T);//Returns the fermi factor where the energy is given
 long double Analytic(long double, long double); //The analytic spectral function for vacuum, which is constant in P
 inline complex<long double> arctan(complex<long double>);
 inline complex<long double> arctanh(complex<long double>);
