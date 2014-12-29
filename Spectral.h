@@ -328,7 +328,7 @@ long double ImProp(long double Par[6], long double SelfPPar[3], long double Self
 			a = b;
 			b += 1;
 		}
-		b = zero1-.05
+		b = zero1-.05;
 
 		F_a = F_b = 0; //Start integration at 0
 		for(i = 0; i < 24; i++)
