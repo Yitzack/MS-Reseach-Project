@@ -440,7 +440,7 @@ long double ImProp(long double Par[6], long double SelfPPar[3], long double Self
 
 inline long double PropIntegrand(long double omega, long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp)
 {
-	return(Par[2]*Par[2]*Self_E_Depends(SelfEPar, omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))*Self_E_Depends(SelfEPar, Par[4]-omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))/(Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta)*(pow(omega-Energy(Par[2], Par[3]/2., k, theta),2)+pow(Self_E_Depends(SelfEPar, omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta)),2))*(pow(Par[4]-omega-Energy(Par[2], Par[3]/2.,-k, theta),2)+pow(Self_E_Depends(SelfEPar, Par[4]-omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2.,-k, theta)),2)))*(1-FermiProp(omega, Temp)-FermiProp(Par[4]-omega, Temp)));
+	return(-Par[2]*Par[2]/M_PI*Self_E_Depends(SelfEPar, omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))*Self_E_Depends(SelfEPar, Par[4]-omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))/(Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta)*(pow(omega-Energy(Par[2], Par[3]/2., k, theta),2)+pow(Self_E_Depends(SelfEPar, omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta)),2))*(pow(Par[4]-omega-Energy(Par[2], Par[3]/2.,-k, theta),2)+pow(Self_E_Depends(SelfEPar, Par[4]-omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2.,-k, theta)),2)))*(1-FermiProp(omega, Temp)-FermiProp(Par[4]-omega, Temp)));
 }
 
 inline long double Potential(long double Par[6], long double k, long double theta) //Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
