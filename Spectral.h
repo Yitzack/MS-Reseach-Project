@@ -13,7 +13,6 @@ long double Integrate2(long double, long double, long double, long double, long 
 long double Self_Energy(long double[3], long double); //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)), this is my choice of function for the self-energy
 inline long double ReProp(long double[6], long double [3], long double[5], long double, long double, int); //Returns the real part of the propagator
 long double ImProp(long double[6], long double [3], long double[5], long double, long double, int); //Returns the imaginary part of the propagator
-inline long double PropIntegrand(long double, long double[6], long double[3], long double[5], long double, long double, int);
 inline long double LawCosines(long double, long double, long double); //Returns the law of cosines for two vectors with an angle inbetween.
 inline long double Potential(long double[6], long double, long double); //Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
 inline long double Common(long double[6], long double [3], long double[5], long double, long double, int); //Returns the common part of propagators
@@ -25,10 +24,10 @@ long double ReDelta_GInt(long double[6], long double [3], long double[5], long d
 long double ImDelta_GInt(long double[6], long double [3], long double[5], long double, long double, int); //Returns the imaginary part of the Delta G integrand
 inline long double Potential1(long double[6], long double, long double); //Returns one of the factors of the potiential that is in Potential() without the coupling constant.
 long double Fermi(long double[6], long double, long double, int); //Returns the fermi factor where energy is computed
-long double FermiProp(long double E, int T);//Returns the fermi factor where the energy is given
 long double Analytic(long double, long double); //The analytic spectral function for vacuum, which is constant in P
 inline complex<long double> arctan(complex<long double>);
 inline complex<long double> arctanh(complex<long double>);
+
 inline complex<long double> arctan(complex<long double>x)
 {
 	complex<long double> i(0,1);
@@ -75,8 +74,8 @@ inline long double Self_E_Depends(long double Par[5], long double E)
 	long double Sigma = Par[0]; //size of energy dependance
 	long double gamma = Par[1]; //width of lorentzian
 	long double E_0 = Par[2]; //location of lorentzian
-	long double a = Par[3], b = Par[4]; //Exponential parameters, length and power
-	return(pow(tanh(a*E),2)*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
+	long double a = Par[3], b = Par[4]; //Exponential parameters, length and height
+	return(exp((abs(a*E)-a*E_0)*b)*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
 }
 
 complex<long double> TMatrix(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double E, int Temp)
@@ -200,29 +199,6 @@ long double Fermi(long double Par[6], long double k, long double theta, int T)
 	return(1./(exp(Energy(Par[2], Par[3]/2., k, theta)/Temp)+1.)); //Fermi factor
 }
 
-long double FermiProp(long double E, int T)
-{
-	long double Temp; //T_c = .196GeV = 196MeV
-
-	switch(T)
-	{
-		case 0:
-			return(0);
-			break;
-		case 1:
-			Temp = .196*1.2;
-			break;
-		case 2:
-			Temp = .196*1.5;
-			break;
-		case 3:
-			Temp = .196*2.;
-			break;
-	}
-
-	return(1./(exp(E/Temp)+1.)); //Fermi factor
-}
-
 long double G_0Int(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 {
 	return(ImProp(Par, SelfPPar, SelfEPar, k, theta, Temp)*sin(theta)*k*k);
@@ -269,178 +245,10 @@ inline long double ReProp(long double Par[6], long double SelfPPar[3], long doub
 
 long double ImProp(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the imaginary part of the propagator
 {
-	long double Disp[] = {0.06342068498268678602883, 0.1265859972696720510680, 0.1892415924618135864853, 0.2511351786125772735072, 0.3120175321197487622079, 0.3716435012622848888637, 0.4297729933415765246586, 0.4861719414524920421770, 0.5406132469917260665582, 0.5928776941089007124559, 0.6427548324192376640569, 0.6900438244251321135048, 0.7345542542374026962137, 0.7761068943454466350181, 0.8145344273598554315395, 0.8496821198441657010349, 0.8814084455730089100370, 0.9095856558280732852130, 0.9341002947558101490590, 0.9548536586741372335552, 0.9717622009015553801400, 0.9847578959142130043593, 0.9937886619441677907601, 0.9988201506066353793618}; //Dispacement from center for Gauss-Legendre integration
-	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481}; //Weight of the function at Disp
-	long double zero1 = 0;	//These are the pionts that may cause the greatest problems, but only if they are between 0 and Par[4]=E=sqrt s
-	long double zero2 = .005;
-	long double Answer;
-	long double a = 0;
-	long double b = 0;
-	long double F_a, F_b, F_ave;
-	int i;
-	long double x1[24], x3[24];
-
-	if(Par[4] < 1)
-	{
-		F_a = PropIntegrand(zero1, Par, SelfPPar, SelfEPar, k, theta, Temp);	//Looking for the smallest of 2 points
-		F_b = PropIntegrand(zero2, Par, SelfPPar, SelfEPar, k, theta, Temp);	//First 2 samples points
-		if(F_a > F_b)	//Make F_a smaller than F_b
-		{
-			Answer = F_a;
-			F_a = F_b;
-			F_b = Answer;
-			zero2 = 0;
-			zero1 = .005;
-		}
-
-		for(long double j = .01; j < Par[4]; j += .005)	//Looking for the smallest 2 points
-		{
-			Answer = PropIntegrand(j, Par, SelfPPar, SelfEPar, k, theta, Temp);
-			if(Answer < F_a)	//If smaller than both, demote a to b and insert current
-			{
-				F_b = F_a;
-				zero2 = zero1;
-				F_a = Answer;
-				zero1 = j;
-				j += .01;	//Poision the next two test points to prevent picking a false point too close to the deepest point
-			}
-			else if(Answer < F_b)	//Must be larger than a, but smaller than b, insert it there
-			{
-				F_b = Answer;
-				zero2 = j;
-			}
-		}
-
-		b = 1;
-		while(b < zero1-.05)
-		{
-			F_a = F_b = 0; //Start integration at 0
-			for(i = 0; i < 24; i++)
-			{
-				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
-				x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-				F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
-				F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
-			}
-			F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
-			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-			a = b;
-			b += 1;
-		}
-		b = zero1-.05;
-
-		F_a = F_b = 0; //Start integration at 0
-		for(i = 0; i < 24; i++)
-		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-			F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
-		}
-		F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
-		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-		a = b;
-		b = zero1;
-
-		F_a = F_b = 0; //Start integration at 0
-		for(i = 0; i < 24; i++)
-		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-			F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
-		}
-		F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
-		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-		a = b;
-		b = zero1+.05;
-
-		while(b < zero2-.05)
-		{
-			F_a = F_b = 0; //Start integration at 0
-			for(i = 0; i < 24; i++)
-			{
-				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
-				x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-				F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
-				F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
-			}
-			F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
-			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-			a = b;
-			b += 1;
-		}
-		b = zero2-.05;
-
-		F_a = F_b = 0; //Start integration at 0
-		for(i = 0; i < 24; i++)
-		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-			F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
-		}
-		F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
-		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-		a = b;
-		b = zero2;
-
-		F_a = F_b = 0; //Start integration at 0
-		for(i = 0; i < 24; i++)
-		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-			F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
-			F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
-		}
-		F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
-		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-		a = b;
-		b = zero2+.05;
-
-		while(b < Par[4])
-		{
-			F_a = F_b = 0; //Start integration at 0
-			for(i = 0; i < 24; i++)
-			{
-				x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
-				x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-				F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
-				F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
-			}
-			F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
-			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-			a = b;
-			b += 1;
-		}
-	}
-
-	b = Par[4];
-	F_a = F_b = 0; //Start integration at 0
-	for(i = 0; i < 24; i++)
-	{
-		x1[i] = (b+a-Disp[i]*(b-a))/2.; //Actual evaluation points
-		x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-		F_a += PropIntegrand(x1[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x1
-		F_b += PropIntegrand(x3[i], Par, SelfPPar, SelfEPar, k, theta, Temp)*w[i+1]; //Evaluate function at x3
-	}
-	F_ave = PropIntegrand((a+b)/2., Par, SelfPPar, SelfEPar, k, theta, Temp)*w[0]; //Evaluate the function at the center
-	Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-
-	return(Answer);
-}
-
-inline long double PropIntegrand(long double omega, long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp)
-{
-	return(-Par[2]*Par[2]/M_PI*Self_E_Depends(SelfEPar, omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))*Self_E_Depends(SelfEPar, Par[4]-omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))/(Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta)*(pow(omega-Energy(Par[2], Par[3]/2., k, theta),2)+pow(Self_E_Depends(SelfEPar, omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta)),2))*(pow(Par[4]-omega-Energy(Par[2], Par[3]/2.,-k, theta),2)+pow(Self_E_Depends(SelfEPar, Par[4]-omega)*Self_Energy(SelfPPar, LawCosines(Par[3]/2.,-k, theta)),2)))*(1-FermiProp(omega, Temp)-FermiProp(Par[4]-omega, Temp)));
+	if(Par[4] >= 1.122)
+		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-Par[5]*pow((pow(Par[4],2)-1.258884)/7.984588734864,2.5)*pow(1.618884/(.36+pow(Par[4],2)),2)*Par[4]);
+	else
+		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))));
 }
 
 inline long double Potential(long double Par[6], long double k, long double theta) //Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
