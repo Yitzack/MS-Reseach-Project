@@ -232,8 +232,8 @@ long double ImInt(long double Par[6], long double SelfPPar[3], long double SelfE
 
 inline long double Common(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the common part of both propagators
 {
-	if(Par[4] >= 1.122)
-		return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-Par[5]*pow((pow(Par[4],2)-1.258884)/7.984588734864,2.5)*pow(1.618884/(.36+pow(Par[4],2)),2)*Par[4], 2)));
+	if(Par[4] >= .82823392)
+		return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2)));
 	else
 		return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))), 2)));
 }
@@ -245,8 +245,8 @@ inline long double ReProp(long double Par[6], long double SelfPPar[3], long doub
 
 inline long double ImProp(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double k, long double theta, int Temp) //Returns the imaginary part of the propagator
 {
-	if(Par[4] >= 1.122)
-		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-Par[5]*pow((pow(Par[4],2)-1.258884)/7.984588734864,2.5)*pow(1.618884/(.36+pow(Par[4],2)),2)*Par[4]);
+	if(Par[4] >= .82823392)
+		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4]);
 	else
 		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))));
 }
