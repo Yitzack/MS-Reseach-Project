@@ -75,7 +75,9 @@ inline long double Self_E_Depends(long double Par[5], long double E)
 	long double gamma = Par[1]; //width of lorentzian
 	long double E_0 = Par[2]; //location of lorentzian
 	long double a = Par[3], b = Par[4]; //Exponential parameters, length and power
- 	return(pow(tanh(a*E),2)*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
+	if(E > E_0)
+		a = 0;
+ 	return(exp(a*E-a*E_0)*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
 }
 
 complex<long double> TMatrix(long double Par[6], long double SelfPPar[3], long double SelfEPar[5], long double E, int Temp)
