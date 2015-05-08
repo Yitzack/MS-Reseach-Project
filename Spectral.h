@@ -10,20 +10,21 @@ long double ReInt(long double[6], long double, long double, int);	//Returns the 
 long double ImInt(long double[6], long double, long double, int);	//Returns the imaginary part of the integrad from 2p_0 to infinity
 long double Integrate1(long double(*)(long double[6], long double, long double, int), long double[6], long double, int);	//Integrates the part that it is told to integrate. It uses the difference in evaluating the trapaziod rule and Simpson's rule to pick the points that it integrate between. Since the Gaussian quadrature is very accuate for using very few points (2n-1 order polynomial accurate with n points), it then returns the Gaussian quadrature for 3 points on that subinterval.
 long double Integrate2(long double, long double, long double, long double, long double, long double, long double(*)(long double[6], long double, long double, int), long double[6], int);	//Contains more brains than Integrate1() as it will need to divide the integral into 2 parts and pass the endpoints down for faster times but it uses the same algorithm to acheive its results.
-long double Self_Energy(int, long double); //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)), this is my choice of function for the self-energy
+long double Self_Energy(long double, long double, long double, int);	//Returns the Self-Energy
+inline long double Self_P_Depends(int, long double);	//Returns the momentum dependance of the self-energy
+inline long double Self_E_Depends(int, long double, long double, long double);	//Returns the energy dependance of the self-energy that moves with the momentum
 inline long double ReProp(long double[6], long double, long double, int);	//Returns the real part of the propagator
 inline long double ImProp(long double[6], long double, long double, int);	//Returns the imaginary part of the propagator
 inline long double LawCosines(long double, long double, long double);	//Returns the law of cosines for two vectors with an angle inbetween.
 inline long double Potential(long double[6], long double, long double);	//Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
 inline long double Common(long double[6], long double, long double, int);	//Returns the common part of propagators
-inline long double Self_E_Depends(long double, int);	//Contains a function that will give a dependance on E and Temp for the self-energy
 complex<long double> TMatrix(long double, long double, long double, int);	//Returns the T-matrix for a given M, P, E=sqrt(s), and T
 long double Spectral(long double, long double, long double, int);	//Returns the spectral function of the T-matrix
 long double G_0Int(long double[6], long double, long double, int);	//Returns the integrand for G_0. This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 long double ReDelta_GInt(long double[6], long double, long double, int);	//Returns the real part of the Delta G integrand
 long double ImDelta_GInt(long double[6], long double, long double, int);	//Returns the imaginary part of the Delta G integrand
 inline long double Potential1(long double[6], long double, long double);	//Returns one of the factors of the potiential that is in Potential() without the coupling constant.
-long double Fermi(long double[6], long double, long double, int);	//Returns the fermi factor (1-2n_f(E;T))
+long double Fermi(long double, int);	//Returns the fermi factor (1-2n_f(E;T))
 long double Analytic(long double, long double);	//The analytic spectral function for vacuum, which is constant in P
 long double ApproxSpectral(long double, long double);
 inline complex<long double> arctan(complex<long double>);
@@ -102,72 +103,77 @@ long double Analytic(long double E, long double Epsilon)	//This strictly vacuum,
 	return(-18./M_PI*(Non+CC*(pow(Num,(long double)(2.))/(complex<long double>(1.,0)-Den))).imag());
 }
 
-long double Self_Energy(int Temp, long double P) //Returns Sigma*(a*Lambda^2/(Lambda^2+P^2)+(1-a)exp(-P^2/sigma)) as an approximation to the self-energy
+long double Self_Energy(long double E, long double P, long double M, int Temp)
 {
-	long double a;
-	long double sigma1;
-	long double sigma2;
-
-	switch(Temp)
-	{
-		case 0:
-			return(0);	//Return 0 because we have zero temp, vacuum
-			break;
-		case 1:
-			a = .754419572;
-			sigma1 = 7.381325744;
-			sigma2 = 1.761645239;
-			break;
-		case 2:
-			a = .775293966;
-			sigma1 = 7.580476948;
-			sigma2 = 1.650232458;
-			break;
-		case 3:
-			a = .761585379;
-			sigma1 = 7.9799853517;
-			sigma2 = 1.6664531561;
-			break;
-	}
-	
-	return(a*exp(-P*P/(sigma1*sigma1))+(1-a)*exp(-P*P/(sigma2*sigma2)));
+	long double Ans = Self_E_Depends(Temp, E, P, M)*Self_P_Depends(Temp, P);
+	return(Ans);
 }
 
-inline long double Self_E_Depends(long double E, int Temp)
+inline long double Self_P_Depends(int Temp, long double P)
 {
-	E /= 2.;
-	long double Sigma;	//size of energy dependance
-	long double gamma;	//width of lorentzian
-	long double E_0;	//location of lorentzian
-	long double a, b;	//Exponential parameters, length and power
+	long double Par[3];
 
 	switch(Temp)
 	{
 		case 0:
-			return(0);	//Return 0 because we have zero temp, vacuum
+			Par[0] = 0;
+			Par[1] = 1;
+			Par[2] = 1;
 			break;
 		case 1:
-			Sigma = .154607;
-			gamma = .313225;
-			E_0 = 1.6405;
-			a = .97956;
+			Par[0] = 0;
+			Par[1] = 1;
+			Par[2] = 1;
 			break;
 		case 2:
-			Sigma = .139149;
-			gamma = .375252;
-			E_0 = 1.5307;
-			a = 1.03312;
+			Par[0] = 0;
+			Par[1] = 1;
+			Par[2] = 1;
 			break;
 		case 3:
-			Sigma = .175974;
-			gamma = .545823;
-			E_0 = 1.50913;
-			a = 1.44961;
+			Par[0] = 0;
+			Par[1] = 1;
+			Par[2] = 1;
 			break;
 	}
 
+	return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2)));
+}
 
-	return(pow(tanh(a*E),2)*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
+inline long double Self_E_Depends(int Temp, long double E, long double P, long double M)
+{
+	long double E_0 = Energy(M,P,0,0); //location of lorentzian
+	long double Sigma; //size of energy dependance
+	long double gamma; //width of lorentzian
+	long double a; //Exponential parameters
+
+	switch(Temp)
+	{
+		case 0:
+			Sigma = 0;
+			gamma = 1;
+			a = 1;
+			break;
+		case 1:
+			Sigma = 0;
+			gamma = 1;
+			a = 1;
+			break;
+		case 2:
+			Sigma = 0;
+			gamma = 1;
+			a = 1;
+			break;
+		case 3:
+			Sigma = 0;
+			gamma = 1;
+			a = 1;
+			break;
+	}
+	if(E > E_0)
+		a = 0;
+
+	return(exp(a*(E-E_0))*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
 }
 
 long double Spectral(long double M, long double P, long double E, int Temp)
@@ -198,9 +204,9 @@ long double Spectral(long double M, long double P, long double E, int Temp)
 	return(-2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag()));
 }
 
-long double Fermi(long double Par[6], long double k, long double theta, int T)
+long double Fermi(long double E, int T)
 {
-	long double Temp;	//T_c = .196GeV = 196MeV
+	long double Temp; //T_c = .196GeV = 196MeV
 
 	switch(T)
 	{
@@ -218,7 +224,7 @@ long double Fermi(long double Par[6], long double k, long double theta, int T)
 			break;
 	}
 
-	return(1./(exp(Energy(Par[2], Par[3]/2., k, theta)/Temp)+1.));	//Fermi factor
+	return(1./(exp(E/Temp)+1.)); //Fermi factor
 }
 
 long double G_0Int(long double Par[6], long double k, long double theta, int Temp)	//This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
@@ -273,25 +279,331 @@ long double ImInt(long double Par[6], long double k, long double theta, int Temp
 	return(ImProp(Par, k, theta, Temp)*Potential(Par, k, theta)*Common(Par,k,theta,Temp)*sin(theta)*k*k);
 }
 
-inline long double Common(long double Par[6], long double k, long double theta, int Temp)	//Returns the common part of both propagators
-{
-	if(Par[4] >= 1.122)
-		return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-.0322*pow((pow(Par[4],2)-1.258884)/7.984588734864,2.5)*pow(1.618884/(.36+pow(Par[4],2)),2)*Par[4], 2)));
-	else
-		return(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))), 2)));
-}
-
 inline long double ReProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the propagator
 {
-	return(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(Par[4],Temp)*Self_Energy(Temp, LawCosines(Par[3]/2., -k, theta)), 2));
+	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
+	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
+	long double Range[] = {-64,-32,-16,-8,-4,-2,-1,-.5,0,.5,1,2,4,8,16,32,64};	//Number of gamma from center
+	long double LocalPar[] = {Par[0], Par[1], Par[2], Par[3], Par[4], Par[5]};	//The local copy of Par to be sent to ImProp
+	long double zero = 2.*(k*k+Par[2]*Par[2]-Par[3]*Par[3]/4.+Energy(Par[2],Par[3]/2.,k,theta)*Energy(Par[2],Par[3]/2.,-k,theta));	//2 particle on-shell
+	long double gamma = -Self_Energy(sqrt(zero), LawCosines(Par[3]/2., k, theta), Par[2], Temp);	//These are the widths of the features near 2 Particle on shell
+	gamma = sqrt(gamma);	//Hopefully this is reasonable width in the correct units
+	long double Answer = 0;
+	long double a = 0;
+	long double b;
+	long double F_a, F_b, F_ave;
+	long double x1[9], x3[9];
+	long double Width;	//Step size for integration
+	long double E = 2.*zero;	//Largest feature I can find
+	long double Value;
+	long double f0 = ImProp(LocalPar, k, theta, Temp);	//Par[4]^2 is the location of the division by zero
+	int i,j,l;
+
+	if(pow(Par[4],2) == 0)
+		f0 = 0;
+
+	a = b = 0;
+	i = 0;
+	do
+	{
+		if(b < pow(2*Par[2],2))
+			Width = 1;	//The Self-energy peak
+		else
+			Width = 3;	//No-man's land
+
+		if(a<zero-64.*gamma && b+Width>=zero-64.*gamma)	//Stutter step before the peak
+		{
+			Width = zero-64.*gamma-b;
+			l = 0;	//Resets l before entering the peak
+		}
+		else if((a>=zero-64.*gamma && b<=zero+64.*gamma) && l < 16)	//Integrating the peak itself
+		{
+			Width = gamma*(Range[l+1]-Range[l]);
+			l++;	//Leaving the peak prevents illegal space access at Range[l+1]
+		}
+
+		b += Width;
+
+		F_a = F_b = 0;
+		for(j = 0; j < 9; j++)
+		{
+			x1[j] = (b+a-Disp[j]*(b-a))/2.; //Actual evaluation points
+			x3[j] = (b+a+Disp[j]*(b-a))/2.;
+
+			LocalPar[4] = sqrt(x1[j]);
+			F_a += (ImProp(LocalPar, k, theta, Temp)-f0)/(x1[j]-pow(Par[4],2))*w[j+1]; //Evaluate function at x1
+			LocalPar[4] = sqrt(x3[j]);
+			F_b += (ImProp(LocalPar, k, theta, Temp)-f0)/(x3[j]-pow(Par[4],2))*w[j+1]; //Evaluate function at x3
+		}
+		LocalPar[4] = sqrt((a+b)/2.);
+		F_ave = (ImProp(LocalPar, k, theta, Temp)-f0)/((a+b)/2.-pow(Par[4],2))*w[0]; //Evaluate the function at the center
+		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+		a = b;
+	}while(b < E);
+
+	if(f0 == 0)
+		return(Answer);
+	return(Answer+f0*log(abs(1.-b/pow(Par[4],2))));
 }
 
 inline long double ImProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the propagator
 {
-	if(Par[4] >= 1.122)
-		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta)))-.0322*pow((pow(Par[4],2)-1.258884)/7.984588734864,2.5)*pow(1.618884/(.36+pow(Par[4],2)),2)*Par[4]);
+	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
+	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
+	long double Range[] = {-64,-32,-16,-8,-4,-2,-1,-.5,0,.5,1,2,4,8,16,32,64};	//Number of gamma from center 
+	long double* zero;	//These are the points that may cause the greatest problems, but only if they are between 0 and Par[4]=E=sqrt s
+	long double* gamma;	//These are the widths of the features near zero1 and zero2
+	long double* area;	//These are the areas of the features near zero1 and zero2
+	long double Answer = 0;
+	long double a = 0;
+	long double b;
+	long double F_a, F_b, F_ave;
+	long double x1[9], x3[9];
+	long double Width;	//Step size for integration
+	long double Value;
+	int i1,i2;	//Peak counters
+	int j,l;	//Point and interval counters
+	int Peaks;
+	long double Early = 0;	//Early change from one peak to the next, notes the location of change, 0 means no early change
+	long double NextWidth = 0;	//The next width that will be used in the event of an early change of peaks
+
+	Characterize(Par, k, theta, Temp, zero, gamma, Peaks);
+
+	a = b = 0;
+	i1 = l = 0;
+	i2 = 1;
+	while(zero[i1]+Range[l]*gamma[i1] < 0 && Peaks != 0)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
+		l++;
+
+	if(zero[i1]+64.*gamma[i1] > zero[i2]-64.*gamma[i2] && i2 < Peaks && l != 0)
+		Early = zero[i1]+(zero[i2]-zero[i1])/(gamma[i1]+gamma[i2])*gamma[i1];
 	else
-		return(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., k, theta))+Self_E_Depends(SelfEPar, Par[4])*Self_Energy(SelfPPar, LawCosines(Par[3]/2., -k, theta))));
+		Early = 0;
+
+	do
+	{
+		if(b == 0 && l != 0)	//First peak is closer than 64*gamma to 0
+			Width = zero[i1]+Range[l]*gamma[i1];
+		else if(b < 2.*Par[2] || b >= sqrt(Par[4]*Par[4]+Par[3]*Par[3])-2.*Par[2])
+			Width = 1;	//The Self-energy peaks
+		else
+			Width = 3;	//No-man's land
+
+		if(l == 16 && i1 < Peaks)	//Last peak has been integrated and there exists a next peak
+		{
+			i1++;
+			i2++;
+			l = 0;
+		}
+		if(i1 == i2)
+			i2++;
+
+		if((a<zero[i1]-64.*gamma[i1] && b+Width>=zero[i1]-64.*gamma[i1]) && Peaks != 0)	//Stutter step before the peak
+		{
+			Width = zero[i1]-64.*gamma[i1]-b;
+			l = 0;	//Resets l before entering the peak
+			if(zero[i1]+64.*gamma[i1] > zero[i2]-64.*gamma[i2] && i2 < Peaks)
+				Early = zero[i1]+(zero[i2]-zero[i1])/(gamma[i1]+gamma[i2])*gamma[i1];
+			else
+				Early = 0;
+		}
+		else if((a>=zero[i1]-64.*gamma[i1] && b<=zero[i1]+64.*gamma[i1]) && Peaks != 0 && l < 16 && b != 0)	//Integrating the peak itself
+		{
+			Width = gamma[i1]*(Range[l+1]-Range[l]);
+			l++;	//Leaving the peak prevents illegal space access at Range[l+1]
+		}
+
+		if(NextWidth != 0)
+		{
+			Width = NextWidth;
+			NextWidth = 0;
+		}
+
+		b += Width;
+
+		if(Early != 0 && b > Early)	//Code for changing peaks early
+		{
+			b = Early;
+			Early = 0;
+			l = 16-l;
+			NextWidth = (b-a)*gamma[i2]/gamma[i1];
+			i1 = i2;
+		}
+
+		if(b > sqrt(Par[4]*Par[4]+Par[3]*Par[3]))
+			b = sqrt(Par[4]*Par[4]+Par[3]*Par[3]);
+
+		F_a = F_b = 0;
+		for(j = 0; j < 9; j++)
+		{
+			x1[j] = (b+a-Disp[j]*(b-a))/2.; //Actual evaluation points
+			x3[j] = (b+a+Disp[j]*(b-a))/2.;
+
+			F_a += PropIntegrand(x1[j], Par, k, theta, Temp)*w[j+1]; //Evaluate function at x1
+			F_b += PropIntegrand(x3[j], Par, k, theta, Temp)*w[j+1]; //Evaluate function at x3
+		}
+		F_ave = PropIntegrand((a+b)/2., Par, k, theta, Temp)*w[0]; //Evaluate the function at the center
+		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+		a = b;
+	}while(b < sqrt(Par[4]*Par[4]+Par[3]*Par[3]));
+
+	delete zero;
+	delete gamma;
+
+	return(Answer);
+}
+
+void Characterize(long double Par[6], long double k, long double theta, int Temp, long double*& zero, long double*& gamma, int& Peaks)	//Searches for minimum, then gamma by binary search
+{
+	long double Array[3][int(Par[4]/.005)+1];	//0 is function, 1 is second derivative, 2 is boundaries
+	long double Center, Width;
+	long double Maxima, MaximaW;	//Tempory storage
+	long double Value[4];
+	int i, j;
+	bool Done;
+	bool Exists = sqrt(Par[4]*Par[4]+Par[3]*Par[3]) < Energy(Par[2], Par[3]/2., k, theta);
+
+	Peaks = 0;
+	for(i = 0; i < Par[4]/.005; i++)	//Evaluate the function on a mesh and take the second derivative
+		Array[0][i] = PropIntegrand(i*.005, Par, k, theta, Temp);
+	Array[1][0]=(3*Array[0][0]-4*Array[0][1]+Array[0][2])/(2.*.005);
+	Array[1][int(Par[4]/.005)]=(-Array[0][int(Par[4]/.005)]+4*Array[0][int(Par[4]/.005)-1]-3*Array[0][int(Par[4]/.005)-2])/(2.*.005);
+	for(i = 1; i < Par[4]/.005-1; i++)
+		Array[1][i] = (Array[0][i+1]-Array[0][i-1])/(.005*2.);
+	for(i = 1; i < Par[4]/.005; i++)	//Count the number of minima by the number of changes from positive to negative second derivatives
+	{
+		if(Array[1][i-1]*Array[1][i] <= 0 && Array[1][i-1] < Array[1][i])
+		{
+			Array[2][Peaks] = i*.005;	//List the regions were there exist at least 1 peak
+			Peaks++;
+		}
+	}
+
+	j = 0; //Number of peaks located
+	for(i = 0; i < Peaks; i++)
+	{
+		Center = Array[2][i];
+		Width = .005;
+
+		Done = Minimize(Par, k, theta, Temp, Center, Width);
+		if(Done)
+		{
+			Array[0][j] = Center;
+			j++;
+		}
+		else	//Assume 2 peaks in region and no more
+		{
+			Maxima = Center;
+			MaximaW = Width;
+
+			Center = Maxima-MaximaW/2.;
+			Width = MaximaW/2.;
+			if(!Minimize(Par, k, theta, Temp, Center, Width))
+				cerr << "#Minimization failure, E = " << Par[4] << " P = " << Par[3] << " k = " << k << " theta = " << theta << " Center = " << Center << " Width = " << Width << endl;
+			Array[0][j] = Center;
+			j++;
+
+			Center = Maxima+MaximaW/2.;
+			Width = MaximaW/2.;
+			if(!Minimize(Par, k, theta, Temp, Center, Width))
+				cerr << "#Minimization failure, E = " << Par[4] << " P = " << Par[3] << " k = " << k << " theta = " << theta << " Center = " << Center << " Width = " << Width << endl;
+			Array[0][j] = Center;
+			j++;
+		}
+	}
+	Peaks = j;
+
+	zero = new long double[Peaks];
+	gamma = new long double[Peaks];
+	for(i = 0; i < Peaks; i++)
+	{
+		zero[i] = Array[0][i];
+		Maxima = Array[0][i]*sqrt(LDBL_EPSILON);
+		Value[0] = PropIntegrand(Array[0][i]-Maxima, Par, SelfPPar, SelfEPar, k, theta, Temp);
+		Value[1] = PropIntegrand(Array[0][i], Par, SelfPPar, SelfEPar, k, theta, Temp);
+		Value[2] = PropIntegrand(Array[0][i]+Maxima, Par, SelfPPar, SelfEPar, k, theta, Temp);
+		gamma[i] = -2.*Value[1]*pow(Maxima,2)/(Value[0]-2.*Value[1]+Value[2]);
+
+		if(gamma[i] < 0 || gamma[i] > 10)
+		{
+			Value[3] = PropIntegrand(Array[0][i]+2.*Maxima, Par, SelfPPar, SelfEPar, k, theta, Temp);
+			gamma[i] = -pow(Maxima,2)+pow(2.*Maxima,2)*Value[2]/(Value[3]-Value[1]);
+		}
+
+		if(gamma[i] < 0 || gamma[i] > 10)
+		{
+			Width = .001;
+			Minimize(Par, SelfPPar, SelfEPar, k, theta, Temp, zero[i], Width);	//Not quite minimum, very near by and needs to be retried
+
+			Maxima = zero[i]*sqrt(LDBL_EPSILON);
+			Value[0] = PropIntegrand(zero[i]-Maxima, Par, SelfPPar, SelfEPar, k, theta, Temp);
+			Value[1] = PropIntegrand(zero[i], Par, SelfPPar, SelfEPar, k, theta, Temp);
+			Value[2] = PropIntegrand(zero[i]+Maxima, Par, SelfPPar, SelfEPar, k, theta, Temp);
+			gamma[i] = -2.*Value[1]*pow(Maxima,2)/(Value[0]-2.*Value[1]+Value[2]);
+		}
+
+		if(gamma[i] < 0 || gamma[i] > 10)
+		{
+			Value[3] = PropIntegrand(zero[i]+2.*Maxima, Par, SelfPPar, SelfEPar, k, theta, Temp);
+			gamma[i] = -pow(Maxima,2)+pow(2.*Maxima,2)*Value[2]/(Value[3]-Value[1]);
+		}
+
+		gamma[i] = sqrt(gamma[i]);
+	}
+
+	return;
+}
+
+bool Minimize(long double Par[6], long double k, long double theta, int Temp, long double& Center, long double& Width)
+{	//Returns success or failure. Failure indicates multiple minima. Center is the starting point, and returns the answer or center at time of failure. Width is how far to the left and right it started and finished wheather in success or failure. Function proceeds by binary search.
+	long double Pos[3] = {Center-Width, Center, Center+Width};
+	long double Value[3] = {PropIntegrand(Pos[0], Par, k, theta, Temp), PropIntegrand(Pos[1], Par, k, theta, Temp), PropIntegrand(Pos[2], Par, k, theta, Temp)};
+	long double TestPos[2] = {Center-Width/2., Center+Width/2.};
+	long double TestValue[2] = {PropIntegrand(TestPos[0], Par, k, theta, Temp), PropIntegrand(TestPos[1], Par, k, theta, Temp)};
+
+	do	//Binary Search for minimum
+	{
+		if((TestValue[0] < Value[0] && TestValue[0] < Value[1]) && (TestValue[1] < Value[1] && TestValue[1] < Value[2]))	//TestValue is greater than either value on either side indicating multiple minima in range
+		{
+			Center = Pos[1];
+			Width = Pos[2]-Pos[1];
+			if(Width < 1e-9 || abs(TestValue[0]/TestValue[1]-1) < 1e-12)
+				return(true);
+			return(false);
+		}
+		else if(TestValue[0] < TestValue[1])
+		{
+			Value[2] = Value[1];
+			Pos[2] = Pos[1];
+			Value[1] = TestValue[0];
+			Pos[1] = TestPos[0];
+		}
+		else
+		{
+			Value[0] = Value[1];
+			Pos[0] = Pos[1];
+			Value[1] = TestValue[1];
+			Pos[1] = TestPos[1];
+		}
+		TestPos[0] = (Pos[0]+Pos[1])/2.;
+		TestPos[1] = (Pos[2]+Pos[1])/2.;
+		TestValue[0] = PropIntegrand(TestPos[0], Par, k, theta, Temp);
+		TestValue[1] = PropIntegrand(TestPos[1], Par, k, theta, Temp);
+	}while(Pos[2]-Pos[0] > 1e-15);
+
+	Center = Pos[1];
+	Width = Pos[2]-Pos[1];
+	return(true);
+}
+
+inline long double PropIntegrand(long double omega, long double Par[6], long double k, long double theta, int Temp)
+{
+	return(-Par[2]*Par[2]/M_PI*Rho(omega, Par, k, theta, Temp)*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-omega, Par, -k, theta, Temp)*(1.-Fermi(omega, Temp)-Fermi(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-omega, Temp)));
+}
+
+inline long double Rho(long double omega, long double Par[6], long double k, long double theta, int Temp)
+{
+	return(Self_Energy(omega, LawCosines(Par[3]/2., k, theta), Par[2], Temp)/(Energy(Par[2], Par[3]/2., k, theta)*(pow(omega-Energy(Par[2], Par[3]/2., k, theta),2)+pow(Self_Energy(omega, LawCosines(Par[3]/2., k, theta), Par[2], Temp),2))));
 }
 
 inline long double Potential(long double Par[6], long double k, long double theta)	//Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
