@@ -15,11 +15,14 @@ inline long double Self_P_Depends(int, long double);	//Returns the momentum depe
 inline long double Self_E_Depends(int, long double, long double, long double);	//Returns the energy dependance of the self-energy that moves with the momentum
 inline long double ReProp(long double[6], long double, long double, int);	//Returns the real part of the propagator
 inline long double ImProp(long double[6], long double, long double, int);	//Returns the imaginary part of the propagator
+void Characterize(long double[6], long double, long double, int, long double*&, long double*&, int&);	//Characterizes peaks
+bool Minimize(long double[6], long double, long double, int, long double&, long double&);	//Minimizes by binary search
+inline long double PropIntegrand(long double, long double[6], long double, long double, int);	//The integrand for the imaginary part of the propagator
+inline long double Rho(long double, long double[6], long double, long double, int);	//Single particle propagator
 inline long double LawCosines(long double, long double, long double);	//Returns the law of cosines for two vectors with an angle inbetween.
 inline long double Potential(long double[6], long double, long double);	//Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
-inline long double Common(long double[6], long double, long double, int);	//Returns the common part of propagators
-complex<long double> TMatrix(long double, long double, long double, int);	//Returns the T-matrix for a given M, P, E=sqrt(s), and T
-long double Spectral(long double, long double, long double, int);	//Returns the spectral function of the T-matrix
+complex<long double> TMatrix(long double[6], int);	//Returns the T-matrix for a given M, P, E=sqrt(s), and T
+long double Spectral(long double[6], int);	//Returns the spectral function of the T-matrix
 long double G_0Int(long double[6], long double, long double, int);	//Returns the integrand for G_0. This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 long double ReDelta_GInt(long double[6], long double, long double, int);	//Returns the real part of the Delta G integrand
 long double ImDelta_GInt(long double[6], long double, long double, int);	//Returns the imaginary part of the Delta G integrand
@@ -131,9 +134,9 @@ inline long double Self_P_Depends(int Temp, long double P)
 			Par[2] = 1;
 			break;
 		case 3:
-			Par[0] = 0;
-			Par[1] = 1;
-			Par[2] = 1;
+			Par[0] = .761584;
+			Par[1] = 7.97999;
+			Par[2] = 1.16652;
 			break;
 	}
 
@@ -165,9 +168,9 @@ inline long double Self_E_Depends(int Temp, long double E, long double P, long d
 			a = 1;
 			break;
 		case 3:
-			Sigma = 0;
-			gamma = 1;
-			a = 1;
+			Sigma = .132821;
+			gamma = .203436;
+			a = 4.91555;
 			break;
 	}
 	if(E > E_0)
@@ -176,11 +179,10 @@ inline long double Self_E_Depends(int Temp, long double E, long double P, long d
 	return(exp(a*(E-E_0))*Sigma*gamma/M_PI*(1/(pow(E+E_0,2)+pow(gamma,2))-1/(pow(E-E_0,2)+pow(gamma,2))));
 }
 
-long double Spectral(long double M, long double P, long double E, int Temp)
+long double Spectral(long double Par[6], int Temp)
 {
-	long double Par[6] = {CC, Lambda, M, P, E};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
 	long double G_0;	//The imaginary part of G_0
-	complex<long double> TMat = TMatrix(M, P, E, Temp);
+	complex<long double> TMat = TMatrix(Par, Temp);
 	complex<long double> Num;	//The integral in the numerator of Delta G
 	long double F_a, a = 0.;
 	long double F_b, b = M_PI;
@@ -229,17 +231,17 @@ long double Fermi(long double E, int T)
 
 long double G_0Int(long double Par[6], long double k, long double theta, int Temp)	//This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 {
-	return(ImProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp))*sin(theta)*k*k);
+	return(ImProp(Par, k, theta, Temp)*sin(theta)*k*k);
 }
 
 long double ReDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
 {
-	return(k*k*sin(theta)*ReProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*Potential1(Par, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
+	return(k*k*sin(theta)*ReProp(Par, k, theta, Temp)*Potential1(Par, k, theta));
 }
 
 long double ImDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
 {
-	return(k*k*sin(theta)*ImProp(Par, k, theta, Temp)*Common(Par, k, theta, Temp)*Potential1(Par, k, theta)*(1.-Fermi(Par, k, theta, Temp)-Fermi(Par, -k, theta, Temp)));
+	return(k*k*sin(theta)*ImProp(Par, k, theta, Temp)*Potential1(Par, k, theta));
 }
 
 inline long double Potential1(long double Par[6], long double k, long double theta)
@@ -247,10 +249,9 @@ inline long double Potential1(long double Par[6], long double k, long double the
 	return(pow(Par[1],2)/(pow(Par[1],2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.));
 }
 
-complex<long double> TMatrix(long double M, long double P, long double E, int Temp)
+complex<long double> TMatrix(long double Parameters[6], int Temp)
 {
 	complex<long double> Int_Holder;	//Holder for the result of the integration, allows it to be calculated once
-	long double Parameters[6] = {CC, Lambda, M, P, E};//Parameters = g, Lambda, M, |vec P|, E=sqrt(s), epsilon
 	long double F_a, a = 0.;
 	long double F_b, b = M_PI;
 	long double F_c, c = 0.;
@@ -271,12 +272,12 @@ complex<long double> TMatrix(long double M, long double P, long double E, int Te
 //Parameters = g, Lambda, M, |vec p|, E=sqrt(s)
 long double ReInt(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the integrand
 {
-	return(ReProp(Par, k, theta, Temp)*Potential(Par, k, theta)*Common(Par,k,theta,Temp)*sin(theta)*k*k);
+	return(ReProp(Par, k, theta, Temp)*Potential(Par, k, theta)*sin(theta)*k*k);
 }
 
 long double ImInt(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the integrand
 {
-	return(ImProp(Par, k, theta, Temp)*Potential(Par, k, theta)*Common(Par,k,theta,Temp)*sin(theta)*k*k);
+	return(ImProp(Par, k, theta, Temp)*Potential(Par, k, theta)*sin(theta)*k*k);
 }
 
 inline long double ReProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the propagator
@@ -285,31 +286,30 @@ inline long double ReProp(long double Par[6], long double k, long double theta, 
 	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
 	long double Range[] = {-64,-32,-16,-8,-4,-2,-1,-.5,0,.5,1,2,4,8,16,32,64};	//Number of gamma from center
 	long double LocalPar[] = {Par[0], Par[1], Par[2], Par[3], Par[4], Par[5]};	//The local copy of Par to be sent to ImProp
-	long double zero = 2.*(k*k+Par[2]*Par[2]-Par[3]*Par[3]/4.+Energy(Par[2],Par[3]/2.,k,theta)*Energy(Par[2],Par[3]/2.,-k,theta));	//2 particle on-shell
-	long double gamma = -Self_Energy(sqrt(zero), LawCosines(Par[3]/2., k, theta), Par[2], Temp);	//These are the widths of the features near 2 Particle on shell
-	gamma = sqrt(gamma);	//Hopefully this is reasonable width in the correct units
+	long double zero = sqrt(2.*(k*k+Par[2]*Par[2]-Par[3]*Par[3]/4.+Energy(Par[2],Par[3]/2.,k,theta)*Energy(Par[2],Par[3]/2.,-k,theta)));	//2 particle on-shell
+	long double gamma = -2.*Self_Energy(zero, LawCosines(Par[3]/2., k, theta), Par[2], Temp);	//These are the widths of the features near 2 Particle on shell
 	long double Answer = 0;
 	long double a = 0;
 	long double b;
 	long double F_a, F_b, F_ave;
 	long double x1[9], x3[9];
 	long double Width;	//Step size for integration
-	long double E = 2.*zero;	//Largest feature I can find
+	long double E = zero+64.*gamma+3.;	//Largest feature I can find
 	long double Value;
-	long double f0 = ImProp(LocalPar, k, theta, Temp);	//Par[4]^2 is the location of the division by zero
+	long double f0 = ImProp(Par, k, theta, Temp);	//Par[4]^2 is the location of the division by zero
 	int i,j,l;
 
 	if(pow(Par[4],2) == 0)
 		f0 = 0;
 
-	a = b = 0;
+	if(zero-64*gamma-3. < 0)
+		a = b = 0;
+	else
+		a = b = zero-64*gamma-3.;
 	i = 0;
 	do
 	{
-		if(b < pow(2*Par[2],2))
-			Width = 1;	//The Self-energy peak
-		else
-			Width = 3;	//No-man's land
+		Width = 3.;	//No-man's land
 
 		if(a<zero-64.*gamma && b+Width>=zero-64.*gamma)	//Stutter step before the peak
 		{
@@ -324,26 +324,29 @@ inline long double ReProp(long double Par[6], long double k, long double theta, 
 
 		b += Width;
 
+		if(a < Par[4] && b > Par[4])
+			b = Par[4];
+
 		F_a = F_b = 0;
 		for(j = 0; j < 9; j++)
 		{
 			x1[j] = (b+a-Disp[j]*(b-a))/2.; //Actual evaluation points
 			x3[j] = (b+a+Disp[j]*(b-a))/2.;
 
-			LocalPar[4] = sqrt(x1[j]);
-			F_a += (ImProp(LocalPar, k, theta, Temp)-f0)/(x1[j]-pow(Par[4],2))*w[j+1]; //Evaluate function at x1
-			LocalPar[4] = sqrt(x3[j]);
-			F_b += (ImProp(LocalPar, k, theta, Temp)-f0)/(x3[j]-pow(Par[4],2))*w[j+1]; //Evaluate function at x3
+			LocalPar[4] = x1[j];
+			F_a += 2.*x1[j]*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow(x1[j],2)-pow(Par[4],2))*w[j+1]; //Evaluate function at x1
+			LocalPar[4] = x3[j];
+			F_a += 2.*x3[j]*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow(x3[j],2)-pow(Par[4],2))*w[j+1]; //Evaluate function at x3
 		}
-		LocalPar[4] = sqrt((a+b)/2.);
-		F_ave = (ImProp(LocalPar, k, theta, Temp)-f0)/((a+b)/2.-pow(Par[4],2))*w[0]; //Evaluate the function at the center
+		LocalPar[4] = (a+b)/2.;
+		F_ave = (a+b)*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow((a+b)/2.,2)-pow(Par[4],2))*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}while(b < E);
 
 	if(f0 == 0)
-		return(Answer);
-	return(Answer+f0*log(abs(1.-b/pow(Par[4],2))));
+		return(Answer/M_PI);
+	return((Answer+f0*log(abs(1.-pow(b/Par[4],2))))/M_PI);
 }
 
 inline long double ImProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the propagator
@@ -519,32 +522,32 @@ void Characterize(long double Par[6], long double k, long double theta, int Temp
 	{
 		zero[i] = Array[0][i];
 		Maxima = Array[0][i]*sqrt(LDBL_EPSILON);
-		Value[0] = PropIntegrand(Array[0][i]-Maxima, Par, SelfPPar, SelfEPar, k, theta, Temp);
-		Value[1] = PropIntegrand(Array[0][i], Par, SelfPPar, SelfEPar, k, theta, Temp);
-		Value[2] = PropIntegrand(Array[0][i]+Maxima, Par, SelfPPar, SelfEPar, k, theta, Temp);
+		Value[0] = PropIntegrand(Array[0][i]-Maxima, Par, k, theta, Temp);
+		Value[1] = PropIntegrand(Array[0][i], Par, k, theta, Temp);
+		Value[2] = PropIntegrand(Array[0][i]+Maxima, Par, k, theta, Temp);
 		gamma[i] = -2.*Value[1]*pow(Maxima,2)/(Value[0]-2.*Value[1]+Value[2]);
 
 		if(gamma[i] < 0 || gamma[i] > 10)
 		{
-			Value[3] = PropIntegrand(Array[0][i]+2.*Maxima, Par, SelfPPar, SelfEPar, k, theta, Temp);
+			Value[3] = PropIntegrand(Array[0][i]+2.*Maxima, Par, k, theta, Temp);
 			gamma[i] = -pow(Maxima,2)+pow(2.*Maxima,2)*Value[2]/(Value[3]-Value[1]);
 		}
 
 		if(gamma[i] < 0 || gamma[i] > 10)
 		{
 			Width = .001;
-			Minimize(Par, SelfPPar, SelfEPar, k, theta, Temp, zero[i], Width);	//Not quite minimum, very near by and needs to be retried
+			Minimize(Par, k, theta, Temp, zero[i], Width);	//Not quite minimum, very near by and needs to be retried
 
 			Maxima = zero[i]*sqrt(LDBL_EPSILON);
-			Value[0] = PropIntegrand(zero[i]-Maxima, Par, SelfPPar, SelfEPar, k, theta, Temp);
-			Value[1] = PropIntegrand(zero[i], Par, SelfPPar, SelfEPar, k, theta, Temp);
-			Value[2] = PropIntegrand(zero[i]+Maxima, Par, SelfPPar, SelfEPar, k, theta, Temp);
+			Value[0] = PropIntegrand(zero[i]-Maxima, Par, k, theta, Temp);
+			Value[1] = PropIntegrand(zero[i], Par, k, theta, Temp);
+			Value[2] = PropIntegrand(zero[i]+Maxima, Par, k, theta, Temp);
 			gamma[i] = -2.*Value[1]*pow(Maxima,2)/(Value[0]-2.*Value[1]+Value[2]);
 		}
 
 		if(gamma[i] < 0 || gamma[i] > 10)
 		{
-			Value[3] = PropIntegrand(zero[i]+2.*Maxima, Par, SelfPPar, SelfEPar, k, theta, Temp);
+			Value[3] = PropIntegrand(zero[i]+2.*Maxima, Par, k, theta, Temp);
 			gamma[i] = -pow(Maxima,2)+pow(2.*Maxima,2)*Value[2]/(Value[3]-Value[1]);
 		}
 
