@@ -3,38 +3,37 @@
 #include<cstdlib>
 #include<complex>
 #include<fstream>
+#include<cfloat>
 using namespace std;
 
-inline long double Energy(long double, long double, long double, long double);	//Returns sqrt(M^2+p^2+k^2-pk cos(theta))
+long double Energy(long double, long double, long double, long double);	//Returns sqrt(M^2+p^2+k^2-pk cos(theta))
 long double ReInt(long double[6], long double, long double, int);	//Returns the real part of the integrad from 2p_0 to infinity
 long double ImInt(long double[6], long double, long double, int);	//Returns the imaginary part of the integrad from 2p_0 to infinity
 long double Integrate1(long double(*)(long double[6], long double, long double, int), long double[6], long double, int);	//Integrates the part that it is told to integrate. It uses the difference in evaluating the trapaziod rule and Simpson's rule to pick the points that it integrate between. Since the Gaussian quadrature is very accuate for using very few points (2n-1 order polynomial accurate with n points), it then returns the Gaussian quadrature for 3 points on that subinterval.
-long double Integrate2(long double, long double, long double, long double, long double, long double, long double(*)(long double[6], long double, long double, int), long double[6], int);	//Contains more brains than Integrate1() as it will need to divide the integral into 2 parts and pass the endpoints down for faster times but it uses the same algorithm to acheive its results.
+long double Integrate2(long double(*)(long double[6], long double, long double, int), long double[6], int);	//Contains more brains than Integrate1() as it will need to divide the integral into 2 parts and pass the endpoints down for faster times but it uses the same algorithm to acheive its results.
 long double Self_Energy(long double, long double, long double, int);	//Returns the Self-Energy
-inline long double Self_P_Depends(int, long double);	//Returns the momentum dependance of the self-energy
-inline long double Self_E_Depends(int, long double, long double, long double);	//Returns the energy dependance of the self-energy that moves with the momentum
-inline long double ReProp(long double[6], long double, long double, int);	//Returns the real part of the propagator
-inline long double ImProp(long double[6], long double, long double, int);	//Returns the imaginary part of the propagator
+long double Self_P_Depends(int, long double);	//Returns the momentum dependance of the self-energy
+long double Self_E_Depends(int, long double, long double, long double);	//Returns the energy dependance of the self-energy that moves with the momentum
+long double ReProp(long double[6], long double, long double, int);	//Returns the real part of the propagator
+long double ImProp(long double[6], long double, long double, int);	//Returns the imaginary part of the propagator
 void Characterize(long double[6], long double, long double, int, long double*&, long double*&, int&);	//Characterizes peaks
 bool Minimize(long double[6], long double, long double, int, long double&, long double&);	//Minimizes by binary search
-inline long double PropIntegrand(long double, long double[6], long double, long double, int);	//The integrand for the imaginary part of the propagator
-inline long double Rho(long double, long double[6], long double, long double, int);	//Single particle propagator
-inline long double LawCosines(long double, long double, long double);	//Returns the law of cosines for two vectors with an angle inbetween.
-inline long double Potential(long double[6], long double, long double);	//Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
+long double PropIntegrand(long double, long double[6], long double, long double, int);	//The integrand for the imaginary part of the propagator
+long double Rho(long double, long double[6], long double, long double, int);	//Single particle propagator
+long double LawCosines(long double, long double, long double);	//Returns the law of cosines for two vectors with an angle inbetween.
+long double Potential(long double[6], long double, long double, int);	//Returns the potential CC*Lambda^2/(M*(Lambda^2-4k^mu k_mu))
 complex<long double> TMatrix(long double[6], int);	//Returns the T-matrix for a given M, P, E=sqrt(s), and T
 long double Spectral(long double[6], int);	//Returns the spectral function of the T-matrix
 long double G_0Int(long double[6], long double, long double, int);	//Returns the integrand for G_0. This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 long double ReDelta_GInt(long double[6], long double, long double, int);	//Returns the real part of the Delta G integrand
 long double ImDelta_GInt(long double[6], long double, long double, int);	//Returns the imaginary part of the Delta G integrand
-inline long double Potential1(long double[6], long double, long double);	//Returns one of the factors of the potiential that is in Potential() without the coupling constant.
-long double Fermi(long double, int);	//Returns the fermi factor (1-2n_f(E;T))
+long double Potential1(long double[6], long double, long double, int);	//Returns one of the factors of the potiential that is in Potential() without the coupling constant.
+long double Fermi(long double, int);	//Returns the fermi factor
+long double Fermi(long double[6], long double, long double, int);
 long double Analytic(long double, long double);	//The analytic spectral function for vacuum, which is constant in P
 long double ApproxSpectral(long double, long double);
-inline complex<long double> arctan(complex<long double>);
-inline complex<long double> arctanh(complex<long double>);
-
-long double Lambda = 1.4049344847006076;//I found it to be 1.405 GeV
-long double CC = -127.995280691106;	//I found it to be -127.973 GeV^-2
+complex<long double> arctan(complex<long double>);
+complex<long double> arctanh(complex<long double>);
 
 long double ApproxSpectral(long double E, long double P)
 {
@@ -70,14 +69,14 @@ long double ApproxSpectral(long double E, long double P)
 	return(Analytic(E, Epsilon));
 }
 
-inline complex<long double> arctan(complex<long double>x)
+complex<long double> arctan(complex<long double>x)
 {
 	complex<long double> i(0,1);
 	complex<long double> one(1,0);
 	return(complex<long double>(0,.5)*log((one-i*x)/(one+i*x)));
 }
 
-inline complex<long double> arctanh(complex<long double>x)
+complex<long double> arctanh(complex<long double>x)
 {
 	complex<long double> one(1,0);
 	return(complex<long double>(.5,0)*log((one+x)/(one-x)));
@@ -112,9 +111,9 @@ long double Self_Energy(long double E, long double P, long double M, int Temp)
 	return(Ans);
 }
 
-inline long double Self_P_Depends(int Temp, long double P)
+long double Self_P_Depends(int Temp, long double P)
 {
-	long double Par[3];
+	long double Par[6];
 
 	switch(Temp)
 	{
@@ -122,28 +121,40 @@ inline long double Self_P_Depends(int Temp, long double P)
 			Par[0] = 0;
 			Par[1] = 1;
 			Par[2] = 1;
+			Par[3] = 0;
+			Par[4] = 1;
+			Par[5] = 1;
 			break;
 		case 1:
-			Par[0] = 0;
-			Par[1] = 1;
-			Par[2] = 1;
+			Par[0] = .7359389831810698;
+			Par[1] = 7.487501146014314;
+			Par[2] = 1.9490238595657456;
+			Par[3] = .1;
+			Par[4] = 10;
+			Par[5] = 3;
 			break;
 		case 2:
-			Par[0] = 0;
-			Par[1] = 1;
-			Par[2] = 1;
+			Par[0] = .7409390219065235;
+			Par[1] = 7.450458343071824;
+			Par[2] = 1.8620618988580635;
+			Par[3] = .1;
+			Par[4] = 10;
+			Par[5] = 3;
 			break;
 		case 3:
-			Par[0] = .761584;
-			Par[1] = 7.97999;
-			Par[2] = 1.16652;
+			Par[0] = .7426375963204489;
+			Par[1] = 7.698646415632565;
+			Par[2] = 1.771465704769189;
+			Par[3] = .1;
+			Par[4] = 10;
+			Par[5] = 3;
 			break;
 	}
 
-	return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2)));
+	return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2))+Par[3]/(1.+exp((Par[4]-P)/Par[5])));
 }
 
-inline long double Self_E_Depends(int Temp, long double E, long double P, long double M)
+long double Self_E_Depends(int Temp, long double E, long double P, long double M)
 {
 	long double E_0 = Energy(M,P,0,0); //location of lorentzian
 	long double Sigma; //size of energy dependance
@@ -157,20 +168,20 @@ inline long double Self_E_Depends(int Temp, long double E, long double P, long d
 			gamma = 1;
 			a = 1;
 			break;
-		case 1:
-			Sigma = 0;
-			gamma = 1;
-			a = 1;
+		case 1://235.2MeV
+			Sigma = .14647773684797566;
+			gamma = .34024341413053605;
+			a = .9105749017583176; //1/a=1.098GeV=4.67T 
 			break;
-		case 2:
-			Sigma = 0;
-			gamma = 1;
-			a = 1;
+		case 2://294MeV
+			Sigma = .13311625968464938;
+			gamma = .4114357364423404;
+			a = 1.0017017464500062; //1/a=.9983GeV=3.40T
 			break;
-		case 3:
-			Sigma = .132821;
-			gamma = .203436;
-			a = 4.91555;
+		case 3://362MeV
+			Sigma = .20683830569398817;
+			gamma = .5994753305596638;
+			a = 1.2684796687619544; //1/a=.788GeV=2.18T
 			break;
 	}
 	if(E > E_0)
@@ -184,24 +195,13 @@ long double Spectral(long double Par[6], int Temp)
 	long double G_0;	//The imaginary part of G_0
 	complex<long double> TMat = TMatrix(Par, Temp);
 	complex<long double> Num;	//The integral in the numerator of Delta G
-	long double F_a, a = 0.;
-	long double F_b, b = M_PI;
-	long double F_c, c = 0.;
-	long double F_d, d = 500.;
 	int N_f = 3;
 	int N_c = 3;
 
-	F_a = Integrate1(G_0Int, Par, a, Temp);
-	F_b = Integrate1(G_0Int, Par, b, Temp);
-	G_0 = Integrate2(a, b, F_a, F_b, c, d, G_0Int, Par, Temp);
-
-	F_a = Integrate1(ReDelta_GInt, Par, a, Temp);
-	F_b = Integrate1(ReDelta_GInt, Par, b, Temp);
-	Num = complex<long double>(Integrate2(a, b, F_a, F_b, c, d, ReDelta_GInt, Par, Temp),0);
-
-	F_a = Integrate1(ImDelta_GInt, Par, a, Temp);
-	F_b = Integrate1(ImDelta_GInt, Par, b, Temp);
-	Num += complex<long double>(0,Integrate2(a, b, F_a, F_b, c, d, ImDelta_GInt, Par, Temp));
+	G_0 = Integrate2(G_0Int, Par, Temp);
+	Num = complex<long double>(Integrate2(ReDelta_GInt, Par, Temp),0);
+	Num += complex<long double>(0,Integrate2(ImDelta_GInt, Par, Temp));
+	//cerr << Par[4] << " " << Num.real() << " " << Num.imag() << " " << TMat.real() << " " << TMat.imag() << " " << G_0 << endl;
 
 	return(-2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag()));
 }
@@ -229,6 +229,29 @@ long double Fermi(long double E, int T)
 	return(1./(exp(E/Temp)+1.)); //Fermi factor
 }
 
+long double Fermi(long double Par[6], long double k, long double theta, int T)
+{
+	long double Temp; //T_c = .196GeV = 196MeV
+
+	switch(T)
+	{
+		case 0:
+			return(0);
+			break;
+		case 1:
+			Temp = .196*1.2;
+			break;
+		case 2:
+			Temp = .196*1.5;
+			break;
+		case 3:
+			Temp = .196*2.;
+			break;
+	}
+
+	return(1./(exp(Energy(Par[2], Par[3]/2., k, theta)/Temp)+1.)); //Fermi factor
+}
+
 long double G_0Int(long double Par[6], long double k, long double theta, int Temp)	//This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 {
 	return(ImProp(Par, k, theta, Temp)*sin(theta)*k*k);
@@ -236,34 +259,36 @@ long double G_0Int(long double Par[6], long double k, long double theta, int Tem
 
 long double ReDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
 {
-	return(k*k*sin(theta)*ReProp(Par, k, theta, Temp)*Potential1(Par, k, theta));
+	return(k*k*sin(theta)*ReProp(Par, k, theta, Temp)*Potential1(Par, k, theta, Temp));
 }
 
 long double ImDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
 {
-	return(k*k*sin(theta)*ImProp(Par, k, theta, Temp)*Potential1(Par, k, theta));
+	return(k*k*sin(theta)*ImProp(Par, k, theta, Temp)*Potential1(Par, k, theta, Temp));
 }
 
-inline long double Potential1(long double Par[6], long double k, long double theta)
+long double Potential1(long double Par[6], long double k, long double theta, int Temp)
 {
+	switch(Temp)
+	{
+		case 1:
+			Par[1] *= exp(-1./60.);
+			break;
+		case 2:
+			Par[1] *= exp(-1./30.);
+			break;
+		case 3:
+			Par[1] *= exp(-.05);
+			break;
+	}
 	return(pow(Par[1],2)/(pow(Par[1],2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.));
 }
 
 complex<long double> TMatrix(long double Parameters[6], int Temp)
 {
 	complex<long double> Int_Holder;	//Holder for the result of the integration, allows it to be calculated once
-	long double F_a, a = 0.;
-	long double F_b, b = M_PI;
-	long double F_c, c = 0.;
-	long double F_d, d = 100.;
-
-	F_a = Integrate1(ReInt, Parameters, a, Temp);
-	F_b = Integrate1(ReInt, Parameters, b, Temp);
-	Int_Holder = complex<long double>(Integrate2(a, b, F_a, F_b, c, d, ReInt, Parameters, Temp), 0);
-
-	F_a = Integrate1(ImInt, Parameters, a, Temp);
-	F_b = Integrate1(ImInt, Parameters, b, Temp);
-	Int_Holder += complex<long double>(0 ,Integrate2(a, b, F_a, F_b, c, d, ImInt, Parameters, Temp));
+	Int_Holder = complex<long double>(Integrate2(ReInt, Parameters, Temp), 0);
+	Int_Holder += complex<long double>(0, Integrate2(ImInt, Parameters, Temp));
 	Int_Holder = complex<long double>(1.,0.)/(complex<long double>(1.,0.)-Int_Holder);	//Integrate once, where it says Parameters[6] in the numerator, I need to put V(p,p') in the event that I didn't get that correct
 
 	return(Int_Holder);
@@ -272,27 +297,24 @@ complex<long double> TMatrix(long double Parameters[6], int Temp)
 //Parameters = g, Lambda, M, |vec p|, E=sqrt(s)
 long double ReInt(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the integrand
 {
-	return(ReProp(Par, k, theta, Temp)*Potential(Par, k, theta)*sin(theta)*k*k);
+	return(ReProp(Par, k, theta, Temp)*Potential(Par, k, theta, Temp)*sin(theta)*k*k);
 }
 
 long double ImInt(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the integrand
 {
-	return(ImProp(Par, k, theta, Temp)*Potential(Par, k, theta)*sin(theta)*k*k);
+	return(ImProp(Par, k, theta, Temp)*Potential(Par, k, theta, Temp)*sin(theta)*k*k);
 }
 
-inline long double ReProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the propagator
+long double ReProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the propagator
 {
-	if(Temp == 0)
-	{
-		if(Par[4] >= .82823392)
-			return((2.*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2)))*(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)));
-		else
-			return((2.*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)))*(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)));
-	}
+	//long double Quasi = (pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta), LawCosines(Par[3]/2., k, theta), Par[2], Temp)+Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta), LawCosines(Par[3]/2., -k, theta), Par[2], Temp), 2))*2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta), LawCosines(Par[3]/2., k, theta), Par[2], Temp)+Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta), LawCosines(Par[3]/2., -k, theta), Par[2], Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta), LawCosines(Par[3]/2., k, theta), Par[2], Temp)+Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta), LawCosines(Par[3]/2., -k, theta), Par[2], Temp)), 2));
+	//return(Quasi);
 
-	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
-	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
-	long double Range[] = {-64,-32,-16,-8,-4,-2,-1,-.5,0,.5,1,2,4,8,16,32,64};	//Number of gamma from center
+	long double Disp[] = {sqrt(5.-2.*sqrt(10./7.))/3., sqrt(5.+2.*sqrt(10./7.))/3.}; //Displacement from center for 9th order Gauss-Legendre integration
+	long double w[] = {128./225., (322.+13.*sqrt(70))/900., (322.-13.*sqrt(70))/900.}; //Weight of the function at Disp
+	long double Range16[] = {-64,-32,-16,-8,-4,-2,-1,-.5,0,.5,1,2,4,8,16,32,64};	//Number of gamma from center
+	long double Range8[] = {-64,-8,-1,-.5,0,.5,1,8,64};	//Number of gamma from center
+	long double Range4[] = {-1,-.5,0,.5,1};	//Number of gamma from center
 	long double LocalPar[] = {Par[0], Par[1], Par[2], Par[3], Par[4], Par[5]};	//The local copy of Par to be sent to ImProp
 	long double zero = sqrt(2.*(k*k+Par[2]*Par[2]-Par[3]*Par[3]/4.+Energy(Par[2],Par[3]/2.,k,theta)*Energy(Par[2],Par[3]/2.,-k,theta)));	//2 particle on-shell
 	long double gamma = -2.*Self_Energy(zero, LawCosines(Par[3]/2., k, theta), Par[2], Temp);	//These are the widths of the features near 2 Particle on shell
@@ -303,9 +325,16 @@ inline long double ReProp(long double Par[6], long double k, long double theta, 
 	long double x1[9], x3[9];
 	long double Width;	//Step size for integration
 	long double E = zero+64.*gamma+3.;	//Largest feature I can find
-	long double Value;
 	long double f0 = ImProp(Par, k, theta, Temp);	//Par[4]^2 is the location of the division by zero
-	int i,j,l;
+	int i,j,l = 0;
+	int version;
+
+	if(k <= 4 && abs(zero-Par[4]) <= 1)
+		version = 16;
+	else if((k > 4 && abs(zero-Par[4]) <= 1) || k <= 4)
+		version = 8;
+	else
+		version = 4;
 
 	if(pow(Par[4],2) == 0)
 		f0 = 0;
@@ -324,19 +353,27 @@ inline long double ReProp(long double Par[6], long double k, long double theta, 
 			Width = zero-64.*gamma-b;
 			l = 0;	//Resets l before entering the peak
 		}
-		else if((a>=zero-64.*gamma && b<=zero+64.*gamma) && l < 16)	//Integrating the peak itself
+		else if((a>=zero-64.*gamma && b<=zero+64.*gamma) && l < version)	//Integrating the peak itself
 		{
-			Width = gamma*(Range[l+1]-Range[l]);
+			switch(version)
+			{
+				case 4:
+					Width = gamma*(Range4[l+1]-Range4[l]);
+					break;
+				case 8:
+					Width = gamma*(Range8[l+1]-Range8[l]);
+					break;
+				case 16:
+					Width = gamma*(Range16[l+1]-Range16[l]);
+					break;
+			}
 			l++;	//Leaving the peak prevents illegal space access at Range[l+1]
 		}
 
 		b += Width;
 
-		if(a < Par[4] && b > Par[4])
-			b = Par[4];
-
 		F_a = F_b = 0;
-		for(j = 0; j < 9; j++)
+		for(j = 0; j < 2; j++)
 		{
 			x1[j] = (b+a-Disp[j]*(b-a))/2.; //Actual evaluation points
 			x3[j] = (b+a+Disp[j]*(b-a))/2.;
@@ -344,7 +381,7 @@ inline long double ReProp(long double Par[6], long double k, long double theta, 
 			LocalPar[4] = x1[j];
 			F_a += 2.*x1[j]*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow(x1[j],2)-pow(Par[4],2))*w[j+1]; //Evaluate function at x1
 			LocalPar[4] = x3[j];
-			F_a += 2.*x3[j]*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow(x3[j],2)-pow(Par[4],2))*w[j+1]; //Evaluate function at x3
+			F_b += 2.*x3[j]*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow(x3[j],2)-pow(Par[4],2))*w[j+1]; //Evaluate function at x3
 		}
 		LocalPar[4] = (a+b)/2.;
 		F_ave = (a+b)*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow((a+b)/2.,2)-pow(Par[4],2))*w[0]; //Evaluate the function at the center
@@ -353,40 +390,57 @@ inline long double ReProp(long double Par[6], long double k, long double theta, 
 	}while(b < E);
 
 	if(f0 == 0)
-		return(Answer/M_PI);
-	return((Answer+f0*log(abs(1.-pow(b/Par[4],2))))/M_PI);
+		Answer = Answer/M_PI;
+	else
+		Answer = Answer+f0*log(abs(1.-pow(b/Par[4],2)))/M_PI;
+
+	//cout << Par[4] << " " << Par[3] << " " << k << " " << Answer << " " << Quasi << endl;
+	return(Answer);//*/
 }
 
-inline long double ImProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the propagator
+long double ImProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the propagator
 {
-	if(Temp == 0)
+	/*long double Quasi = 2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta), LawCosines(Par[3]/2., k, theta), Par[2], Temp)+Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta), LawCosines(Par[3]/2., -k, theta), Par[2], Temp))*2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta), LawCosines(Par[3]/2., k, theta), Par[2], Temp)+Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta), LawCosines(Par[3]/2., -k, theta), Par[2], Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta), LawCosines(Par[3]/2., k, theta), Par[2], Temp)+Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta), LawCosines(Par[3]/2., -k, theta), Par[2], Temp)), 2));
+	return(Quasi);
+	long double PNarrow = pow(Par[2],2)*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta), Par, -k, theta, Temp)*(1.-Fermi(Energy(Par[2], Par[3]/2., k, theta), Temp)-Fermi(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta), Temp))/(pow(2.*M_PI,2)*Energy(Par[2], Par[3]/2., k, theta));
+	long double NNarrow = pow(Par[2],2)*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., -k, theta), Par, k, theta, Temp)*(1.-Fermi(Energy(Par[2], Par[3]/2., -k, theta), Temp)-Fermi(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., -k, theta), Temp))/(pow(2.*M_PI,2)*Energy(Par[2], Par[3]/2., -k, theta));
+
+	if(PNarrow<0 && NNarrow<0)
+		return(Quasi);
+	else if(PNarrow<0 || NNarrow<0)	//Effectively exclusive or
 	{
-		if(Par[4] >= .82823392)
-			return((-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4]))*2.*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2));
+		if(PNarrow < 0)
+			return(PNarrow);
 		else
-			return(0);
-	}
+			return(NNarrow);
+	}*/
 
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
-	long double Range[] = {-64,-32,-16,-8,-4,-2,-1,-.5,0,.5,1,2,4,8,16,32,64};	//Number of gamma from center 
+	//long double Disp[] = {sqrt(5.-2.*sqrt(10./7.))/3., sqrt(5.+2.*sqrt(10./7.))/3.}; //Displacement from center for 9th order Gauss-Legendre integration
+	//long double w[] = {128./225., (322.+13.*sqrt(70))/900., (322.-13.*sqrt(70))/900.}; //Weight of the function at Disp
+	//long double Range[] = {-64,-32,-16,-8,-4,-2,-1,-.5,0,.5,1,2,4,8,16,32,64};	//Number of gamma from center
+	long double Range[] = {-64,-8,-1,-.5,0,.5,1,8,64};	//Number of gamma from center
+	//long double Range[] = {-1,-.5,0,.5,1};	//Number of gamma from center
 	long double* zero;	//These are the points that may cause the greatest problems, but only if they are between 0 and Par[4]=E=sqrt s
 	long double* gamma;	//These are the widths of the features near zero1 and zero2
-	long double* area;	//These are the areas of the features near zero1 and zero2
 	long double Answer = 0;
 	long double a = 0;
 	long double b;
 	long double F_a, F_b, F_ave;
 	long double x1[9], x3[9];
 	long double Width;	//Step size for integration
-	long double Value;
 	int i1,i2;	//Peak counters
 	int j,l;	//Point and interval counters
 	int Peaks;
 	long double Early = 0;	//Early change from one peak to the next, notes the location of change, 0 means no early change
 	long double NextWidth = 0;	//The next width that will be used in the event of an early change of peaks
+	//long double TotalArea = 0;
+	int version = 8;
 
 	Characterize(Par, k, theta, Temp, zero, gamma, Peaks);
+	//for(i1 = 0; i1 < Peaks; i1++)
+	//	TotalArea += area[i1];
 
 	a = b = 0;
 	i1 = l = 0;
@@ -408,7 +462,7 @@ inline long double ImProp(long double Par[6], long double k, long double theta, 
 		else
 			Width = 3;	//No-man's land
 
-		if(l == 16 && i1 < Peaks)	//Last peak has been integrated and there exists a next peak
+		if(l == version && i1 < Peaks)	//Last peak has been integrated and there exists a next peak
 		{
 			i1++;
 			i2++;
@@ -426,13 +480,13 @@ inline long double ImProp(long double Par[6], long double k, long double theta, 
 			else
 				Early = 0;
 		}
-		else if((a>=zero[i1]-64.*gamma[i1] && b<=zero[i1]+64.*gamma[i1]) && Peaks != 0 && l < 16 && b != 0)	//Integrating the peak itself
+		else if((a>=zero[i1]-64.*gamma[i1] && b<=zero[i1]+64.*gamma[i1]) && Peaks != 0 && l < version && b != 0)	//Integrating the peak itself
 		{
 			Width = gamma[i1]*(Range[l+1]-Range[l]);
 			l++;	//Leaving the peak prevents illegal space access at Range[l+1]
 		}
 
-		if(NextWidth != 0)
+		if(NextWidth != 0 && NextWidth == NextWidth)
 		{
 			Width = NextWidth;
 			NextWidth = 0;
@@ -453,7 +507,7 @@ inline long double ImProp(long double Par[6], long double k, long double theta, 
 			b = sqrt(Par[4]*Par[4]+Par[3]*Par[3]);
 
 		F_a = F_b = 0;
-		for(j = 0; j < 9; j++)
+		for(j = 0; j < 9; j++)//2
 		{
 			x1[j] = (b+a-Disp[j]*(b-a))/2.; //Actual evaluation points
 			x3[j] = (b+a+Disp[j]*(b-a))/2.;
@@ -466,43 +520,50 @@ inline long double ImProp(long double Par[6], long double k, long double theta, 
 		a = b;
 	}while(b < sqrt(Par[4]*Par[4]+Par[3]*Par[3]));
 
-	delete zero;
-	delete gamma;
+	delete[] zero;
+	delete[] gamma;
+
+	Answer /= pow(2.*M_PI,2);
+
+	//cout << Par[4] << " " << Par[3] << " " << k << " " << Answer << endl;
 
 	return(Answer);
 }
 
 void Characterize(long double Par[6], long double k, long double theta, int Temp, long double*& zero, long double*& gamma, int& Peaks)	//Searches for minimum, then gamma by binary search
 {
-	long double Array[3][int(Par[4]/.005)+1];	//0 is function, 1 is second derivative, 2 is boundaries
+	float DeltaE = .5;
+	long double Array[3][int(Par[4]/DeltaE)+1];	//0 is function, 1 is second derivative, 2 is boundaries
 	long double Center, Width;
 	long double Maxima, MaximaW;	//Tempory storage
 	long double Value[4];
 	int i, j;
 	bool Done;
-	bool Exists = sqrt(Par[4]*Par[4]+Par[3]*Par[3]) < Energy(Par[2], Par[3]/2., k, theta);
 
 	Peaks = 0;
-	for(i = 0; i < Par[4]/.005; i++)	//Evaluate the function on a mesh and take the second derivative
-		Array[0][i] = PropIntegrand(i*.005, Par, k, theta, Temp);
-	Array[1][0]=(3*Array[0][0]-4*Array[0][1]+Array[0][2])/(2.*.005);
-	Array[1][int(Par[4]/.005)]=(-Array[0][int(Par[4]/.005)]+4*Array[0][int(Par[4]/.005)-1]-3*Array[0][int(Par[4]/.005)-2])/(2.*.005);
-	for(i = 1; i < Par[4]/.005-1; i++)
-		Array[1][i] = (Array[0][i+1]-Array[0][i-1])/(.005*2.);
-	for(i = 1; i < Par[4]/.005; i++)	//Count the number of minima by the number of changes from positive to negative second derivatives
+	for(i = 0; i < Par[4]/DeltaE; i++)	//Evaluate the function on a mesh and take the second derivative
+		Array[0][i] = PropIntegrand(i*DeltaE, Par, k, theta, Temp);
+	Array[1][0]=(3*Array[0][0]-4*Array[0][1]+Array[0][2])/(2.*DeltaE);
+	Array[1][int(Par[4]/DeltaE)]=(-Array[0][int(Par[4]/DeltaE)]+4*Array[0][int(Par[4]/DeltaE)-1]-3*Array[0][int(Par[4]/DeltaE)-2])/(2.*DeltaE);
+	for(i = 1; i < Par[4]/DeltaE-1; i++)
+		Array[1][i] = (Array[0][i+1]-Array[0][i-1])/(DeltaE*2.);
+	for(i = 1; i < Par[4]/DeltaE; i++)	//Count the number of minima by the number of changes from positive to negative second derivatives
 	{
 		if(Array[1][i-1]*Array[1][i] <= 0 && Array[1][i-1] < Array[1][i])
 		{
-			Array[2][Peaks] = i*.005;	//List the regions were there exist at least 1 peak
+			Array[2][Peaks] = i*DeltaE;	//List the regions were there exist at least 1 peak
 			Peaks++;
 		}
-	}
+	}/*/
+	Array[2][0] = Energy(Par[2], Par[3]/2., k, theta);
+	Array[2][1] = sqrt(Par[3]*Par[3]+Par[4]*Par[4])-Energy(Par[2], Par[3]/2., -k, theta);
+	Peaks = 2;*/
 
 	j = 0; //Number of peaks located
 	for(i = 0; i < Peaks; i++)
 	{
 		Center = Array[2][i];
-		Width = .005;
+		Width = DeltaE;
 
 		Done = Minimize(Par, k, theta, Temp, Center, Width);
 		if(Done)
@@ -567,7 +628,10 @@ void Characterize(long double Par[6], long double k, long double theta, int Temp
 			gamma[i] = -pow(Maxima,2)+pow(2.*Maxima,2)*Value[2]/(Value[3]-Value[1]);
 		}
 
-		gamma[i] = sqrt(gamma[i]);
+		if(gamma[i] < 0 || gamma[i] > 10)
+			gamma[i] = -Self_Energy(Par[4], LawCosines(Par[3],k,theta), Par[2], Temp);
+		else
+			gamma[i] = sqrt(gamma[i]);
 	}
 
 	return;
@@ -586,7 +650,7 @@ bool Minimize(long double Par[6], long double k, long double theta, int Temp, lo
 		{
 			Center = Pos[1];
 			Width = Pos[2]-Pos[1];
-			if(Width < 1e-9 || abs(TestValue[0]/TestValue[1]-1) < 1e-12)
+			if(Width < 1e-5 || abs(TestValue[0]/TestValue[1]-1) < 1e-5)
 				return(true);
 			return(false);
 		}
@@ -608,268 +672,171 @@ bool Minimize(long double Par[6], long double k, long double theta, int Temp, lo
 		TestPos[1] = (Pos[2]+Pos[1])/2.;
 		TestValue[0] = PropIntegrand(TestPos[0], Par, k, theta, Temp);
 		TestValue[1] = PropIntegrand(TestPos[1], Par, k, theta, Temp);
-	}while(Pos[2]-Pos[0] > 1e-15);
+	}while(Pos[2]-Pos[0] > 1e-5);
 
 	Center = Pos[1];
 	Width = Pos[2]-Pos[1];
 	return(true);
 }
 
-inline long double PropIntegrand(long double omega, long double Par[6], long double k, long double theta, int Temp)
+long double PropIntegrand(long double omega, long double Par[6], long double k, long double theta, int Temp)
 {
 	return(-Par[2]*Par[2]/M_PI*Rho(omega, Par, k, theta, Temp)*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-omega, Par, -k, theta, Temp)*(1.-Fermi(omega, Temp)-Fermi(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-omega, Temp)));
 }
 
-inline long double Rho(long double omega, long double Par[6], long double k, long double theta, int Temp)
+long double Rho(long double omega, long double Par[6], long double k, long double theta, int Temp)
 {
 	return(Self_Energy(omega, LawCosines(Par[3]/2., k, theta), Par[2], Temp)/(Energy(Par[2], Par[3]/2., k, theta)*(pow(omega-Energy(Par[2], Par[3]/2., k, theta),2)+pow(Self_Energy(omega, LawCosines(Par[3]/2., k, theta), Par[2], Temp),2))));
 }
 
-inline long double Potential(long double Par[6], long double k, long double theta)	//Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
+long double Potential(long double Par[6], long double k, long double theta, int Temp)	//Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
 {
+	switch(Temp)
+	{
+		case 1:
+			Par[1] *= exp(-1./60.);
+			break;
+		case 2:
+			Par[1] *= exp(-1./30.);
+			break;
+		case 3:
+			Par[1] *= exp(-.05);
+			break;
+	}
 	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.), 2));
 }
 
-inline long double Energy(long double M, long double P, long double k, long double theta)	//Returns twice the energy sqrt(M^2+(vec P/2+vec k)^2)
+long double Energy(long double M, long double P, long double k, long double theta)	//Returns twice the energy sqrt(M^2+(vec P/2+vec k)^2)
 {
 	return(sqrt(M*M+P*P+k*k-2.*P*k*cos(theta)));
 }
 
-inline long double LawCosines(long double P, long double k, long double theta)	//Returns the law of cosines for two vectors with an angle in between.
+long double LawCosines(long double P, long double k, long double theta)	//Returns the law of cosines for two vectors with an angle in between.
 {
 	return(sqrt(pow(P,2)+pow(k,2)-2.*P*k*cos(theta)));
 }
 
-long double Integrate2(long double a, long double b, long double F_a, long double F_b, long double c, long double d, long double(*Integrand)(long double[6], long double, long double, int), long double Parameters[6], int Temp)
+long double Integrate2(long double(*Integrand)(long double[6], long double, long double, int), long double Par[6], int Temp)
 {
-	long double F_c = Integrand(Parameters, c, (a+b)/2., Temp);	//Inital end points of the boundary
-	long double F_d = Integrand(Parameters, d, (a+b)/2., Temp);
-	long double F_ave = Integrate1(Integrand, Parameters, a/2.+b/2., Temp);	//Evaluate k integral at (a+b)/2
+	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
+	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
+	long double x1[9];	//These are the two other points required for 5th order Gaussian quadrature for this interval
+	long double x3[9];
+	long double range[] = {acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4)))),2.*acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4)))),M_PI/2.};
+	long double Answer = 0;
+	long double F_a, F_b, F_ave;
+	long double a = 0, b = 0;
+	int j = 0;
 
-	long double Trapazoid = (F_a+F_b)*(b-a)/2.;		//Trapazoid rule
-	long double Simpsons = (F_a+F_ave*4.+F_b)*(b-a)/6.;	//Simpson's rule
-	if(abs(Trapazoid-Simpsons)*2./abs(Trapazoid+Simpsons) > 1 && abs(b-a) > 1e-10 && abs(Simpsons) > 1e-5)	//If difference between measurements is too large and the differnce between the two points is large enough. The accuracy needs to be better than .00005 and the resolution equal to 1e-18 (segfault if too small). Possibly stronger requirements now that epsilon is -.000001
-		return(Integrate2(a, a/2.+b/2., F_a, F_ave, c, d, Integrand, Parameters, Temp)+Integrate2(a/2.+b/2., b, F_ave, F_b, c, d, Integrand, Parameters, Temp)); //subdivide the interval and return integral of two sub-intervals
-	else	//else
+	if(Par[3] == 0)
+		j = 2;
+
+	for(j; j < 3; j++)
 	{
-		long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center{sqrt(.6)};//
-		long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of data point{8./9.,5./9.};//
-		long double x1[24];	//These are the two other points required for 5th order Gaussian quadrature for this interval
-		long double x3[24];
-
+		b = range[j];
 		F_a = F_b = 0;	//Start integration at 0
-		for(int i = 0; i < 24; i++)
+		for(int i = 0; i < 9; i++)
 		{
 			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-			F_c = Integrand(Parameters, c, x1[i], Temp);	//Inital end points of the boundary
-			F_d = Integrand(Parameters, d, x1[i], Temp);
-			F_a += Integrate1(Integrand, Parameters, x1[i], Temp)*w[i+1];	//Evaluate k integral at x1
-
-			F_c = Integrand(Parameters, c, x3[i], Temp);	//Inital end points of the boundary
-			F_d = Integrand(Parameters, d, x3[i], Temp);
-			F_b += Integrate1(Integrand, Parameters, x3[i], Temp)*w[i+1];	//Evaluate k integral at x3
+			F_a += Integrate1(Integrand, Par, x1[i], Temp)*w[i+1];	//Evaluate k integral at x1
+			F_b += Integrate1(Integrand, Par, x3[i], Temp)*w[i+1];	//Evaluate k integral at x3
 		}
-
-		return((F_a+w[0]*F_ave+F_b)*(b-a)/(2.));	//return the best estimate of the integral on the interval*/
+		F_ave = Integrate1(Integrand, Par, (a+b)/2., Temp)*w[0];
+		Answer += (F_a+F_ave+F_b)*(b-a);
+		a = b;
 	}
+
+	return(Answer);	//return the best estimate of the integral on the interval*/
 }
 
-long double Integrate1(long double(*Integrand)(long double[6], long double, long double, int), long double Parameters[6], long double theta, int Temp)
+long double Integrate1(long double(*Integrand)(long double[6], long double, long double, int), long double Par[6], long double theta, int Temp)
 {
-	long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center for Gauss-Legendre integration
-	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of the function at Disp
-	long double DispLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integration
-	long double wLa[] = {0.07496328305102102808055, 0.1745735743605928864303, 0.2745074833881225250022, 0.3747323102655645620060, 0.4753412526072084401161, 0.5764380939967183636147, 0.6781307242364945406823, 0.7805307978511547593175, 0.8837542316062452388883, 0.9879219194279636096671, 1.0931605619330277996916, 1.1996035979670979427973, 1.3073922479469277349326, 1.416676687469297701993, 1.5276173754408796787012, 1.640386566702889623924, 1.7551700457872174635214, 1.8721691266543402861779, 1.9916029736088098866132, 2.1137113117669909276048, 2.2387576123844772725684, 2.3670328602831611098048, 2.4988600392644108123394, 2.6345995091430390709, 2.7746554982525006307172, 2.9194840027576204632431, 3.0696024758091833914472, 3.2256018156600758204608, 3.3881613374746331979827, 3.5580676615951707296054, 3.7362388067183244743069, 3.9237552950635210172968, 4.1219008467729629867363, 4.3322164077399479741288, 4.5565730632309056055423, 4.7972722621195591678357, 5.057186469320242487569, 5.3399612774797865633198, 5.6503138450512931300331, 5.9944877492232503537552, 6.3809726096501927329094, 6.8216946862388774056326, 7.3340972531892936469048, 7.9450326451948326187906, 8.6987143462393085933469, 9.6750102652900375180015, 11.039313738067347840094, 13.220456867750092021034, 17.982575250664959108273};	//Weight of the function at DispLa
-	long double x1[49];	//These are the two other points required for 5th order Gaussian quadrature for this interval
-	long double x3[24];	//x1 is extended for use in Gauss-Laguerre integration
+	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
+	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
+	long double x1[9];	//These are the two other points required for 5th order Gaussian quadrature for this interval
+	long double x3[9];	//x1 is extended for use in Gauss-Laguerre integration
 	long double F_a, F_b, F_ave;
-	long double a, b;
+	long double a = 0, b = 0;
 	long double Answer = 0;
-	int i, j, start = 0;
+	long double k = 0;	//Values locating the various values of k where the division by zero gets closest to the real number line
+	long double Range[] = {-64,-32,-16,-8,-4,-2,-1,-.5,0,.5,1,2,4,8,16,32,64};	//Number of gamma from center
+	long double gamma = 0;	//These are the widths of the features near 2 Particle on shell
+	long double Width;	//Step size for integration
+	long double E;		//Largest feature I can find
+	long double Value;
+	int i = 0, j;
 
-	if(Parameters[4] > 2.*Parameters[2])	//If above threshold, execute this method designed for divisions by zero closely approching the real number line
+	if(Par[4] > 2.*Par[2])	//If above threshold, locate and guestimate the width of the feature near the division by zero
 	{
-		long double k;	//Values locating the various values of k where the division by zero gets closest to the real number line
-		long double distance[] = {1e-1, 7.5e-2, 5e-2, 2.5e-2, 1e-2, 7.5e-3, 5e-3, 2.5e-3, 1e-3, 5e-4, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 1e-16, 1e-17};	//magic numbers that indicates the distance from the near division by zero.
-		k = .5*sqrt((pow(Parameters[4],2)-pow(2.*Parameters[2],2))*(pow(Parameters[4],2)+pow(Parameters[3],2))/(pow(Parameters[4],2)+pow(Parameters[3]*sin(theta),2)));
-		while(2.*distance[start] > k && start < 24)	//Finds the starting value that won't over run the 0 lower boundary
-		{
-			start++;
-		}
-
-		a = 0; b = 0;	//0GeV to near divsion by zero line
-
-		while(b+10 < k-2.*distance[start])	//Do the interval 25GeV at a time until k-25 is reached, k may be out a fair distance
-		{
-			b += 10;
-			F_a = F_b = 0;	//Start integration at 0
-			for(i = 0; i < 24; i++)
-			{
-				x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-				x3[i] = (b+a+Disp[i]*(b-a))/2.;
-	
-				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1];	//Evaluate function at x1
-				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1];	//Evaluate function at x3
-			}
-			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0];	//Evaluate the function at the center
-			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-			a = b;
-		}
-
-		b = k-2.*distance[start];
-		F_a = F_b = 0;	//Start integration at 0
-		for(i = 0; i < 24; i++)
-		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1];	//Evaluate function at x1
-			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1];	//Evaluate function at x3
-		}
-		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0];	//Evaluate the function at the center
-		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-
-		for(j = start; j < 24; j++)
-		{
-			a = b;	//previous location to set distance from division by zero
-			b = k-distance[j];
-			F_a = F_b = 0;	//Start integration at 0
-			for(i = 0; i < 24; i++)
-			{
-				x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-				x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1];	//Evaluate function at x1
-				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1];	//Evaluate function at x3
-			}
-			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0];	//Evaluate the function at the center
-			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-		}
-
-		a = b;	//last near divsion by zero to division by zero
-		b = k;
-		F_a = F_b = 0;	//Start integration at 0
-		for(i = 0; i < 24; i++)
-		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1];	//Evaluate function at x1
-			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1];	//Evaluate function at x3
-		}
-		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0];	//Evaluate the function at the center
-		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-
-
-		for(j = 23; j >= 0; j--)
-		{
-			a = b;	//last value to set distance from division by zero
-			b = k+distance[j];
-			F_a = F_b = 0;	//Start integration at 0
-			for(i = 0; i < 24; i++)
-			{
-				x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-				x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1];	//Evaluate function at x1
-				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1];	//Evaluate function at x3
-			}
-			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0];	//Evaluate the function at the center
-			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-		}
-
-		a = b;	//near divsion by zero to near division by zero line
-		b = k+distance[0]*2.;
-		F_a = F_b = 0;	//Start integration at 0
-		for(i = 0; i < 24; i++)
-		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1];	//Evaluate function at x1
-			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1];	//Evaluate function at x3
-		}
-		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0];	//Evaluate the function at the center
-		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-
-		while(b < 660)	//Do the integration 25GeV at time until 500GeV is reached. k_max may be a fair distance from 660GeV
-		{
-			a = b;	//near divsion by zero line to +100GeV
-			b += 10;
-			F_a = F_b = 0;	//Start integration at 0
-			for(i = 0; i < 24; i++)
-			{
-				x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-				x3[i] = (b+a+Disp[i]*(b-a))/2.;
-	
-				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1];	//Evaluate function at x1
-				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1];	//Evaluate function at x3
-			}
-			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0];	//Evaluate the function at the center
-			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-		}
-
-		a = b;	//near divsion by zero line+100GeV to 500GeV, or back to 500GeV according to P and if the last integral came up short or when past 500GeV
-		b = 660;
-		F_a = F_b = 0;	//Start integration at 0
-		for(i = 0; i < 24; i++)
-		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1];	//Evaluate function at x1
-			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1];	//Evaluate function at x3
-		}
-		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0];	//Evaluate the function at the center
-		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+		long double LocalPar[] = {Par[0],Par[1],Par[2],Par[3],2.*Par[2],Par[5]};
+		k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(theta),2)));
+		gamma = -ImProp(LocalPar, k, theta, Temp);
 	}
-	else
+	else if(Par[4] > 2.*Par[2]-.1)	//If near but below threshold, make up a width to get the important things covered.
 	{
+		long double LocalPar[] = {Par[0],Par[1],Par[2],Par[3],2.*Par[2],Par[5]};
+		k = 0;
+		gamma = -ImProp(LocalPar, k, theta, Temp);
+	}
+
+	if(gamma < 1e-3)
+		gamma = 1e-3;
+
+	//cerr << theta << " " << k << " " << gamma << endl;
+	while(k+Range[i]*gamma < 0 && k != 0)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
+		i++;
+
+	E = k+(11.8571+.07*Par[3]+.00185714*pow(Par[3],2));
+	if(k < (11.8571+.07*Par[3]+.00185714*pow(Par[3],2)))
 		a = b = 0;
-		while(b < 660)	//Do the integration 25GeV at time until 500GeV is reached. k_max may be a fair distance from 660GeV
-		{
-			a = b;	//near divsion by zero line to +100GeV
-			b += 10;
-			F_a = F_b = 0;	//Start integration at 0
-			for(i = 0; i < 24; i++)
-			{
-				x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-				x3[i] = (b+a+Disp[i]*(b-a))/2.;
-	
-				F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1];	//Evaluate function at x1
-				F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1];	//Evaluate function at x3
-			}
-			F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0];	//Evaluate the function at the center
-			Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-		}
-
-		a = b;	//near divsion by zero line+100GeV to 500GeV, or back to 500GeV according to P and if the last integral came up short or when past 500GeV
-		b = 660;
-		F_a = F_b = 0;	//Start integration at 0
-		for(i = 0; i < 24; i++)
-		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-			F_a += Integrand(Parameters, x1[i], theta, Temp)*w[i+1];	//Evaluate function at x1
-			F_b += Integrand(Parameters, x3[i], theta, Temp)*w[i+1];	//Evaluate function at x3
-		}
-		F_ave = Integrand(Parameters, (a+b)/2., theta, Temp)*w[0];	//Evaluate the function at the center
-		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
-	}
-
-	//Gauss-Laguerre integration, needs to be done by both integral methods
-	a = b;	//Make b the new lower boundary
-	F_a = 0;	//Start integration at 0
-	for(i = 0; i < 49; i++)
+	else
+		a = b = k-(11.8571+.07*Par[3]+.00185714*pow(Par[3],2));
+	do
 	{
-		x1[i] = DispLa[i]+a;	//Actual evaluation points
+		if(b == 0 && i != 0)	//First peak is closer than 64*gamma to 0
+			Width = k+Range[i]*gamma;
+		else if(b < k-10 || b > k+10)
+			Width = 10;
+		else
+			Width = 3.;	//No-man's land
 
-		F_a += Integrand(Parameters, x1[i], theta, Temp)*wLa[i];	//Evaluate function at x1
-	}
-	Answer += F_a;
+		if(a<k-64.*gamma && b+Width>=k-64.*gamma)	//Stutter step before the peak
+		{
+			Width = k-64.*gamma-b;
+			i = 0;	//Resets l before entering the peak
+		}
+		else if((a>=k-64.*gamma && b<=k+64.*gamma) && i < 16 && b != 0)	//Integrating the peak itself
+		{
+			Width = gamma*(Range[i+1]-Range[i]);
+			i++;	//Leaving the peak prevents illegal space access at Range[l+1]
+		}
+
+		b += Width;
+
+		F_a = F_b = 0;
+		for(j = 0; j < 9; j++)
+		{
+			x1[j] = (b+a-Disp[j]*(b-a))/2.; //Actual evaluation points
+			x3[j] = (b+a+Disp[j]*(b-a))/2.;
+
+			Value = Integrand(Par, x1[j], theta, Temp);
+			//if(Integrand == G_0Int)
+			//	cout << x1[j] << " " << theta << " " << Value << endl;
+			F_a += Value*w[j+1]; //Evaluate function at x1
+			Value = Integrand(Par, x3[j], theta, Temp);
+			//if(Integrand == G_0Int)
+			//	cout << x3[j] << " " << theta << " " << Value << endl;
+			F_b += Value*w[j+1]; //Evaluate function at x3
+		}
+		Value = Integrand(Par, (a+b)/2., theta, Temp);
+		//if(Integrand == G_0Int)
+		//	cout << (a+b)/2. << " " << theta << " " << Value << endl;
+		F_ave = Value*w[0]; //Evaluate the function at the center
+		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+		a = b;
+	}while(b < E);
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
