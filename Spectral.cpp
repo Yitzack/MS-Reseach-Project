@@ -50,13 +50,13 @@ int main(int argc, char* argv[])
 			switch(Temp)
 			{
 				case 1:
-					Par[1] *= exp(-1./60.);
+					Par[1] *= exp(-.02);
 					break;
 				case 2:
-					Par[1] *= exp(-1./30.);
+					Par[1] *= exp(-.05);
 					break;
 				case 3:
-					Par[1] *= exp(-.05);
+					Par[1] *= exp(-.1);
 					break;
 			}
 			Par[3] = i*.8;
@@ -68,6 +68,7 @@ int main(int argc, char* argv[])
 				TMat *= complex<long double>(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+pow(Par[4],2)-pow(2*Par[2],2)),2));
 			Table[j][1] = TMat.imag();
 			Table[j][0] = Spectral(Par, Temp);
+			cout << E[j] << " " << Table[j][1] << " " << Table[j][0] << endl;
 		}
 
 #ifdef DELTAE
