@@ -269,18 +269,6 @@ long double ImDelta_GInt(long double Par[6], long double k, long double theta, i
 
 long double Potential1(long double Par[6], long double k, long double theta, int Temp)
 {
-	switch(Temp)
-	{
-		case 1:
-			Par[1] *= exp(-1./60.);
-			break;
-		case 2:
-			Par[1] *= exp(-1./30.);
-			break;
-		case 3:
-			Par[1] *= exp(-.05);
-			break;
-	}
 	return(pow(Par[1],2)/(pow(Par[1],2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.));
 }
 
@@ -691,18 +679,6 @@ long double Rho(long double omega, long double Par[6], long double k, long doubl
 
 long double Potential(long double Par[6], long double k, long double theta, int Temp)	//Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
 {
-	switch(Temp)
-	{
-		case 1:
-			Par[1] *= exp(-1./60.);
-			break;
-		case 2:
-			Par[1] *= exp(-1./30.);
-			break;
-		case 3:
-			Par[1] *= exp(-.05);
-			break;
-	}
 	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+2.*(k*k-pow(Par[2],2)+Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta))-pow(Par[3],2)/2.), 2));
 }
 
