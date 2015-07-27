@@ -295,8 +295,13 @@ long double ImInt(long double Par[6], long double k, long double theta, int Temp
 
 long double ReProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the propagator
 {
-	//long double Quasi = (pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta), LawCosines(Par[3]/2., k, theta), Par[2], Temp)+Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta), LawCosines(Par[3]/2., -k, theta), Par[2], Temp), 2))*2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta), LawCosines(Par[3]/2., k, theta), Par[2], Temp)+Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta), LawCosines(Par[3]/2., -k, theta), Par[2], Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta), LawCosines(Par[3]/2., k, theta), Par[2], Temp)+Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta), LawCosines(Par[3]/2., -k, theta), Par[2], Temp)), 2));
-	//return(Quasi);
+	if(Temp == 0)
+	{
+		if(Par[4] >= .82823392)
+			return((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
+		else
+			return((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2))));
+	}
 
 	long double Disp[] = {sqrt(5.-2.*sqrt(10./7.))/3., sqrt(5.+2.*sqrt(10./7.))/3.}; //Displacement from center for 9th order Gauss-Legendre integration
 	long double w[] = {128./225., (322.+13.*sqrt(70))/900., (322.-13.*sqrt(70))/900.}; //Weight of the function at Disp
@@ -314,6 +319,7 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 	long double Width;	//Step size for integration
 	long double E = zero+64.*gamma+3.;	//Largest feature I can find
 	long double f0 = ImProp(Par, k, theta, Temp);	//Par[4]^2 is the location of the division by zero
+	long double A;	//Starting position
 	int i,j,l = 0;
 	int version;
 
@@ -331,6 +337,8 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 		a = b = 0;
 	else
 		a = b = zero-64*gamma-3.;
+	A = a;
+
 	i = 0;
 	do
 	{
@@ -379,8 +387,10 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 
 	if(f0 == 0)
 		Answer = Answer/M_PI;
+	else if(A < Par[4] && Par[4] < b)
+		Answer = Answer/M_PI+f0*log((Par[4]*Par[4] - b*b)/(A*A - Par[4]*Par[4]))/M_PI;
 	else
-		Answer = Answer+f0*log(abs(1.-pow(b/Par[4],2)))/M_PI;
+		Answer = Answer/M_PI+f0*log((b*b - Par[4]*Par[4])/(A*A - Par[4]*Par[4]))/M_PI;
 
 	//cout << Par[4] << " " << Par[3] << " " << k << " " << Answer << " " << Quasi << endl;
 	return(Answer);//*/
@@ -388,20 +398,13 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 
 long double ImProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the propagator
 {
-	/*long double Quasi = 2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta), LawCosines(Par[3]/2., k, theta), Par[2], Temp)+Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta), LawCosines(Par[3]/2., -k, theta), Par[2], Temp))*2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta), LawCosines(Par[3]/2., k, theta), Par[2], Temp)+Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta), LawCosines(Par[3]/2., -k, theta), Par[2], Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta), LawCosines(Par[3]/2., k, theta), Par[2], Temp)+Self_Energy(sqrt(pow(Par[4],2)+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta), LawCosines(Par[3]/2., -k, theta), Par[2], Temp)), 2));
-	return(Quasi);
-	long double PNarrow = pow(Par[2],2)*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta), Par, -k, theta, Temp)*(1.-Fermi(Energy(Par[2], Par[3]/2., k, theta), Temp)-Fermi(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta), Temp))/(pow(2.*M_PI,2)*Energy(Par[2], Par[3]/2., k, theta));
-	long double NNarrow = pow(Par[2],2)*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., -k, theta), Par, k, theta, Temp)*(1.-Fermi(Energy(Par[2], Par[3]/2., -k, theta), Temp)-Fermi(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., -k, theta), Temp))/(pow(2.*M_PI,2)*Energy(Par[2], Par[3]/2., -k, theta));
-
-	if(PNarrow<0 && NNarrow<0)
-		return(Quasi);
-	else if(PNarrow<0 || NNarrow<0)	//Effectively exclusive or
+	if(Temp == 0)
 	{
-		if(PNarrow < 0)
-			return(PNarrow);
+		if(Par[4] >= .82823392)
+			return((-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4])*(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
 		else
-			return(NNarrow);
-	}*/
+			return(0);
+	}
 
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
