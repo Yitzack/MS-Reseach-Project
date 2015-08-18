@@ -524,7 +524,7 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 void Characterize(long double Par[6], long double k, long double theta, int Temp, long double*& zero, long double*& gamma, int& Peaks)	//Searches for minimum, then gamma by binary search
 {
 	float DeltaE = .5;
-	long double Array[3][int(Par[4]/DeltaE)+1];	//0 is function, 1 is second derivative, 2 is boundaries
+	long double Array[3][int(sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE)+1];	//0 is function, 1 is second derivative, 2 is boundaries
 	long double Center, Width;
 	long double Maxima, MaximaW;	//Tempory storage
 	long double Value[4];
@@ -532,13 +532,13 @@ void Characterize(long double Par[6], long double k, long double theta, int Temp
 	bool Done;
 
 	Peaks = 0;
-	for(i = 0; i < Par[4]/DeltaE; i++)	//Evaluate the function on a mesh and take the second derivative
+	for(i = 0; i < sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE; i++)	//Evaluate the function on a mesh and take the second derivative
 		Array[0][i] = PropIntegrand(i*DeltaE, Par, k, theta, Temp);
 	Array[1][0]=(3*Array[0][0]-4*Array[0][1]+Array[0][2])/(2.*DeltaE);
-	Array[1][int(Par[4]/DeltaE)]=(-Array[0][int(Par[4]/DeltaE)]+4*Array[0][int(Par[4]/DeltaE)-1]-3*Array[0][int(Par[4]/DeltaE)-2])/(2.*DeltaE);
-	for(i = 1; i < Par[4]/DeltaE-1; i++)
+	Array[1][int(sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE)]=(-Array[0][int(sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE)]+4*Array[0][int(sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE)-1]-3*Array[0][int(sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE)-2])/(2.*DeltaE);
+	for(i = 1; i < sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE-1; i++)
 		Array[1][i] = (Array[0][i+1]-Array[0][i-1])/(DeltaE*2.);
-	for(i = 1; i < Par[4]/DeltaE; i++)	//Count the number of minima by the number of changes from positive to negative second derivatives
+	for(i = 1; i < sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE; i++)	//Count the number of minima by the number of changes from positive to negative second derivatives
 	{
 		if(Array[1][i-1]*Array[1][i] <= 0 && Array[1][i-1] < Array[1][i])
 		{
