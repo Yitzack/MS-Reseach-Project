@@ -298,10 +298,14 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 	if(Temp == 0)
 	{
 		if(Par[4] >= .82823392)
-			return((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
+			return(((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*2.*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
 		else
-			return((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2))));
+			return(((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*2.*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2))));
 	}
+	//if(sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., -k, theta))
+	//{
+		return((2.*(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2))*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)));
+	//}
 
 	long double Disp[] = {sqrt(5.-2.*sqrt(10./7.))/3., sqrt(5.+2.*sqrt(10./7.))/3.}; //Displacement from center for 9th order Gauss-Legendre integration
 	long double w[] = {128./225., (322.+13.*sqrt(70))/900., (322.-13.*sqrt(70))/900.}; //Weight of the function at Disp
@@ -392,8 +396,7 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 	else
 		Answer = Answer/M_PI+f0*log((b*b - Par[4]*Par[4])/(A*A - Par[4]*Par[4]))/M_PI;
 
-	//cout << Par[4] << " " << Par[3] << " " << k << " " << Answer << " " << Quasi << endl;
-	return(Answer);//*/
+	return(Answer);
 }
 
 long double ImProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the propagator
@@ -401,9 +404,21 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 	if(Temp == 0)
 	{
 		if(Par[4] >= .82823392)
-			return((-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4])*(2.*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
+			return((-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4])*(2.*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
 		else
 			return(0);
+	}
+
+	if(sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., -k, theta))
+	{
+		return(((4.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)))*pow(Par[2],2)/pow(2.*M_PI,2)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)));
+	}
+	else if(sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., k, theta) || sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., -k, theta))
+	{
+		if(sqrt(Par[4]*Par[4]+Par[3]*Par[3]) < Energy(Par[2], Par[3]/2., -k, theta))
+			return(pow(Par[2]/M_PI,2)/8.*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta), Par, -k , theta, Temp)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(Energy(Par[2], Par[3]/2., -k, theta)+Energy(Par[2], Par[3]/2., k, theta))/pow(Energy(Par[2], Par[3]/2., k, theta), 2));
+		else
+			return(pow(Par[2]/M_PI,2)/8.*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., -k, theta), Par, k , theta, Temp)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(Energy(Par[2], Par[3]/2., -k, theta)+Energy(Par[2], Par[3]/2., k, theta))/pow(Energy(Par[2], Par[3]/2., -k, theta), 2));
 	}
 
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
@@ -515,8 +530,6 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 	delete[] gamma;
 
 	Answer /= pow(2.*M_PI,2);
-
-	//cout << Par[4] << " " << Par[3] << " " << k << " " << Answer << endl;
 
 	return(Answer);
 }
