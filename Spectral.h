@@ -415,10 +415,10 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 	}
 	else if(sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., k, theta) || sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., -k, theta))
 	{
-		if(sqrt(Par[4]*Par[4]+Par[3]*Par[3]) < Energy(Par[2], Par[3]/2., -k, theta))
-			return(pow(Par[2]/M_PI,2)/8.*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta), Par, -k , theta, Temp)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(Energy(Par[2], Par[3]/2., -k, theta)+Energy(Par[2], Par[3]/2., k, theta))/pow(Energy(Par[2], Par[3]/2., k, theta), 2));
+		if(sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., -k, theta))
+			return(pow(Par[2]/(2.*M_PI),2)*Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., -k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))/(Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta)*(pow(sqrt(Par[3]*Par[3]+Par[4]*Par[4])-Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2., -k, theta),2)+pow(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., -k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp),2))));
 		else
-			return(pow(Par[2]/M_PI,2)/8.*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., -k, theta), Par, k , theta, Temp)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(Energy(Par[2], Par[3]/2., -k, theta)+Energy(Par[2], Par[3]/2., k, theta))/pow(Energy(Par[2], Par[3]/2., -k, theta), 2));
+			return(pow(Par[2]/(2.*M_PI),2)*Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))/(Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta)*(pow(sqrt(Par[3]*Par[3]+Par[4]*Par[4])-Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2., -k, theta),2)+pow(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp),2))));
 	}
 
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
