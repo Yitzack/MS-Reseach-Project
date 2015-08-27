@@ -254,7 +254,10 @@ long double Fermi(long double Par[6], long double k, long double theta, int T)
 
 long double G_0Int(long double Par[6], long double k, long double theta, int Temp)	//This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 {
-	return(ImProp(Par, k, theta, Temp)*sin(theta)*k*k);
+	if(Temp != 0)
+		return((pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta),2)-Par[3]*Par[3])/(2.*Par[2]*Par[2])*ImProp(Par, k, theta, Temp)*sin(theta)*k*k);
+	else
+		return(k*k*(Par[3]*Par[3]-2.*pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta),2))*sin(theta)/(8.*M_PI*(Par[3]*(Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2.,-k, theta))+2.*k*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta)))));
 }
 
 long double ReDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
@@ -732,10 +735,33 @@ long double Integrate2(long double(*Integrand)(long double[6], long double, long
 			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-			F_a += Integrate1(Integrand, Par, x1[i], Temp)*w[i+1];	//Evaluate k integral at x1
-			F_b += Integrate1(Integrand, Par, x3[i], Temp)*w[i+1];	//Evaluate k integral at x3
+			if(Temp == 0 && Integrand == G_0Int)
+			{
+				long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x1[i]),2)));
+				F_a += G_0Int(Par, k, x1[i], 0)*w[i+1];
+				k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x3[i]),2)));
+				F_b += G_0Int(Par, k, x3[i], 0)*w[i+1];
+				if(F_a != F_a)
+				{
+					F_a = 0;
+					F_b = 0;
+				}
+			}
+			else
+			{
+				F_a += Integrate1(Integrand, Par, x1[i], Temp)*w[i+1];	//Evaluate k integral at x1
+				F_b += Integrate1(Integrand, Par, x3[i], Temp)*w[i+1];	//Evaluate k integral at x3
+			}
 		}
-		F_ave = Integrate1(Integrand, Par, (a+b)/2., Temp)*w[0];
+		if(Temp == 0 && Integrand == G_0Int)
+		{
+			long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin((a+b)/2.),2)));
+			F_ave = G_0Int(Par, k, (a+b)/2., Temp)*w[0];
+			if(k != k)
+				F_ave = 0;
+		}
+		else
+			F_ave = Integrate1(Integrand, Par, (a+b)/2., Temp)*w[0];
 		Answer += (F_a+F_ave+F_b)*(b-a);
 		a = b;
 	}
