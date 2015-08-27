@@ -37,26 +37,29 @@ int main(int argc, char* argv[])
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 
-	for(i = 0; i <= 0; i++)
+	for(i = 0; i <= 751; i++)
 	{
 		#pragma omp parallel for
 #ifdef DELTAE
 		for(j = 81*iProcess/(Total); j < 81*(iProcess+1)/Total; j++)	//Does the subset of E that has been assigned to this process
 #else
-		for(j = iProcess; j < 462; j+=Total)	//Does the subset of E that has been assigned to this process
+		for(j = 462*iProcess/Total; j < 462*(iProcess+1)/Total; j++)	//Does the subset of E that has been assigned to this process
 #endif
 		{
 			long double Par[6] = {-127.995280691106, 1.4049344847006076, 1.8, 0, 0, .032};
 			switch(Temp)
 			{
 				case 1:
-					Par[1] *= exp(-.02);
+					Par[1] *= exp(-.04);
+					Par[2] = 2.196875;	//1.902
 					break;
 				case 2:
-					Par[1] *= exp(-.05);
+					Par[1] *= exp(-.1);
+					Par[2] = 1.93486842105;	//1.777
 					break;
 				case 3:
-					Par[1] *= exp(-.1);
+					Par[1] *= exp(-.2);
+					Par[2] = 1.62450657895;	//1.652
 					break;
 			}
 			Par[3] = i*.8;
@@ -68,7 +71,7 @@ int main(int argc, char* argv[])
 				TMat *= complex<long double>(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+pow(Par[4],2)-pow(2*Par[2],2)),2));
 			Table[j][1] = TMat.imag();
 			Table[j][0] = Spectral(Par, Temp);
-			cout << E[j] << " " << Table[j][1] << " " << Table[j][0] << endl;
+			//cout << E[j] << " " << Table[j][1] << " " << Table[j][0] << endl;
 		}
 
 #ifdef DELTAE
