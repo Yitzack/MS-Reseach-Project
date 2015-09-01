@@ -714,7 +714,7 @@ long double Integrate2(long double(*Integrand)(long double[6], long double, long
 	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
 	long double x1[9];	//These are the two other points required for 5th order Gaussian quadrature for this interval
 	long double x3[9];
-	long double range[] = {acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4)))),2.*acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4)))),M_PI/2.};
+	long double range[] = {acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4)))),2.*acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4)))),M_PI/2.,M_PI-2.*acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4)))),M_PI-acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4)))),M_PI};
 	long double Answer = 0;
 	long double F_a, F_b, F_ave;
 	long double a = 0, b = 0;
@@ -726,6 +726,11 @@ long double Integrate2(long double(*Integrand)(long double[6], long double, long
 	for(j; j < 3; j++)
 	{
 		b = range[j];
+		if(b != b)
+		{
+			b = range[5];
+			j = 5;
+		}
 		F_a = F_b = 0;	//Start integration at 0
 		for(int i = 0; i < 9; i++)
 		{
