@@ -16,7 +16,7 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-	char File[25] = "Spectral.";	//Name of the file
+	char File[25] = "Spectral";	//Name of the file
 	Process = argv[1];
 	strcat(File, argv[3]);
 	strcat(File, ".");
@@ -33,34 +33,42 @@ int main(int argc, char* argv[])
 	const int iProcess = atoi(argv[1]) % atoi(argv[2]);
 	const int Total = atoi(argv[2]);
 	complex<long double> TMat;
-	long double Table[462][2];
+	long double Table[462][3];
+	long double Par[6] = {-63.997640345553, 1.4049344847006076, 1.8, 0, 0, .032};
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 
-	for(i = 0; i <= 751; i++)
+	for(i = 0; i <= 0; i++)
 	{
 		#pragma omp parallel for
 #ifdef DELTAE
 		for(j = 81*iProcess/(Total); j < 81*(iProcess+1)/Total; j++)	//Does the subset of E that has been assigned to this process
 #else
-		for(j = 462*iProcess/Total; j < 462*(iProcess+1)/Total; j++)	//Does the subset of E that has been assigned to this process
+		for(j = iProcess; j < 462; j+=Total)	//Does the subset of E that has been assigned to this process
 #endif
 		{
-			long double Par[6] = {-127.995280691106, 1.4049344847006076, 1.8, 0, 0, .032};
-			switch(Temp)
+			Par[1] = 1.4049344847006076;
+			Par[2] = 1.8;
+			if(argc == 4)
+				switch(Temp)
+				{
+					case 1:
+						Par[1] *= exp(-5./18.);
+						Par[2] = 1.848;//1.902;
+						break;
+					case 2:
+						Par[1] *= exp(-5./9.);
+						Par[2] = 1.719;//1.777;
+						break;
+					case 3:
+						Par[1] *= exp(-5./6.);
+						Par[2] = 1.563;//1.652;
+						break;
+				}
+			else
 			{
-				case 1:
-					Par[1] *= exp(-.04);
-					Par[2] = 2.196875;	//1.902
-					break;
-				case 2:
-					Par[1] *= exp(-.1);
-					Par[2] = 1.93486842105;	//1.777
-					break;
-				case 3:
-					Par[1] *= exp(-.2);
-					Par[2] = 1.62450657895;	//1.652
-					break;
+				Par[1] *= atof(argv[4]);
+				Par[2] = atof(argv[5]);
 			}
 			Par[3] = i*.8;
 			Par[4] = E[j];
@@ -69,7 +77,8 @@ int main(int argc, char* argv[])
 				TMat *= complex<long double>(Par[0]);
 			else
 				TMat *= complex<long double>(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+pow(Par[4],2)-pow(2*Par[2],2)),2));
-			Table[j][1] = TMat.imag();
+			Table[j][1] = TMat.real();
+			Table[j][2] = TMat.imag();
 			Table[j][0] = Spectral(Par, Temp);
 			//cout << E[j] << " " << Table[j][1] << " " << Table[j][0] << endl;
 		}
@@ -79,11 +88,12 @@ int main(int argc, char* argv[])
 #else
 		for(j = iProcess; j < 462; j+=Total)	//Does the subset of E that has been assigned to this process
 #endif
-			TPlot << Temp <<  " " << .8*i << " " << E[j] << " " << Table[j][0] << " " << Table[j][1] << endl;
+			TPlot << Temp <<  " " << .8*i << " " << E[j] << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
 		TPlot << endl;
 	}
 
-	TPlot.close();
+	TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
+	TPlot.close();//*/
 
 	return(0);
 }
