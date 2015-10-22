@@ -16,7 +16,7 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-	char File[25] = "Spectral";	//Name of the file
+	char File[25] = "Spectral.";	//Name of the file
 	Process = argv[1];
 	strcat(File, argv[3]);
 	strcat(File, ".");
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 
-	for(i = 0; i <= 0; i++)
+	for(i = 0; i <= 751; i++)
 	{
 		#pragma omp parallel for
 #ifdef DELTAE
@@ -53,15 +53,15 @@ int main(int argc, char* argv[])
 				switch(Temp)
 				{
 					case 1:
-						Par[1] *= exp(-5./18.);
+						Par[1] *= exp(-4./35.);
 						Par[2] = 1.848;//1.902;
 						break;
 					case 2:
-						Par[1] *= exp(-5./9.);
+						Par[1] *= exp(-2./7.);
 						Par[2] = 1.719;//1.777;
 						break;
 					case 3:
-						Par[1] *= exp(-5./6.);
+						Par[1] *= exp(-4./7.);
 						Par[2] = 1.563;//1.652;
 						break;
 				}
