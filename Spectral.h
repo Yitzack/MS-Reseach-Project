@@ -182,7 +182,7 @@ long double G_0Int(long double Par[6], long double k, long double theta, int Tem
 	if(Temp != 0)
 		return((pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta),2)-Par[3]*Par[3])/(2.*Par[2]*Par[2])*ImProp(Par, k, theta, Temp)*sin(theta)*k*k);
 	else
-		return(-k*k*pow(Par[4],2)*sin(theta)/(16.*M_PI*(Par[3]*(Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2.,-k, theta))+2.*k*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta)))));
+		return(-k*k*pow(Par[4],2)*sin(theta)/(4.*M_PI*(Par[3]*(Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2.,-k, theta))+2.*k*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta)))));
 }
 
 long double ReDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
