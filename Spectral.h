@@ -328,7 +328,10 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 	}
 
 	if(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-.02 < Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]*Par[4]+Par[3]*Par[3])-.02 < Energy(Par[2], Par[3]/2., -k, theta))
-	{}
+	{
+		if(Par[3] > 100)
+			return(0);
+	}
 	else if(sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., -k, theta))
 	{
 		return(((4.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)))*pow(Par[2],2)/pow(2.*M_PI,2)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)));
@@ -368,7 +371,7 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 	a = b = 0;
 	i1 = l = 0;
 	i2 = 1;
-	while(zero[i1]+Range[l]*gamma[i1] < 0 && Peaks != 0)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
+	while(zero[i1]+Range[l]*gamma[i1] < 0 && Peaks != 0 && l < version)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
 		l++;
 
 	if(zero[i1]+64.*gamma[i1] > zero[i2]-64.*gamma[i2] && i2 < Peaks && l != 0)
