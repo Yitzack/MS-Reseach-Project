@@ -724,11 +724,11 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 	while(k+Range[i]*gamma < 0 && k != 0)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
 		i++;
 
-	E = k+(11.8571+.07*Par[3]+.00185714*pow(Par[3],2));
-	if(k < (11.8571+.07*Par[3]+.00185714*pow(Par[3],2)))
+	E = k+(11.8571+.57*Par[3]+.00185714*pow(Par[3],2));
+	if(k < (11.8571+.57*Par[3]+.00185714*pow(Par[3],2)))
 		a = b = 0;
 	else
-		a = b = k-(11.8571+.07*Par[3]+.00185714*pow(Par[3],2));
+		a = b = k-(11.8571+.57*Par[3]+.00185714*pow(Par[3],2));
 	do
 	{
 		if(b == 0 && i != 0)	//First peak is closer than 64*gamma to 0
