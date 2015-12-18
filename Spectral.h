@@ -12,7 +12,7 @@ long double ImInt(long double[6], long double, long double, int);	//Returns the 
 long double Integrate1(long double(*)(long double[6], long double, long double, int), long double[6], long double, int);	//Integrates the part that it is told to integrate. It uses the difference in evaluating the trapaziod rule and Simpson's rule to pick the points that it integrate between. Since the Gaussian quadrature is very accuate for using very few points (2n-1 order polynomial accurate with n points), it then returns the Gaussian quadrature for 3 points on that subinterval.
 long double Integrate2(long double(*)(long double[6], long double, long double, int), long double[6], int);	//Contains more brains than Integrate1() as it will need to divide the integral into 2 parts and pass the endpoints down for faster times but it uses the same algorithm to acheive its results.
 long double Self_Energy(long double, long double, long double, int);	//Returns the Self-Energy
-long double Self_P_Depends(int, long double);	//Returns the momentum dependance of the self-energy
+long double Self_P_Depends(int, long double, long double);	//Returns the momentum dependance of the self-energy
 long double Self_E_Depends(int, long double, long double, long double);	//Returns the energy dependance of the self-energy that moves with the momentum
 long double ReProp(long double[6], long double, long double, int);	//Returns the real part of the propagator
 long double ImProp(long double[6], long double, long double, int);	//Returns the imaginary part of the propagator
@@ -33,11 +33,11 @@ long double Fermi(long double[6], long double, long double, int);
 
 long double Self_Energy(long double E, long double P, long double M, int Temp)
 {
-	long double Ans = Self_E_Depends(Temp, E, P, M)*Self_P_Depends(Temp, P);
+	long double Ans = Self_E_Depends(Temp, E, P, M)*Self_P_Depends(Temp, P, M);
 	return(Ans);
 }
 
-long double Self_P_Depends(int Temp, long double P)
+long double Self_P_Depends(int Temp, long double P, long double M)
 {
 	long double Par[6];
 
@@ -77,7 +77,7 @@ long double Self_P_Depends(int Temp, long double P)
 			break;
 	}
 
-	return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2))+Par[3]/(1.+exp((Par[4]-P)/Par[5])));
+	return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2))+Par[3]/(Energy(M,P,0,0)*(1.+exp((Par[4]-P)/Par[5]))));
 }
 
 long double Self_E_Depends(int Temp, long double E, long double P, long double M)
