@@ -698,6 +698,7 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 	long double F_a, F_b, F_ave;
 	long double a = 0, b = 0;
 	long double Answer = 0;
+	long double PartialAnswer;
 	long double k = 0;	//Values locating the various values of k where the division by zero gets closest to the real number line
 	long double Range[] = {-64,-32,-16,-8,-4,-2,-1,-.5,0,.5,1,2,4,8,16,32,64};	//Number of gamma from center
 	long double gamma = 0;	//These are the widths of the features near 2 Particle on shell
@@ -724,11 +725,8 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 	while(k+Range[i]*gamma < 0 && k != 0)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
 		i++;
 
-	E = k+(11.8571+.57*Par[3]+.00185714*pow(Par[3],2));
-	if(k < (11.8571+.57*Par[3]+.00185714*pow(Par[3],2)))
-		a = b = 0;
-	else
-		a = b = k-(11.8571+.57*Par[3]+.00185714*pow(Par[3],2));
+	a = b = 0;
+
 	do
 	{
 		if(b == 0 && i != 0)	//First peak is closer than 64*gamma to 0
@@ -761,9 +759,10 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 			F_b += Integrand(Par, x3[j], theta, Temp)*w[j+1]; //Evaluate function at x3
 		}
 		F_ave = Integrand(Par, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
-		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
+		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
+		Answer += PartialAnswer;
 		a = b;
-	}while(b < E);
+	}while(b < E+14 || PartialAnswer/Answer >= .0001);
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
