@@ -627,61 +627,101 @@ long double LawCosines(long double P, long double k, long double theta)	//Return
 
 long double Integrate2(long double(*Integrand)(long double[6], long double, long double, int), long double Par[6], int Temp)
 {
-	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
-	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
-	long double x1[9];	//These are the two other points required for 5th order Gaussian quadrature for this interval
-	long double x3[9];
-	long double range[] = {acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4)))),2.*acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4)))),M_PI/2.,M_PI-2.*acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4)))),M_PI-acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4)))),M_PI};
+	long double Disp97[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};
+	long double w97[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481}; //97th order Gauss-Legendre integration
+	long double Disp37[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
+	long double w37[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
+	long double x1[24];	//These are the two other points required for 5th order Gaussian quadrature for this interval
+	long double x3[24];
+	//long double BreakTerm = acos(sqrt(-pow(Par[4]/Par[3],2)+sqrt(1.+pow(Par[4]/Par[3],2)+pow(Par[4]/Par[3],4))));
+	//if(BreakTerm != BreakTerm)
+	//	BreakTerm = M_PI/4.;
+	//long double range[] = {BreakTerm, 2.*BreakTerm, 0.55819508679658935, M_PI/2., 2.5833975667932039, M_PI-2.*BreakTerm, M_PI-BreakTerm, M_PI};
+	long double range[] = {M_PI/8., M_PI/4., 3.*M_PI/8., M_PI/2., 5.*M_PI/8., 3.*M_PI/4., 7.*M_PI/8., M_PI};
 	long double Answer = 0;
 	long double F_a, F_b, F_ave;
 	long double a = 0, b = 0;
 	int j = 0;
 
-	if(Par[3] == 0)
-		j = 2;
-
-	for(j; j < 6; j++)
+	for(j; j < 8; j++)
 	{
+		//if(2.*BreakTerm > 0.55819508679658935 && (j==2 || j==4))
+		//	j++;
 		b = range[j];
-		if(b != b)
-		{
-			b = range[5];
-			j = 5;
-		}
+
 		F_a = F_b = 0;	//Start integration at 0
-		for(int i = 0; i < 9; i++)
+		if(Par[3] > 150) //"Large" P requires higher order (or more subdivisions)
 		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-			if(Temp == 0 && Integrand == G_0Int)
+			for(int i = 0; i < 24; i++)
 			{
-				long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x1[i]),2)));
-				F_a += G_0Int(Par, k, x1[i], 0)*w[i+1];
-				k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x3[i]),2)));
-				F_b += G_0Int(Par, k, x3[i], 0)*w[i+1];
+				x1[i] = (b+a-Disp97[i]*(b-a))/2.;	//Actual evaluation points
+				x3[i] = (b+a+Disp97[i]*(b-a))/2.;
 
-				if(F_a != F_a)
+				if(Temp == 0 && Integrand == G_0Int)
 				{
-					F_a = 0;
-					F_b = 0;
+					long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x1[i]),2)));
+					F_a += G_0Int(Par, k, x1[i], 0)*w97[i+1];
+					k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x3[i]),2)));
+					F_b += G_0Int(Par, k, x3[i], 0)*w97[i+1];
+
+					if(F_a != F_a)
+					{
+						F_a = 0;
+						F_b = 0;
+					}
+				}
+				else
+				{
+					F_a += Integrate1(Integrand, Par, x1[i], Temp)*w97[i+1];	//Evaluate k integral at x1
+					F_b += Integrate1(Integrand, Par, x3[i], Temp)*w97[i+1];	//Evaluate k integral at x3
 				}
 			}
-			else
+			if(Temp == 0 && Integrand == G_0Int)
 			{
-				F_a += Integrate1(Integrand, Par, x1[i], Temp)*w[i+1];	//Evaluate k integral at x1
-				F_b += Integrate1(Integrand, Par, x3[i], Temp)*w[i+1];	//Evaluate k integral at x3
+				long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin((a+b)/2.),2)));
+				F_ave = G_0Int(Par, k, (a+b)/2., Temp)*w97[0];
+				if(k != k)
+					F_ave = 0;
 			}
-		}
-		if(Temp == 0 && Integrand == G_0Int)
-		{
-			long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin((a+b)/2.),2)));
-			F_ave = G_0Int(Par, k, (a+b)/2., Temp)*w[0];
-			if(k != k)
-				F_ave = 0;
+			else
+				F_ave = Integrate1(Integrand, Par, (a+b)/2., Temp)*w97[0];
 		}
 		else
-			F_ave = Integrate1(Integrand, Par, (a+b)/2., Temp)*w[0];
+		{
+			for(int i = 0; i < 9; i++)
+			{
+				x1[i] = (b+a-Disp37[i]*(b-a))/2.;	//Actual evaluation points
+				x3[i] = (b+a+Disp37[i]*(b-a))/2.;
+
+				if(Temp == 0 && Integrand == G_0Int)
+				{
+					long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x1[i]),2)));
+					F_a += G_0Int(Par, k, x1[i], 0)*w37[i+1];
+					k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x3[i]),2)));
+					F_b += G_0Int(Par, k, x3[i], 0)*w37[i+1];
+
+					if(F_a != F_a)
+					{
+						F_a = 0;
+						F_b = 0;
+					}
+				}
+				else
+				{
+					F_a += Integrate1(Integrand, Par, x1[i], Temp)*w37[i+1];	//Evaluate k integral at x1
+					F_b += Integrate1(Integrand, Par, x3[i], Temp)*w37[i+1];	//Evaluate k integral at x3
+				}
+			}
+			if(Temp == 0 && Integrand == G_0Int)
+			{
+				long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin((a+b)/2.),2)));
+				F_ave = G_0Int(Par, k, (a+b)/2., Temp)*w37[0];
+				if(k != k)
+					F_ave = 0;
+			}
+			else
+				F_ave = Integrate1(Integrand, Par, (a+b)/2., Temp)*w37[0];
+		}
 		Answer += (F_a+F_ave+F_b)*(b-a);
 		a = b;
 	}
@@ -691,10 +731,12 @@ long double Integrate2(long double(*Integrand)(long double[6], long double, long
 
 long double Integrate1(long double(*Integrand)(long double[6], long double, long double, int), long double Par[6], long double theta, int Temp)
 {
-	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
-	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
-	long double x1[9];	//These are the two other points required for 5th order Gaussian quadrature for this interval
-	long double x3[9];	//x1 is extended for use in Gauss-Laguerre integration
+	long double Disp97[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};
+	long double w97[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481}; //97th order Gauss-Legendre integration
+	long double Disp37[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
+	long double w37[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
+	long double x1[24];	//These are the two other points required for 5th order Gaussian quadrature for this interval
+	long double x3[24];	//x1 is extended for use in Gauss-Laguerre integration
 	long double F_a, F_b, F_ave;
 	long double a = 0, b = 0;
 	long double Answer = 0;
@@ -731,6 +773,8 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 	{
 		if(b == 0 && i != 0)	//First peak is closer than 64*gamma to 0
 			Width = k+Range[i]*gamma;
+		else if(b < k-100 || b > k+100)
+			Width = 50;
 		else if(b < k-10 || b > k+10)
 			Width = 10;
 		else
@@ -750,19 +794,35 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 		b += Width;
 
 		F_a = F_b = 0;
-		for(j = 0; j < 9; j++)
+		if(Width > 10)
 		{
-			x1[j] = (b+a-Disp[j]*(b-a))/2.; //Actual evaluation points
-			x3[j] = (b+a+Disp[j]*(b-a))/2.;
+			for(j = 0; j < 24; j++)
+			{
+				x1[j] = (b+a-Disp97[j]*(b-a))/2.; //Actual evaluation points
+				x3[j] = (b+a+Disp97[j]*(b-a))/2.;
 
-			F_a += Integrand(Par, x1[j], theta, Temp)*w[j+1]; //Evaluate function at x1
-			F_b += Integrand(Par, x3[j], theta, Temp)*w[j+1]; //Evaluate function at x3
+				F_a += Integrand(Par, x1[j], theta, Temp)*w97[j+1]; //Evaluate function at x1
+				F_b += Integrand(Par, x3[j], theta, Temp)*w97[j+1]; //Evaluate function at x3
+			}
+			F_ave = Integrand(Par, (a+b)/2., theta, Temp)*w97[0]; //Evaluate the function at the center
 		}
-		F_ave = Integrand(Par, (a+b)/2., theta, Temp)*w[0]; //Evaluate the function at the center
+		else
+		{
+			for(j = 0; j < 9; j++)
+			{
+				x1[j] = (b+a-Disp37[j]*(b-a))/2.; //Actual evaluation points
+				x3[j] = (b+a+Disp37[j]*(b-a))/2.;
+
+				F_a += Integrand(Par, x1[j], theta, Temp)*w37[j+1]; //Evaluate function at x1
+				F_b += Integrand(Par, x3[j], theta, Temp)*w37[j+1]; //Evaluate function at x3
+			}
+			F_ave = Integrand(Par, (a+b)/2., theta, Temp)*w37[0]; //Evaluate the function at the center
+		}
+
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
 		Answer += PartialAnswer;
 		a = b;
-	}while(b < E+14 || PartialAnswer/Answer >= .0001);
+	}while(b < E+14 || PartialAnswer/Answer >= .0000001);
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }

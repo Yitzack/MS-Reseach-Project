@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 	strcat(File, argv[3]);
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
-	ofstream TPlot(File);
+	ofstream TPlot(File, ios::app);
 	const int Temp = atoi(argv[3]);
 #ifdef DELTAE
 	const long double E[] = {3.040308-40*DELTAE, 3.040308-39*DELTAE, 3.040308-38*DELTAE,  3.040308-37*DELTAE, 3.040308-36*DELTAE, 3.040308-35*DELTAE,  3.040308-34*DELTAE, 3.040308-33*DELTAE, 3.040308-32*DELTAE,  3.040308-31*DELTAE, 3.040308-30*DELTAE, 3.040308-29*DELTAE,  3.040308-28*DELTAE, 3.040308-27*DELTAE, 3.040308-26*DELTAE,  3.040308-25*DELTAE, 3.040308-24*DELTAE, 3.040308-23*DELTAE,  3.040308-22*DELTAE, 3.040308-21*DELTAE, 3.040308-20*DELTAE,  3.040308-19*DELTAE, 3.040308-18*DELTAE, 3.040308-17*DELTAE,  3.040308-16*DELTAE, 3.040308-15*DELTAE, 3.040308-14*DELTAE,  3.040308-13*DELTAE, 3.040308-12*DELTAE, 3.040308-11*DELTAE,  3.040308-10*DELTAE, 3.040308-9*DELTAE, 3.040308-8*DELTAE,  3.040308-7*DELTAE, 3.040308-6*DELTAE, 3.040308-5*DELTAE,  3.040308-4*DELTAE, 3.040308-3*DELTAE, 3.040308-2*DELTAE,  3.040308-DELTAE, 3.040308, 3.040308+DELTAE, 3.040308+2*DELTAE,  3.040308+3*DELTAE, 3.040308+4*DELTAE, 3.040308+5*DELTAE,  3.040308+6*DELTAE, 3.040308+7*DELTAE, 3.040308+8*DELTAE,  3.040308+9*DELTAE, 3.040308+10*DELTAE, 3.040308+11*DELTAE,  3.040308+12*DELTAE, 3.040308+13*DELTAE, 3.040308+14*DELTAE,  3.040308+15*DELTAE, 3.040308+16*DELTAE, 3.040308+17*DELTAE,  3.040308+18*DELTAE, 3.040308+19*DELTAE, 3.040308+20*DELTAE,  3.040308+21*DELTAE, 3.040308+22*DELTAE, 3.040308+23*DELTAE,  3.040308+24*DELTAE, 3.040308+25*DELTAE, 3.040308+26*DELTAE,  3.040308+27*DELTAE, 3.040308+28*DELTAE, 3.040308+29*DELTAE,  3.040308+30*DELTAE, 3.040308+31*DELTAE, 3.040308+32*DELTAE,  3.040308+33*DELTAE, 3.040308+34*DELTAE, 3.040308+35*DELTAE,  3.040308+36*DELTAE, 3.040308+37*DELTAE, 3.040308+38*DELTAE,  3.040308+39*DELTAE, 3.040308+40*DELTAE};
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 #ifdef DELTAE
 		for(j = 81*iProcess/(Total); j < 81*(iProcess+1)/Total; j++)	//Does the subset of E that has been assigned to this process
 #else
-		for(j = iProcess; j < 462; j+=Total)	//Does the subset of E that has been assigned to this process
+		for(j = 0; j < 462; j+=Total)	//Does the subset of E that has been assigned to this process
 #endif
 		{
 			Par[1] = 1.4049344847006076;
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 #ifdef DELTAE
 		for(j = 81*iProcess/(Total); j < 81*(iProcess+1)/Total; j++)	//Does the subset of E that has been assigned to this process
 #else
-		for(j = iProcess; j < 462; j+=Total)	//Does the subset of E that has been assigned to this process
+		for(j = 0; j < 462; j+=Total)	//Does the subset of E that has been assigned to this process
 #endif
 			TPlot << Temp <<  " " << .8*i << " " << E[j] << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
 		TPlot << endl;
