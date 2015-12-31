@@ -226,7 +226,7 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 	if(Temp == 0)
 	{
 		if(Par[4] >= .82823392)
-			return(2.*((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
+			return(2.*((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
 		else
 			return(2.*((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2))));
 	}
@@ -322,7 +322,7 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 	if(Temp == 0)
 	{
 		if(Par[4] >= .82823392)
-			return((-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4])*(2.*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
+			return((-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4])*(2.*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
 		else
 			return(0);
 	}
