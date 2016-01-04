@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 #ifdef DELTAE
 		for(j = 81*iProcess/(Total); j < 81*(iProcess+1)/Total; j++)	//Does the subset of E that has been assigned to this process
 #else
-		for(j = 0; j < 462; j+=Total)	//Does the subset of E that has been assigned to this process
+		for(j = iProcess; j < 462; j+=Total)	//Does the subset of E that has been assigned to this process
 #endif
 			TPlot << Temp <<  " " << .8*i << " " << E[j] << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
 		TPlot << endl;
