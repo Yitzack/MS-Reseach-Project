@@ -239,7 +239,8 @@ long double Spatial(long double*** Table, long double E, long double z, int Temp
 	long double P_Max = 300;
 	int i;
 
-	while(b < P_Max-2.*stride)
+//This code is for integating out to a z dependant boundary
+	for(int j = b/stride; j < 1000; j++)	//need to start the count off from where it left off in the previous integration block
 	{
 		b += stride;
 		F_a = F_b = 0;	//Start integration at 0
@@ -254,27 +255,9 @@ long double Spatial(long double*** Table, long double E, long double z, int Temp
 		F_ave = Spectral(Table, E, a/2.+b/2.)*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
-	};	//For part of the integral that uses an interpolation table
+	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result
 
-//This code is for integating out to a z dependant boundary and may be used.
-	/*for(int j = b/stride; j < 1000; j++)	//need to start the count off from where it left off in the previous integration block
-	{
-		b += stride;
-		F_a = F_b = 0;	//Start integration at 0
-		for(i = 0; i < 24; i++)
-		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-			F_a += Spectral(Table, E, x1[i])*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
-			F_b += Spectral(Table, E, x3[i])*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
-		}
-		F_ave = Spectral(Table, E, a/2.+b/2.)*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
-		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
-		a = b;
-	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result*/
-
-	b = P_Max;//3.*stride/4.;	//Evaluate to the end
+	b += 5.*stride;	//Evaluate an extra half stride, should result in a result between the extrems of a quarter and three quarter strides
 	F_a = F_b = 0;	//Start integration at 0
 	for(i = 0; i < 24; i++)
 	{
@@ -341,6 +324,9 @@ long double Spectral(long double*** Table, long double E, long double p)
 	int j = u;	//E index in the Table
 	t -= i;	//Removes the index leaving the fractional part
 	u -= j;
+
+	if(z > 0 && p > ((long double)(int(600*z/(2.*M_PI)))-.25)*2.*M_PI/z)	//Should cause the program to return the last interpolatable value in the table at a node in the integrand before the table ends.
+		return(Spectral(Table, E, ((long double)(int(600*z/(2.*M_PI)))-.25)*2.*M_PI/z, z));
 
 	if(Table[i][j][4] == 0 || Table[i+1][j][4] == 0 || Table[i][j+1][4] == 0 || Table[i+1][j+1][4] == 0)	//If any of the required points have been invalidated, calculate points from integrals.
 	{
