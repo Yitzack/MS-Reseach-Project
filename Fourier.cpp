@@ -13,7 +13,7 @@ void Init(long double***&, int, int);	//Initialize the table to the correct size
 void Copy(long double***&, int, int);	//Copies the positive definiate momentum to the negative definiate momentum as the function is even symmetric in momentum and these are needed to properly calculate the slopes
 void Deriv(long double***&, int, int);	//Takes all of the finite differences and stores them to the table
 void Validate(long double***&, int, int);	//Checks the points determine if they are valid or if direct calls to the spectral function are needed
-long double Spectral(long double***, long double, long double);	//The tabulated points and 2 inputs and returns the bicubic interpolation of that input
+long double Spectral(long double***, long double, long double, long double);	//The tabulated points and 2 inputs and returns the bicubic interpolation of that input
 long double Correlator(long double(*)(long double***, long double, long double, int), long double***, long double, int);	//Evaluates the spatial correlator
 long double Spatial(long double***, long double, long double, int);	//1D integral for spatial integrator with fixed E
 long double Spatial_Est(long double***, long double, long double, int);	//Kernal for spatial correlator estimate
@@ -249,10 +249,10 @@ long double Spatial(long double*** Table, long double E, long double z, int Temp
 			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-			F_a += Spectral(Table, E, x1[i])*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
-			F_b += Spectral(Table, E, x3[i])*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
+			F_a += Spectral(Table, E, x1[i], z)*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
+			F_b += Spectral(Table, E, x3[i], z)*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
 		}
-		F_ave = Spectral(Table, E, a/2.+b/2.)*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
+		F_ave = Spectral(Table, E, a/2.+b/2., z)*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result
@@ -264,10 +264,10 @@ long double Spatial(long double*** Table, long double E, long double z, int Temp
 		x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 		x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-		F_a += Spectral(Table, E, x1[i])*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
-		F_b += Spectral(Table, E, x3[i])*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
+		F_a += Spectral(Table, E, x1[i], z)*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
+		F_b += Spectral(Table, E, x3[i], z)*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
 	}
-	F_ave = Spectral(Table, E, a/2.+b/2.)*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
+	F_ave = Spectral(Table, E, a/2.+b/2., z)*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
 	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
@@ -275,7 +275,7 @@ long double Spatial(long double*** Table, long double E, long double z, int Temp
 
 long double Spatial_Est(long double*** Table, long double E, long double z, int Temp)
 {
-	return(2.*M_PI*exp(-E*z)*Spectral(Table, E, 0));	//return the integral for vacuum from 0 to infinity
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, E, 0, z));	//return the integral for vacuum from 0 to infinity
 }
 
 long double Euclidean(long double*** Table, long double E, long double tau, int Temp)
@@ -301,10 +301,10 @@ long double Euclidean(long double*** Table, long double E, long double tau, int 
 	if(tau > 2.*T)
 		return(0);
 
-	return(cosh(E*(tau-1./(2.*T)))/sinh(E/(2.*T)));	//return the integral for vacuum from 0 to infinity
+	return(cosh(E*(tau-1./(2.*T)))/sinh(E/(2.*T))*Spectral(Table, E, 0, tau));	//return the integral for vacuum from 0 to infinity
 }
 
-long double Spectral(long double*** Table, long double E, long double p)
+long double Spectral(long double*** Table, long double E, long double p, long double z)
 {
 	long double t = p/.8+1;	//returns the p index with the fractional part
 	long double u;
