@@ -383,8 +383,8 @@ void Validate(long double***& Table, int M, int N)
 		{
 			i = P/.8;	//returns the p index without the fractional part
 
-			Test = Spectral(Table, (E[j]+E[j+1])/2., P);	//Checks the point on the mid-point E
-			Average = (Spectral(Table, E[j], P)+Spectral(Table, E[j+1], P))/2.;
+			Test = Spectral(Table, (E[j]+E[j+1])/2., P, -1.);	//Checks the point on the mid-point E
+			Average = (Spectral(Table, E[j], P, -1.)+Spectral(Table, E[j+1], P, -1.))/2.;
 			if(Test < 0)// || abs(Average-Test)/Average < 1.15)	//The Spectral function must be positive and resonably close to the linear interpolation
 			{
 				Table[i][j][4] = 0;	//Invalidates the data around the point
@@ -393,8 +393,8 @@ void Validate(long double***& Table, int M, int N)
 				Table[i+1][j+1][4] = 0;
 			}
 
-			Test = Spectral(Table, E[j], P+.4);	//Checks the point on the mid-point P
-			Average = (Spectral(Table, E[j], P)+Spectral(Table, E[j], P+.8))/2.;
+			Test = Spectral(Table, E[j], P+.4, -1.);	//Checks the point on the mid-point P
+			Average = (Spectral(Table, E[j], P, -1.)+Spectral(Table, E[j], P+.8, -1.))/2.;
 			if(Test < 0)// || abs(Average-Test)/Average < 1.15)	//The Spectral function must be positive and resonably close to the linear interpolation
 			{
 				Table[i][j][4] = 0;	//Invalidates the data around the point
@@ -403,8 +403,8 @@ void Validate(long double***& Table, int M, int N)
 				Table[i+1][j+1][4] = 0;
 			}
 
-			Test = Spectral(Table, (E[j]+E[j+1])/2., P+.4);	//Checks the point on the mid-point E,P
-			Average = (Spectral(Table, E[j], P)+Spectral(Table, E[j+1], P)+Spectral(Table, E[j], P+.8)+Spectral(Table, E[j+1], P+.8))/4.;
+			Test = Spectral(Table, (E[j]+E[j+1])/2., P+.4, -1.);	//Checks the point on the mid-point E,P
+			Average = (Spectral(Table, E[j], P, -1.)+Spectral(Table, E[j+1], P, -1.)+Spectral(Table, E[j], P+.8, -1.)+Spectral(Table, E[j+1], P+.8, -1.))/4.;
 			if(Test < 0)// || abs(Average-Test)/Average < 1.15)	//The Spectral function must be positive and resonably close to the linear interpolation
 			{
 				Table[i][j][4] = 0;	//Invalidates the data around the point
