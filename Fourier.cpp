@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 	int N = 752+n_offset, M = 462;	//The size of the table
 	const int iProcess = atoi(argv[1]);
 	const int Total = atoi(argv[2]);
-	const int Temp = atoi(argv[4]);
+	const int Temp = atoi(argv[5]);
 
 	Init(Table, N, M);
 	ReadIn(Table, n_offset, m_offset, N-n_offset, M, argv[4]);
