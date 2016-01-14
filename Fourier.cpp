@@ -32,7 +32,6 @@ int main(int argc, char* argv[])
 	TPlot << setprecision(18);
 	long double*** Table;	//The table of values computed by Spectral
 	long double z;		//The position value of the spactial correlator
-	long double R_max = 80;	//Largest sqrt(omega^2+p^2)=sqrt(s+2p^2) that will be integrated
 	long double holder[3];
 	int n_offset = 1;	//This the m_offset for momentum, n_offsets aren't needed yet
 	int m_offset = 0;	//The offset of 10 is for the energies between 0 and 1 being set to 0.
