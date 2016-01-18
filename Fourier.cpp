@@ -239,7 +239,7 @@ long double Spatial(long double*** Table, long double E, long double z, int Temp
 	int i;
 
 //This code is for integating out to a z dependant boundary
-	for(int j = b/stride; j < 1000; j++)	//need to start the count off from where it left off in the previous integration block
+	for(int j = 0; j < 1000; j++)	//need to start the count off from where it left off in the previous integration block
 	{
 		b += stride;
 		F_a = F_b = 0;	//Start integration at 0
@@ -256,7 +256,7 @@ long double Spatial(long double*** Table, long double E, long double z, int Temp
 		a = b;
 	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result
 
-	b += 5.*stride;	//Evaluate an extra half stride, should result in a result between the extrems of a quarter and three quarter strides
+	b += stride/2.;	//Evaluate an extra half stride, should result in a result between the extrems of a quarter and three quarter strides
 	F_a = F_b = 0;	//Start integration at 0
 	for(i = 0; i < 24; i++)
 	{
@@ -297,8 +297,8 @@ long double Euclidean(long double*** Table, long double E, long double tau, int 
 			break;
 	}
 	
-	if(tau > 2.*T)
-		return(0);
+	//if(tau > 2.*T)
+	//	return(0);
 
 	return(cosh(E*(tau-1./(2.*T)))/sinh(E/(2.*T))*Spectral(Table, E, 0, tau));	//return the integral for vacuum from 0 to infinity
 }
