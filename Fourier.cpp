@@ -19,7 +19,6 @@ long double Spatial(long double***, long double, long double, int);	//1D integra
 long double Spatial_Est(long double***, long double, long double, int);	//Kernal for spatial correlator estimate
 long double Euclidean(long double***, long double, long double, int);	//Kernal for eucledian-time correlator
 
-long double Epsilon = .034;//3.40672e-4;//.000380625; //.5MeV
 char* Process;
 
 int main(int argc, char* argv[])
@@ -75,7 +74,7 @@ int main(int argc, char* argv[])
 	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i++)
 	{
 		z = .3+i*.02;
-		tau = i*.008
+		tau = i*.008;
 		holder[0] = Correlator(Spatial_Est, Table, z, Temp);
 		holder[1] = Correlator(Spatial, Table, z, Temp);
 		holder[2] = Correlator(Euclidean, Table, tau, Temp);
