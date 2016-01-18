@@ -297,8 +297,8 @@ long double Euclidean(long double*** Table, long double E, long double tau, int 
 			break;
 	}
 	
-	//if(tau > 2.*T)
-	//	return(0);
+	if(tau > 1./(2.*T))
+		return(0);
 
 	return(cosh(E*(tau-1./(2.*T)))/sinh(E/(2.*T))*Spectral(Table, E, 0, tau));	//return the integral for vacuum from 0 to infinity
 }
