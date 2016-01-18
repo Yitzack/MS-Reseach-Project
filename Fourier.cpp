@@ -77,10 +77,10 @@ int main(int argc, char* argv[])
 		z = .3+i*.02;
 		holder[0] = Correlator(Spatial_Est, Table, z, Temp);
 		holder[1] = Correlator(Spatial, Table, z, Temp);
-		holder[2] = Correlator(Euclidean, Table, z-.3, Temp);
+		holder[2] = Correlator(Euclidean, Table, i*.008, Temp);
 		#pragma omp critical
 		{
-			TPlot << z << " " << holder[0] << " " << holder[1] << " " << z-.3 << " " << holder[2] << endl;
+			TPlot << z << " " << holder[0] << " " << holder[1] << " " << i*.008 << " " << holder[2] << endl;
 		}
 	}//*/
 
