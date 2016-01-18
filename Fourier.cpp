@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 	ofstream TPlot(File);
 	TPlot << setprecision(18);
 	long double*** Table;	//The table of values computed by Spectral
-	long double z;		//The position value of the spactial correlator
+	long double z, tau;	//The position value of the spactial correlator and tau of the euclidean-time correlator
 	long double holder[3];
 	int n_offset = 1;	//This the m_offset for momentum, n_offsets aren't needed yet
 	int m_offset = 0;	//The offset of 10 is for the energies between 0 and 1 being set to 0.
@@ -75,12 +75,13 @@ int main(int argc, char* argv[])
 	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i++)
 	{
 		z = .3+i*.02;
+		tau = i*.008
 		holder[0] = Correlator(Spatial_Est, Table, z, Temp);
 		holder[1] = Correlator(Spatial, Table, z, Temp);
-		holder[2] = Correlator(Euclidean, Table, i*.008, Temp);
+		holder[2] = Correlator(Euclidean, Table, tau, Temp);
 		#pragma omp critical
 		{
-			TPlot << z << " " << holder[0] << " " << holder[1] << " " << i*.008 << " " << holder[2] << endl;
+			TPlot << z << " " << holder[0] << " " << holder[1] << " " << tau << " " << holder[2] << endl;
 		}
 	}//*/
 
