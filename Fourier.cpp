@@ -444,7 +444,8 @@ void ReadIn(long double***& Table, int n_offset, int m_offset, int N, int M, cha
 		for(j = m_offset; j < M; j++)
 		{
 			File >> Table[i][j][0];	//Capture the spectral function in the first level in the matrix
-			File >> Dump;	//Dump the T-Matrix
+			File >> Dump;	//Dump the Real T-Matrix
+			File >> Dump;	//Dump the Imaginary T-Matrix
 			File >> Table[i][j][1];	//df/dP
 			File >> Table[i][j][2];	//df/de
 			File >> Table[i][j][3];	//d^2f/(dPdf)
