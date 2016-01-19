@@ -274,7 +274,7 @@ long double Spatial(long double*** Table, long double E, long double z, int Temp
 
 long double Spatial_Est(long double*** Table, long double E, long double z, int Temp)
 {
-	return(2.*M_PI*exp(-E*z)*Spectral(Table, E, 0, z));	//return the integral for vacuum from 0 to infinity
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, E, 0, 0));	//return the integral for vacuum from 0 to infinity
 }
 
 long double Euclidean(long double*** Table, long double E, long double tau, int Temp)
@@ -300,7 +300,7 @@ long double Euclidean(long double*** Table, long double E, long double tau, int 
 	if(tau > 1./(2.*T))
 		return(0);
 
-	return(cosh(E*(tau-1./(2.*T)))/sinh(E/(2.*T))*Spectral(Table, E, 0, tau));	//return the integral for vacuum from 0 to infinity
+	return(cosh(E*(tau-1./(2.*T)))/sinh(E/(2.*T))*Spectral(Table, E, 0, 0));	//return the integral for vacuum from 0 to infinity
 }
 
 long double Spectral(long double*** Table, long double E, long double p, long double z)
