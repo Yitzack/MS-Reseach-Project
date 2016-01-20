@@ -33,7 +33,7 @@ long double Fermi(long double[6], long double, long double, int);
 
 long double Self_Energy(long double E, long double P, long double M, int Temp)
 {
-	long double Ans = Self_E_Depends(Temp, E, P, M)*Self_P_Depends(Temp, P)/Energy(M,P,0,0);
+	long double Ans = M*Self_E_Depends(Temp, E, P, M)*Self_P_Depends(Temp, P)/Energy(M,P,0,0);
 	return(Ans);
 }
 
@@ -55,7 +55,7 @@ long double Self_P_Depends(int Temp, long double P)
 			Par[0] = .7359389831810698;
 			Par[1] = 7.487501146014314;
 			Par[2] = 1.9490238595657456;
-			Par[3] = .0863733905579399;
+			Par[3] = .0863733905579399/1.8;
 			Par[4] = 10;
 			Par[5] = 3;
 			break;
@@ -63,7 +63,7 @@ long double Self_P_Depends(int Temp, long double P)
 			Par[0] = .7409390219065235;
 			Par[1] = 7.450458343071824;
 			Par[2] = 1.8620618988580635;
-			Par[3] = .115370834826227;
+			Par[3] = .115370834826227/1.8;
 			Par[4] = 10;
 			Par[5] = 3;
 			break;
@@ -71,7 +71,7 @@ long double Self_P_Depends(int Temp, long double P)
 			Par[0] = .7426375963204489;
 			Par[1] = 7.698646415632565;
 			Par[2] = 1.771465704769189;
-			Par[3] = .108198924731183;
+			Par[3] = .108198924731183/1.8;
 			Par[4] = 10;
 			Par[5] = 3;
 			break;
