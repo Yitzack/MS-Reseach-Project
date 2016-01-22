@@ -5,6 +5,6 @@ List1=D[f[P,e],P]/.P->Range[0,600.8,.8]/.e->e1 (*Calculate the derivitives*)
 List2=D[f[P,e],e]/.P->Range[0,600.8,.8]/.e->e1
 List3=D[f[P,e],P,e]/.P->Range[0,600.8,.8]/.e->e1
 
-Export["~/T.0/Spectral.xml",{List1,List2,List3}] (*Export the table)
+Export["~/T.0/Spectral.xml",{List1,List2,List3}] (*Export the table*)
 
 Exit[]
