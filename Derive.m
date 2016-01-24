@@ -32,6 +32,8 @@ For[i = 1, i <= 462, i++,
     a + b P^n, {{a, Parameters[[i, 2]]}, {b, Parameters[[i, 3]]}, {n, Parameters[[i, 4]]}}, P, MaxIterations -> 1000], 
   Parameters[[i, 1]] = err, FindFit::cvmit]]]
 
+Holder = {{err,err,err},{err,err,err}}
+
 For[i = 1, i <= 462, i++,
  If[Or[Parameters[[i, 1]] == err, Parameters[[i,4]] > 1], 
   Holder[[1]] = {err, a, b, n} /. 
