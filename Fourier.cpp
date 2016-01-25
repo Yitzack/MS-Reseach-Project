@@ -566,7 +566,7 @@ void Init(long double***& Table, long double**& Extrapolation, int N, int M)
 		for(j = 0; j < M; j++)
 		{
 			Table[i][j] = new long double[5];
-			if(j == 0)
+			if(i == 0)
 				Extrapolation[j] = new long double[6];
 		}
 	}
