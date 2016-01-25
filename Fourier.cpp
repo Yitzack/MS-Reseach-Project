@@ -370,7 +370,7 @@ long double Spectral(long double*** Table, long double** Extrapolation, long dou
 		}
 	}
 
-	if(p >= 200)
+	if(p >= 200 && Extrapolation != NULL)
 	{
 		a = (2.*pow(u,3)-3.*pow(u,3)+1.)*Extrapolation[j][0]+(pow(u,3)-2.*pow(u,3)+u)*Extrapolation[j][1]+(-2.*pow(u,3)+3.*pow(u,3))*Extrapolation[j+1][0]+(pow(u,3)-pow(u,3))*Extrapolation[j+1][1];
 		b = (2.*pow(u,3)-3.*pow(u,3)+1.)*Extrapolation[j][2]+(pow(u,3)-2.*pow(u,3)+u)*Extrapolation[j][3]+(-2.*pow(u,3)+3.*pow(u,3))*Extrapolation[j+1][2]+(pow(u,3)-pow(u,3))*Extrapolation[j+1][3];
