@@ -240,7 +240,7 @@ long double Spatial(long double*** Table, long double** Extrapolation, long doub
 	int i;
 
 //This code is for integating out to a z dependant boundary
-	for(int j = 0; j < 1000; j++)	//need to start the count off from where it left off in the previous integration block
+	for(int j = 0; j < 19402; j++)	//need to start the count off from where it left off in the previous integration block
 	{
 		b += stride;
 		F_a = F_b = 0;	//Start integration at 0
