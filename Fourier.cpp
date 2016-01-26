@@ -441,12 +441,12 @@ void ReadIn(long double***& Table, long double**& Extrapolation, int n_offset, i
 	int i,j,k;	//Counters
 	float Dump;
 	float Energy;
-	File >> Dump >> Dump >> Energy;	//Dump the first Temp and momentum
 
 	for(i = n_offset; i <= N; i++)
 	{
 		for(j = m_offset; j < M; j++)
 		{
+			File >> Dump >> Dump >> Energy;	//Dump Temp and momentum and collect energy
 			File >> Table[i][j][0];	//Capture the spectral function in the first level in the matrix
 			File >> Dump;	//Dump the Real T-Matrix
 			File >> Dump;	//Dump the Imaginary T-Matrix
@@ -487,7 +487,6 @@ void ReadIn(long double***& Table, long double**& Extrapolation, int n_offset, i
 			}
 
 			Table[i][j][4] = 1;	//Validation point, is the point valid? Assume that is until the validator says otherwise
-			File >> Dump >> Dump >> Energy;	//Dump Temp and momentum and collect energy
 		}
 	}
 
