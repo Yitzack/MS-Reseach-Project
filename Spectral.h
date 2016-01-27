@@ -203,8 +203,8 @@ long double Potential1(long double Par[6], long double k, long double theta, int
 complex<long double> TMatrix(long double Parameters[6], int Temp)
 {
 	complex<long double> Int_Holder;	//Holder for the result of the integration, allows it to be calculated once
-	Int_Holder = complex<long double>(Integrate2(0, M_PI, Integrate1(ReInt, Par, 0, Temp), Integrate1(ReInt, Par, M_PI, Temp), ReInt, Parameters, Temp), 0);
-	Int_Holder += complex<long double>(0, Integrate2(0, M_PI, Integrate1(ImInt, Par, 0, Temp), Integrate1(ImInt, Par, M_PI, Temp), ImInt, Parameters, Temp));
+	Int_Holder = complex<long double>(Integrate2(0, M_PI, Integrate1(ReInt, Parameters, 0, Temp), Integrate1(ReInt, Parameters, M_PI, Temp), ReInt, Parameters, Temp), 0);
+	Int_Holder += complex<long double>(0, Integrate2(0, M_PI, Integrate1(ImInt, Parameters, 0, Temp), Integrate1(ImInt, Parameters, M_PI, Temp), ImInt, Parameters, Temp));
 	Int_Holder = complex<long double>(1.,0.)/(complex<long double>(1.,0.)-Int_Holder);	//Integrate once, where it says Parameters[6] in the numerator, I need to put V(p,p') in the event that I didn't get that correct
 
 	return(Int_Holder);
