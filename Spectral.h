@@ -628,6 +628,15 @@ long double LawCosines(long double P, long double k, long double theta)	//Return
 long double Integrate2(long double a, long double b, long double F_a, long double F_b, long double(*Integrand)(long double[6], long double, long double, int), long double Parameters[6], int Temp)
 {
 	long double F_ave = Integrate1(Integrand, Parameters, a/2.+b/2., Temp, false);	//Evaluate k integral at (a+b)/2
+
+	if(Temp == 0 && Integrand == G_0Int)
+	{
+		long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin((a+b)/2.),2)));
+		F_ave = G_0Int(Par, k, (a+b)/2., Temp);
+		if(k != k)
+			F_ave = 0;
+	}
+
 	long double Trapazoid = (F_a+F_b)*(b-a)/2.;		//Trapazoid rule
 	long double Simpsons = (F_a+F_ave*4.+F_b)*(b-a)/6.;	//Simpson's rule
 	if(abs(Trapazoid-Simpsons)*2./abs(Trapazoid+Simpsons) > 1 && abs(b-a) > M_PI/100.)	//If difference between measurements is too large and the differnce between the two points is large enough. The accuracy needs to be better than .00005 and the resolution equal to 1e-18 (segfault if too small)
@@ -645,10 +654,37 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-			F_a += Integrate1(Integrand, Parameters, x1[i], Temp, true)*w[i+1];	//Evaluate k integral at x1
-			F_b += Integrate1(Integrand, Parameters, x3[i], Temp, true)*w[i+1];	//Evaluate k integral at x3
+			if(Temp == 0 && Integrand == G_0Int)
+			{
+				long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x1[i]),2)));
+				F_a += G_0Int(Par, k, x1[i], 0)*w97[i+1];
+				k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x3[i]),2)));
+				F_b += G_0Int(Par, k, x3[i], 0)*w97[i+1];
+
+				if(F_a != F_a)
+				{
+					F_a = 0;
+					F_b = 0;
+				}
+			}
+			else
+			{
+				F_a += Integrate1(Integrand, Par, x1[i], Temp, true)*w[i+1];	//Evaluate k integral at x1
+				F_b += Integrate1(Integrand, Par, x3[i], Temp, true)*w[i+1];	//Evaluate k integral at x3
+			}
 		}
-		return((F_a+w[0]*F_ave+F_b)*(b-a)/(2.));	//return the best estimate of the integral on the interval*/
+
+		if(Temp == 0 && Integrand == G_0Int)
+		{
+			long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin((a+b)/2.),2)));
+			F_ave = G_0Int(Par, k, (a+b)/2., Temp)*w[0];
+			if(k != k)
+				F_ave = 0;
+		}
+		else
+			F_ave = Integrate1(Integrand, Par, (a+b)/2., Temp, true)*w[0];
+
+		return((F_a+F_ave+F_b)*(b-a)/(2.));	//return the best estimate of the integral on the interval*/
 	}
 }
 
