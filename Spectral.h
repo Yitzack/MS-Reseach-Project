@@ -9,7 +9,7 @@ using namespace std;
 long double Energy(long double, long double, long double, long double);	//Returns sqrt(M^2+p^2+k^2-pk cos(theta))
 long double ReInt(long double[6], long double, long double, int);	//Returns the real part of the integrad from 2p_0 to infinity
 long double ImInt(long double[6], long double, long double, int);	//Returns the imaginary part of the integrad from 2p_0 to infinity
-long double Integrate1(long double(*)(long double[6], long double, long double, int), long double[6], long double, int);	//Integrates the part that it is told to integrate. It uses the difference in evaluating the trapaziod rule and Simpson's rule to pick the points that it integrate between. Since the Gaussian quadrature is very accuate for using very few points (2n-1 order polynomial accurate with n points), it then returns the Gaussian quadrature for 3 points on that subinterval.
+long double Integrate1(long double(*)(long double[6], long double, long double, int), long double[6], long double, int, bool);	//Integrates the part that it is told to integrate. It uses the difference in evaluating the trapaziod rule and Simpson's rule to pick the points that it integrate between. Since the Gaussian quadrature is very accuate for using very few points (2n-1 order polynomial accurate with n points), it then returns the Gaussian quadrature for 3 points on that subinterval.
 long double Integrate2(long double, long double, long double, long double, long double(*)(long double[6], long double, long double, int), long double[6], int);	//Contains more brains than Integrate1() as it will need to divide the integral into 2 parts and pass the endpoints down for faster times but it uses the same algorithm to acheive its results.
 long double Self_Energy(long double, long double, long double, int);	//Returns the Self-Energy
 long double Self_P_Depends(int, long double);	//Returns the momentum dependance of the self-energy
@@ -124,9 +124,9 @@ long double Spectral(long double Par[6], int Temp)
 	int N_f = 3;
 	int N_c = 3;
 
-	G_0 = Integrate2(0, M_PI, Integrate1(G_0Int, Par, 0, Temp), Integrate1(G_0Int, Par, M_PI, Temp), G_0Int, Par, Temp);
-	Num = complex<long double>(Integrate2(0, M_PI, Integrate1(ReDelta_GInt, Par, 0, Temp), Integrate1(ReDelta_GInt, Par, M_PI, Temp), ReDelta_GInt, Par, Temp),0);
-	Num += complex<long double>(0,Integrate2(0, M_PI, Integrate1(ImDelta_GInt, Par, 0, Temp), Integrate1(ImDelta_GInt, Par, M_PI, Temp), ImDelta_GInt, Par, Temp));
+	G_0 = Integrate2(0, M_PI, Integrate1(G_0Int, Par, 0, Temp, false), Integrate1(G_0Int, Par, M_PI, Temp, false), G_0Int, Par, Temp);
+	Num = complex<long double>(Integrate2(0, M_PI, Integrate1(ReDelta_GInt, Par, 0, Temp, false), Integrate1(ReDelta_GInt, Par, M_PI, Temp, false), ReDelta_GInt, Par, Temp),0);
+	Num += complex<long double>(0,Integrate2(0, M_PI, Integrate1(ImDelta_GInt, Par, 0, Temp, false), Integrate1(ImDelta_GInt, Par, M_PI, Temp, false), ImDelta_GInt, Par, Temp));
 
 	return(-2.*N_f*N_c/M_PI*(G_0+(Par[0]*pow(Num,2)*TMat).imag()));
 }
@@ -203,8 +203,8 @@ long double Potential1(long double Par[6], long double k, long double theta, int
 complex<long double> TMatrix(long double Parameters[6], int Temp)
 {
 	complex<long double> Int_Holder;	//Holder for the result of the integration, allows it to be calculated once
-	Int_Holder = complex<long double>(Integrate2(0, M_PI, Integrate1(ReInt, Parameters, 0, Temp), Integrate1(ReInt, Parameters, M_PI, Temp), ReInt, Parameters, Temp), 0);
-	Int_Holder += complex<long double>(0, Integrate2(0, M_PI, Integrate1(ImInt, Parameters, 0, Temp), Integrate1(ImInt, Parameters, M_PI, Temp), ImInt, Parameters, Temp));
+	Int_Holder = complex<long double>(Integrate2(0, M_PI, Integrate1(ReInt, Parameters, 0, Temp, false), Integrate1(ReInt, Parameters, M_PI, Temp, false), ReInt, Parameters, Temp), 0);
+	Int_Holder += complex<long double>(0, Integrate2(0, M_PI, Integrate1(ImInt, Parameters, 0, Temp, false), Integrate1(ImInt, Parameters, M_PI, Temp, false), ImInt, Parameters, Temp));
 	Int_Holder = complex<long double>(1.,0.)/(complex<long double>(1.,0.)-Int_Holder);	//Integrate once, where it says Parameters[6] in the numerator, I need to put V(p,p') in the event that I didn't get that correct
 
 	return(Int_Holder);
@@ -627,7 +627,7 @@ long double LawCosines(long double P, long double k, long double theta)	//Return
 
 long double Integrate2(long double a, long double b, long double F_a, long double F_b, long double(*Integrand)(long double[6], long double, long double, int), long double Parameters[6], int Temp)
 {
-	long double F_ave = Integrate1(Integrand, Parameters, a/2.+b/2., Temp);	//Evaluate k integral at (a+b)/2
+	long double F_ave = Integrate1(Integrand, Parameters, a/2.+b/2., Temp, false);	//Evaluate k integral at (a+b)/2
 	long double Trapazoid = (F_a+F_b)*(b-a)/2.;		//Trapazoid rule
 	long double Simpsons = (F_a+F_ave*4.+F_b)*(b-a)/6.;	//Simpson's rule
 	if(abs(Trapazoid-Simpsons)*2./abs(Trapazoid+Simpsons) > 1 && abs(b-a) > M_PI/100.)	//If difference between measurements is too large and the differnce between the two points is large enough. The accuracy needs to be better than .00005 and the resolution equal to 1e-18 (segfault if too small)
@@ -645,14 +645,14 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-			F_a += Integrate1(Integrand, Parameters, x1[i], Temp)*w[i+1];	//Evaluate k integral at x1
-			F_b += Integrate1(Integrand, Parameters, x3[i], Temp)*w[i+1];	//Evaluate k integral at x3
+			F_a += Integrate1(Integrand, Parameters, x1[i], Temp, true)*w[i+1];	//Evaluate k integral at x1
+			F_b += Integrate1(Integrand, Parameters, x3[i], Temp, true)*w[i+1];	//Evaluate k integral at x3
 		}
 		return((F_a+w[0]*F_ave+F_b)*(b-a)/(2.));	//return the best estimate of the integral on the interval*/
 	}
 }
 
-long double Integrate1(long double(*Integrand)(long double[6], long double, long double, int), long double Par[6], long double theta, int Temp)
+long double Integrate1(long double(*Integrand)(long double[6], long double, long double, int), long double Par[6], long double theta, int Temp, bool Important)
 {
 	long double Disp97[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};
 	long double w97[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481}; //97th order Gauss-Legendre integration
@@ -718,7 +718,7 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 		b += Width;
 
 		F_a = F_b = 0;
-		if(Width > 10)
+		if(Width > 10 && Important)
 		{
 			for(j = 0; j < 24; j++)
 			{
@@ -746,7 +746,7 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
 		Answer += PartialAnswer;
 		a = b;
-	}while(b < E || PartialAnswer/Answer >= .0000001);
+	}while(b < E || (PartialAnswer/Answer >= .0000001 && Important));
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
