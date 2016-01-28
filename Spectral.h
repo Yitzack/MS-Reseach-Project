@@ -625,9 +625,9 @@ long double LawCosines(long double P, long double k, long double theta)	//Return
 	return(sqrt(pow(P,2)+pow(k,2)-2.*P*k*cos(theta)));
 }
 
-long double Integrate2(long double a, long double b, long double F_a, long double F_b, long double(*Integrand)(long double[6], long double, long double, int), long double Parameters[6], int Temp)
+long double Integrate2(long double a, long double b, long double F_a, long double F_b, long double(*Integrand)(long double[6], long double, long double, int), long double Par[6], int Temp)
 {
-	long double F_ave = Integrate1(Integrand, Parameters, a/2.+b/2., Temp, false);	//Evaluate k integral at (a+b)/2
+	long double F_ave = Integrate1(Integrand, Par, a/2.+b/2., Temp, false);	//Evaluate k integral at (a+b)/2
 
 	if(Temp == 0 && Integrand == G_0Int)
 	{
