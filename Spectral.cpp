@@ -34,7 +34,8 @@ int main(int argc, char* argv[])
 	const int Total = atoi(argv[2]);
 	complex<long double> TMat;
 	long double Table[462][3];
-	long double Par[6] = {-63.997640345553, 1.4049344847006076, 1.8, 0, 0, .032};
+	long double Par[6] = {-127.995280691106, 1.4049344847006076, 1.8, 0, 0, .032};
+
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 
