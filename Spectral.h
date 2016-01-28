@@ -639,7 +639,7 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 
 	long double Trapazoid = (F_a+F_b)*(b-a)/2.;		//Trapazoid rule
 	long double Simpsons = (F_a+F_ave*4.+F_b)*(b-a)/6.;	//Simpson's rule
-	if(abs(Trapazoid-Simpsons)*2./abs(Trapazoid+Simpsons) > 1 && abs(b-a) > M_PI/100.)	//If difference between measurements is too large and the differnce between the two points is large enough. The accuracy needs to be better than .00005 and the resolution equal to 1e-18 (segfault if too small)
+	if(abs(b-a) > M_PI/8. || (abs(Trapazoid-Simpsons)*2./abs(Trapazoid+Simpsons) > 1 && abs(b-a) > M_PI/100.))	//If difference between measurements is too large and the differnce between the two points is large enough. The accuracy needs to be better than .00005 and the resolution equal to 1e-18 (segfault if too small)
 		return(Integrate2(a, a/2.+b/2., F_a, F_ave, Integrand, Par, Temp)+Integrate2(a/2.+b/2., b, F_ave, F_b, Integrand, Par, Temp)); //subdivide the interval and return integral of two sub-intervals
 	else	//else
 	{
