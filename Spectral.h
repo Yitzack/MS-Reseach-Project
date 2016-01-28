@@ -640,7 +640,7 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 	long double Trapazoid = (F_a+F_b)*(b-a)/2.;		//Trapazoid rule
 	long double Simpsons = (F_a+F_ave*4.+F_b)*(b-a)/6.;	//Simpson's rule
 	if(abs(Trapazoid-Simpsons)*2./abs(Trapazoid+Simpsons) > 1 && abs(b-a) > M_PI/100.)	//If difference between measurements is too large and the differnce between the two points is large enough. The accuracy needs to be better than .00005 and the resolution equal to 1e-18 (segfault if too small)
-		return(Integrate2(a, a/2.+b/2., F_a, F_ave, Integrand, Parameters, Temp)+Integrate2(a/2.+b/2., b, F_ave, F_b, Integrand, Parameters, Temp)); //subdivide the interval and return integral of two sub-intervals
+		return(Integrate2(a, a/2.+b/2., F_a, F_ave, Integrand, Par, Temp)+Integrate2(a/2.+b/2., b, F_ave, F_b, Integrand, Par, Temp)); //subdivide the interval and return integral of two sub-intervals
 	else	//else
 	{
 		long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center{sqrt(.6)};//
@@ -657,9 +657,9 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 			if(Temp == 0 && Integrand == G_0Int)
 			{
 				long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x1[i]),2)));
-				F_a += G_0Int(Par, k, x1[i], 0)*w97[i+1];
+				F_a += G_0Int(Par, k, x1[i], 0)*w[i+1];
 				k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x3[i]),2)));
-				F_b += G_0Int(Par, k, x3[i], 0)*w97[i+1];
+				F_b += G_0Int(Par, k, x3[i], 0)*w[i+1];
 
 				if(F_a != F_a)
 				{
