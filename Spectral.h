@@ -782,7 +782,7 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
 		Answer += PartialAnswer;
 		a = b;
-	}while(b < E || (PartialAnswer/Answer >= .0000001 && Important));
+	}while(b < E || (abs(PartialAnswer/Answer) >= .0000001 && Important));
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
