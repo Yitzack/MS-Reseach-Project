@@ -195,7 +195,7 @@ long double ImDelta_GInt(long double Par[6], long double k, long double theta, i
 	if(Temp != 0)
 		return(k*k*sin(theta)*ImProp(Par, k, theta, Temp)*Potential1(Par, k, theta, Temp));
 	else
-		return(-M^2*k^2*sin(theta)*Potential1(Par, k, theta, Temp)/(4.*M_PI*abs(Par[3]*cos(theta)*(Energy(Par[2], Par[3]/2., -k, theta)-Energy(Par[2], Par[3]/2., k, theta))-2.*k*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta)))));
+		return(-pow(Par[2]*k,2)*sin(theta)*Potential1(Par, k, theta, Temp)/(4.*M_PI*abs(Par[3]*cos(theta)*(Energy(Par[2], Par[3]/2., -k, theta)-Energy(Par[2], Par[3]/2., k, theta))-2.*k*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta)))));
 }
 
 long double Potential1(long double Par[6], long double k, long double theta, int Temp)
@@ -224,7 +224,7 @@ long double ImInt(long double Par[6], long double k, long double theta, int Temp
 	if(Temp != 0)
 		return(k*k*sin(theta)*ImProp(Par, k, theta, Temp)*Potential(Par, k, theta, Temp));
 	else
-		return(-M^2*k^2*sin(theta)*Potential(Par, k, theta, Temp)/(4.*M_PI*abs(Par[3]*cos(theta)*(Energy(Par[2], Par[3]/2., -k, theta)-Energy(Par[2], Par[3]/2., k, theta))-2.*k*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta)))));
+		return(-pow(Par[2]*k,2)*sin(theta)*Potential(Par, k, theta, Temp)/(4.*M_PI*abs(Par[3]*cos(theta)*(Energy(Par[2], Par[3]/2., -k, theta)-Energy(Par[2], Par[3]/2., k, theta))-2.*k*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta)))));
 }
 
 long double ReProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the propagator
