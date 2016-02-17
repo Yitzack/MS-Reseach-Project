@@ -230,12 +230,7 @@ long double ImInt(long double Par[6], long double k, long double theta, int Temp
 long double ReProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the propagator
 {
 	if(Temp == 0)
-	{
-		if(Par[4] >= .82823392)
-			return(2.*((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
-		else
-			return(2.*((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2))));
-	}
+		return(2.*((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))));
 	if(Par[4] >= .82823392)
 		return(2.*((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2))*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2)));
 	else
@@ -773,10 +768,21 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 				x1[j] = (b+a-Disp97[j]*(b-a))/2.; //Actual evaluation points
 				x3[j] = (b+a+Disp97[j]*(b-a))/2.;
 
-				F_a += Integrand(Par, x1[j], theta, Temp)*w97[j+1]; //Evaluate function at x1
-				F_b += Integrand(Par, x3[j], theta, Temp)*w97[j+1]; //Evaluate function at x3
+				if(Temp == 0 && (Integrand == ReDelta_GInt || Integrand == ReInt))
+				{
+					F_a += w97[j+1]*(Integrand(Par, x1[j], theta, Temp)-Integrand(Par, k, theta, Temp))/(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., x1[j], theta)+Energy(Par[2], Par[3]/2., -x1[j], theta), 2));
+					F_a += w97[j+1]*(Integrand(Par, x3[j], theta, Temp)-Integrand(Par, k, theta, Temp))/(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., x3[j], theta)+Energy(Par[2], Par[3]/2., -x3[j], theta), 2));
+				}
+				else
+				{
+					F_a += Integrand(Par, x1[j], theta, Temp)*w97[j+1]; //Evaluate function at x1
+					F_b += Integrand(Par, x3[j], theta, Temp)*w97[j+1]; //Evaluate function at x3
+				}
 			}
-			F_ave = Integrand(Par, (a+b)/2., theta, Temp)*w97[0]; //Evaluate the function at the center
+			if(Temp == 0 && (Integrand == ReDelta_GInt || Integrand == ReInt))
+				F_ave = w37[0]*(Integrand(Par, (a+b)/2., theta, Temp)-Integrand(Par, k, theta, Temp))/(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., (a+b)/2., theta)+Energy(Par[2], Par[3]/2., -(a+b)/2., theta), 2));
+			else
+				F_ave = Integrand(Par, (a+b)/2., theta, Temp)*w97[0]; //Evaluate the function at the center
 		}
 		else
 		{
@@ -785,10 +791,21 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 				x1[j] = (b+a-Disp37[j]*(b-a))/2.; //Actual evaluation points
 				x3[j] = (b+a+Disp37[j]*(b-a))/2.;
 
-				F_a += Integrand(Par, x1[j], theta, Temp)*w37[j+1]; //Evaluate function at x1
-				F_b += Integrand(Par, x3[j], theta, Temp)*w37[j+1]; //Evaluate function at x3
+				if(Temp == 0 && (Integrand == ReDelta_GInt || Integrand == ReInt))
+				{
+					F_a += w37[j+1]*(Integrand(Par, x1[j], theta, Temp)-Integrand(Par, k, theta, Temp))/(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., x1[j], theta)+Energy(Par[2], Par[3]/2., -x1[j], theta), 2));
+					F_a += w37[j+1]*(Integrand(Par, x3[j], theta, Temp)-Integrand(Par, k, theta, Temp))/(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., x3[j], theta)+Energy(Par[2], Par[3]/2., -x3[j], theta), 2));
+				}
+				else
+				{
+					F_a += Integrand(Par, x1[j], theta, Temp)*w37[j+1]; //Evaluate function at x1
+					F_b += Integrand(Par, x3[j], theta, Temp)*w37[j+1]; //Evaluate function at x3
+				}
 			}
-			F_ave = Integrand(Par, (a+b)/2., theta, Temp)*w37[0]; //Evaluate the function at the center
+			if(Temp == 0 && (Integrand == ReDelta_GInt || Integrand == ReInt))
+				F_ave = w37[0]*(Integrand(Par, (a+b)/2., theta, Temp)-Integrand(Par, k, theta, Temp))/(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., (a+b)/2., theta)+Energy(Par[2], Par[3]/2., -(a+b)/2., theta), 2));
+			else
+				F_ave = Integrand(Par, (a+b)/2., theta, Temp)*w37[0]; //Evaluate the function at the center
 		}
 
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
@@ -796,5 +813,8 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 		a = b;
 	}while(b < E || (abs(PartialAnswer/Answer) >= .0000001 && Important));
 
-	return(Answer);	//return the best estimate of the integral on the interval*/
+	if(Temp == 0 && (Integrand == ReDelta_GInt || Integrand == ReInt))
+		return(Answer+Integrand(Par, k, theta, Temp)*log(pow(b/k,2)-1.));	//Assumed to work as I think the zero in denominator goes like x^2-x_0^2
+	else
+		return(Answer);	//return the best estimate of the integral on the interval*/
 }
