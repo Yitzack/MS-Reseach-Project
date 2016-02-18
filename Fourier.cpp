@@ -5,7 +5,6 @@
 #include<cstring>
 #include<omp.h>
 #include<iomanip>
-#include"Spectral.h"
 using namespace std;
 
 void ReadIn(long double***&, long double**&, int, int, int, int, char*);	//Read in from file the contents of the matrix. It includes 2 offsets for multiple file read in and for padding due to negative momentum not being in the file
