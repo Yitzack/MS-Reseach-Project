@@ -16,6 +16,9 @@ void Validate(long double***&, int, int);	//Checks the points determine if they 
 long double Spectral(long double***, long double**, long double, long double, long double);	//The tabulated points and 2 inputs and returns the bicubic interpolation of that input
 long double Correlator(long double(*)(long double***, long double**, long double, long double, int), long double***, long double**, long double, int);	//Evaluates the spatial correlator
 long double Spatial(long double***, long double**, long double, long double, int);	//1D integral for spatial integrator with fixed E
+long double Spatial_Est0(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est600(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Variant(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
 long double Spatial_Est(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
 long double Euclidean(long double***, long double**, long double, long double, int);	//Kernal for eucledian-time correlator
 
@@ -32,7 +35,7 @@ int main(int argc, char* argv[])
 	long double*** Table;	//The table of values computed by Spectral
 	long double** Extrapolation;	
 	long double z, tau;	//The position value of the spactial correlator and tau of the euclidean-time correlator
-	long double holder[3];
+	long double holder[5];
 	int n_offset = 1;	//This the m_offset for momentum, n_offsets aren't needed yet
 	int m_offset = 0;	//The offset of 10 is for the energies between 0 and 1 being set to 0.
 	int N = 752+n_offset, M = 462;	//The size of the table
@@ -77,11 +80,13 @@ int main(int argc, char* argv[])
 		z = .3+i*.02;
 		tau = i*.008;
 		holder[0] = Correlator(Spatial, Table, Extrapolation, z, Temp);
-		holder[1] = Correlator(Spatial_Est, Table, Extrapolation, z, Temp);
-		holder[2] = Correlator(Euclidean, Table, Extrapolation, tau, Temp);
+		holder[1] = Correlator(Spatial_Est0, Table, Extrapolation, z, Temp);
+		holder[2] = Correlator(Spatial_Est600, Table, Extrapolation, z, Temp);
+		holder[3] = Correlator(Spatial_Variant, Table, Extrapolation, z, Temp);
+		holder[4] = Correlator(Euclidean, Table, Extrapolation, tau, Temp);
 		#pragma omp critical
 		{
-			TPlot << z << " " << holder[0] << " " << holder[1] << " " << tau << " " << holder[2] << endl;
+			TPlot << z << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << tau << " " << holder[4] << endl;
 		}
 	}//*/
 
@@ -273,9 +278,62 @@ long double Spatial(long double*** Table, long double** Extrapolation, long doub
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
 
-long double Spatial_Est(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+long double Spatial_Variant(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center
+	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of data point
+	long double x1[24];	//These are the two other points required for 97th order Gaussian quadrature for this interval
+	long double x3[24];
+	long double Answer = 0;
+	long double stride = 2*M_PI/z;	//Stride of the integral
+	long double F_a, F_b, F_ave;
+	long double a = 0;
+	long double b = 0;
+	long double P_Max = 300;
+	int i;
+
+//This code is for integating out to a z dependant boundary
+	for(int j = 0; j < 19402; j++)	//need to start the count off from where it left off in the previous integration block
+	{
+		b += stride;
+		F_a = F_b = 0;	//Start integration at 0
+		for(i = 0; i < 24; i++)
+		{
+			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
+			x3[i] = (b+a+Disp[i]*(b-a))/2.;
+
+			F_a += (Spectral(Table, Extrapolation, E, x1[i], z)-Spectral(Table, Extrapolation, E, 600., .00785))*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
+			F_b += (Spectral(Table, Extrapolation, E, x3[i], z)-Spectral(Table, Extrapolation, E, 600., .00785))*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
+		}
+		F_ave = (Spectral(Table, Extrapolation, E, a/2.+b/2., z)-Spectral(Table, Extrapolation, E, 600., .00785))*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
+		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
+		a = b;
+	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result
+
+	b += stride/2.;	//Evaluate an extra half stride, should result in a result between the extrems of a quarter and three quarter strides
+	F_a = F_b = 0;	//Start integration at 0
+	for(i = 0; i < 24; i++)
+	{
+		x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
+		x3[i] = (b+a+Disp[i]*(b-a))/2.;
+
+		F_a += (Spectral(Table, Extrapolation, E, x1[i], z)-Spectral(Table, Extrapolation, E, 600., .00785))*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
+		F_b += (Spectral(Table, Extrapolation, E, x3[i], z)-Spectral(Table, Extrapolation, E, 600., .00785))*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
+	}
+	F_ave = (Spectral(Table, Extrapolation, E, a/2.+b/2., z)-Spectral(Table, Extrapolation, E, 600., .00785))*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
+	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
+
+	return(Answer);	//return the best estimate of the integral on the interval*/
+}
+
+long double Spatial_Est0(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
 {
 	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 0, 0));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est600(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 600, .00785));	//return the integral for vacuum from 0 to infinity
 }
 
 long double Euclidean(long double*** Table, long double** Extrapolation, long double E, long double tau, int Temp)
@@ -327,6 +385,9 @@ long double Spectral(long double*** Table, long double** Extrapolation, long dou
 	t -= i;	//Removes the index leaving the fractional part
 	u -= j;
 
+       if(z > 0 && p > ((long double)(int(600*z/(2.*M_PI)))-.25)*2.*M_PI/z)
+                return(Spectral(Table, Extrapolation, TableVac, ExtrapolationVac, E, ((long double)(int(600*z/(2.*M_PI)))-.25)*2.*M_PI/z, z));
+
 	if(p <= 600.)
 	{
 		if(Table[i][j][4] == 0 || Table[i+1][j][4] == 0 || Table[i][j+1][4] == 0 || Table[i+1][j+1][4] == 0)	//If any of the required points have been invalidated, calculate points from integrals.
@@ -357,7 +418,7 @@ long double Spectral(long double*** Table, long double** Extrapolation, long dou
 		}
 	}
 
-	if(p >= 200 && Extrapolation != NULL)
+	/*if(p >= 200 && Extrapolation != NULL)
 	{
 		a = (2.*pow(u,3)-3.*pow(u,3)+1.)*Extrapolation[j][0]+(pow(u,3)-2.*pow(u,3)+u)*Extrapolation[j][1]+(-2.*pow(u,3)+3.*pow(u,3))*Extrapolation[j+1][0]+(pow(u,3)-pow(u,3))*Extrapolation[j+1][1];
 		b = (2.*pow(u,3)-3.*pow(u,3)+1.)*Extrapolation[j][2]+(pow(u,3)-2.*pow(u,3)+u)*Extrapolation[j][3]+(-2.*pow(u,3)+3.*pow(u,3))*Extrapolation[j+1][2]+(pow(u,3)-pow(u,3))*Extrapolation[j+1][3];
@@ -365,12 +426,12 @@ long double Spectral(long double*** Table, long double** Extrapolation, long dou
 		Extension = a+b*pow(p, n);
 	}
 
-	if(p < 200 || Extrapolation == NULL)
+	if(p < 200 || Extrapolation == NULL)*/
 		return(Interpolation);
-	else if(p <= 600)
+	/*else if(p <= 600)
 		return((p/400.-.5)*Extension+(1.5-p/400.)*Interpolation);
 	else
-		return(Extension);
+		return(Extension);*/
 }
 
 void Validate(long double***& Table, int M, int N)
