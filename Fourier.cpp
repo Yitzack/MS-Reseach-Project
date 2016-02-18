@@ -386,7 +386,7 @@ long double Spectral(long double*** Table, long double** Extrapolation, long dou
 	u -= j;
 
        if(z > 0 && p > ((long double)(int(600*z/(2.*M_PI)))-.25)*2.*M_PI/z)
-                return(Spectral(Table, Extrapolation, TableVac, ExtrapolationVac, E, ((long double)(int(600*z/(2.*M_PI)))-.25)*2.*M_PI/z, z));
+                return(Spectral(Table, Extrapolation, E, ((long double)(int(600*z/(2.*M_PI)))-.25)*2.*M_PI/z, z));
 
 	if(p <= 600.)
 	{
