@@ -787,7 +787,7 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 
 				F_a += Integrand(Par, x1[j], theta, Temp)*w37[j+1]; //Evaluate function at x1
 				F_b += Integrand(Par, x3[j], theta, Temp)*w37[j+1]; //Evaluate function at x3
-=			}
+			}
 			F_ave = Integrand(Par, (a+b)/2., theta, Temp)*w37[0]; //Evaluate the function at the center
 		}
 
