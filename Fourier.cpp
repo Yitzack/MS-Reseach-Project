@@ -3,6 +3,7 @@
 #include<cmath>
 #include<complex>
 #include<cstring>
+#include<cstdlib>
 #include<omp.h>
 #include<iomanip>
 using namespace std;
