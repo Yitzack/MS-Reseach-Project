@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 	long double*** Table;	//The table of values computed by Spectral
 	long double** Extrapolation;	
 	long double z, tau;	//The position value of the spactial correlator and tau of the euclidean-time correlator
-	long double holder[28];
+	long double holder[31];
 	int n_offset = 1;	//This the m_offset for momentum, n_offsets aren't needed yet
 	int m_offset = 0;	//The offset of 10 is for the energies between 0 and 1 being set to 0.
 	int N = 752+n_offset, M = 462;	//The size of the table
@@ -105,43 +105,43 @@ int main(int argc, char* argv[])
 	{
 		z = .3+i*.02;
 		tau = i*.008;
-		//holder[0] = Correlator(Spatial, Table, Extrapolation, z, Temp);
-		holder[0] = Correlator(Spatial_Est0, Table, Extrapolation, z, Temp);
-		holder[1] = Correlator(Spatial_Est8, Table, Extrapolation, z, Temp);
-		holder[2] = Correlator(Spatial_Est16, Table, Extrapolation, z, Temp);
-		holder[3] = Correlator(Spatial_Est24, Table, Extrapolation, z, Temp);
-		holder[4] = Correlator(Spatial_Est32, Table, Extrapolation, z, Temp);
-		holder[5] = Correlator(Spatial_Est40, Table, Extrapolation, z, Temp);
-		holder[6] = Correlator(Spatial_Est48, Table, Extrapolation, z, Temp);
-		holder[7] = Correlator(Spatial_Est56, Table, Extrapolation, z, Temp);
-		holder[8] = Correlator(Spatial_Est64, Table, Extrapolation, z, Temp);
-		holder[9] = Correlator(Spatial_Est72, Table, Extrapolation, z, Temp);
-		holder[10] = Correlator(Spatial_Est80, Table, Extrapolation, z, Temp);
-		holder[11] = Correlator(Spatial_Est88, Table, Extrapolation, z, Temp);
-		holder[12] = Correlator(Spatial_Est96, Table, Extrapolation, z, Temp);
-		holder[13] = Correlator(Spatial_Est104, Table, Extrapolation, z, Temp);
-		holder[14] = Correlator(Spatial_Est112, Table, Extrapolation, z, Temp);
-		holder[15] = Correlator(Spatial_Est120, Table, Extrapolation, z, Temp);
-		holder[16] = Correlator(Spatial_Est128, Table, Extrapolation, z, Temp);
-		holder[17] = Correlator(Spatial_Est136, Table, Extrapolation, z, Temp);
-		holder[18] = Correlator(Spatial_Est144, Table, Extrapolation, z, Temp);
-		holder[19] = Correlator(Spatial_Est152, Table, Extrapolation, z, Temp);
-		holder[20] = Correlator(Spatial_Est160, Table, Extrapolation, z, Temp);
-		holder[21] = Correlator(Spatial_Est168, Table, Extrapolation, z, Temp);
-		holder[22] = Correlator(Spatial_Est176, Table, Extrapolation, z, Temp);
-		holder[23] = Correlator(Spatial_Est184, Table, Extrapolation, z, Temp);
-		holder[24] = Correlator(Spatial_Est192, Table, Extrapolation, z, Temp);
-		holder[25] = Correlator(Spatial_Est200, Table, Extrapolation, z, Temp);
-		holder[26] = Correlator(Spatial_Est1000, Table, Extrapolation, z, Temp);
-		holder[27] = Correlator(Spatial_Est6000, Table, Extrapolation, z, Temp);
-		//holder[28] = Correlator(Spatial_Variant, Table, Extrapolation, z, Temp);
-		//holder[4] = Correlator(Euclidean, Table, Extrapolation, tau, Temp);
+		holder[0] = Correlator(Spatial, Table, Extrapolation, z, Temp);
+		holder[1] = Correlator(Spatial_Variant, Table, Extrapolation, z, Temp);
+		holder[2] = Correlator(Spatial_Est0, Table, Extrapolation, z, Temp);
+		holder[3] = Correlator(Spatial_Est8, Table, Extrapolation, z, Temp);
+		holder[4] = Correlator(Spatial_Est16, Table, Extrapolation, z, Temp);
+		holder[5] = Correlator(Spatial_Est24, Table, Extrapolation, z, Temp);
+		holder[6] = Correlator(Spatial_Est32, Table, Extrapolation, z, Temp);
+		holder[7] = Correlator(Spatial_Est40, Table, Extrapolation, z, Temp);
+		holder[8] = Correlator(Spatial_Est48, Table, Extrapolation, z, Temp);
+		holder[9] = Correlator(Spatial_Est56, Table, Extrapolation, z, Temp);
+		holder[10] = Correlator(Spatial_Est64, Table, Extrapolation, z, Temp);
+		holder[11] = Correlator(Spatial_Est72, Table, Extrapolation, z, Temp);
+		holder[12] = Correlator(Spatial_Est80, Table, Extrapolation, z, Temp);
+		holder[13] = Correlator(Spatial_Est88, Table, Extrapolation, z, Temp);
+		holder[14] = Correlator(Spatial_Est96, Table, Extrapolation, z, Temp);
+		holder[15] = Correlator(Spatial_Est104, Table, Extrapolation, z, Temp);
+		holder[16] = Correlator(Spatial_Est112, Table, Extrapolation, z, Temp);
+		holder[17] = Correlator(Spatial_Est120, Table, Extrapolation, z, Temp);
+		holder[18] = Correlator(Spatial_Est128, Table, Extrapolation, z, Temp);
+		holder[19] = Correlator(Spatial_Est136, Table, Extrapolation, z, Temp);
+		holder[20] = Correlator(Spatial_Est144, Table, Extrapolation, z, Temp);
+		holder[21] = Correlator(Spatial_Est152, Table, Extrapolation, z, Temp);
+		holder[22] = Correlator(Spatial_Est160, Table, Extrapolation, z, Temp);
+		holder[23] = Correlator(Spatial_Est168, Table, Extrapolation, z, Temp);
+		holder[24] = Correlator(Spatial_Est176, Table, Extrapolation, z, Temp);
+		holder[25] = Correlator(Spatial_Est184, Table, Extrapolation, z, Temp);
+		holder[26] = Correlator(Spatial_Est192, Table, Extrapolation, z, Temp);
+		holder[27] = Correlator(Spatial_Est200, Table, Extrapolation, z, Temp);
+		holder[28] = Correlator(Spatial_Est1000, Table, Extrapolation, z, Temp);
+		holder[29] = Correlator(Spatial_Est6000, Table, Extrapolation, z, Temp);
+		holder[30] = Correlator(Euclidean, Table, Extrapolation, tau, Temp);
 		#pragma omp critical
 		{
 			TPlot << z;
-			for(int j = 0; j < 28; j++)
+			for(int j = 0; j < 30; j++)
 				TPlot << " " << holder[j];
-			TPlot << endl;
+			TPlot << " " << tau << holder[30] << endl;
 		}
 	}//*/
 
@@ -300,7 +300,7 @@ long double Spatial(long double*** Table, long double** Extrapolation, long doub
 	int i;
 
 //This code is for integating out to a z dependant boundary
-	for(int j = 0; j < 19402; j++)	//need to start the count off from where it left off in the previous integration block
+	for(int j = 0; j < 1000; j++)	//need to start the count off from where it left off in the previous integration block
 	{
 		b += stride;
 		F_a = F_b = 0;	//Start integration at 0
@@ -348,7 +348,7 @@ long double Spatial_Variant(long double*** Table, long double** Extrapolation, l
 	int i;
 
 //This code is for integating out to a z dependant boundary
-	for(int j = 0; j < 19402; j++)	//need to start the count off from where it left off in the previous integration block
+	for(int j = 0; j < 1000; j++)	//need to start the count off from where it left off in the previous integration block
 	{
 		b += stride;
 		F_a = F_b = 0;	//Start integration at 0
