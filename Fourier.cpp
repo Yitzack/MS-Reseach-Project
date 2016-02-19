@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 			TPlot << z;
 			for(int j = 0; j < 28; j++)
 				TPlot << " " << holder[i];
-			cout << endl;
+			TPlot << endl;
 		}
 	}//*/
 
