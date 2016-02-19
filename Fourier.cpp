@@ -138,7 +138,10 @@ int main(int argc, char* argv[])
 		//holder[4] = Correlator(Euclidean, Table, Extrapolation, tau, Temp);
 		#pragma omp critical
 		{
-			TPlot << z << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << tau << " " << holder[4] << endl;
+			TPlot << z;
+			for(int j = 0; j < 28; j++)
+				TPlot << " " << holder[i];
+			cout << end;
 		}
 	}//*/
 
