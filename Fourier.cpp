@@ -17,7 +17,33 @@ long double Spectral(long double***, long double**, long double, long double, lo
 long double Correlator(long double(*)(long double***, long double**, long double, long double, int), long double***, long double**, long double, int);	//Evaluates the spatial correlator
 long double Spatial(long double***, long double**, long double, long double, int);	//1D integral for spatial integrator with fixed E
 long double Spatial_Est0(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
-long double Spatial_Est600(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est8(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est16(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est24(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est32(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est40(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est48(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est56(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est64(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est72(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est80(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est88(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est96(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est104(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est112(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est120(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est128(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est136(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est144(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est152(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est160(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est168(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est176(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est184(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est192(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est200(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est1000(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
+long double Spatial_Est6000(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
 long double Spatial_Variant(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
 long double Spatial_Est(long double***, long double**, long double, long double, int);	//Kernal for spatial correlator estimate
 long double Euclidean(long double***, long double**, long double, long double, int);	//Kernal for eucledian-time correlator
@@ -35,7 +61,7 @@ int main(int argc, char* argv[])
 	long double*** Table;	//The table of values computed by Spectral
 	long double** Extrapolation;	
 	long double z, tau;	//The position value of the spactial correlator and tau of the euclidean-time correlator
-	long double holder[5];
+	long double holder[28];
 	int n_offset = 1;	//This the m_offset for momentum, n_offsets aren't needed yet
 	int m_offset = 0;	//The offset of 10 is for the energies between 0 and 1 being set to 0.
 	int N = 752+n_offset, M = 462;	//The size of the table
@@ -79,11 +105,37 @@ int main(int argc, char* argv[])
 	{
 		z = .3+i*.02;
 		tau = i*.008;
-		holder[0] = Correlator(Spatial, Table, Extrapolation, z, Temp);
-		holder[1] = Correlator(Spatial_Est0, Table, Extrapolation, z, Temp);
-		holder[2] = Correlator(Spatial_Est600, Table, Extrapolation, z, Temp);
-		holder[3] = Correlator(Spatial_Variant, Table, Extrapolation, z, Temp);
-		holder[4] = Correlator(Euclidean, Table, Extrapolation, tau, Temp);
+		//holder[0] = Correlator(Spatial, Table, Extrapolation, z, Temp);
+		holder[0] = Correlator(Spatial_Est0, Table, Extrapolation, z, Temp);
+		holder[1] = Correlator(Spatial_Est8, Table, Extrapolation, z, Temp);
+		holder[2] = Correlator(Spatial_Est16, Table, Extrapolation, z, Temp);
+		holder[3] = Correlator(Spatial_Est24, Table, Extrapolation, z, Temp);
+		holder[4] = Correlator(Spatial_Est32, Table, Extrapolation, z, Temp);
+		holder[5] = Correlator(Spatial_Est40, Table, Extrapolation, z, Temp);
+		holder[6] = Correlator(Spatial_Est48, Table, Extrapolation, z, Temp);
+		holder[7] = Correlator(Spatial_Est56, Table, Extrapolation, z, Temp);
+		holder[8] = Correlator(Spatial_Est64, Table, Extrapolation, z, Temp);
+		holder[9] = Correlator(Spatial_Est72, Table, Extrapolation, z, Temp);
+		holder[10] = Correlator(Spatial_Est80, Table, Extrapolation, z, Temp);
+		holder[11] = Correlator(Spatial_Est88, Table, Extrapolation, z, Temp);
+		holder[12] = Correlator(Spatial_Est96, Table, Extrapolation, z, Temp);
+		holder[13] = Correlator(Spatial_Est104, Table, Extrapolation, z, Temp);
+		holder[14] = Correlator(Spatial_Est112, Table, Extrapolation, z, Temp);
+		holder[15] = Correlator(Spatial_Est120, Table, Extrapolation, z, Temp);
+		holder[16] = Correlator(Spatial_Est128, Table, Extrapolation, z, Temp);
+		holder[17] = Correlator(Spatial_Est136, Table, Extrapolation, z, Temp);
+		holder[18] = Correlator(Spatial_Est144, Table, Extrapolation, z, Temp);
+		holder[19] = Correlator(Spatial_Est152, Table, Extrapolation, z, Temp);
+		holder[20] = Correlator(Spatial_Est160, Table, Extrapolation, z, Temp);
+		holder[21] = Correlator(Spatial_Est168, Table, Extrapolation, z, Temp);
+		holder[22] = Correlator(Spatial_Est176, Table, Extrapolation, z, Temp);
+		holder[23] = Correlator(Spatial_Est184, Table, Extrapolation, z, Temp);
+		holder[24] = Correlator(Spatial_Est192, Table, Extrapolation, z, Temp);
+		holder[25] = Correlator(Spatial_Est200, Table, Extrapolation, z, Temp);
+		holder[26] = Correlator(Spatial_Est1000, Table, Extrapolation, z, Temp);
+		holder[27] = Correlator(Spatial_Est6000, Table, Extrapolation, z, Temp);
+		//holder[28] = Correlator(Spatial_Variant, Table, Extrapolation, z, Temp);
+		//holder[4] = Correlator(Euclidean, Table, Extrapolation, tau, Temp);
 		#pragma omp critical
 		{
 			TPlot << z << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << tau << " " << holder[4] << endl;
@@ -302,10 +354,10 @@ long double Spatial_Variant(long double*** Table, long double** Extrapolation, l
 			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-			F_a += (Spectral(Table, Extrapolation, E, x1[i], z)-Spectral(Table, Extrapolation, E, 600., .00785))*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
-			F_b += (Spectral(Table, Extrapolation, E, x3[i], z)-Spectral(Table, Extrapolation, E, 600., .00785))*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
+			F_a += (Spectral(Table, Extrapolation, E, x1[i], z)-Spectral(Table, Extrapolation, E, 600., 100000))*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
+			F_b += (Spectral(Table, Extrapolation, E, x3[i], z)-Spectral(Table, Extrapolation, E, 600., 100000))*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
 		}
-		F_ave = (Spectral(Table, Extrapolation, E, a/2.+b/2., z)-Spectral(Table, Extrapolation, E, 600., .00785))*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
+		F_ave = (Spectral(Table, Extrapolation, E, a/2.+b/2., z)-Spectral(Table, Extrapolation, E, 600., 100000))*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result
@@ -317,10 +369,10 @@ long double Spatial_Variant(long double*** Table, long double** Extrapolation, l
 		x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 		x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-		F_a += (Spectral(Table, Extrapolation, E, x1[i], z)-Spectral(Table, Extrapolation, E, 600., .00785))*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
-		F_b += (Spectral(Table, Extrapolation, E, x3[i], z)-Spectral(Table, Extrapolation, E, 600., .00785))*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
+		F_a += (Spectral(Table, Extrapolation, E, x1[i], z)-Spectral(Table, Extrapolation, E, 600., 100000))*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
+		F_b += (Spectral(Table, Extrapolation, E, x3[i], z)-Spectral(Table, Extrapolation, E, 600., 100000))*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
 	}
-	F_ave = (Spectral(Table, Extrapolation, E, a/2.+b/2., z)-Spectral(Table, Extrapolation, E, 600., .00785))*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
+	F_ave = (Spectral(Table, Extrapolation, E, a/2.+b/2., z)-Spectral(Table, Extrapolation, E, 600., 100000))*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
 	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
@@ -328,12 +380,142 @@ long double Spatial_Variant(long double*** Table, long double** Extrapolation, l
 
 long double Spatial_Est0(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
 {
-	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 0, 0));	//return the integral for vacuum from 0 to infinity
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 0, 100000));	//return the integral for vacuum from 0 to infinity
 }
 
-long double Spatial_Est600(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+long double Spatial_Est8(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
 {
-	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 600, .00785));	//return the integral for vacuum from 0 to infinity
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, .8, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est16(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 1.6, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est24(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 2.4, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est32(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 3.2, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est40(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 4., 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est48(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 4.8, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est56(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 5.6, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est64(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 6.4, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est72(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 7.2, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est80(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 8., 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est88(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 8.8, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est96(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 9.6, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est104(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 10.4, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est112(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 11.2, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est120(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 12., 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est128(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 12.8, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est136(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 13.6, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est144(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 14.4, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est152(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 15.2, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est160(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 16., 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est168(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 16.8, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est176(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 17.6, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est184(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 18.4, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est192(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 19.2, 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est200(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 20., 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est1000(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 100., 100000));	//return the integral for vacuum from 0 to infinity
+}
+
+long double Spatial_Est6000(long double*** Table, long double** Extrapolation, long double E, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-E*z)*Spectral(Table, Extrapolation, E, 600., 100000));	//return the integral for vacuum from 0 to infinity
 }
 
 long double Euclidean(long double*** Table, long double** Extrapolation, long double E, long double tau, int Temp)
