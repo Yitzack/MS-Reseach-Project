@@ -74,12 +74,12 @@ int main(int argc, char* argv[])
 				Par[2] = atof(argv[5]);
 			}
 			Par[3] = i*.8;
-			Par[4] = E[j];
+			Par[4] = pow(E[j],2);
 			TMat = TMatrix(Par, Temp);
-			if(Par[4] < 2.*Par[2])
+			if(Par[4] < pow(2.*Par[2]))
 				TMat *= complex<long double>(Par[0]);
 			else
-				TMat *= complex<long double>(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+pow(Par[4],2)-pow(2*Par[2],2)),2));
+				TMat *= complex<long double>(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+Par[4]-pow(2*Par[2],2)),2));
 			Table[j][1] = TMat.real();
 			Table[j][2] = TMat.imag();
 			Table[j][0] = Spectral(Par, Temp);

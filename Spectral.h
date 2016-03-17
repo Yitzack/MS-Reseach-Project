@@ -31,13 +31,13 @@ long double Potential1(long double[6], long double, long double, int);	//Returns
 long double Fermi(long double, int);	//Returns the fermi factor
 long double Fermi(long double[6], long double, long double, int);
 
-long double Self_Energy(long double roots, long double E, long double P, long double M, int Temp)
+long double Self_Energy(long double s, long double E, long double P, long double M, int Temp)
 {
-	long double Ans = M*Self_E_Depends(Temp, E, P, M)*Self_P_Depends(Temp, P, roots)/Energy(M,P,0,0);
+	long double Ans = M*Self_E_Depends(Temp, E, P, M)*Self_P_Depends(Temp, P, s)/Energy(M,P,0,0);
 	return(Ans);
 }
 
-long double Self_P_Depends(int Temp, long double P, long double roots)
+long double Self_P_Depends(int Temp, long double P, long double s)
 {
 	long double Par[6];
 
@@ -77,8 +77,8 @@ long double Self_P_Depends(int Temp, long double P, long double roots)
 			break;
 	}
 
-	if(roots >= .82823392)
-		return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2))+Par[3]/(1.+exp((Par[4]-P)/Par[5]))*pow((pow(roots,2)-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(roots,2)),2));
+	if(s >= .685971426239)
+		return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2))+Par[3]/(1.+exp((Par[4]-P)/Par[5]))*pow((s-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(roots,2)),2));
 	else
 		return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2)));
 }
@@ -185,7 +185,7 @@ long double G_0Int(long double Par[6], long double k, long double theta, int Tem
 	if(Temp != 0)
 		return((pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta),2)-Par[3]*Par[3])/(2.*Par[2]*Par[2])*ImProp(Par, k, theta, Temp)*sin(theta)*k*k);
 	else
-		return((-k*k*pow(Par[4],2)*sin(theta)/(4.*M_PI*abs(Par[3]*cos(theta)*(Energy(Par[2], Par[3]/2., -k, theta)-Energy(Par[2], Par[3]/2., k, theta))-2.*k*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta))))));
+		return((-k*k*Par[4]*sin(theta)/(4.*M_PI*abs(Par[3]*cos(theta)*(Energy(Par[2], Par[3]/2., -k, theta)-Energy(Par[2], Par[3]/2., k, theta))-2.*k*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta))))));
 }
 
 long double ReDelta_GInt(long double Par[6], long double k, long double theta, int Temp)
@@ -234,15 +234,15 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 {
 	if(Temp == 0)
 	{
- 		if(Par[4] >= .82823392)
- 			return(2.*((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
+ 		if(Par[4] >= .685971426239)
+ 			return(2.*((Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*sqrt(Par[4]), 2))));
  		else
- 			return(2.*((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2))));
+ 			return(2.*((Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2))));
  	}
- 	if(Par[4] >= .82823392)
-		return(2.*((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2))*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2)));
+ 	if(Par[4] >= .685971426239)
+		return(2.*((Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2))*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)+pow(-Par[5]*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*sqrt(Par[4]), 2)));
 	else
-		return(2.*((pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2))*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)));
+		return(2.*((Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2))*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)));
 	
 	long double Disp[] = {sqrt(5.-2.*sqrt(10./7.))/3., sqrt(5.+2.*sqrt(10./7.))/3.}; //Displacement from center for 9th order Gauss-Legendre integration
 	long double w[] = {128./225., (322.+13.*sqrt(70))/900., (322.-13.*sqrt(70))/900.}; //Weight of the function at Disp
@@ -259,12 +259,12 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 	long double x1[9], x3[9];
 	long double Width;	//Step size for integration
 	long double E = zero+64.*gamma+3.;	//Largest feature I can find
-	long double f0 = ImProp(Par, k, theta, Temp);	//Par[4]^2 is the location of the division by zero
+	long double f0 = ImProp(Par, k, theta, Temp);	//Par[4] is the location of the division by zero
 	long double A;	//Starting position
 	int i,j,l = 0;
 	int version = 16;
 
-	if(pow(Par[4],2) == 0)
+	if(Par[4] == 0)
 		f0 = 0;
 
 	if(zero-64*gamma-3. < 0)
@@ -309,22 +309,22 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 			x3[j] = (b+a+Disp[j]*(b-a))/2.;
 
 			LocalPar[4] = x1[j];
-			F_a += 2.*x1[j]*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow(x1[j],2)-pow(Par[4],2))*w[j+1]; //Evaluate function at x1
+			F_a += 2.*x1[j]*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow(x1[j],2)-Par[4])*w[j+1]; //Evaluate function at x1
 			LocalPar[4] = x3[j];
-			F_b += 2.*x3[j]*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow(x3[j],2)-pow(Par[4],2))*w[j+1]; //Evaluate function at x3
+			F_b += 2.*x3[j]*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow(x3[j],2)-Par[4])*w[j+1]; //Evaluate function at x3
 		}
 		LocalPar[4] = (a+b)/2.;
-		F_ave = (a+b)*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow((a+b)/2.,2)-pow(Par[4],2))*w[0]; //Evaluate the function at the center
+		F_ave = (a+b)*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow((a+b)/2.,2)-Par[4])*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}while(b < E);
 
 	if(f0 == 0)
 		Answer = Answer/M_PI;
-	else if(A < Par[4] && Par[4] < b)
-		Answer = Answer/M_PI+f0*log((Par[4]*Par[4] - b*b)/(A*A - Par[4]*Par[4]))/M_PI;
+	else if(A < sqrt(Par[4]) && sqrt(Par[4]) < b)
+		Answer = Answer/M_PI+f0*log((Par[4] - b*b)/(A*A - Par[4]))/M_PI;
 	else
-		Answer = Answer/M_PI+f0*log((b*b - Par[4]*Par[4])/(A*A - Par[4]*Par[4]))/M_PI;
+		Answer = Answer/M_PI+f0*log((b*b - Par[4])/(A*A - Par[4]))/M_PI;
 
 	return(Answer);
 }
@@ -333,30 +333,30 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 {
 	if(Temp == 0)
 	{
-		if(Par[4] >= .82823392)
-			return((-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4])*(2.*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2))));
+		if(Par[4] >= .685971426239)
+			return((-Par[5]*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*sqrt(Par[4]))*(2.*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*sqrt(Par[4]), 2))));
 		else
 			return(0);
 	}
 
-	if(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-.02 < Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]*Par[4]+Par[3]*Par[3])-.02 < Energy(Par[2], Par[3]/2., -k, theta))
+	if(sqrt(Par[4]+Par[3]*Par[3])-.02 < Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]+Par[3]*Par[3])-.02 < Energy(Par[2], Par[3]/2., -k, theta))
 	{
 		if(Par[3] > 100)
 			return(0);
 	}
-	else if(sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., -k, theta))
+	else if(sqrt(Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., -k, theta))
 	{
-		if(Par[4] >= .82823392)
-			return(((4.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp))-2*Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4])*pow(Par[2],2)/pow(2.*M_PI,2)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)+pow(-Par[5]*pow((pow(Par[4],2)-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(Par[4],2)),2)*Par[4], 2)));
+		if(Par[4] >= .685971426239)
+			return(((4.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp))-2*Par[5]*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*Par[4])*pow(Par[2],2)/pow(2.*M_PI,2)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)+pow(-Par[5]*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*Par[4], 2)));
 		else
-			return(((4.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)))*pow(Par[2],2)/pow(2.*M_PI,2)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(pow(Par[4],2)+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)));
+			return(((4.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)))*pow(Par[2],2)/pow(2.*M_PI,2)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)));
 	}
-	else if(sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., k, theta) || sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., -k, theta))
+	else if(sqrt(Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., k, theta) || sqrt(Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., -k, theta))
 	{
-		if(sqrt(Par[4]*Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., -k, theta))
-			return(pow(Par[2]/(2.*M_PI),2)*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., -k, theta),Par, k, theta, Temp)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))/Energy(Par[2], Par[3]/2., -k, theta));
+		if(sqrt(Par[4]+Par[3]*Par[3]) > Energy(Par[2], Par[3]/2., -k, theta))
+			return(pow(Par[2]/(2.*M_PI),2)*Rho(sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., -k, theta),Par, k, theta, Temp)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))/Energy(Par[2], Par[3]/2., -k, theta));
 		else
-			return(pow(Par[2]/(2.*M_PI),2)*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),Par, -k, theta, Temp)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))/Energy(Par[2], Par[3]/2., k, theta));
+			return(pow(Par[2]/(2.*M_PI),2)*Rho(sqrt(Par[4]+Par[3]*Par[3])-Energy(Par[2], Par[3]/2., k, theta),Par, -k, theta, Temp)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))/Energy(Par[2], Par[3]/2., k, theta));
 	}
 
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
@@ -366,7 +366,7 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 	//long double Range[] = {-64,-32,-16,-8,-4,-2,-1,-.5,0,.5,1,2,4,8,16,32,64};	//Number of gamma from center
 	long double Range[] = {-64,-8,-1,-.5,0,.5,1,8,64};	//Number of gamma from center
 	//long double Range[] = {-1,-.5,0,.5,1};	//Number of gamma from center
-	long double* zero;	//These are the points that may cause the greatest problems, but only if they are between 0 and Par[4]=E=sqrt s
+	long double* zero;	//These are the points that may cause the greatest problems, but only if they are between 0 and E=sqrt(s+P^2)=sqrt(Par[4]+P^2)
 	long double* gamma;	//These are the widths of the features near zero1 and zero2
 	long double Answer = 0;
 	long double a = 0;
@@ -398,7 +398,7 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 	{
 		if(b == 0 && l != 0)	//First peak is closer than 64*gamma to 0
 			Width = zero[i1]+Range[l]*gamma[i1];
-		else if(b < 2.*Par[2] || b >= sqrt(Par[4]*Par[4]+Par[3]*Par[3])-2.*Par[2])
+		else if(b < 2.*Par[2] || b >= sqrt(Par[4]+Par[3]*Par[3])-2.*Par[2])
 			Width = 1;	//The Self-energy peaks
 		else
 			Width = 3;	//No-man's land
@@ -444,8 +444,8 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 			i1 = i2;
 		}
 
-		if(b > sqrt(Par[4]*Par[4]+Par[3]*Par[3]))
-			b = sqrt(Par[4]*Par[4]+Par[3]*Par[3]);
+		if(b > sqrt(Par[4]+Par[3]*Par[3]))
+			b = sqrt(Par[4]+Par[3]*Par[3]);
 
 		F_a = F_b = 0;
 		for(j = 0; j < 9; j++)//2
@@ -459,7 +459,7 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 		F_ave = PropIntegrand((a+b)/2., Par, k, theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
-	}while(b < sqrt(Par[4]*Par[4]+Par[3]*Par[3]));
+	}while(b < sqrt(Par[4]+Par[3]*Par[3]));
 
 	delete[] zero;
 	delete[] gamma;
@@ -472,7 +472,7 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 void Characterize(long double Par[6], long double k, long double theta, int Temp, long double*& zero, long double*& gamma, int& Peaks)	//Searches for minimum, then gamma by binary search
 {
 	float DeltaE = .5;
-	long double Array[3][int(sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE)+1];	//0 is function, 1 is second derivative, 2 is boundaries
+	long double Array[3][int(sqrt(Par[4]+Par[3]*Par[3])/DeltaE)+1];	//0 is function, 1 is second derivative, 2 is boundaries
 	long double Center, Width;
 	long double Maxima, MaximaW;	//Tempory storage
 	long double Value[4];
@@ -480,13 +480,13 @@ void Characterize(long double Par[6], long double k, long double theta, int Temp
 	bool Done;
 
 	Peaks = 0;
-	for(i = 0; i < sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE; i++)	//Evaluate the function on a mesh and take the second derivative
+	for(i = 0; i < sqrt(Par[4]+Par[3]*Par[3])/DeltaE; i++)	//Evaluate the function on a mesh and take the second derivative
 		Array[0][i] = PropIntegrand(i*DeltaE, Par, k, theta, Temp);
 	Array[1][0]=(3*Array[0][0]-4*Array[0][1]+Array[0][2])/(2.*DeltaE);
-	Array[1][int(sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE)]=(-Array[0][int(sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE)]+4*Array[0][int(sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE)-1]-3*Array[0][int(sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE)-2])/(2.*DeltaE);
-	for(i = 1; i < sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE-1; i++)
+	Array[1][int(sqrt(Par[4]+Par[3]*Par[3])/DeltaE)]=(-Array[0][int(sqrt(Par[4]+Par[3]*Par[3])/DeltaE)]+4*Array[0][int(sqrt(Par[4]+Par[3]*Par[3])/DeltaE)-1]-3*Array[0][int(sqrt(Par[4]+Par[3]*Par[3])/DeltaE)-2])/(2.*DeltaE);
+	for(i = 1; i < sqrt(Par[4]+Par[3]*Par[3])/DeltaE-1; i++)
 		Array[1][i] = (Array[0][i+1]-Array[0][i-1])/(DeltaE*2.);
-	for(i = 1; i < sqrt(Par[4]*Par[4]+Par[3]*Par[3])/DeltaE; i++)	//Count the number of minima by the number of changes from positive to negative second derivatives
+	for(i = 1; i < sqrt(Par[4]+Par[3]*Par[3])/DeltaE; i++)	//Count the number of minima by the number of changes from positive to negative second derivatives
 	{
 		if(Array[1][i-1]*Array[1][i] <= 0 && Array[1][i-1] < Array[1][i])
 		{
@@ -515,14 +515,14 @@ void Characterize(long double Par[6], long double k, long double theta, int Temp
 			Center = Maxima-MaximaW/2.;
 			Width = MaximaW/2.;
 			if(!Minimize(Par, k, theta, Temp, Center, Width))
-				cerr << "#Minimization failure, E = " << Par[4] << " P = " << Par[3] << " k = " << k << " theta = " << theta << " Center = " << Center << " Width = " << Width << endl;
+				cerr << "#Minimization failure, s = " << Par[4] << " P = " << Par[3] << " k = " << k << " theta = " << theta << " Center = " << Center << " Width = " << Width << endl;
 			Array[0][j] = Center;
 			j++;
 
 			Center = Maxima+MaximaW/2.;
 			Width = MaximaW/2.;
 			if(!Minimize(Par, k, theta, Temp, Center, Width))
-				cerr << "#Minimization failure, E = " << Par[4] << " P = " << Par[3] << " k = " << k << " theta = " << theta << " Center = " << Center << " Width = " << Width << endl;
+				cerr << "#Minimization failure, s = " << Par[4] << " P = " << Par[3] << " k = " << k << " theta = " << theta << " Center = " << Center << " Width = " << Width << endl;
 			Array[0][j] = Center;
 			j++;
 		}
@@ -565,7 +565,7 @@ void Characterize(long double Par[6], long double k, long double theta, int Temp
 		}
 
 		if(gamma[i] < 0 || gamma[i] > 10)
-			gamma[i] = -Self_Energy(Par[4],Par[4], LawCosines(Par[3],k,theta), Par[2], Temp);
+			gamma[i] = -Self_Energy(Par[4],sqrt(Par[4]), LawCosines(Par[3],k,theta), Par[2], Temp);
 		else
 			gamma[i] = sqrt(gamma[i]);
 	}
@@ -617,7 +617,7 @@ bool Minimize(long double Par[6], long double k, long double theta, int Temp, lo
 
 long double PropIntegrand(long double omega, long double Par[6], long double k, long double theta, int Temp)
 {
-	return(-Par[2]*Par[2]/M_PI*Rho(omega, Par, k, theta, Temp)*Rho(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-omega, Par, -k, theta, Temp)*(1.-Fermi(omega, Temp)-Fermi(sqrt(Par[4]*Par[4]+Par[3]*Par[3])-omega, Temp)));
+	return(-Par[2]*Par[2]/M_PI*Rho(omega, Par, k, theta, Temp)*Rho(sqrt(Par[4]+Par[3]*Par[3])-omega, Par, -k, theta, Temp)*(1.-Fermi(omega, Temp)-Fermi(sqrt(Par[4]+Par[3]*Par[3])-omega, Temp)));
 }
 
 long double Rho(long double omega, long double Par[6], long double k, long double theta, int Temp)
@@ -646,7 +646,7 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 
 	if(Temp == 0 && Integrand == G_0Int)
 	{
-		long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin((a+b)/2.),2)));
+		long double k = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin((a+b)/2.),2)));
 		F_ave = G_0Int(Par, k, (a+b)/2., Temp);
 		if(k != k)
 			F_ave = 0;
@@ -671,9 +671,9 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 
 			if(Temp == 0 && (Integrand == G_0Int || Integrand == ImDelta_GInt || Integrand == ImInt))
 			{
-				long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x1[i]),2)));
+				long double k = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(x1[i]),2)));
 				F_a += G_0Int(Par, k, x1[i], 0)*w[i+1];
-				k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(x3[i]),2)));
+				k = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(x3[i]),2)));
 				F_b += G_0Int(Par, k, x3[i], 0)*w[i+1];
 
 				if(F_a != F_a)
@@ -691,7 +691,7 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 
 		if(Temp == 0 && (Integrand == G_0Int || Integrand == ImDelta_GInt || Integrand == ImInt))
 		{
-			long double k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin((a+b)/2.),2)));
+			long double k = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin((a+b)/2.),2)));
 			F_ave = G_0Int(Par, k, (a+b)/2., Temp)*w[0];
 			if(k != k)
 				F_ave = 0;
@@ -722,13 +722,13 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 	long double E;		//Largest feature I can find
 	int i = 0, j;
 
-	if(Par[4] > 2.*Par[2])	//If above threshold, locate and guestimate the width of the feature near the division by zero
+	if(sqrt(Par[4]) > 2.*Par[2])	//If above threshold, locate and guestimate the width of the feature near the division by zero
 	{
 		long double LocalPar[] = {Par[0],Par[1],Par[2],Par[3],2.*Par[2],Par[5]};
-		k = .5*sqrt((pow(Par[4],2)-pow(2.*Par[2],2))*(pow(Par[4],2)+pow(Par[3],2))/(pow(Par[4],2)+pow(Par[3]*sin(theta),2)));
+		k = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
 		gamma = -ImProp(LocalPar, k, theta, Temp);
 	}
-	else if(Par[4] > 2.*Par[2]-.1)	//If near but below threshold, make up a width to get the important things covered.
+	else if(sqrt(Par[4]) > 2.*Par[2]-.1)	//If near but below threshold, make up a width to get the important things covered.
 	{
 		long double LocalPar[] = {Par[0],Par[1],Par[2],Par[3],2.*Par[2],Par[5]};
 		k = 0;
