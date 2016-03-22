@@ -33,9 +33,9 @@ int main(int argc, char* argv[])
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 
+	#pragma omp parallel for
 	for(i = 0; i <= 751; i++)
 	{
-		#pragma omp parallel for
 		for(j = iProcess; j < 863; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
 			Par[1] = 1.4049344847006076;
@@ -64,24 +64,24 @@ int main(int argc, char* argv[])
 
 			Par[3] = i*.8;
 
-			if(i <= 400)	//Defining s
+			if(j <= 400)	//Defining s
 			{
-				if(j < 13)
-					Par[4] = pow(.8-i*j/500.,2)-pow(.8*j,2);
+				if(i < 13)
+					Par[4] = pow(.8-i*j/500.,2)-pow(.8*i,2);
 				else
-					Par[4] = pow(.8*j-i*13/500,2)-pow(.8*j,2);
+					Par[4] = pow(.8*i-j*13./500.,2)-pow(.8*i,2);
 			}
-			else if(i <= 426)
-				Par[4] = pow((i-401)/10.,2);
-			else if(i <= 627)
-				Par[4] = pow(2.540308+(i-427)/200.,2);
-			else if(i <= 668)
-				Par[4] = pow(3.55+11.*(i-628)/800.,2);
+			else if(j <= 426)
+				Par[4] = pow((j-401.)/10.,2);
+			else if(j <= 627)
+				Par[4] = pow(2.540308+(j-427.)/200.,2);
+			else if(j <= 668)
+				Par[4] = pow(3.55+11.*(j-628.)/800.,2);
 			else
-				Par[4] = pow(4.1+(i-668)/10.,2);
+				Par[4] = pow(4.1+(j-668.)/10.,2);
 
 			TMat = TMatrix(Par, Temp);
-			if(Par[4] < pow(2.*Par[2]))
+			if(Par[4] < pow(2.*Par[2],2))
 				TMat *= complex<long double>(Par[0]);
 			else
 				TMat *= complex<long double>(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+Par[4]-pow(2*Par[2],2)),2));
@@ -90,11 +90,7 @@ int main(int argc, char* argv[])
 			Table[j][0] = Spectral(Par, Temp);
 		}
 
-#ifdef DELTAE
-		for(j = 81*iProcess/(Total); j < 81*(iProcess+1)/Total; j++)	//Does the subset of E that has been assigned to this process
-#else
-		for(j = iProcess; j < 462; j+=Total)	//Does the subset of E that has been assigned to this process
-#endif
+		for(j = iProcess; j < 863; j+=Total)	//Does the subset of E that has been assigned to this process
 			TPlot << Temp <<  " " << i << " " << j << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
 		TPlot << endl;
 	}
