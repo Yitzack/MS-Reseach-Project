@@ -67,18 +67,18 @@ int main(int argc, char* argv[])
 			if(j <= 400)	//Defining s
 			{
 				if(i < 13)
-					Par[4] = pow(.8-i*j/500.,2)-pow(.8*i,2);
+					Par[4] = pow(i*j/500.,2)-pow(.8*i,2);
 				else
-					Par[4] = pow(.8*i-j*13./500.,2)-pow(.8*i,2);
+					Par[4] = pow(.8*i+j*13./500.-10.4,2)-pow(.8*i,2);
 			}
-			else if(j <= 426)
-				Par[4] = pow((j-401.)/10.,2);
-			else if(j <= 627)
-				Par[4] = pow(2.540308+(j-427.)/200.,2);
-			else if(j <= 668)
-				Par[4] = pow(3.55+11.*(j-628.)/800.,2);
+			else if(j <= 425)
+				Par[4] = pow((j-400.)/10.,2);
+			else if(j <= 626)
+				Par[4] = pow(2.540308+(j-426.)/200.,2);
+			else if(j <= 667)
+				Par[4] = pow(3.55+11.*(j-627.)/800.,2);
 			else
-				Par[4] = pow(4.1+(j-668.)/10.,2);
+				Par[4] = pow(4.1+(j-667.)/10.,2);
 
 			TMat = TMatrix(Par, Temp);
 			if(Par[4] < pow(2.*Par[2],2))
