@@ -78,7 +78,7 @@ long double Self_P_Depends(int Temp, long double P, long double s)
 	}
 
 	if(s >= .685971426239)
-		return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2))+Par[3]/(1.+exp((Par[4]-P)/Par[5]))*pow((s-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+pow(roots,2)),2));
+		return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2))+Par[3]/(1.+exp((Par[4]-P)/Par[5]))*pow((s-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+s),2));
 	else
 		return(Par[0]*exp(-pow(P/Par[1],2))+(1-Par[0])*exp(-pow(P/Par[2],2)));
 }
