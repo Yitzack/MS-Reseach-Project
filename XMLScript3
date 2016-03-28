@@ -1,9 +1,9 @@
 BEGIN{
-	print "<?xml version='1.0'?>\n<!DOCTYPE Expression SYSTEM 'http://www.wolfram.com/XML/notebookml1.dtd'>\n<Expression xmlns:mathematica='http://www.wolfram.com/XML/'\n    xmlns='http://www.wolfram.com/XML/'>\n <Function>\n  <Symbol>List</Symbol>\n  <Function>\n   <Symbol>List</Symbol>"
+	print "  <Function>\n   <Symbol>List</Symbol>"
 }
 {
 	if (length($0) == 0) {}
-	else if($2 <= 13 && $3 <= 400)
+	else if($3 >= 400)
 	{
 		print "   <Function>"
 		print "    <Symbol>List</Symbol>"
@@ -17,5 +17,5 @@ BEGIN{
 	}
 }
 END{
-	print "  </Function>"
+	printf "  </Function>\n </Function>\n</Expression>"
 }
