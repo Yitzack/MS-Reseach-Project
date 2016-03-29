@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 	long double*** Table1[3];	//The table of values computed by Spectral
 	long double z, tau;	//The position value of the spactial correlator and tau of the euclidean-time correlator
 	long double holder[31];
-	int N[3] = 752, M[3] = 462;	//The size of the table
+	int N[3] = {14,739,752}, M[3] = {401,401,462};	//The size of the table
 	const int iProcess = atoi(argv[1]);
 	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[5]);
@@ -97,7 +97,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	{
 		for(i = 0; i < 8; i++)
 		{
-			b = 3.040308 - distance[i];
+			b = pow(3.040308,2) - distance[i];
 			F_a = F_b = 0;	//Start integration at 0
 			for(j = 0; j < 24; j++)
 			{
@@ -112,7 +112,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 			a = b;
 		}
 	
-		b = 3.040308;
+		b = pow(3.040308,2);
 		F_a = F_b = 0;	//Start integration at 0
 		for(j = 0; j < 24; j++)
 		{
@@ -128,7 +128,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	
 		for(i = 7; i >= 0; i--)
 		{
-			b = 3.040308 + distance[i];
+			b = pow(3.040308,2) + distance[i];
 			F_a = F_b = 0;	//Start integration at 0
 			for(j = 0; j < 24; j++)
 			{
@@ -143,7 +143,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 			a = b;
 		}
 	
-		b = 3.6;
+		b = 12.96;
 		F_a = F_b = 0;	//Start integration at 0
 		for(j = 0; j < 24; j++)
 		{
@@ -159,7 +159,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	
 		for(i = 7; i >= 0; i--)
 		{
-			b = 3.6 + distance[i];
+			b = 12.96 + distance[i];
 			F_a = F_b = 0;	//Start integration at 0
 			for(j = 0; j < 24; j++)
 			{
@@ -174,7 +174,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 			a = b;
 		}
 	
-		b = 4;
+		b = 16;
 		F_a = F_b = 0;	//Start integration at 0
 		for(j = 0; j < 24; j++)
 		{
@@ -188,7 +188,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 
-		b = 10;
+		b = 100;
 		F_a = F_b = 0;	//Start integration at 0
 		for(j = 0; j < 24; j++)
 		{
@@ -202,7 +202,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 
-		b = 23.5;
+		b = 552.25;
 		F_a = F_b = 0;	//Start integration at 0
 		for(j = 0; j < 24; j++)
 		{
@@ -344,7 +344,7 @@ long double Spatial1(long double*** Table[], long double E, long double z, int T
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
 
-long double Spatial2(long double*** Table[], long double E, long double z, int Temp)
+long double Spatial2(long double*** Table[], long double s, long double z, int Temp)
 {
 	long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of data point
@@ -367,10 +367,10 @@ long double Spatial2(long double*** Table[], long double E, long double z, int T
 			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-			F_a += Spectral(Table, E, x1[i], z, 2)*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
-			F_b += Spectral(Table, E, x3[i], z, 2)*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
+			F_a += Spectral(Table, s, x1[i], z, 2)*2./(x1[i]*x1[i]+s)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
+			F_b += Spectral(Table, s, x3[i], z, 2)*2./(x3[i]*x3[i]+s)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
 		}
-		F_ave = Spectral(Table, E, a/2.+b/2., z, 2)*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
+		F_ave = Spectral(Table, s, a/2.+b/2., z, 2)*2./(pow(a/2.+b/2.,2)+s)*cos(z*(a/2.+b/2.));
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result
@@ -382,16 +382,16 @@ long double Spatial2(long double*** Table[], long double E, long double z, int T
 		x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 		x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-		F_a += Spectral(Table, E, x1[i], z, 2)*4.*E/(x1[i]*x1[i]+E*E)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
-		F_b += Spectral(Table, E, x3[i], z, 2)*4.*E/(x3[i]*x3[i]+E*E)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
+		F_a += Spectral(Table, s, x1[i], z, 2)*2./(x1[i]*x1[i]+s)*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
+		F_b += Spectral(Table, s, x3[i], z, 2)*2./(x3[i]*x3[i]+s)*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
 	}
-	F_ave = Spectral(Table, E, a/2.+b/2., z, 2)*4.*E/(pow(a/2.+b/2.,2)+E*E)*cos(z*(a/2.+b/2.));
+	F_ave = Spectral(Table, s, a/2.+b/2., z, 2)*2./(pow(a/2.+b/2.,2)+s)*cos(z*(a/2.+b/2.));
 	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
 
-long double Euclidean(long double*** Table[], long double** Extrapolation, long double E, long double tau, int Temp)
+long double Euclidean(long double*** Table[], long double** Extrapolation, long double s, long double tau, int Temp)
 {
 	long double T; //T_c = .196GeV = 196MeV
 
@@ -414,7 +414,7 @@ long double Euclidean(long double*** Table[], long double** Extrapolation, long 
 	if(tau > 1./(2.*T))
 		return(0);
 
-	return(cosh(E*(tau-1./(2.*T)))/sinh(E/(2.*T))*Spectral(Table, Extrapolation, E, 0, 0, 2));	//return the integral for vacuum from 0 to infinity
+	return(cosh(sqrt(s)*(tau-1./(2.*T)))/sinh(sqrt(s)/(2.*T))*Spectral(Table, Extrapolation, s, 0, 0, 2)/(4.*M_PI*sqrt(s)));	//return the integral for vacuum from 0 to infinity
 }
 
 long double Spectral(long double*** Table[], long double E, long double p, long double z, int Specify)
@@ -574,54 +574,101 @@ void ReadIn(long double*** Table[], int N[], int M[], char* FileReadIn)
 {
 	ifstream File(FileReadIn);
 	int i,j,k;	//Counters
-	float Dump;
-	float Energy;
+	float Holder;
 
-	for(i = n_offset; i <= N; i++)
+	while(!File.eof())
 	{
-		for(j = m_offset; j < M; j++)
-		{
-			File >> Dump >> Dump >> Energy;	//Dump Temp and momentum and collect energy
-			File >> Table[i][j][0];	//Capture the spectral function in the first level in the matrix
-			File >> Dump;	//Dump the Real T-Matrix
-			File >> Dump;	//Dump the Imaginary T-Matrix
-			File >> Table[i][j][1];	//df/dP
-			File >> Table[i][j][2];	//df/de
-			File >> Table[i][j][3];	//d^2f/(dPdf)
-			Table[i][j][1] *= .8;	//df/dP, these divisions are for normalization of distance over the unit rectangle
+		File >> Dump >> i >> j;	//Dump Temp and momentum and collect energy
+		File >> Holder;	//Capture the spectral function in the first level in the matrix
+		File >> Dump;	//Dump the Real T-Matrix
+		File >> Dump;	//Dump the Imaginary T-Matrix
 
-			if(Energy < 2.5)	//These are to give the approrate rescaling of the derivatives so that I get the correct results
+		if(File.eof())
+			break;
+		else if(j < 400)
+		{
+			if(i < 13)
 			{
-				Table[i][j][2] *= .1;//df/de
-				Table[i][j][3] *= .08;	//d^2f/(dPdf)
+				Table[0][i][j][0] = Holder;
+				Table[0][i][j][4] = 1;
 			}
-			else if(Energy < 2.540308)
+			else if( i == 13)
 			{
-				Table[i][j][2] *= .040308;//df/de
-				Table[i][j][3] *= .03224664;	//d^2f/(dPdf)
-			}
-			else if(Energy < 3.540308)
-			{
-				Table[i][j][2] *= .005;//df/de
-				Table[i][j][3] *= .004;	//d^2f/(dPdf)
-			}
-			else if(Energy < 3.55)
-			{
-				Table[i][j][2] *= .009692;//df/de
-				Table[i][j][3] *= .0077536;	//d^2f/(dPdf)
-			}
-			else if(Energy < 4.1)
-			{
-				Table[i][j][2] *= .01375;//df/de
-				Table[i][j][3] *= .011;	//d^2f/(dPdf)
+				Table[0][i][j][0] = Holder;
+				Table[1][i-13][j][0] = Holder;
+				Table[0][i][j][4] = 1;
+				Table[1][i-13][j][4] = 1;
 			}
 			else
 			{
-				Table[i][j][2] *= .1;//df/de
-				Table[i][j][3] *= .08;	//d^2f/(dPdf)
+				Table[1][i-13][j][0] = Holder;
+				Table[1][i-13][j][4] = 1;
 			}
 
-			Table[i][j][4] = 1;	//Validation point, is the point valid? Assume that is until the validator says otherwise
+		}
+		else if(j > 400)
+		{
+			Table[2][i][j-400][0] = Holder;
+			Table[2][i][j-400][4] = 1;
+		}
+		else
+		{
+			if(i < 13)
+			{
+				Table[0][i][j][0] = Holder;
+				Table[0][i][j][4] = 1;
+			}
+			else if( i == 13)
+			{
+				Table[0][i][j][0] = Holder;
+				Table[1][i-13][j][0] = Holder;
+				Table[0][i][j][4] = 1;
+				Table[1][i-13][j][4] = 1;
+			}
+			else
+			{
+				Table[1][i-13][j][0] = Holder;
+				Table[1][i-13][j][4] = 1;
+			}
+			Table[2][i][j-400][0] = Holder;
+			Table[2][i][j-400][1] = 1;
+		}
+	}
+
+	File.close();
+	File.open(strcat(FileReadIn, ".xml"));
+	
+	for(int m = 0; m < 3; m++)
+	{
+		for(i = 0; i < 3; i++)
+		{
+			for(j = 0; j < N[i]; j++)
+			{
+				for(k = 0; k < M[i]; k++)
+				{
+					File >> Table[i][j][k][1];
+					if(i == 3)
+					{
+						if(m == 0 || m == 2)
+							Table[i][j][k][m] *= .8;	//*=dP/di
+						if(m == 1 || m == 2)
+						{
+							if(j < 25)
+								Table[i][j][k][m] *= (1.+2.*j)/100;
+							else if(j < 26)
+								Table[i][j][k][m] *= pow(.040308,2)+5*.040308;
+							else if(j < 226)
+								Table[i][j][k][m] *= (965.1232+2.*j)/40000;
+							else if(j < 227)
+								Table[i][j][k][m] *= pow(.009692,2)+2*3.540308*.009692;
+							else if(j < 267)
+								Table[i][j][k][m] *= 121.*(697./11.+2.*j)/640000;
+							else
+								Table[i][j][k][m] *= j/50.-4.51;
+						}
+					}
+				}
+			}
 		}
 	}
 
