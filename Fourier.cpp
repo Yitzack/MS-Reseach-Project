@@ -393,7 +393,7 @@ long double Spatial2(long double*** Table[], long double s, long double z, int T
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
 
-long double Euclidean(long double*** Table[], long double** Extrapolation, long double s, long double tau, int Temp)
+long double Euclidean(long double*** Table[], long double s, long double tau, int Temp)
 {
 	long double T; //T_c = .196GeV = 196MeV
 
