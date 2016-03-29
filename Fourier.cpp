@@ -95,7 +95,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	long double b = 0;
 	int i, j;
 
-	if(Kernal == Spatial2 || Kernal = Euclidean)
+	if(Kernal == Spatial2 || Kernal == Euclidean)
 	{
 		for(i = 0; i < 8; i++)
 		{
@@ -416,7 +416,7 @@ long double Euclidean(long double*** Table[], long double** Extrapolation, long 
 	if(tau > 1./(2.*T))
 		return(0);
 
-	return(cosh(sqrt(s)*(tau-1./(2.*T)))/sinh(sqrt(s)/(2.*T))*Spectral(Table, Extrapolation, s, 0, 0, 2)/(4.*M_PI*sqrt(s)));	//return the integral for vacuum from 0 to infinity
+	return(cosh(sqrt(s)*(tau-1./(2.*T)))/sinh(sqrt(s)/(2.*T))*Spectral(Table, s, 0, 0, 2)/(4.*M_PI*sqrt(s)));	//return the integral for vacuum from 0 to infinity
 }
 
 long double Spectral(long double*** Table[], long double E, long double p, long double z, int Specify)
@@ -502,7 +502,7 @@ void Validate(long double*** Table[], int M[], int N[])
 	{
 		for(j = 0; j < N[k]; j++)
 		{
-			for(long double i = 0; i < M[k]; i ++)
+			for(i = 0; i < M[k]; i ++)
 			{
 				Test = Spectral(Table, j+.5, i, -1., k);	//Checks the point on the mid-point E
 				Average = (Spectral(Table, j, i, -1., k)+Spectral(Table, j+1, i, -1., k))/2.;
@@ -579,7 +579,8 @@ void ReadIn(long double*** Table[], int N[], int M[], char* FileReadIn)
 {
 	ifstream File(FileReadIn);
 	int i,j,k;	//Counters
-	float Holder;
+	long double Holder;
+	float Dump;
 
 	while(!File.eof())
 	{
