@@ -4,9 +4,9 @@ Spectral2 = Spectral[[2]];
 Spectral3 = Spectral[[3]];
 
 s[j_] := If[j <= 425, N[(j - 400)/10], If[j <= 626, 2.5040308 + (j - 426)/200, If[j <= 667, 3.55 + (11 (j - 627))/800, 4.1 + (j - 667)/10]]]  (*Remove the enumeration of positive s values*)
-For[i = 1, i <= 348176, i++, Spectral3[[i]][[1]][[2]] = s[Spectral3[[i]][[1]][[2]]]^2; Spectral3[[i]][[1]][[1]] = 4/5 Spectral3[[i]][[1]][[1]]]
+For[i = 1, i <= 348176, i++, Spectral3[[i]][[1]][[2]] = s[Spectral3[[i]][[1]][[2]]]; Spectral3[[i]][[1]][[1]] = 4/5 Spectral3[[i]][[1]][[1]]]
 
-e1=Spectral3[[1;;462,1]][[All,2]] (*Extract the (invariant mass)^2 abscissa*)
+e1=Spectral3[[1;;462,1]][[All,2]] (*Extract the (invariant mass) abscissa*)
 Clear[i] (*Prepare i for use in the derivitive calculation*)
 
 f = Interpolation[Spectral1, Method -> "Spline"] (*Turn the table into an interpolation*)
