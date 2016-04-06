@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 	}//*/
 
 //The actual program
-	#pragma omp for private(tau, z, holder)
+	#pragma omp parallel for private(tau, z, holder)
 	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i++)
 	{
 		z = .3+i*.02;
