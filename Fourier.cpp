@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 	}//*/
 
 //The actual program
-	#pragma omp for private(tau, z, holder)
+	#pragma omp parallel for private(tau, z, holder)
 	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i++)
 	{
 		z = .3+i*.02;
@@ -276,10 +276,10 @@ long double Spatial0(long double*** Table[], long double j, long double z, int T
 			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-			F_a += Spectral(Table, j, x1[i], z, 0)*4./(625.*j)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
-			F_b += Spectral(Table, j, x3[i], z, 0)*4./(625.*j)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
+			F_a += Spectral(Table, j, x1[i], z, 0)*16./(5.*j)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
+			F_b += Spectral(Table, j, x3[i], z, 0)*16./(5.*j)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
 		}
-		F_ave = Spectral(Table, j, a/2.+b/2., z, 0)*4./(625.*j)*cos(.8*z*(a/2.+b/2.));
+		F_ave = Spectral(Table, j, a/2.+b/2., z, 0)*16./(5.*j)*cos(.8*z*(a/2.+b/2.));
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result
@@ -291,10 +291,10 @@ long double Spatial0(long double*** Table[], long double j, long double z, int T
 		x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 		x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-		F_a += Spectral(Table, j, x1[i], z, 0)*4./(625.*j)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
-		F_b += Spectral(Table, j, x3[i], z, 0)*4./(625.*j)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
+		F_a += Spectral(Table, j, x1[i], z, 0)*16./(5.*j)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
+		F_b += Spectral(Table, j, x3[i], z, 0)*16./(5.*j)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
 	}
-	F_ave = Spectral(Table, j, a/2.+b/2., z, 0)*4./(625.*j)*cos(.8*z*(a/2.+b/2.));
+	F_ave = Spectral(Table, j, a/2.+b/2., z, 0)*16./(5.*j)*cos(.8*z*(a/2.+b/2.));
 	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
@@ -319,10 +319,10 @@ long double Spatial1(long double*** Table[], long double j, long double z, int T
 		x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 		x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-		F_a += Spectral(Table, j, x1[i], z, 1)*52./625./(.8*x1[i]+.026*j-10.4)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
-		F_b += Spectral(Table, j, x3[i], z, 1)*52./625./(.8*x3[i]+.026*j-10.4)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
+		F_a += Spectral(Table, j, x1[i], z, 1)*208./(2000.*x1[i]+65.*j-26000.)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
+		F_b += Spectral(Table, j, x3[i], z, 1)*208./(2000.*x3[i]+65.*j-26000.)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
 	}
-	F_ave = Spectral(Table, j, a/2.+b/2., z, 1)*52./625./(.8*(a/2.+b/2.)+.026*j-10.4)*cos(.8*z*(a/2.+b/2.));
+	F_ave = Spectral(Table, j, a/2.+b/2., z, 1)*208./2000.*(a/2.+b/2.)+65.*j-26000.*cos(.8*z*(a/2.+b/2.));
 	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
 
 //This code is for integating out to a z dependant boundary
@@ -335,10 +335,10 @@ long double Spatial1(long double*** Table[], long double j, long double z, int T
 			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-			F_a += Spectral(Table, j, x1[i], z, 1)*52./625./(.8*x1[i]+.026*j-10.4)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
-			F_b += Spectral(Table, j, x3[i], z, 1)*52./625./(.8*x3[i]+.026*j-10.4)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
+			F_a += Spectral(Table, j, x1[i], z, 1)*208./(2000.*x1[i]+65.*j-26000.)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
+			F_b += Spectral(Table, j, x3[i], z, 1)*208./(2000.*x3[i]+65.*j-26000.)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
 		}
-		F_ave = Spectral(Table, j, a/2.+b/2., z, 1)*52./625./(.8*(a/2.+b/2.)+.026*j-10.4)*cos(.8*z*(a/2.+b/2.));
+		F_ave = Spectral(Table, j, a/2.+b/2., z, 1)*208./2000.*(a/2.+b/2.)+65.*j-26000.*cos(.8*z*(a/2.+b/2.));
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result
@@ -350,10 +350,10 @@ long double Spatial1(long double*** Table[], long double j, long double z, int T
 		x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 		x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-		F_a += Spectral(Table, j, x1[i], z, 1)*52./625./(.8*x1[i]+.026*j-10.4)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
-		F_b += Spectral(Table, j, x3[i], z, 1)*52./625./(.8*x3[i]+.026*j-10.4)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
+		F_a += Spectral(Table, j, x1[i], z, 1)*208./(2000.*x1[i]+65.*j-26000.)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
+		F_b += Spectral(Table, j, x3[i], z, 1)*208./(2000.*x3[i]+65.*j-26000.)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
 	}
-	F_ave = Spectral(Table, j, a/2.+b/2., z, 1)*52./625./(.8*(a/2.+b/2.)+.026*j-10.4)*cos(.8*z*(a/2.+b/2.));
+	F_ave = Spectral(Table, j, a/2.+b/2., z, 1)*208./2000.*(a/2.+b/2.)+65.*j-26000.*cos(.8*z*(a/2.+b/2.));
 	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
