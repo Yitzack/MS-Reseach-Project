@@ -16,6 +16,7 @@ long double Correlator(long double(*)(long double***[], long double, long double
 long double Spatial0(long double***[], long double, long double, int);	//1D integral for spatial integrator with fixed E
 long double Spatial1(long double***[], long double, long double, int);	//1D integral for spatial integrator with fixed E
 long double Spatial2(long double***[], long double, long double, int);	//1D integral for spatial integrator with fixed E
+long double SpatialVac(long double***[], long double, long double, int);	//1D analytic integral for vacuum on assumption of Lorentz invariance
 long double Euclidean(long double***[], long double, long double, int);	//Kernal for eucledian-time correlator
 
 char* Process;
@@ -30,7 +31,7 @@ int main(int argc, char* argv[])
 	TPlot << setprecision(18);
 	long double*** Table[3];	//The table of values computed by Spectral
 	long double z, tau;	//The position value of the spactial correlator and tau of the euclidean-time correlator
-	long double holder[4];
+	long double holder[5];
 	int N[3] = {14,739,752}, M[3] = {401,401,463};	//The size of the table
 	const int iProcess = atoi(argv[1]);
 	const int Total = atoi(argv[2]);
@@ -85,10 +86,11 @@ int main(int argc, char* argv[])
 		holder[0] = Correlator(Spatial0, Table, z, Temp);
 		holder[1] = Correlator(Spatial1, Table, z, Temp);
 		holder[2] = Correlator(Spatial2, Table, z, Temp);
-		holder[3] = Correlator(Euclidean, Table, tau, Temp);
+		holder[3] = Correlator(SpatialVac, Table, z, Temp);
+		holder[4] = Correlator(Euclidean, Table, tau, Temp);
 		#pragma omp critical
 		{
-			TPlot << z << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << tau << " " << holder[3] << endl;
+			TPlot << z << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << tau << " " << holder[4] << endl;
 		}
 	}//*/
 
@@ -108,7 +110,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	long double b = 0;
 	int i, j;
 
-	if(Kernal == Spatial2 || Kernal == Euclidean)
+	if(Kernal == Spatial2 || Kernal == Euclidean || Kernal == SpatialVac)
 	{
 		for(i = 0; i < 8; i++)
 		{
@@ -300,7 +302,7 @@ long double Spatial0(long double*** Table[], long double j, long double z, int T
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
 
-long double Spatial1(long double*** Table[], long double j, long double z, int Temp)
+long double Spatial1(long double***nan Table[], long double j, long double z, int Temp)
 {
 	long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of data point
@@ -404,6 +406,11 @@ long double Spatial2(long double*** Table[], long double roots, long double z, i
 	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
+}
+
+long double SpatialVac(long double*** Table[], long double roots, long double z, int Temp)
+{
+	return(2.*M_PI*exp(-roots*z)*Spectral(Table, roots, 0, 0, 2));	//return the integral for vacuum from 0 to infinity
 }
 
 long double Euclidean(long double*** Table[], long double roots, long double tau, int Temp)
