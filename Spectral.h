@@ -114,7 +114,7 @@ long double Self_E_Depends(int Temp, long double E, long double P, long double M
 			Delta = 1;
 			break;
 		case 3://362MeV
-			Sigma = .0.034309270457590975;
+			Sigma = 0.034309270457590975;
 			b1 = 7.794638128069369;
 			b2 = 1.8023166486891407;
 			Delta = 1.6681155607478113;
@@ -349,7 +349,7 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 			return(0);*/
 		if(sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta) > Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta) > Energy(Par[2], Par[3]/2., -k, theta))
 			return(((4.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)))*pow(Par[2],2)/pow(2.*M_PI,2)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)));
-		if(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta) > LawCosines(Par[3]/2., k, theta))
+		else if(sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta) > LawCosines(Par[3]/2., k, theta))
 			return(0);
 	}
 	else
