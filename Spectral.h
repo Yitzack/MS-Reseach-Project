@@ -407,10 +407,17 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 	long double Early = 0;	//Early change from one peak to the next, notes the location of change, 0 means no early change
 	long double NextWidth = 0;	//The next width that will be used in the event of an early change of peaks
 	int version = 8;
+	long double Max = sqrt(Par[4]+pow(Par[3],2));
 
 	Characterize(Par, k, theta, Temp, zero, gamma, Peaks);
 
-	a = b = 0;
+	if(Temp != 0)
+		a = b = 0;
+	else
+	{
+		a = b = sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta);
+		Max = LawCosines(Par[3]/2., k, theta);
+	}
 	i1 = l = 0;
 	i2 = 1;
 	while(zero[i1]+Range[l]*gamma[i1] < 0 && Peaks != 0 && l < version)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
@@ -471,8 +478,8 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 			i1 = i2;
 		}
 
-		if(b > sqrt(Par[4]+pow(Par[3],2)))
-			b = sqrt(Par[4]+pow(Par[3],2));
+		if(b > Max)
+			b = Max;
 
 		F_a = F_b = 0;
 		for(j = 0; j < 9; j++)//2
@@ -486,7 +493,7 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 		F_ave = PropIntegrand((a+b)/2., Par, k, theta, Temp)*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
-	}while(b < sqrt(Par[4]+pow(Par[3],2)));
+	}while(b < Max);
 
 	delete[] zero;
 	delete[] gamma;
