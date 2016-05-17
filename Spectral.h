@@ -187,7 +187,7 @@ long double Fermi(long double Par[6], long double k, long double theta, int T)
 
 long double G_0Int(long double Par[6], long double k, long double theta, int Temp)	//This argument sturcture is so that I don't have to reinvent the intgrate functions that are known to work
 {
-	if(Temp != 0)
+	if(true)//Temp != 0)
 		return((pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta),2)-pow(Par[3],2))/(2.*pow(Par[2],2))*ImProp(Par, k, theta, Temp)*sin(theta)*pow(k,2));
 	else
 		return((-pow(k,2)*Par[4]*sin(theta)/(4.*M_PI*abs(Par[3]*cos(theta)*(Energy(Par[2], Par[3]/2., -k, theta)-Energy(Par[2], Par[3]/2., k, theta))-2.*k*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta))))));
@@ -684,7 +684,7 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 {
 	long double F_ave = Integrate1(Integrand, Par, a/2.+b/2., Temp, false);	//Evaluate k integral at (a+b)/2
 
-	if(Temp == 0 && Integrand == G_0Int)
+	if(false)//Temp == 0 && Integrand == G_0Int)
 	{
 		long double k = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin((a+b)/2.),2)));
 		F_ave = G_0Int(Par, k, (a+b)/2., Temp);
@@ -709,7 +709,7 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x3[i] = (b+a+Disp[i]*(b-a))/2.;
 
-			if(Temp == 0 && Integrand == G_0Int)
+			if(false)//Temp == 0 && Integrand == G_0Int)
 			{
 				long double k = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(x1[i]),2)));
 				F_a += G_0Int(Par, k, x1[i], 0)*w[i+1];
@@ -729,7 +729,7 @@ long double Integrate2(long double a, long double b, long double F_a, long doubl
 			}
 		}
 
-		if(Temp == 0 && Integrand == G_0Int)
+		if(false)//Temp == 0 && Integrand == G_0Int)
 		{
 			long double k = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin((a+b)/2.),2)));
 			F_ave = G_0Int(Par, k, (a+b)/2., Temp)*w[0];
