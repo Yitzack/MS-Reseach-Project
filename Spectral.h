@@ -347,9 +347,10 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 			return((-Par[5]*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*sqrt(Par[4]))*(2.*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*sqrt(Par[4]), 2))));
 		else
 			return(0);*/
-		if(sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta) > Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta) > Energy(Par[2], Par[3]/2., -k, theta))
-			return(((4.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)))*pow(Par[2],2)/pow(2.*M_PI,2)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)));
-		else if(sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta) > LawCosines(Par[3]/2., k, theta))
+		long double holder = ((4.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)))*pow(Par[2],2)/pow(2.*M_PI,2)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2));
+		if(holder < 0)
+			return(holder);
+		else if(sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta) < LawCosines(Par[3]/2., k, theta))
 			return(0);
 	}
 	else
@@ -415,8 +416,8 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 		a = b = 0;
 	else
 	{
-		a = b = sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta);
-		Max = LawCosines(Par[3]/2., k, theta);
+		a = b = LawCosines(Par[3]/2., k, theta);
+		Max = sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta);
 	}
 	i1 = l = 0;
 	i2 = 1;
@@ -436,6 +437,11 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 			Width = 1;	//The Self-energy peaks
 		else
 			Width = 3;	//No-man's land
+
+		if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+100. || b+Width<Max-100.))
+			Width = 100;	//Vacuum no-man's land is much larger media's no-man land on account of comeing this way much more often and covering larger areas
+		else if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+10. || b+Width<Max-10.))
+			Width = 10;
 
 		if(l == version && i1 < Peaks)	//Last peak has been integrated and there exists a next peak
 		{
