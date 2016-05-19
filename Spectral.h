@@ -121,7 +121,7 @@ long double Self_E_Depends(int Temp, long double E, long double P, long double M
 			break;
 	}
 
-	return(Sigma*exp(Delta+(b1-b2)*(E-E_0)*E_0/2.-sqrt(b1*b2*pow((E-E_0)*E_0,2)+pow(Delta+(b1-b2)*(E-E_0)*E_0/2.,2))));*/
+	return(Sigma*exp(Delta+(b1-b2)*(E-E_0)*E_0/2.-sqrt(b1*b2*pow((E-E_0)*E_0,2)+pow(Delta+(b1-b2)*(E-E_0)*E_0/2.,2))));
 }
 
 long double Spectral(long double Par[6], int Temp)
