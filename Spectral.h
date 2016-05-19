@@ -72,18 +72,18 @@ long double Self_P_Depends(int Temp, long double q, long double s, long double P
 			break;
 	}
 
-	long double f;
-	if(P <= 100)
+	long double f = 0;
+	/*if(P <= 100)
 		f = 1;
 	else if(P > 200)
 		f = 0;
 	else
-		f = 2.*pow(P/100.-1.,3)-3.*pow(P/100.-1.,2)+1.;
+		f = 2.*pow(P/100.-1.,3)-3.*pow(P/100.-1.,2)+1.;*/
 
-	if(s >= .685971426239)
+	if(false)//s >= .685971426239)
 		return(Par[0]*exp(-pow(q/Par[1],2))+(1-Par[0])*exp(-pow(q/Par[2],2))+Par[3]/(1.+exp((Par[4]-q)/Par[5]))*pow((s-.685971426239)/8.5575013086254,(long double)2.5)*f*pow(9.603472734864/(.36+s),2));
 	else
-		return(Par[0]*exp(-pow(q/Par[1],2))+(1-Par[0])*exp(-pow(q/Par[2],2)));
+		return(Par[0]*exp(-pow(q/Par[1],2))+(1-Par[0])*exp(-pow(q/Par[2],2))+Par[3]);
 }
 
 long double Self_E_Depends(int Temp, long double E, long double P, long double M)
@@ -102,26 +102,26 @@ long double Self_E_Depends(int Temp, long double E, long double P, long double M
 				return(0);
 			break;
 		case 1://235.2MeV
-			Sigma = 0.021264385327194667;
-			b1 = 8.279070159424272;
-			b2 = 2.9874685170005124;
+			Sigma = -0.021264385327194667;
+			b1 = 8.279070159424272/pow(M,2);
+			b2 = 2.9874685170005124/pow(M,2);
 			Delta = 0.8745869997362122;
 			break;
 		case 2://294MeV
-			Sigma = .0235877437;
-			b1 = 7.3;
-			b2 = 2.3;
+			Sigma = -.0235877437*3.86;
+			b1 = 7.3/pow(M,2);
+			b2 = 2.3/pow(M,2);
 			Delta = 1;
 			break;
 		case 3://362MeV
-			Sigma = 0.034309270457590975;
-			b1 = 7.794638128069369;
-			b2 = 1.8023166486891407;
+			Sigma = -0.034309270457590975*3.86;
+			b1 = 7.794638128069369/pow(M,2);
+			b2 = 1.8023166486891407/pow(M,2);
 			Delta = 1.6681155607478113;
 			break;
 	}
 
-	return(Sigma*exp((b2-b1+(b1-b2)*E/E_0)/2.+Delta-sqrt(pow(Delta+(b1-b2)*(E/E_0-1.)/2.,2)+b1*b2*pow(E/E_0-1.,2))));
+	return(Sigma*exp(Delta+(b1-b2)*(E-E_0)*E_0/2.-sqrt(b1*b2*pow((E-E_0)*E_0,2)+pow(Delta+(b1-b2)*(E-E_0)*E_0/2.,2))));*/
 }
 
 long double Spectral(long double Par[6], int Temp)
@@ -239,13 +239,13 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
  			return(2.*((Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2))));
  	}
  
- 	long double f;
- 	if(Par[3] > 200)
+ 	long double f = 0;
+ 	/*if(Par[3] > 200)
  		f = 1;
  	else if(Par[3] <= 100)
  		f = 0;
  	else
- 		f = 3.*pow(Par[3]/100.-1.,2)-2.*pow(Par[3]/100.-1.,3);
+ 		f = 3.*pow(Par[3]/100.-1.,2)-2.*pow(Par[3]/100.-1.,3);*/
  
  	if(Par[4] >= .685971426239)
 		return(2.*((Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2))*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)+pow(-Par[5]*f*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*sqrt(Par[4]), 2)));
@@ -362,13 +362,13 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 		}
 		else if(sqrt(Par[4]+pow(Par[3],2)) > Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]+pow(Par[3],2)) > Energy(Par[2], Par[3]/2., -k, theta))
 		{
-		 	long double f;
-		 	if(Par[3] > 200)
+		 	long double f = 0;
+		 	/*if(Par[3] > 200)
 		 		f = 1;
 		 	else if(Par[3] <= 100)
 		 		f = 0;
 		 	else
-		 		f = 3.*pow(Par[3]/100.-1.,2)-2.*pow(Par[3]/100.-1.,3);
+		 		f = 3.*pow(Par[3]/100.-1.,2)-2.*pow(Par[3]/100.-1.,3);*/
 	 
 			if(Par[4] >= .685971426239)
 				return(((4.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp))-2*Par[5]*f*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*Par[4])*pow(Par[2],2)/pow(2.*M_PI,2)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)+pow(-Par[5]*f*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*Par[4], 2)));
