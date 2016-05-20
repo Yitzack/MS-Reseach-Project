@@ -50,7 +50,7 @@ long double Self_P_Depends(int Temp, long double q, long double s, long double P
 			Par[0] = .7359389831810698;
 			Par[1] = 7.487501146014314;
 			Par[2] = 1.9490238595657456;
-			Par[3] = .0863733905579399/1.8;
+			Par[3] = 19.61293123;
 			Par[4] = 10;
 			Par[5] = 3;
 			break;
@@ -58,7 +58,7 @@ long double Self_P_Depends(int Temp, long double q, long double s, long double P
 			Par[0] = .7409390219065235;
 			Par[1] = 7.450458343071824;
 			Par[2] = 1.8620618988580635;
-			Par[3] = .115370834826227/1.8;
+			Par[3] = 12.034677209424864;
 			Par[4] = 10;
 			Par[5] = 3;
 			break;
@@ -66,7 +66,7 @@ long double Self_P_Depends(int Temp, long double q, long double s, long double P
 			Par[0] = .7426375963204489;
 			Par[1] = 7.698646415632565;
 			Par[2] = 1.771465704769189;
-			Par[3] = .108198924731183/1.8;
+			Par[3] = 15.046801988784653;
 			Par[4] = 10;
 			Par[5] = 3;
 			break;
@@ -102,22 +102,22 @@ long double Self_E_Depends(int Temp, long double E, long double P, long double M
 				return(0);
 			break;
 		case 1://235.2MeV
-			Sigma = -0.021264385327194667;
-			b1 = 8.279070159424272/pow(M,2);
-			b2 = 2.9874685170005124/pow(M,2);
-			Delta = 0.8745869997362122;
+			Sigma = -0.1289680072519721;
+			b1 = 3.322825262881092;
+			b2 = 2.2878310836782014;
+			Delta = 1.228601982782018;
 			break;
 		case 2://294MeV
-			Sigma = -.0235877437*3.86;
-			b1 = 7.3/pow(M,2);
-			b2 = 2.3/pow(M,2);
-			Delta = 1;
+			Sigma = -0.09606152620146369;
+			b1 = 3.285053276019642;
+			b2 = 1.886285913340202;
+			Delta = 1.1858269101609233;
 			break;
 		case 3://362MeV
-			Sigma = -0.034309270457590975*3.86;
-			b1 = 7.794638128069369/pow(M,2);
-			b2 = 1.8023166486891407/pow(M,2);
-			Delta = 1.6681155607478113;
+			Sigma = -0.09933548776506283;
+			b1 = 3.2108770392083246;
+			b2 = 1.3694064180118886;
+			Delta = 1.3043774341616825;
 			break;
 	}
 
