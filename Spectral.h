@@ -50,7 +50,7 @@ long double Self_P_Depends(int Temp, long double q, long double s, long double P
 			Par[0] = .7359389831810698;
 			Par[1] = 7.487501146014314;
 			Par[2] = 1.9490238595657456;
-			Par[3] = 19.61293123;
+			Par[3] = .700215754;
 			Par[4] = 10;
 			Par[5] = 3;
 			break;
@@ -58,7 +58,7 @@ long double Self_P_Depends(int Temp, long double q, long double s, long double P
 			Par[0] = .7409390219065235;
 			Par[1] = 7.450458343071824;
 			Par[2] = 1.8620618988580635;
-			Par[3] = 12.034677209424864;
+			Par[3] = .860810762;
 			Par[4] = 10;
 			Par[5] = 3;
 			break;
@@ -66,7 +66,7 @@ long double Self_P_Depends(int Temp, long double q, long double s, long double P
 			Par[0] = .7426375963204489;
 			Par[1] = 7.698646415632565;
 			Par[2] = 1.771465704769189;
-			Par[3] = 15.046801988784653;
+			Par[3] = .608717852;
 			Par[4] = 10;
 			Par[5] = 3;
 			break;
