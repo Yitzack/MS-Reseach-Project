@@ -446,6 +446,12 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 		else
 			Width = 3;	//No-man's land
 
+		if(Width == 0)
+		{
+			l++;
+			Width = zero[i1]+Range[l]*gamma[i1];
+		}
+
 		if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+100. || b+Width<Max-100.))
 			Width = 100;	//Vacuum no-man's land is much larger media's no-man land on account of comeing this way much more often and covering larger areas
 		else if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+10. || b+Width<Max-10.))
