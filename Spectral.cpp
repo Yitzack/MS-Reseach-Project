@@ -88,7 +88,24 @@ int main(int argc, char* argv[])
 		}
 
 		for(j = iProcess; j < 863; j+=Total)	//Does the subset of E that has been assigned to this process
-			TPlot << Temp <<  " " << i << " " << j << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
+		{
+			if(j <= 400)	//Defining s
+			{
+				if(i < 13)
+					Par[4] = pow(i*j/500.,2)-pow(.8*i,2);
+				else
+					Par[4] = pow(.8*i+j*13./500.-10.4,2)-pow(.8*i,2);
+			}
+			else if(j <= 425)
+				Par[4] = pow((j-400.)/10.,2);
+			else if(j <= 626)
+				Par[4] = pow(2.540308+(j-426.)/200.,2);
+			else if(j <= 667)
+				Par[4] = pow(3.55+11.*(j-627.)/800.,2);
+			else
+				Par[4] = pow(4.1+(j-667.)/10.,2);
+			TPlot << Temp <<  " " << i << " " << j << " " << Par[4] << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
+		}
 		TPlot << endl;
 	}
 
