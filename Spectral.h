@@ -33,7 +33,11 @@ long double Fermi(long double[6], long double, long double, int);
 
 long double Self_Energy(long double s, long double P, long double E, long double q, long double M, int Temp)
 {
-	long double Ans = M*Self_E_Depends(Temp, E, q, M)*Self_P_Depends(Temp, q, s, P)/Energy(M,q,0,0);
+	long double Ans;
+	if(Temp != 0)
+		Ans = M*Self_E_Depends(Temp, E, q, M)*Self_P_Depends(Temp, q, s, P)/Energy(M,q,0,0);
+	else
+		Ans = Self_E_Depends(Temp, E, q, M)*Self_P_Depends(Temp, q, s, P);
 	return(Ans);
 }
 
@@ -433,18 +437,22 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 	}
 	i1 = l = 0;
 	i2 = 1;
-	while(zero[i1]+Range[l]*gamma[i1] < 0 && Peaks != 0 && l < version)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
+	while(zero[i1]+Range[l]*gamma[i1] < a && Peaks != 0 && l < version)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
 		l++;
 
 	if(zero[i1]+64.*gamma[i1] > zero[i2]-64.*gamma[i2] && i2 < Peaks && l != 0)
 		Early = zero[i1]+(zero[i2]-zero[i1])/(gamma[i1]+gamma[i2])*gamma[i1];
 	else
 		Early = 0;
-
+	
 	do
 	{
-		if(b == 0 && l != 0)	//First peak is closer than 64*gamma to 0
-			Width = zero[i1]+Range[l]*gamma[i1];
+		if((b == 0 || b == LawCosines(Par[3]/2., k, theta)) && l != 0)	//First peak is closer than 64*gamma to 0
+			Width = zero[i1]+Range[l]*gamma[i1]-b;
+		else if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+100. || b+Width<Max-100.))
+			Width = 100;	//Vacuum no-man's land is much larger media's no-man land on account of comeing this way much more often and covering larger areas
+		else if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+10. || b+Width<Max-10.))
+			Width = 10;
 		else if(b < 2.*Par[2] || b >= sqrt(Par[4]+pow(Par[3],2))-2.*Par[2])
 			Width = 1;	//The Self-energy peaks
 		else
@@ -455,11 +463,6 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 			l++;
 			Width = zero[i1]+Range[l]*gamma[i1];
 		}
-
-		if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+100. || b+Width<Max-100.))
-			Width = 100;	//Vacuum no-man's land is much larger media's no-man land on account of comeing this way much more often and covering larger areas
-		else if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+10. || b+Width<Max-10.))
-			Width = 10;
 
 		if(l == version && i1 < Peaks)	//Last peak has been integrated and there exists a next peak
 		{
@@ -479,7 +482,7 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 			else
 				Early = 0;
 		}
-		else if((a>=zero[i1]-64.*gamma[i1] && b<=zero[i1]+64.*gamma[i1]) && Peaks != 0 && l < version && b != 0)	//Integrating the peak itself
+		else if((a>=zero[i1]-64.*gamma[i1] && b<=zero[i1]+64.*gamma[i1]) && Peaks != 0 && l < version && !(b == 0 || b == LawCosines(Par[3]/2., k, theta)))	//Integrating the peak itself
 		{
 			Width = gamma[i1]*(Range[l+1]-Range[l]);
 			l++;	//Leaving the peak prevents illegal space access at Range[l+1]
@@ -551,6 +554,40 @@ void Characterize(long double Par[6], long double k, long double theta, int Temp
 			Array[2][Peaks] = i*DeltaE;	//List the regions were there exist at least 1 peak
 			Peaks++;
 		}
+	}
+
+	if(Temp == 0)
+	{
+		zero = new long double[2];
+		gamma = new long double[2];
+		Peaks = 2;
+		zero[1] = Energy(Par[2], Par[3]/2., k, theta);
+		zero[0] = sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta);
+		gamma[1] = -Self_Energy(Par[4],Par[3],Energy(Par[2], Par[3]/2., k, theta), LawCosines(Par[3]/2., k,theta),Par[2],Temp);
+		gamma[0] = -Self_Energy(Par[4],Par[3], sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta), LawCosines(Par[3]/2.,-k,theta),Par[2],Temp);
+		if(zero[0] > zero[1])
+		{
+			long double holder;
+
+			holder = zero[0];
+			zero[0] = zero[1];
+			zero[1] = holder;
+
+			holder = gamma[0];
+			gamma[0] = gamma[1];
+			gamma[1] = holder;
+		}
+		if(zero[0] < LawCosines(Par[3]/2., k, theta))
+		{
+			zero[0] = zero[1];
+			gamma[0] = gamma[1];
+			Peaks--;
+		}
+		if(zero[0] < LawCosines(Par[3]/2., k, theta))
+		{
+			Peaks--;
+		}
+		return;
 	}
 
 	j = 0; //Number of peaks located
@@ -680,7 +717,7 @@ long double PropIntegrand(long double omega, long double Par[6], long double k, 
 
 long double Rho(long double omega, long double Par[6], long double k, long double theta, int Temp)
 {
-	return(Self_Energy(Par[4],Par[3],omega, LawCosines(Par[3]/2., k, theta), Par[2], Temp)/(Energy(Par[2], Par[3]/2., k, theta)*(pow(omega-Energy(Par[2], Par[3]/2., k, theta),2)+pow(Self_Energy(Par[4],Par[3],omega, LawCosines(Par[3]/2., k, theta), Par[2], Temp),2))));
+	return(Self_Energy(Par[4],Par[3],omega, LawCosines(Par[3]/2., k, theta), Par[2], Temp)/(pow(pow(omega,2)-pow(Energy(Par[2], Par[3]/2., k, theta),2),2)+pow(Self_Energy(Par[4],Par[3],omega, LawCosines(Par[3]/2., k, theta), Par[2], Temp),2)));
 }
 
 long double Potential(long double Par[6], long double k, long double theta, int Temp)	//Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
