@@ -540,22 +540,6 @@ void Characterize(long double Par[6], long double k, long double theta, int Temp
 	int i, j;
 	bool Done;
 
-	Peaks = 0;
-	for(i = 0; i < sqrt(Par[4]+pow(Par[3],2))/DeltaE; i++)	//Evaluate the function on a mesh and take the second derivative
-		Array[0][i] = PropIntegrand(i*DeltaE, Par, k, theta, Temp);
-	Array[1][0]=(3*Array[0][0]-4*Array[0][1]+Array[0][2])/(2.*DeltaE);
-	Array[1][int(sqrt(Par[4]+pow(Par[3],2))/DeltaE)]=(-Array[0][int(sqrt(Par[4]+pow(Par[3],2))/DeltaE)]+4*Array[0][int(sqrt(Par[4]+pow(Par[3],2))/DeltaE)-1]-3*Array[0][int(sqrt(Par[4]+pow(Par[3],2))/DeltaE)-2])/(2.*DeltaE);
-	for(i = 1; i < sqrt(Par[4]+pow(Par[3],2))/DeltaE-1; i++)
-		Array[1][i] = (Array[0][i+1]-Array[0][i-1])/(DeltaE*2.);
-	for(i = 1; i < sqrt(Par[4]+pow(Par[3],2))/DeltaE; i++)	//Count the number of minima by the number of changes from positive to negative second derivatives
-	{
-		if(Array[1][i-1]*Array[1][i] <= 0 && Array[1][i-1] < Array[1][i])
-		{
-			Array[2][Peaks] = i*DeltaE;	//List the regions were there exist at least 1 peak
-			Peaks++;
-		}
-	}
-
 	if(Temp == 0)
 	{
 		zero = new long double[2];
@@ -588,6 +572,22 @@ void Characterize(long double Par[6], long double k, long double theta, int Temp
 			Peaks--;
 		}
 		return;
+	}
+
+	Peaks = 0;
+	for(i = 0; i < sqrt(Par[4]+pow(Par[3],2))/DeltaE; i++)	//Evaluate the function on a mesh and take the second derivative
+		Array[0][i] = PropIntegrand(i*DeltaE, Par, k, theta, Temp);
+	Array[1][0]=(3*Array[0][0]-4*Array[0][1]+Array[0][2])/(2.*DeltaE);
+	Array[1][int(sqrt(Par[4]+pow(Par[3],2))/DeltaE)]=(-Array[0][int(sqrt(Par[4]+pow(Par[3],2))/DeltaE)]+4*Array[0][int(sqrt(Par[4]+pow(Par[3],2))/DeltaE)-1]-3*Array[0][int(sqrt(Par[4]+pow(Par[3],2))/DeltaE)-2])/(2.*DeltaE);
+	for(i = 1; i < sqrt(Par[4]+pow(Par[3],2))/DeltaE-1; i++)
+		Array[1][i] = (Array[0][i+1]-Array[0][i-1])/(DeltaE*2.);
+	for(i = 1; i < sqrt(Par[4]+pow(Par[3],2))/DeltaE; i++)	//Count the number of minima by the number of changes from positive to negative second derivatives
+	{
+		if(Array[1][i-1]*Array[1][i] <= 0 && Array[1][i-1] < Array[1][i])
+		{
+			Array[2][Peaks] = i*DeltaE;	//List the regions were there exist at least 1 peak
+			Peaks++;
+		}
 	}
 
 	j = 0; //Number of peaks located
