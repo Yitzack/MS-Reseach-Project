@@ -357,7 +357,7 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 		else if(sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta) < LawCosines(Par[3]/2., k, theta))
 			return(0);
 	}
-	else
+	else if(Temp != 0)
 	{
 		if(sqrt(Par[4]+pow(Par[3],2))-.02 < Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]+pow(Par[3],2))-.02 < Energy(Par[2], Par[3]/2., -k, theta))
 		{
