@@ -833,10 +833,13 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 	if(gamma < 1e-3)
 		gamma = 1e-3;
 
-	while(k+Range[i]*gamma < 0 && k != 0)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
+	while(k+Range[i]*gamma < 0)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
 		i++;
 
-        E = k+(11.8571+.57*Par[3]+.00185714*pow(Par[3],2));
+	if(Temp != 0)
+	        E = k+(11.8571+.57*Par[3]+.00185714*pow(Par[3],2));
+	else
+		E = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
 	a = b = 0;
 
 	do
@@ -862,6 +865,9 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 		}
 
 		b += Width;
+
+		if(b > E)
+			b = E;
 
 		F_a = F_b = 0;
 		if(Width > 10 && Important)
