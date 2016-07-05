@@ -13,7 +13,7 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-	char File[25] = "Spectral.";	//Name of the file
+	char File[25] = "SpectralRefactor.";	//Name of the file
 	Process = argv[1];
 	strcat(File, argv[3]);
 	strcat(File, ".");
@@ -24,17 +24,17 @@ int main(int argc, char* argv[])
 	int i,j;	//counters
 	const int iProcess = atoi(argv[1]) % atoi(argv[2]);
 	const int Total = atoi(argv[2]);
-	complex<long double> TMat;
 	long double Table[863][3];
-	long double Par[6] = {-127.995280691106, 1.4049344847006076, 1.8, 0, 0, 0};
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
-
-	#pragma omp parallel for
-	for(i = 0; i <= 751; i++)
+cout << time(NULL) << endl;
+	for(i = 0; i <= 0; i++)
 	{
-		for(j = iProcess; j < 863; j+=Total)	//Does the subset of E that has been assigned to this process
+		#pragma omp parallel for
+		for(j = iProcess+400; j < 863; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
+			complex<long double> TMat;
+			long double Par[6] = {-127.995280691106, 1.4049344847006076, 1.8, 0, 0, 0};
 			Par[1] = 1.4049344847006076;
 			Par[2] = 1.8;
 			if(argc == 4)
@@ -77,17 +77,22 @@ int main(int argc, char* argv[])
 			else
 				Par[4] = pow(4.1+(j-667.)/10.,2);
 
-			TMat = TMatrix(Par, Temp);
+			Spectral(Table[j], Par, Temp);
 			if(Par[4] < pow(2.*Par[2],2))
-				TMat *= complex<long double>(Par[0]);
+			{
+				Table[j][1] *= Par[0];
+				Table[j][2] *= Par[0];
+			}
 			else
-				TMat *= complex<long double>(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+Par[4]-pow(2*Par[2],2)),2));
-			Table[j][1] = TMat.real();
-			Table[j][2] = TMat.imag();
-			Table[j][0] = Spectral(Par, Temp);
+			{
+				Table[j][1] *= Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+Par[4]-pow(2*Par[2],2)),2);
+				Table[j][2] *= Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+Par[4]-pow(2*Par[2],2)),2);
+			}
+cout << time(NULL) << " " << i << " " << j << " " << Par[4] << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
 		}
 
-		for(j = iProcess; j < 863; j+=Total)	//Does the subset of E that has been assigned to this process
+		long double Par[6] = {-127.995280691106, 1.4049344847006076, 1.8, 0, 0, 0};
+		for(j = iProcess+400; j < 863; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
 			if(j <= 400)	//Defining s
 			{
@@ -109,8 +114,28 @@ int main(int argc, char* argv[])
 		TPlot << endl;
 	}
 
-	TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
+	//TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
+
+	/*long double roots, k;
+	for(Par[3] = 0; Par[3] <= 10.1; Par[3]++)
+		for(k = 0; k <= 10.1; k++)
+		{
+			for(roots = 0; roots <= 20; roots += .01)
+			{
+				Par[4] = pow(roots,2);
+				TPlot << Par[3] << " " << k << " " << roots << " " << ImProp(Par, k, 0, Temp) << endl;
+			}
+			TPlot << endl;
+		}
+
+	Par[3] = 0;
+	Par[4] = pow(1.2,2);
+	Spectral(Par, Temp);
+	cout << endl;
+	Par[3] = 32;
+	Par[4] = pow(1.2,2);
+	Spectral(Par, Temp);*/
 
 	return(0);
 }
