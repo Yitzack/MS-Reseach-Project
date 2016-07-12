@@ -232,22 +232,8 @@ long double ImInt(long double Par[6], long double k, long double theta, int Temp
 
 long double ReProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the real part of the propagator
 {
-	if(Temp == 0)
-	{
- 		if(false)//Par[4] >= .685971426239)
- 			return(2.*((Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*sqrt(Par[4]), 2))));
- 		else
- 			return(2.*((Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2))));
- 	}
- 
  	long double f = 0;
- 	/*if(Par[3] > 200)
- 		f = 1;
- 	else if(Par[3] <= 100)
- 		f = 0;
- 	else
- 		f = 3.*pow(Par[3]/100.-1.,2)-2.*pow(Par[3]/100.-1.,3);*/
- 
+
  	if(Par[4] >= .685971426239)
 		return(2.*((Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2))*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)+pow(-Par[5]*f*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*sqrt(Par[4]), 2)));
 	else if(Par[4]+pow(Par[3],2) < 0)	//Catches an issue where energy is zero but appears to be negative due to a difference very nearlly equal numbers. Would have resulted in cascading nan.
@@ -257,6 +243,8 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 	
 	long double Disp[] = {sqrt(5.-2.*sqrt(10./7.))/3., sqrt(5.+2.*sqrt(10./7.))/3.}; //Displacement from center for 9th order Gauss-Legendre integration
 	long double w[] = {128./225., (322.+13.*sqrt(70))/900., (322.-13.*sqrt(70))/900.}; //Weight of the function at Disp
+	long double DispLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integration
+	long double wLa[] = {0.07496328305102102808055, 0.1745735743605928864303, 0.2745074833881225250022, 0.3747323102655645620060, 0.4753412526072084401161, 0.5764380939967183636147, 0.6781307242364945406823, 0.7805307978511547593175, 0.8837542316062452388883, 0.9879219194279636096671, 1.0931605619330277996916, 1.1996035979670979427973, 1.3073922479469277349326, 1.416676687469297701993, 1.5276173754408796787012, 1.640386566702889623924, 1.7551700457872174635214, 1.8721691266543402861779, 1.9916029736088098866132, 2.1137113117669909276048, 2.2387576123844772725684, 2.3670328602831611098048, 2.4988600392644108123394, 2.6345995091430390709, 2.7746554982525006307172, 2.9194840027576204632431, 3.0696024758091833914472, 3.2256018156600758204608, 3.3881613374746331979827, 3.5580676615951707296054, 3.7362388067183244743069, 3.9237552950635210172968, 4.1219008467729629867363, 4.3322164077399479741288, 4.5565730632309056055423, 4.7972722621195591678357, 5.057186469320242487569, 5.3399612774797865633198, 5.6503138450512931300331, 5.9944877492232503537552, 6.3809726096501927329094, 6.8216946862388774056326, 7.3340972531892936469048, 7.9450326451948326187906, 8.6987143462393085933469, 9.6750102652900375180015, 11.039313738067347840094, 13.220456867750092021034, 17.982575250664959108273};	//Weight of the function at DispLa
 	long double Range16[] = {-64,-32,-16,-8,-4,-2,-1,-.5,0,.5,1,2,4,8,16,32,64};	//Number of gamma from center
 	long double Range8[] = {-64,-8,-1,-.5,0,.5,1,8,64};	//Number of gamma from center
 	long double Range4[] = {-1,-.5,0,.5,1};	//Number of gamma from center
@@ -271,23 +259,30 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 	long double Width;	//Step size for integration
 	long double E = zero+64.*gamma+3.;	//Largest feature I can find
 	long double f0 = ImProp(Par, k, theta, Temp);	//Par[4] is the location of the division by zero
-	long double A;	//Starting position
 	int i,j,l = 0;
 	int version = 16;
 
-	if(Par[4] == 0)
-		f0 = 0;
+	//if(Par[4] == 0)
+	//	f0 = 0;
 
+	a = 0;
 	if(zero-64*gamma-3. < 0)
-		a = b = 0;
+		b = 0;
 	else
-		a = b = zero-64*gamma-3.;
-	A = a;
+		b = zero-64*gamma-3.;
+
+	if(Par[4] < E-1.)
+		E = Par[4]+1;
 
 	i = 0;
 	do
 	{
-		Width = 3.;	//No-man's land
+		if(b < zero-100 || b > zero+100)
+			Width = 50;
+		else if(b < zero-10 || b > zero+10)
+			Width = 10;
+		else
+			Width = 3.;	//No-man's land
 
 		if(a<zero-64.*gamma && b+Width>=zero-64.*gamma)	//Stutter step before the peak
 		{
@@ -311,6 +306,9 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 			l++;	//Leaving the peak prevents illegal space access at Range[l+1]
 		}
 
+		if(a == 0 && b != 0)
+			Width = 0;	//should leave a and b alone for the first interval
+
 		b += Width;
 
 		F_a = F_b = 0;
@@ -320,34 +318,40 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 			x3[j] = (b+a+Disp[j]*(b-a))/2.;
 
 			LocalPar[4] = x1[j];
-			F_a += 2.*x1[j]*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow(x1[j],2)-Par[4])*w[j+1]; //Evaluate function at x1
+			F_a += (ImProp(LocalPar, k, theta, Temp)-f0)/(x1[j]-Par[4])*w[j+1]; //Evaluate function at x1
 			LocalPar[4] = x3[j];
-			F_b += 2.*x3[j]*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow(x3[j],2)-Par[4])*w[j+1]; //Evaluate function at x3
+			F_b += (ImProp(LocalPar, k, theta, Temp)-f0)/(x3[j]-Par[4])*w[j+1]; //Evaluate function at x3
 		}
 		LocalPar[4] = (a+b)/2.;
-		F_ave = (a+b)*(ImProp(LocalPar, k, theta, Temp)-f0)/(pow((a+b)/2.,2)-Par[4])*w[0]; //Evaluate the function at the center
+		F_ave = (ImProp(LocalPar, k, theta, Temp)-f0)/((a+b)/2.-Par[4])*w[0]; //Evaluate the function at the center
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}while(b < E);
 
 	if(f0 == 0)
 		Answer = Answer/M_PI;
-	else if(A < sqrt(Par[4]) && sqrt(Par[4]) < b)
-		Answer = Answer/M_PI+f0*log((Par[4] - pow(b,2))/(pow(A,2) - Par[4]))/M_PI;
+	else if(Par[4] < b)
+		Answer = Answer/M_PI+f0*log((b - Par[4])/Par[4])/M_PI;
 	else
-		Answer = Answer/M_PI+f0*log((pow(b,2) - Par[4])/(pow(A,2) - Par[4]))/M_PI;
+		Answer = Answer/M_PI+f0*log((Par[4] - b)/Par[4])/M_PI;
+
+	a = b;	//Make b the new lower boundary
+	F_a = 0;	//Start integration at 0
+	for(i = 0; i < 49; i++)
+	{
+		x1[j] = DispLa[i]+a.; //Actual evaluation points
+		LocalPar[4] = x1[i];
+		F_a += ImProp(LocalPar, k, theta, Temp)/(x1[i]-Par[4])*wLa[i]; //Evaluate function at x1
+	}
+	Answer += F_a/M_PI;
 
 	return(Answer);
 }
 
 long double ImProp(long double Par[6], long double k, long double theta, int Temp)	//Returns the imaginary part of the propagator
 {
-	if(Temp == 0)
+	/*if(Temp == 0)
 	{
-		/*if(Par[4] >= .685971426239)	//Currently removed for possible improvements, but left if deamed better
-			return((-Par[5]*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*sqrt(Par[4]))*(2.*pow(Par[2],2)/pow(2.*M_PI,2)*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2), 2)+pow(-Par[5]*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*sqrt(Par[4]), 2))));
-		else
-			return(0);*/
 		long double holder = ((4.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)))*pow(Par[2],2)/pow(2.*M_PI,2)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2));
 		if(holder < 0)
 			return(holder*Par[4]/(2.*pow(Par[2],2)));
@@ -364,13 +368,7 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 		else if(sqrt(Par[4]+pow(Par[3],2)) > Energy(Par[2], Par[3]/2., k, theta) && sqrt(Par[4]+pow(Par[3],2)) > Energy(Par[2], Par[3]/2., -k, theta))
 		{
 		 	long double f = 0;
-		 	/*if(Par[3] > 200)
-		 		f = 1;
-		 	else if(Par[3] <= 100)
-		 		f = 0;
-		 	else
-		 		f = 3.*pow(Par[3]/100.-1.,2)-2.*pow(Par[3]/100.-1.,3);*/
-	 
+
 			if(Par[4] >= .685971426239)
 				return(Par[4]/(2.*pow(Par[2],2))*((4.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp))-2*Par[5]*f*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*Par[4])*pow(Par[2],2)/pow(2.*M_PI,2)*(1.-Fermi(Par, -k, theta, Temp)-Fermi(Par, k, theta, Temp))*(1./Energy(Par[2], Par[3]/2., -k, theta)+1./Energy(Par[2], Par[3]/2., k, theta)))/(pow(Par[4]+pow(Par[3],2)-pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta), 2)+pow(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp), 2), 2)+pow(2.*(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta))*(Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),LawCosines(Par[3]/2.,-k,theta),Par[2],Temp)+Self_Energy(Par[4],Par[3],sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2.,-k, theta),LawCosines(Par[3]/2.,k,theta),Par[2],Temp)),2)+pow(-Par[5]*f*pow((Par[4]-.685971426239)/8.5575013086254,(long double)2.5)*pow(9.603472734864/(.36+Par[4]),2)*Par[4], 2)));
 			else
@@ -395,10 +393,12 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 				return(Par[4]/(2.*pow(Par[2],2))*holder1/holder2*Rho(sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta),Par, -k, theta, Temp)*(1.-Fermi(sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2], Par[3]/2., k, theta), Temp)-Fermi(Energy(Par[2], Par[3]/2., -k, theta), Temp))/Energy(Par[2], Par[3]/2., k, theta));
 			}
 		}
-	}
+	}*/
 
 	if(abs((Par[4]+pow(Par[3],2))/Par[4]) < 1e-12) //zero energy bad data trap, avoid things of the size sqrt(-1e-17)
 		return(0);
+	if(Temp == 0 && sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta) < LawCosines(Par[3]/2., k, theta))
+		return(0);	//returns zero and aborts the calculation of zero
 
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 37th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
