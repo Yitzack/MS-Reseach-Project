@@ -339,7 +339,7 @@ long double ReProp(long double Par[6], long double k, long double theta, int Tem
 	F_a = 0;	//Start integration at 0
 	for(i = 0; i < 49; i++)
 	{
-		x1[j] = DispLa[i]+a.; //Actual evaluation points
+		x1[j] = DispLa[i]+a; //Actual evaluation points
 		LocalPar[4] = x1[i];
 		F_a += ImProp(LocalPar, k, theta, Temp)/(x1[i]-Par[4])*wLa[i]; //Evaluate function at x1
 	}
