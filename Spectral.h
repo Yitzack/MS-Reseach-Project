@@ -719,7 +719,7 @@ long double Rho(long double omega, long double Par[6], long double k, long doubl
 
 long double Potential(long double Par[6], long double k, long double theta, int Temp)	//Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
 {
-	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+4.*(pow(k,2)), 2));
+	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+4.*pow(k,2)), 2));
 }
 
 long double Energy(long double M, long double P, long double k, long double theta)	//Returns twice the energy sqrt(M^2+(vec P/2+vec k)^2)
