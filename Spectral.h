@@ -807,66 +807,113 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 	long double a = 0, b = 0;
 	long double Answer = 0;
 	long double PartialAnswer;
-	long double k = 0;	//Values locating the various values of k where the division by zero gets closest to the real number line
 	long double Range[] = {-64,-32,-16,-8,-4,-2,-1,-.5,0,.5,1,2,4,8,16,32,64};	//Number of gamma from center
-	long double gamma = 0;	//These are the widths of the features near 2 Particle on shell
+	long double zero[2];	//Values locating the various values of k where the division by zero gets closest to the real number line
+	long double gamma[2];	//These are the widths of the features near 2 Particle on shell
 	long double Width;	//Step size for integration
 	long double E;		//Largest feature I can find
 	int i = 0, j;
+	int i1, i2, l;
 
 	if(sqrt(Par[4]) > 2.*Par[2])	//If above threshold, locate and guestimate the width of the feature near the division by zero
 	{
 		long double LocalPar[] = {Par[0],Par[1],Par[2],Par[3],2.*Par[2],Par[5]};
-		k = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
-		gamma = -ImProp(LocalPar, k, theta, Temp);
+		zero[1] = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
+		gamma[1] = -ImProp(LocalPar, zero[1], theta, Temp);
 	}
 	else if(sqrt(Par[4]) > 2.*Par[2]-.1)	//If near but below threshold, make up a width to get the important things covered.
 	{
 		long double LocalPar[] = {Par[0],Par[1],Par[2],Par[3],2.*Par[2],Par[5]};
-		k = 0;
-		gamma = -ImProp(LocalPar, k, theta, Temp);
+		zero[1] = 0;
+		gamma[1] = -ImProp(LocalPar, zero[1], theta, Temp);
 	}
 
-	if(gamma < 1e-3)
-		gamma = 1e-3;
+	if(gamma[1] < 1e-3)
+		gamma[1] = 1e-3;
 
 	if(Temp != 0)
-	        E = k+(11.8571+.57*Par[3]+.00185714*pow(Par[3],2));
+	        E = zero[1]+(11.8571+.57*Par[3]+.00185714*pow(Par[3],2));
 	else
 	{
 		E = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
 		if(sqrt(Par[4]) < 2.*Par[2]-.1)
-			gamma = E/64.;
+			gamma[1] = E/64.;
 	}
 
-	while(k+Range[i]*gamma <= 0)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
-		i++;
+	zero[0] = 0;
+	gamma[0] = Par[1]/2.;
 
 	a = b = 0;
 
+	i1 = l = 0;
+	i2 = 1;
+	while(zero[i1]+Range[l]*gamma[i1] < a && Peaks != 0 && l < version)	//Moves l up until zero[i]+Range[l]*gamma[i] is greater than 0
+		l++;
+
+	if(zero[i1]+64.*gamma[i1] > zero[i2]-64.*gamma[i2] && i2 < Peaks && l != 0)
+		Early = zero[i1]+(zero[i2]-zero[i1])/(gamma[i1]+gamma[i2])*gamma[i1];
+	else
+		Early = 0;
+	
 	do
 	{
-		if(b == 0 && i != 0)	//First peak is closer than 64*gamma to 0
-			Width = k+Range[i]*gamma;
-		else if(b < k-100 || b > k+100)
-			Width = 50;
-		else if(b < k-10 || b > k+10)
+		if((b == 0 || b == LawCosines(Par[3]/2., k, theta)) && l != 0)	//First peak is closer than 64*gamma to 0
+			Width = zero[i1]+Range[l]*gamma[i1]-b;
+		else if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+100. || b+Width<Max-100.))
+			Width = 100;	//Vacuum no-man's land is much larger media's no-man land on account of comeing this way much more often and covering larger areas
+		else if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+10. || b+Width<Max-10.))
 			Width = 10;
+		else if(b < 2.*Par[2] || b >= sqrt(Par[4]+pow(Par[3],2))-2.*Par[2])
+			Width = 1;	//The Self-energy peaks
 		else
-			Width = 3.;	//No-man's land
+			Width = 3;	//No-man's land
 
-		if(a<k-64.*gamma && b+Width>=k-64.*gamma)	//Stutter step before the peak
+		if(Width == 0)
 		{
-			Width = k-64.*gamma-b;
-			i = 0;	//Resets l before entering the peak
+			l++;
+			Width = zero[i1]+Range[l]*gamma[i1];
 		}
-		else if((a>=k-64.*gamma && b<=k+64.*gamma) && i < 16 && b != 0)	//Integrating the peak itself
+
+		if(l == version && i1 < Peaks)	//Last peak has been integrated and there exists a next peak
 		{
-			Width = gamma*(Range[i+1]-Range[i]);
-			i++;	//Leaving the peak prevents illegal space access at Range[l+1]
+			i1++;
+			i2++;
+			l = 0;
+		}
+		if(i1 == i2)
+			i2++;
+
+		if((a<zero[i1]-64.*gamma[i1] && b+Width>=zero[i1]-64.*gamma[i1]) && Peaks != 0)	//Stutter step before the peak
+		{
+			Width = zero[i1]-64.*gamma[i1]-b;
+			l = 0;	//Resets l before entering the peak
+			if(zero[i1]+64.*gamma[i1] > zero[i2]-64.*gamma[i2] && i2 < Peaks)
+				Early = zero[i1]+(zero[i2]-zero[i1])/(gamma[i1]+gamma[i2])*gamma[i1];
+			else
+				Early = 0;
+		}
+		else if((a>=zero[i1]-64.*gamma[i1] && b<=zero[i1]+64.*gamma[i1]) && Peaks != 0 && l < version && !(b == 0 || b == LawCosines(Par[3]/2., k, theta)))	//Integrating the peak itself
+		{
+			Width = gamma[i1]*(Range[l+1]-Range[l]);
+			l++;	//Leaving the peak prevents illegal space access at Range[l+1]
+		}
+
+		if(NextWidth != 0 && NextWidth == NextWidth)
+		{
+			Width = NextWidth;
+			NextWidth = 0;
 		}
 
 		b += Width;
+
+		if(Early != 0 && b > Early)	//Code for changing peaks early
+		{
+			b = Early;
+			Early = 0;
+			l = 16-l;
+			NextWidth = (b-a)*gamma[i2]/gamma[i1];
+			i1 = i2;
+		}
 
 		if(b > E)
 			b = E;
