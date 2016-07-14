@@ -450,6 +450,10 @@ long double ImProp(long double Par[6], long double k, long double theta, int Tem
 			Width = 100;	//Vacuum no-man's land is much larger media's no-man land on account of comeing this way much more often and covering larger areas
 		else if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+10. || b+Width<Max-10.))
 			Width = 10;
+		else if(!(b+100.>zero[i1]-64.*gamma[i1] && b<zero[i1]-64.*gamma[i1]))
+			Width = 100;	//Vacuum no-man's land is much larger media's no-man land on account of comeing this way much more often and covering larger areas
+		else if(!(b+10.>zero[i1]-64.*gamma[i1] && b<zero[i1]-64.*gamma[i1]))
+			Width = 10;
 		else if(b < 2.*Par[2] || b >= sqrt(Par[4]+pow(Par[3],2))-2.*Par[2])
 			Width = 1;	//The Self-energy peaks
 		else
@@ -812,8 +816,11 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 	long double gamma[2];	//These are the widths of the features near 2 Particle on shell
 	long double Width;	//Step size for integration
 	long double E;		//Largest feature I can find
-	int i = 0, j;
+	int j;
 	int i1, i2, l;
+	int Peaks = 2;
+	long double Early, NextWidth;
+	int version = 16;
 
 	if(sqrt(Par[4]) > 2.*Par[2])	//If above threshold, locate and guestimate the width of the feature near the division by zero
 	{
@@ -827,6 +834,8 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 		zero[1] = 0;
 		gamma[1] = -ImProp(LocalPar, zero[1], theta, Temp);
 	}
+	else
+		Peaks = 1;
 
 	if(gamma[1] < 1e-3)
 		gamma[1] = 1e-3;
@@ -859,12 +868,10 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 	{
 		if((b == 0 || b == LawCosines(Par[3]/2., k, theta)) && l != 0)	//First peak is closer than 64*gamma to 0
 			Width = zero[i1]+Range[l]*gamma[i1]-b;
-		else if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+100. || b+Width<Max-100.))
+		else if(!(b+100.>zero[i1]-64.*gamma[i1] && b<zero[i1]-64.*gamma[i1]))
 			Width = 100;	//Vacuum no-man's land is much larger media's no-man land on account of comeing this way much more often and covering larger areas
-		else if(Temp == 0 && (b>sqrt(Par[4]+pow(Par[3],2))-LawCosines(Par[3]/2., -k, theta)+10. || b+Width<Max-10.))
+		else if(!(b+10.>zero[i1]-64.*gamma[i1] && b<zero[i1]-64.*gamma[i1]))
 			Width = 10;
-		else if(b < 2.*Par[2] || b >= sqrt(Par[4]+pow(Par[3],2))-2.*Par[2])
-			Width = 1;	//The Self-energy peaks
 		else
 			Width = 3;	//No-man's land
 
