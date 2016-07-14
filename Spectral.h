@@ -866,7 +866,7 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 	
 	do
 	{
-		if((b == 0 || b == LawCosines(Par[3]/2., k, theta)) && l != 0)	//First peak is closer than 64*gamma to 0
+		if(b == 0  && l != 0)	//First peak is closer than 64*gamma to 0
 			Width = zero[i1]+Range[l]*gamma[i1]-b;
 		else if(!(b+100.>zero[i1]-64.*gamma[i1] && b<zero[i1]-64.*gamma[i1]))
 			Width = 100;	//Vacuum no-man's land is much larger media's no-man land on account of comeing this way much more often and covering larger areas
@@ -899,7 +899,7 @@ long double Integrate1(long double(*Integrand)(long double[6], long double, long
 			else
 				Early = 0;
 		}
-		else if((a>=zero[i1]-64.*gamma[i1] && b<=zero[i1]+64.*gamma[i1]) && Peaks != 0 && l < version && !(b == 0 || b == LawCosines(Par[3]/2., k, theta)))	//Integrating the peak itself
+		else if((a>=zero[i1]-64.*gamma[i1] && b<=zero[i1]+64.*gamma[i1]) && Peaks != 0 && l < version && b != 0)	//Integrating the peak itself
 		{
 			Width = gamma[i1]*(Range[l+1]-Range[l]);
 			l++;	//Leaving the peak prevents illegal space access at Range[l+1]
