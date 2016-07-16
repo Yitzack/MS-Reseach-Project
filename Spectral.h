@@ -206,7 +206,7 @@ long double ImDelta_GInt(long double Par[6], long double k, long double theta, i
 
 long double Potential1(long double Par[6], long double k, long double theta, int Temp)
 {
-	return(pow(Par[1],2)/(pow(Par[1],2)+4.*pow(k,2)));
+	return(pow(Par[1],4)/(pow(Par[1],4)+pow(pow(2.*omega-sqrt(Par[4]+pow(Par[3],2)),2)-4.*pow(k,2),2)));
 }
 
 complex<long double> TMatrix(long double Parameters[6], int Temp)
@@ -723,7 +723,7 @@ long double Rho(long double omega, long double Par[6], long double k, long doubl
 
 long double Potential(long double Par[6], long double k, long double theta, int Temp)	//Returns the potential CC*(Lambda^2/(M*(Lambda^2-4k^mu k_mu)))^2
 {
-	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+4.*pow(k,2)), 2));
+	return(Par[0]*pow(pow(Par[1],4)/(pow(Par[1],4)+pow(pow(2.*omega-sqrt(Par[4]+pow(Par[3],2)),2)-4.*pow(k,2),2)), 2));
 }
 
 long double Energy(long double M, long double P, long double k, long double theta)	//Returns twice the energy sqrt(M^2+(vec P/2+vec k)^2)
