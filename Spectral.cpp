@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 	const int Total = atoi(argv[2]);
 	complex<long double> TMat;
 	long double Table[863][3];
-	long double Par[6] = {-127.995280691106, 1.4049344847006076, 1.8, 0, 0, 0};
+	long double Par[6] = {-40.911801176826934, 2.6137584278702777, 1.8, 0, 0, 0};
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 
@@ -78,10 +78,7 @@ int main(int argc, char* argv[])
 				Par[4] = pow(4.1+(j-667.)/10.,2);
 
 			TMat = TMatrix(Par, Temp);
-			if(Par[4] < pow(2.*Par[2],2))
-				TMat *= complex<long double>(Par[0]);
-			else
-				TMat *= complex<long double>(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+Par[4]-pow(2*Par[2],2)),2));
+			TMat *= complex<long double>(Par[0]*pow(pow(Par[1],4)/(pow(Par[1],4)+pow(Par[4]-pow(2*Par[2],2),2)),2));
 			Table[j][1] = TMat.real();
 			Table[j][2] = TMat.imag();
 			Table[j][0] = Spectral(Par, Temp);
