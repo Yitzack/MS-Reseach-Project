@@ -374,9 +374,9 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		F_ave = holder*w[0];
 		cout << Par[4] << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		Answer += (F_a+F_ave+F_b)*(b-a)/2.;
-		cout << endl;
 		a = b;
 	}while(b < Max);
+	cout << endl;
 
 	return(Answer);
 }
@@ -424,17 +424,17 @@ void Characterize(long double Par[5], int Temp, long double k, long double theta
 		zero[3] = sqrt(Par[4]+pow(Par[3],2))-zero[3];
 	}
 
-	for(i = 0; i < 4; i++)	//Bubble sort
+	for(i = 3; i >= 0; i--)	//Bubble sort
 	{
-		for(j = i+1; j < 4; j++)
+		for(j = 0; j < i; j++)
 		{
-			if(zero[i] > zero[i+1])
+			if(zero[j] > zero[j+1])
 			{
-				holder = zero[i];
-				zero[i] = zero[j];
+				holder = zero[j+1];
+				zero[j+1] = zero[j];
 				zero[j] = holder;
-				holder = gamma[i];
-				gamma[i] = gamma[j];
+				holder = gamma[j+1];
+				gamma[j+1] = gamma[j];
 				gamma[j] = holder;
 			}
 		}
@@ -443,7 +443,7 @@ void Characterize(long double Par[5], int Temp, long double k, long double theta
 	i = j = 0;	//Find the first zero greater than 0
 	while(zero[i] < Lower) i++;
 
-	while(zero[i] <= Upper)	//Move zeroes up to front of array, count off poles within the limits of integration
+	while(zero[i] <= Upper && i < 4)	//Move zeroes up to front of array, count off poles within the limits of integration
 	{
 		zero[j] = zero[i];
 		gamma[j] = gamma[i];
