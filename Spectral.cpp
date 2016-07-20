@@ -13,29 +13,28 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-	char File[25] = "SpectralRefactor.";	//Name of the file
+	char File[25] = "DeBug.";	//Name of the file
 	Process = argv[1];
 	strcat(File, argv[3]);
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
 	ofstream TPlot(File);
 	const int Temp = atoi(argv[3]);
-	int Frame = 0;	//Frame count
 	int i,j;	//counters
 	const int iProcess = atoi(argv[1]) % atoi(argv[2]);
 	const int Total = atoi(argv[2]);
 	long double Table[863][3];
+	long double Par[5] = {-42.96210630522018, 2.1348192815218754, 1.8, 2, 3};
 
-	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
-cout << time(NULL) << endl;
+	/*TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
+	#pragma omp parallel for
 	for(i = 0; i <= 0; i++)
 	{
-		#pragma omp parallel for
 		for(j = iProcess+400; j < 863; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
 			complex<long double> TMat;
-			long double Par[6] = {-127.995280691106, 1.4049344847006076, 1.8, 0, 0, 0};
-			Par[1] = 1.4049344847006076;
+			long double Par[5] = {-42.96210630522018, 2.1348192815218754, 1.8, 0, 0};
+			Par[1] = 2.1348192815218754;
 			Par[2] = 1.8;
 			if(argc == 4)
 				switch(Temp)
@@ -78,17 +77,6 @@ cout << time(NULL) << endl;
 				Par[4] = pow(4.1+(j-667.)/10.,2);
 
 			Spectral(Table[j], Par, Temp);
-			if(Par[4] < pow(2.*Par[2],2))
-			{
-				Table[j][1] *= Par[0];
-				Table[j][2] *= Par[0];
-			}
-			else
-			{
-				Table[j][1] *= Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+Par[4]-pow(2*Par[2],2)),2);
-				Table[j][2] *= Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+Par[4]-pow(2*Par[2],2)),2);
-			}
-cout << time(NULL) << " " << i << " " << j << " " << Par[4] << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
 		}
 
 		long double Par[6] = {-127.995280691106, 1.4049344847006076, 1.8, 0, 0, 0};
@@ -117,71 +105,29 @@ cout << time(NULL) << " " << i << " " << j << " " << Par[4] << " " << Table[j][0
 	//TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
 
-	/*long double roots, k;
+	/*long double roots,k;
+	Elements holder;
 	for(Par[3] = 0; Par[3] <= 10.1; Par[3]++)
 		for(k = 0; k <= 10.1; k++)
 		{
-			for(roots = 0; roots <= 20; roots += .01)
+			for(roots = 0; roots <= 20.001; roots+=.01)
 			{
 				Par[4] = pow(roots,2);
-				TPlot << Par[3] << " " << k << " " << roots << " " << ImProp(Par, k, 0, Temp) << endl;
+				holder = Folding(Par, Temp, k, 0);
+				TPlot << Par[3] << " " << k << " " << roots << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			}
 			TPlot << endl;
-		}
-
-	Par[3] = 0;
-	Par[4] = pow(1.2,2);
-	Spectral(Par, Temp);
-	cout << endl;
-	Par[3] = 32;
-	Par[4] = pow(1.2,2);
-	Spectral(Par, Temp);*/
+		}*/
+	Par[3] = 4;
+	long double k = 2;
+	Par[4] = 3.8025;
+	Folding(Par, Temp, k, 0);
+	Par[4] = 14.44;
+	Folding(Par, Temp, k, 0);
+	Par[4] = 40.96;
+	Folding(Par, Temp, k, 0);
+	Par[4] = 139.24;
+	Folding(Par, Temp, k, 0);
 
 	return(0);
-}
-
-void Plot(long double Temp, int Frame)
-{
-	cout << "set terminal pngcairo size 1600,792 enhanced" << endl;	//Output to gnuplot to make the terminal output to a png.
-	cout << "set output './Frames/Spectral" << Frame << ".png'" << endl;	//Set the output to a file so specified
-	/*switch(Temp)
-	{
-		case 0:	//Vacuum, T=0
-			cout << "set title \"Vacuum\"" << endl;
-			break;
-		case 3:	//Media, T=1.2T_c
-			cout << "set title \"T = 1.2T_c\"" << endl;
-			break;
-		case 1:	//Media, T=1.5T_c
-			cout << "set title \"T = 1.5T_c\"" << endl;
-			break;
-		case 2:	//Media, T=2T_c
-			cout << "set title \"T = 2T_c\"" << endl;
-			break;
-	}*/
-	if(Temp == 0)
-		cout << "set title \"Vacuum\"" << endl;
-	else
-		cout << "set title \"T = " << Temp << " T_c\"" << endl;
-
-	cout << "set multiplot" << endl;
-
-	cout << "set size 1,.5; set origin 0,.5" << endl;
-	cout << "set xrange[0:10]" << endl;	//Set the x range to between 0 and 5
-	cout << "set xlabel \"E (GeV)\"" << endl;
-	cout << "set ylabel \"{/Symbol s}\"" << endl;
-	cout << "set label \"m_{J/{/Symbol Y}}^2\" at 3.040308,0 point pointtype 1" << endl;
-	cout << "set label \"m_{{/Symbol Y}'}^2\" at 3.662752,0 point pointtype 1" << endl;
-	cout << "plot \'Spectral Plot.0\' using 3:4 every :::" << Frame << "::" << Frame << " with lines title \"Spectral Func\"" << endl;//Tell gnuplot to plot the function in the file so named
-
-	cout << "set size 1,.5; set origin 0,0" << endl;
-	cout << "set xrange[0:10]" << endl;	//Set the x range to between 0 and 5
-	cout << "set xlabel \"E (GeV)\"" << endl;
-	cout << "set ylabel \"T\"" << endl;
-	cout << "set label \"m_{J/{/Symbol Y}}^2\" at 3.040308,0 point pointtype 1" << endl;
-	cout << "set label \"m_{{/Symbol Y}'}^2\" at 3.662752,0 point pointtype 1" << endl;
-	cout << "plot \'Spectral Plot.0\' using 3:5 every :::" << Frame << "::" << Frame << " with lines title \"T-Matrix\"" << endl;//Tell gnuplot to plot the function in the file so named
-
-	cout << "unset multiplot" << endl;
-	return;
 }
