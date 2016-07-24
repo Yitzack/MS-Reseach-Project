@@ -105,29 +105,49 @@ int main(int argc, char* argv[])
 	//TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
 
-	/*long double roots,k;
+	long double roots;
 	Elements holder;
+	Par[3] = 20.;
 	for(Par[3] = 0; Par[3] <= 10.1; Par[3]++)
-		for(k = 0; k <= 10.1; k++)
+	{
+		for(roots = 0; roots <= 20.001; roots+=.1)
 		{
-			for(roots = 0; roots <= 20.001; roots+=.01)
-			{
-				Par[4] = pow(roots,2);
-				holder = Folding(Par, Temp, k, 0);
-				TPlot << Par[3] << " " << k << " " << roots << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-			}
-			TPlot << endl;
-		}*/
-	Par[3] = 4;
-	long double k = 2;
-	Par[4] = 3.8025;
-	Folding(Par, Temp, k, 0);
-	Par[4] = 14.44;
-	Folding(Par, Temp, k, 0);
-	Par[4] = 40.96;
-	Folding(Par, Temp, k, 0);
-	Par[4] = 139.24;
-	Folding(Par, Temp, k, 0);
+			Par[4] = pow(roots,2);
+			holder = theta_Int(Par, Temp);
+			TPlot << Par[3] << " " << roots << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+		}
+		TPlot << endl;
+	}
 
 	return(0);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

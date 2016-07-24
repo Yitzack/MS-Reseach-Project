@@ -14,7 +14,10 @@ Elements Dispersion(long double[5], int, Elements);	//Produces the real side of 
 Elements theta_Int(long double[5], int);	//Integrates the theta results
 Elements k_Int(long double[5], int, long double);	//Integrates the k momentum results
 Elements Folding(long double[5], int, long double, long double);	//Folding integral, energy integral
-void Characterize(long double[5], int, long double, long double, long double[4], long double[4], int&); //Returns the poles of the folding integral's integrands
+void Characterize_k_Int(long double[5], int, long double, long double[4], long double[4], int&); //Returns the poles of the k integral's integrands
+void Newtons_k_Int(long double, long double, long double, long double, long double[3], long double);	//Newton's method of finding roots for Characterize_k_Int
+int Newtons_Test_k_Int(long double, long double, long double, long double, long double[3], long double);	//Trys to determine the number of roots Newton's method  is looking for and where they might be found
+void Characterize_Folding(long double[5], int, long double, long double, long double[4], long double[4], int&); //Returns the poles of the folding integral's integrands
 
 //Straight Functions everything is built from
 long double Self_Energy(long double, long double, long double, int);	//Single quark self energy
@@ -180,50 +183,76 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	Elements PartialAnswer;	//Answer for sub-interval for determining completeness
 	long double x1, x2;	//Abscissa
 	long double a = 0, b = 0;//Sub-interval limits of integration
-	long double Pole = 0;	//The real part of the signular pole
-	long double gamma = 0;	//The distance to the singular, maybe
+	int Poles;	//Number of poles
+	long double zero[3];	//The real part of the signular pole
+	long double gamma[3];	//The distance to the singular, maybe
 	long double Min_upper;	//The integral has to go at least this far
 	long double Width;	//Length of the next sub-interval
+	long double Early = 0;	//Early change from one pole to the next, notes the location of change, 0 means no early change
+	long double NextWidth = 0;//The next width that will be used in the event of an early change of poles
 	int i = 0, j;	//Counters
+	Elements holder;
 
-	if(sqrt(Par[4]) > 2.*Par[2])	//Find the poles and estimate a width (distance to pole)
-	{
-		Pole = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
-		gamma = Folding(Par, Temp, Pole, theta).Min();
-	}
-	else
-		gamma = Folding(Par, Temp, Pole, theta).Min();
-
-	if(gamma < 1e-3)	//If width is smaller than this value, make it this big
-		gamma = 1e-3;
+	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
 
 	Min_upper = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//This the upper bound that the vacuum calls for, Partial/total will promote higher as needed
 
-	while(Pole+Range[i]*gamma <= 0) i++;
+	i = 0;	//Pole counter
+	j = 0;	//Range counter
+	while(Poles != 0 && zero[i]+Range[j]*gamma[i] < a) j++;	//Pole doesn't need to be checked as all poles are within the limits of integration
+
+	if(zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1] && i+1 < Poles && j != 0) //j!=0 is because the loop will find other early termination
+		Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i];
+//cerr << zero[0] << "+i" << gamma[0] << " " << zero[1] << "+i" << gamma[1] << " " << zero[2] << "+i" << gamma[2] << " " << zero[3] << "+i" << gamma[3] << " " << Poles << " " << a << " " << Max << " " << zero[i]+Range[j]*gamma[i] << " " << zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i] << endl;
 
 	do
 	{
-		if(b == 0 && i != 0)	//First peak is closer than 64*gamma to 0
-			Width = Pole+Range[i]*gamma;
-		else if(b < Pole-100 || b > Pole+100)
+		if(b == 0 && j != 0)	//First pole is closer than zero-64*gamma to lower limit of integration
+			Width = zero[i]+Range[j]*gamma[i]-b;
+		else if((i < Poles && b+100 < zero[i]-64.*gamma[i]) || b+100 < Min_upper)	//Middle of nowhere intervals
+			Width = 100;
+		else if((i < Poles && b+50 < zero[i]-64.*gamma[i]) || b+50 < Min_upper)
 			Width = 50;
-		else if(b < Pole-10 || b > Pole+10)
+		else if((i < Poles && b+10 < zero[i]-64.*gamma[i]) || b+10 < Min_upper)
 			Width = 10;
 		else
-			Width = 3.;	//No-man's land
+			Width = 3;
 
-		if(a<Pole-64.*gamma && b+Width>=Pole-64.*gamma)	//Stutter step before the peak
+		if(j == 8 && i < Poles) //Last pole has been integrated, time to reset for the next one
 		{
-			Width = Pole-64.*gamma-b;
-			i = 0;	//Resets l before entering the peak
-		}
-		else if((a>=Pole-64.*gamma && b<=Pole+64.*gamma) && i < 16 && b != 0)	//Integrating the peak itself
-		{
-			Width = gamma*(Range[i+1]-Range[i]);
-			i++;	//Leaving the peak prevents illegal space access at Range[l+1]
+			i++;
+			j = 0;
 		}
 
-		b += Width;
+		if(Poles != 0 && (a < zero[i]-64.*gamma[i] && b+Width >= zero[i]-64.*gamma[i])) //Stutter step before the next pole
+		{
+			Width = zero[i]-64.*gamma[i]-b;
+			if(i+1 < Poles && zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1]) //There exists a next pole and their ranges overlap
+				Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i]; //Sets early terminantion point
+		}
+		else if(Poles != 0 && j < 8 && (a >= zero[i]-64.*gamma[i] && a <= zero[i]+64.*gamma[i]) && b != 0)
+		{//Integrating a pole and the width wan't resolved by the first condition after do, 24 lines up
+			Width = gamma[i]*(Range[j+1]-Range[j]);
+			j++;
+		}
+
+		if(NextWidth != 0 && NextWidth == NextWidth)	//Resolving early termination of integrating one pole for the next
+		{
+			Width = NextWidth;
+			NextWidth = 0;
+			if(i+1 < Poles && zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1]) //There exists a next pole and their ranges overlap
+				Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i]; //Sets early terminantion point
+		}
+		else if(Early != 0 && b+Width > Early)
+		{
+			Width = Early-b;
+			Early = 0;
+			j = 8-j;
+			NextWidth = Width*gamma[i+1]/gamma[i];
+			i++;
+		}
+
+		b += Width;	//Set next b keeping in mind the upper limit of integration
 
 		if(b > Min_upper && a != Min_upper)	//If (a,b) incompasses Min_upper, make b equal to Min_upper
 			b = Min_upper;
@@ -237,10 +266,16 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 				x1 = (b+a-Disp95[j]*(b-a))/2.; //Actual evaluation points
 				x2 = (b+a+Disp95[j]*(b-a))/2.;
 
-				F_a += Folding(Par, Temp, x1, theta)*pow(x1,2)*w95[j+1]; //Evaluate function at x1
-				F_a += Folding(Par, Temp, x2, theta)*pow(x2,2)*w95[j+1]; //Evaluate function at x2
+				holder = Folding(Par, Temp, x1, theta)*pow(x1,2);
+				F_a += holder*w95[j+1]; //Evaluate function at x1
+				//cout << Par[3] << " " << Par[4] << " " << x1 << " " << theta << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+				holder = Folding(Par, Temp, x2, theta)*pow(x2,2);
+				F_a += holder*w95[j+1]; //Evaluate function at x2
+				//cout << Par[3] << " " << Par[4] << " " << x2 << " " << theta << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			}
-			F_ave = Folding(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w95[0]; //Evaluate function at (a+b)/2.
+			holder = Folding(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2);
+			F_ave = holder*w95[0]; //Evaluate function at (a+b)/2.
+			//cout << Par[3] << " " << Par[4] << " " << x1 << " " << theta << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		}
 		else
 		{
@@ -249,10 +284,16 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 				x1 = (b+a-Disp35[j]*(b-a))/2.; //Actual evaluation points
 				x2 = (b+a+Disp35[j]*(b-a))/2.;
 
-				F_a += Folding(Par, Temp, x1, theta)*pow(x1,2)*w35[j+1]; //Evaluate function at x1
-				F_a += Folding(Par, Temp, x2, theta)*pow(x2,2)*w35[j+1]; //Evaluate function at x2
+				holder = Folding(Par, Temp, x1, theta)*pow(x1,2);
+				F_a += holder*w35[j+1]; //Evaluate function at x1
+				//cout << Par[3] << " " << Par[4] << " " << x1 << " " << theta << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+				holder = Folding(Par, Temp, x2, theta)*pow(x2,2);
+				F_a += holder*w35[j+1]; //Evaluate function at x2
+				//cout << Par[3] << " " << Par[4] << " " << x2 << " " << theta << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			}
-			F_ave = Folding(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w35[0]; //Evaluate function at (a+b)/2.
+			holder = Folding(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2);
+			F_ave = holder*w35[0]; //Evaluate function at (a+b)/2.
+			//cout << Par[3] << " " << Par[4] << " " << x1 << " " << theta << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		}
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
 		Answer += PartialAnswer;
@@ -260,6 +301,120 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	}while(b <= Min_upper || abs(PartialAnswer/Answer) >= .0001);
 
 	return(Answer);
+}
+
+void Characterize_k_Int(long double Par[5], int Temp, long double theta, long double zero[3], long double gamma[3], int &Poles) //Returns the poles of the k integral's integrands
+{
+	long double holder;
+	long double previous[2];
+	int i, j = 0;
+
+	if(sqrt(Par[4]) > 2.*Par[2])	//Find the poles and estimate a width (distance to pole)
+	{
+		zero[2] = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
+		gamma[2] = Folding(Par, Temp, zero[2], theta).Min();
+	}
+	else
+	{
+		zero[2] = 0;
+		gamma[2] = Folding(Par, Temp, zero[2], theta).Min();
+	}
+
+	if(gamma[2] < 1e-3)	//If width is smaller than this value, make it this big
+		gamma[2] = 1e-3;
+
+	zero[0] = zero[1] = zero[2];	//Start the Newton's search for other k poles
+	i = Newtons_Test_k_Int(Par[1], Par[4], Par[3], Par[2], zero, theta);
+	if(i)
+	{
+		do
+		{
+			previous[0] = zero[0];
+			previous[1] = zero[1];
+			Newtons_k_Int(Par[1], Par[4], Par[3], Par[2], zero, theta);
+			j++;
+		}while((abs(previous[0]-zero[0]) > .001 || abs(previous[1]-zero[1]) > .001) && ((i >= 2 && j <= 10) || i <= 1));	//Keep going while both poles are not known better than 1MeV
+
+		if(j <= 10)
+		{
+			zero[0] = abs(zero[0]);	//Through investigation of the results, I found that if both peaks are on one condition,
+			zero[1] = abs(zero[1]);	//then the lower one will be negative on the other condition
+			Poles = 3;
+		}
+		else
+		{
+			zero[0] = zero[2];
+			gamma[0] = gamma[0];
+			Poles = 1;
+			return;
+		}
+	}
+	else
+	{
+		zero[0] = zero[2];
+		gamma[0] = gamma[0];
+		Poles = 1;
+		return;
+	}
+
+	for(i = 2; i >= 0; i--)	//Bubble sort
+	{
+		for(j = 0; j < i; j++)
+		{
+			if(zero[j] > zero[j+1])
+			{
+				holder = zero[j+1];
+				zero[j+1] = zero[j];
+				zero[j] = holder;
+				holder = gamma[j+1];
+				gamma[j+1] = gamma[j];
+				gamma[j] = holder;
+			}
+		}
+	}
+
+	return;
+}
+
+void Newtons_k_Int(long double Lambda, long double s, long double P, long double M, long double k[3], long double theta)
+{
+	long double f1 = Energy(M,P/2.,k[0],theta)-.5*(sqrt(s+pow(P,2))-pow(pow(2.*k[0],4)+pow(Lambda,4),.25)*sqrt(.5+2./sqrt(16.+pow(Lambda/k[0],4))));
+	long double fp1 = pow(pow(2.*k[0],4)+pow(Lambda,4),-.25)*sqrt((pow(Lambda,4)+4.*pow(k[0],4)*(4.+sqrt(16.+pow(Lambda/k[0],4)))))/(k[0]*sqrt(8.+pow(Lambda/k[0],4)/2.))+(2.*k[0]+P*cos(theta))/(2.*Energy(M,P/2.,k[0],theta));
+	long double f2 = -Energy(M,P/2.,-k[1],theta)+.5*(sqrt(s+pow(P,2))-pow(pow(2.*k[1],4)+pow(Lambda,4),.25)*sqrt(.5+2./sqrt(16.+pow(Lambda/k[1],4))));
+	long double fp2 = -pow(pow(2.*k[1],4)+pow(Lambda,4),-.25)*sqrt((pow(Lambda,4)+4.*pow(k[1],4)*(4.+sqrt(16.+pow(Lambda/k[1],4)))))/(k[1]*sqrt(8.+pow(Lambda/k[1],4)/2.))-(2.*k[1]-P*cos(theta))/(2.*Energy(M,P/2.,k[1],theta));
+
+	k[0] -= f1/fp1;
+	k[1] -= f2/fp2;
+	return;
+}
+
+int Newtons_Test_k_Int(long double Lambda, long double s, long double P, long double M, long double k[3], long double theta)
+{
+	long double f1 = Energy(M,P/2.,k[2],theta)-.5*(sqrt(s+pow(P,2))-pow(pow(2.*k[2],4)+pow(Lambda,4),.25)*sqrt(.5+2./sqrt(16.+pow(Lambda/k[2],4))));
+	long double fp1 = pow(pow(2.*k[2],4)+pow(Lambda,4),-.25)*sqrt((pow(Lambda,4)+4.*pow(k[2],4)*(4.+sqrt(16.+pow(Lambda/k[2],4)))))/(k[2]*sqrt(8.+pow(Lambda/k[2],4)/2.))+(2.*k[2]+P*cos(theta))/(2.*Energy(M,P/2.,k[2],theta));
+	long double limit1 = sqrt(pow(M,2)+pow(P,2)/4.)-.5*sqrt(s+pow(P,2))+pow(2,-1.5)*Lambda;
+	long double f2 = -Energy(M,P/2.,-k[2],theta)+.5*(sqrt(s+pow(P,2))-pow(pow(2.*k[2],4)+pow(Lambda,4),.25)*sqrt(.5+2./sqrt(16.+pow(Lambda/k[2],4))));
+	long double fp2 = -pow(pow(2.*k[2],4)+pow(Lambda,4),-.25)*sqrt((pow(Lambda,4)+4.*pow(k[2],4)*(4.+sqrt(16.+pow(Lambda/k[2],4)))))/(k[2]*sqrt(8.+pow(Lambda/k[2],4)/2.))-(2.*k[2]-P*cos(theta))/(2.*Energy(M,P/2.,k[2],theta));
+	long double limit2 = -sqrt(pow(M,2)+pow(P,2)/4.)+.5*sqrt(s+pow(P,2))-pow(2,-1.5)*Lambda;
+	long double limitp = P*cos(theta)/sqrt(pow(2.*M,2)+pow(P,2));
+	int roots = 0;
+
+	if(f1*limit1 < 0 && f2*limit2 < 0)
+		roots = 1;
+	else if(fp1*limitp < 0 && limit1*limitp < 0)
+		roots = 2;
+	else if(fp2*limitp < 0 && limit2*limitp < 0)
+		roots = 3;
+	else if(f1*limit1 < 0 || f2*limit2 < 0)
+		cerr << "Unexepected outcome in Newton_Test_k_Int s=" << s << " P=" << P << " theta=" << theta << endl;
+
+	if(roots == 0)
+	{
+		k[0] = 0;
+		k[1] = 0;
+	}
+
+	return(roots);
 }
 
 //long double Par[5] = {g, Lambda, M, P, s}
@@ -285,9 +440,8 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	long double gamma[4];	//Imaginary part of poles
 	int Poles = 0;		//Number of poles with real parts between 0 and E
 	int i, j, l;		//Counting varibles
-	Elements holder;
 
-	Characterize(Par, Temp, k, theta, zero, gamma, Poles);	//Get the poles that I have to be concerned about
+	Characterize_Folding(Par, Temp, k, theta, zero, gamma, Poles);	//Get the poles that I have to be concerned about
 
 	if(Temp != 0)	//Assign limits of integration
 	{
@@ -306,6 +460,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 
 	if(zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1] && i+1 < Poles && j != 0) //j!=0 is because the loop will find other early termination
 		Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i];
+//cerr << zero[0] << "+i" << gamma[0] << " " << zero[1] << "+i" << gamma[1] << " " << zero[2] << "+i" << gamma[2] << " " << zero[3] << "+i" << gamma[3] << " " << Poles << " " << a << " " << Max << " " << zero[i]+Range[j]*gamma[i] << " " << zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i] << endl;
 
 	do
 	{
@@ -332,7 +487,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			if(i+1 < Poles && zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1]) //There exists a next pole and their ranges overlap
 				Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i]; //Sets early terminantion point
 		}
-		else if(Poles != 0 && l < 8 && (a >= zero[i]-64.*gamma[i] && a <= zero[i]+64.*gamma[i]) && !(b == 0 || b == Energy(0,Par[3]/2.,k,theta)))
+		else if(Poles != 0 && j < 8 && (a >= zero[i]-64.*gamma[i] && a <= zero[i]+64.*gamma[i]) && !(b == 0 || b == Energy(0,Par[3]/2.,k,theta)))
 		{//Integrating a pole and the width wan't resolved by the first condition after do, 24 lines up
 			Width = gamma[i]*(Range[j+1]-Range[j]);
 			j++;
@@ -342,12 +497,14 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		{
 			Width = NextWidth;
 			NextWidth = 0;
+			if(i+1 < Poles && zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1]) //There exists a next pole and their ranges overlap
+				Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i]; //Sets early terminantion point
 		}
 		else if(Early != 0 && b+Width > Early)
 		{
 			Width = Early-b;
 			Early = 0;
-			l = 8-l;
+			j = 8-j;
 			NextWidth = Width*gamma[i+1]/gamma[i];
 			i++;
 		}
@@ -363,25 +520,18 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			x1 = (b+a-Disp[l]*(b-a))/2.;
 			x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			holder = Elements(1, Potential1(Par,x1,k), Potential2(Par,x1,k))*Folding_Integrand(Par,x1,k,theta,Temp);
-			F_a += holder*w[l+1];
-			cout << Par[4] << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-			holder = Elements(1, Potential1(Par,x2,k), Potential2(Par,x2,k))*Folding_Integrand(Par,x2,k,theta,Temp);
-			F_b += holder*w[l+1];
-			cout << Par[4] << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			F_a += Elements(1, Potential1(Par,x1,k), Potential2(Par,x1,k))*Folding_Integrand(Par,x1,k,theta,Temp)*w[l+1];
+			F_b += Elements(1, Potential1(Par,x2,k), Potential2(Par,x2,k))*Folding_Integrand(Par,x2,k,theta,Temp)*w[l+1];
 		}
-		holder = Elements(1, Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Folding_Integrand(Par,(a+b)/2.,k,theta,Temp);
-		F_ave = holder*w[0];
-		cout << Par[4] << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+		F_ave = Elements(1, Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Folding_Integrand(Par,(a+b)/2.,k,theta,Temp)*w[0];
 		Answer += (F_a+F_ave+F_b)*(b-a)/2.;
 		a = b;
 	}while(b < Max);
-	cout << endl;
 
 	return(Answer);
 }
 
-void Characterize(long double Par[5], int Temp, long double k, long double theta, long double zero[4], long double gamma[4], int &Poles)
+void Characterize_Folding(long double Par[5], int Temp, long double k, long double theta, long double zero[4], long double gamma[4], int &Poles)
 {
 	long double Lower, Upper; //Limits of integration in Folding, vacuum limits are much smaller
 	long double holder;
