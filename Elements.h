@@ -1,6 +1,3 @@
-#include<cmath>
-using namespace std;
-
 class Elements
 {
 	public:
@@ -15,6 +12,7 @@ class Elements
 		Elements operator+(long double);
 		Elements operator-(long double);
 		Elements abs();
+		long double abs(long double&);
 		void operator=(const Elements&);
 		Elements();
 		Elements(long double, long double, long double);
@@ -27,12 +25,17 @@ class Elements
 		long double Array[3];
 };
 
+long double Elements::abs(long double& A)
+{
+	return(A<0?-A:A);
+}
+
 long double Elements::Min()
 {
-	long double Result = -Array[0];
+	long double Result = abs(Array[0]);
 	for(int i = 1; i < 3; i++)
-		if(Result > -Array[i])
-			Result = -Array[i];
+		if(Result > abs(Array[i]))
+			Result = abs(Array[i]);
 	return(Result);
 }
 

@@ -13,7 +13,7 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-	char File[25] = "DeBug.";	//Name of the file
+	char File[25] = "DeBugRange.";	//Name of the file
 	Process = argv[1];
 	strcat(File, argv[3]);
 	strcat(File, ".");
@@ -105,9 +105,9 @@ int main(int argc, char* argv[])
 	//TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
 
-	long double roots;
+	long double roots = 12.4;
 	Elements holder;
-	Par[3] = 20.;
+	Par[3] = 0;
 	for(Par[3] = 0; Par[3] <= 10.1; Par[3]++)
 	{
 		for(roots = 0; roots <= 20.001; roots+=.1)
