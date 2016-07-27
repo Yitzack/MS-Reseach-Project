@@ -13,7 +13,7 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-	char File[25] = "DeBugRange.";	//Name of the file
+	char File[25] = "DeBugAcc.";	//Name of the file
 	Process = argv[1];
 	strcat(File, argv[3]);
 	strcat(File, ".");
@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 	long double Table[863][3];
 	long double Par[5] = {-42.96210630522018, 2.1348192815218754, 1.8, 2, 3};
 
-	/*TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
+	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	#pragma omp parallel for
 	for(i = 0; i <= 0; i++)
 	{
@@ -102,22 +102,8 @@ int main(int argc, char* argv[])
 		TPlot << endl;
 	}
 
-	//TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
+	TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
-
-	long double roots = 12.4;
-	Elements holder;
-	Par[3] = 0;
-	for(Par[3] = 0; Par[3] <= 10.1; Par[3]++)
-	{
-		for(roots = 0; roots <= 20.001; roots+=.1)
-		{
-			Par[4] = pow(roots,2);
-			holder = theta_Int(Par, Temp);
-			TPlot << Par[3] << " " << roots << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-		}
-		TPlot << endl;
-	}
 
 	return(0);
 }

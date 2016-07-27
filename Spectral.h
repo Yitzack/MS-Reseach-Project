@@ -142,16 +142,16 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 {
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 35th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
+	long double Range[] = {.01,.05,.1,M_PI/2.,M_PI-.1,M_PI-.05,M_PI-.01,M_PI};
 	long double x1, x2;	//Abscissa
 	Elements F_a, F_b, F_ave;	//Sum of ordinate*weights
 	Elements Answer(0,0,0);	//Answer to be returned
-	long double a, b;	//Sub-interval limits of integration
+	long double a = 0, b;	//Sub-interval limits of integration
 	int i, j;	//Counters
 
 	for(i = 0; i < 8; i++)
 	{
-		a = (long double)(i)*M_PI/8.;
-		b = (long double)(i+1)*M_PI/8.;
+		b = Range[i];
 
 		F_a.null();
 		F_b.null();
@@ -165,6 +165,7 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 		}
 		F_ave = k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.)*w[0];
 		Answer += (F_a+F_ave+F_b)*(b-a)/2.;
+		a = b;
 	}
 
 	return(Answer/pow(2.*M_PI,2));
@@ -173,10 +174,8 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the k momentum results
 {
-	long double Disp95[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};
-	long double w95[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481}; //95th order Gauss-Legendre integration
-	long double Disp35[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 35th order Gauss-Legendre integration
-	long double w35[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
+	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 35th order Gauss-Legendre integration
+	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
 	long double Range[] = {-64,-8,-1,-.5,0,.5,1,8,64};	//Number of gamma from center
 	Elements F_a, F_b, F_ave;	//Sum of ordinates*weights
 	Elements Answer(0,0,0);	//Answer to be returned
@@ -208,11 +207,11 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	{
 		if(b == 0 && j != 0)	//First pole is closer than zero-64*gamma to lower limit of integration
 			Width = zero[i]+Range[j]*gamma[i]-b;
-		else if((i < Poles && b+100 < zero[i]-64.*gamma[i]) || a-100 > Min_upper || (zero[Poles-1] == 0 && b+100 < Min_upper))	//Middle of nowhere intervals
+		else if((i < Poles && b+100 < zero[i]-64.*gamma[i]) || a-100 > Min_upper || b+100 < Min_upper || (i > 0 && a-100 > zero[i-1]+64.*gamma[i-1]))	//Middle of nowhere intervals
 			Width = 100;
-		else if((i < Poles && b+50 < zero[i]-64.*gamma[i]) || a-50 > Min_upper || (zero[Poles-1] == 0 && b+50 < Min_upper))
+		else if((i < Poles && b+50 < zero[i]-64.*gamma[i]) || a-50 > Min_upper || b+50 < Min_upper || (i > 0 && a-50 > zero[i-1]+64.*gamma[i-1]))
 			Width = 50;
-		else if((i < Poles && b+10 < zero[i]-64.*gamma[i]) || a-10 > Min_upper || (zero[Poles-1] == 0 && b+10 < Min_upper))
+		else if((i < Poles && b+10 < zero[i]-64.*gamma[i]) || a-10 > Min_upper || b+10 < Min_upper || (i > 0 && a-10 > zero[i-1]+64.*gamma[i-1]))
 			Width = 10;
 		else
 			Width = 3;
@@ -258,30 +257,15 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 
 		F_a.null();
 		F_b.null();
-		if(Width > 25)	//If the interval gets too big, up the order of the integration
+		for(l = 0; l < 9; l++)
 		{
-			for(l = 0; l < 24; l++)
-			{
-				x1 = (b+a-Disp95[l]*(b-a))/2.; //Actual evaluation points
-				x2 = (b+a+Disp95[l]*(b-a))/2.;
+			x1 = (b+a-Disp[l]*(b-a))/2.; //Actual evaluation points
+			x2 = (b+a+Disp[l]*(b-a))/2.;
 
-				F_a += Folding(Par, Temp, x1, theta)*pow(x1,2)*w95[l+1]; //Evaluate function at x1
-				F_b += Folding(Par, Temp, x2, theta)*pow(x2,2)*w95[l+1]; //Evaluate function at x2
-			}
-			F_ave = Folding(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w95[0]; //Evaluate function at (a+b)/2.
+			F_a += Folding(Par, Temp, x1, theta)*pow(x1,2)*w[l+1]; //Evaluate function at x1
+			F_b += Folding(Par, Temp, x2, theta)*pow(x2,2)*w[l+1]; //Evaluate function at x2
 		}
-		else
-		{
-			for(l = 0; l < 9; l++)
-			{
-				x1 = (b+a-Disp35[l]*(b-a))/2.; //Actual evaluation points
-				x2 = (b+a+Disp35[l]*(b-a))/2.;
-
-				F_a += Folding(Par, Temp, x1, theta)*pow(x1,2)*w35[l+1]; //Evaluate function at x1
-				F_b += Folding(Par, Temp, x2, theta)*pow(x2,2)*w35[l+1]; //Evaluate function at x2
-			}
-			F_ave = Folding(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w35[0]; //Evaluate function at (a+b)/2.
-		}
+		F_ave = Folding(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
 		Answer += PartialAnswer;
 		a = b;
@@ -294,7 +278,7 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 {
 	long double holder;
 	long double previous[2];
-	int i, j = 0;
+	int i, j = 0, l;
 
 	if(sqrt(Par[4]) > 2.*Par[2])	//Find the poles and estimate a width (distance to pole)
 		zero[2] = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
@@ -349,16 +333,17 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 				zero[j+1] = zero[j];
 				zero[j] = holder;
 			}
-			else if(zero[j] == zero[j+1])
+			else if(zero[j] == zero[j+1])	//Remove duplicates
 			{
-				for(int l = j; l < 2; l++)
+				for(l = j; l < 2; l++)
 					zero[l] = zero[l+1];
+				zero[2] = sqrt(Par[4]+pow(Par[3],2)); //Need to use the biggest finite value of reason or it will be attempted to be sorted to the bottom when it is invalid
 				Poles--;
 			}
 		}
 	}
 
-	for(i = 0; i < 3; i++)
+	for(i = 0; i < Poles; i++)
 	{
 		gamma[i] = Folding(Par, Temp, zero[i], theta).Min();
 		if(gamma[i] < 1e-3)	//If width is smaller than this value, make it this big
