@@ -13,7 +13,7 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-	char File[25] = "DeBugAcc.";	//Name of the file
+	char File[25] = "Spectral.";	//Name of the file
 	Process = argv[1];
 	strcat(File, argv[3]);
 	strcat(File, ".");
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	long double Par[5] = {-42.96210630522018, 2.1348192815218754, 1.8, 2, 3};
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
-	#pragma omp parallel for
+	/*#pragma omp parallel for
 	for(i = 0; i <= 0; i++)
 	{
 		for(j = iProcess+400; j < 863; j+=Total)	//Does the subset of E that has been assigned to this process
@@ -104,6 +104,19 @@ int main(int argc, char* argv[])
 
 	TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
+
+	long double roots;
+	Elements holder_Im, holder_Re;
+	for(Par[3] = 0; Par[3] <= 1.1; Par[3]++)
+	{
+		for(roots = 0; roots <= 20.01; roots += .1)
+		{
+			Par[4] = pow(roots,2);
+			holder_Im = theta_Int(Par, Temp);
+			holder_Re = Dispersion(Par, Temp, holder_Im);
+			TPlot << Par[3] << " " << Par[4] << " " << holder_Im.store(0) << " " << holder_Re.store(0) << " " << holder_Im.store(1) << " " << holder_Re.store(1) << " " << holder_Im.store(2) << " " << holder_Re.store(2) << endl;
+		}
+	}
 
 	return(0);
 }
