@@ -13,7 +13,7 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-	char File[25] = "Spectral.";	//Name of the file
+	char File[25] = "Spectral1.";	//Name of the file
 	Process = argv[1];
 	strcat(File, argv[3]);
 	strcat(File, ".");
@@ -106,15 +106,14 @@ int main(int argc, char* argv[])
 	TPlot.close();//*/
 
 	long double roots;
-	Elements holder_Im, holder_Re;
+	long double holder[3];
 	for(Par[3] = 0; Par[3] <= 1.1; Par[3]++)
 	{
 		for(roots = 0; roots <= 20.01; roots += .1)
 		{
 			Par[4] = pow(roots,2);
-			holder_Im = theta_Int(Par, Temp);
-			holder_Re = Dispersion(Par, Temp, holder_Im);
-			TPlot << Par[3] << " " << Par[4] << " " << holder_Im.store(0) << " " << holder_Re.store(0) << " " << holder_Im.store(1) << " " << holder_Re.store(1) << " " << holder_Im.store(2) << " " << holder_Re.store(2) << endl;
+			Spectral(holder, Par, Temp);
+			TPlot << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << endl;
 		}
 	}
 

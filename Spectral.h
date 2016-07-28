@@ -57,65 +57,112 @@ Elements Dispersion(long double Par[5], int Temp, Elements Vofs)	//Produces the 
 	long double w[] = {8589934592./53335593025., 0.15896884339395434764996, 0.1527660420658596667789, 0.142606702173606611776, 0.12875396253933622768, 0.1115666455473339947, 0.0914900216224499995, 0.069044542737641227, 0.0448142267656996003, 0.0194617882297264770}; //Weight of the function at Disp
 	long double DispLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integration
 	long double wLa[] = {0.07496328305102102808055, 0.1745735743605928864303, 0.2745074833881225250022, 0.3747323102655645620060, 0.4753412526072084401161, 0.5764380939967183636147, 0.6781307242364945406823, 0.7805307978511547593175, 0.8837542316062452388883, 0.9879219194279636096671, 1.0931605619330277996916, 1.1996035979670979427973, 1.3073922479469277349326, 1.416676687469297701993, 1.5276173754408796787012, 1.640386566702889623924, 1.7551700457872174635214, 1.8721691266543402861779, 1.9916029736088098866132, 2.1137113117669909276048, 2.2387576123844772725684, 2.3670328602831611098048, 2.4988600392644108123394, 2.6345995091430390709, 2.7746554982525006307172, 2.9194840027576204632431, 3.0696024758091833914472, 3.2256018156600758204608, 3.3881613374746331979827, 3.5580676615951707296054, 3.7362388067183244743069, 3.9237552950635210172968, 4.1219008467729629867363, 4.3322164077399479741288, 4.5565730632309056055423, 4.7972722621195591678357, 5.057186469320242487569, 5.3399612774797865633198, 5.6503138450512931300331, 5.9944877492232503537552, 6.3809726096501927329094, 6.8216946862388774056326, 7.3340972531892936469048, 7.9450326451948326187906, 8.6987143462393085933469, 9.6750102652900375180015, 11.039313738067347840094, 13.220456867750092021034, 17.982575250664959108273};	//Weight of the function at DispLa
-	long double Range[2];	//Various end points of sub-intervals
-	long double LocalPar[] = {Par[0], Par[1], Par[2], Par[3], Par[4]};	//The local copy of Par to be sent to theta_Int
+	long double Range[] = {0,0,12.96,16,25};	//Various end points of sub-intervals
 	Elements Answer(0,0,0);		//Final answer for return
 	Elements F_a, F_b, F_ave;	//Sum of ordinate*weights
-	long double x1, x2;		//Abscissa
 	long double a = -pow(Par[3],2);	//Lower limit of integration for sub-interval -P^2->s,s->2s,2s->M^2,M^2->4M^2 Principle value
 	long double b;		//Upper limit of integration for sub-interval Max(2s,4M^2)->inf Gauss-Laugerre
-	int i = 0, j;	//Counters
+	long double Max;	//Upper limit of Principle Value integration
+	int i, j;	//Counters
 
-	if(Par[4] < 0)
+	if(Temp != 0)
 	{
-		Range[0] = 2.*Par[4];
-		Range[1] = Par[4];
+		Range[0] = Par[4];
+		Max = Range[1] = 2.*Par[4]+pow(Par[3],2);
 	}
 	else
 	{
 		Range[0] = Par[4];
-		Range[1] = 2.*Par[4];
+		Max = Range[1] = 2.*Par[4];
+	}
+
+	for(i = 5; i >= 0; i--)	//Bubble sort
+	{
+		for(j = 0; j < i; j++)
+		{
+			if(Range[j] > Range[j+1])
+			{
+				long double holder;
+				holder = Range[j+1];
+				Range[j+1] = Range[j];
+				Range[j] = holder;
+			}
+		}
 	}
 
 	if(Temp == 0)
 		a = 0;
 
+	i = 0;
 	while(Range[i] < a) i++;	//May need to discard first end point if 2s<-P^2
 
-	for(i; i < 2; i++)
+	for(; i < 5; i++)
 	{
 		b = Range[i];
 
-		F_a.null();
-		F_b.null();
-		for(j = 0; j < 9; j++)
+		if(a != b)
 		{
-			x1 = (b+a-Disp[j]*(b-a))/2.;
-			x2 = (b+a+Disp[j]*(b-a))/2.;
+			F_a.null();
+			F_b.null();
+			#pragma omp parallel
+			{
+				long double x1, x2;
+				long double LocalPar[] = {Par[0], Par[1], Par[2], Par[3], Par[4]};
+				Elements holder;
+				#pragma omp for nowait
+				for(j = 0; j < 9; j++)
+				{
+					x1 = (b+a-Disp[j]*(b-a))/2.;
+					x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			LocalPar[4] = x1;
-			F_a += (theta_Int(LocalPar, Temp)-Vofs)/(Par[5]-x1)*w[j+1];
-			LocalPar[4] = x2;
-			F_b += (theta_Int(LocalPar, Temp)-Vofs)/(Par[5]-x2)*w[j+1];
+					LocalPar[4] = x1;
+					if(b <= Max)	holder = (theta_Int(LocalPar, Temp)-Vofs)/(x1-Par[4]);
+					else	holder = (theta_Int(LocalPar, Temp))/(x1-Par[4]);
+					F_a += holder*w[j+1];
+					//cout << Par[3] << " " << Par[4] << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+					LocalPar[4] = x2;
+					if(b <= Max)	holder = (theta_Int(LocalPar, Temp)-Vofs)/(x2-Par[4]);
+					else	holder = (theta_Int(LocalPar, Temp))/(x2-Par[4]);
+					F_b += holder*w[j+1];
+					//cout << Par[3] << " " << Par[4] << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+				}
+				#pragma omp single
+				{
+					LocalPar[4] = (a+b)/2.;
+					if(b <= Max)	holder = (theta_Int(LocalPar, Temp)-Vofs)/((a+b)/2.-Par[4]);
+					else	holder = (theta_Int(LocalPar, Temp))/((a+b)/2.-Par[4]);
+					F_ave = holder*w[0];
+					//cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+				}
+				#pragma omp barrier
+			}
 		}
-		LocalPar[4] = (a+b)/2.;
-		F_ave = (theta_Int(LocalPar, Temp)-Vofs)/(Par[5]-(a+b)/2.)*w[0];
 		Answer += (F_a+F_ave+F_b)*(b-a)/2.;
 
 		a = b;
 	}
 
-	if(Vofs.store(0) != 0 && Temp != 0)	//If Principle value integral is none zero contribution
+	/*if(Vofs.store(0) != 0 && Temp != 0)	//If Principle value integral is none zero contribution
 		Answer += Vofs*log((Par[4]-b)/(Par[4]+pow(Par[3],2)));
 	else if(Vofs.store(0) != 0)	//If Principle value integral is none zero contribution
-		Answer += Vofs*log((Par[4]-b)/Par[4]);
+		Answer += Vofs*log(b/Par[4]-1.);
+	cout << Par[3] << " " << Par[4] << " " << "Answer" << " " << (Vofs*log((Par[4]-b)/Par[4])).store(0) << " " << (Vofs*log((Par[4]-b)/Par[4])).store(1) << " " << (Vofs*log((Par[4]-b)/Par[4])).store(2) << endl;*/
 
 	F_a.null();
-	for(i = 0; i < 49; i++)	//Gauss-Lagerre to get from 4M^2 or 2s to infinity
+	#pragma omp parallel
 	{
-		x1 = DispLa[i]+a;
-		LocalPar[4] = x1;
-		F_a += theta_Int(LocalPar, Temp)/(Par[5]-x1)*wLa[i];
+		long double x1;
+		long double LocalPar[] = {Par[0], Par[1], Par[2], Par[3], Par[4]};
+		Elements holder;
+		#pragma omp for
+		for(i = 0; i < 49; i++)	//Gauss-Lagerre to get from 4M^2 or 2s to infinity
+		{
+			x1 = DispLa[i]+a;
+			LocalPar[4] = x1;
+			holder = theta_Int(LocalPar, Temp)/(x1-Par[4]);
+			F_a += holder*wLa[i];
+			//cout << Par[3] << " " << Par[4] << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+		}
 	}
 
 	Answer += F_a;

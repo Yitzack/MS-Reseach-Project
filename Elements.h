@@ -111,8 +111,11 @@ void Elements::operator=(const Elements &A)
 
 void Elements::operator+=(const Elements &A)
 {
+	#pragma omp atomic
 	Array[0] += A.Array[0];
+	#pragma omp atomic
 	Array[1] += A.Array[1];
+	#pragma omp atomic
 	Array[2] += A.Array[2];
 }
 
