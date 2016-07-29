@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 	strcat(File, argv[3]);
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
-	//ofstream TPlot(File);
+	ofstream TPlot(File);
 	const int Temp = atoi(argv[3]);
 	int i,j;	//counters
 	const int iProcess = atoi(argv[1]) % atoi(argv[2]);
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 			else
 				Par[4] = pow(GaussLa[j-762],2);
 
-			holder = theta_Int(Par, temp);
+			holder = theta_Int(Par, Temp);
 			Table[i][0] = holder.store(0);
 			Table[i][1] = holder.store(1);
 			Table[i][2] = holder.store(2);
