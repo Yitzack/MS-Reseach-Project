@@ -708,7 +708,7 @@ long double Fermi(long double omega, int T)	//Fermi factor
 			Temp = .392;
 			break;
 		default:
-			Temp = 1;
+			return(0);
 	}
 
 	return(1./(1.+exp(omega/Temp)));
@@ -741,5 +741,5 @@ long double Spin_Sum(long double Par[5])	//Spinor sum, depends on spin and other
 
 long double Folding_Integrand(long double Par[5], long double omega, long double k, long double theta, int Temp)	//Integrand of the folding integral
 {
-	return(-Quark_Spectrum(omega, Energy(0, Par[3]/2., k, theta), Par[2], Temp)*Quark_Spectrum(sqrt(Par[4]+pow(Par[3],2))-omega, Energy(0, Par[3]/2., -k, theta), Par[2], Temp)*Spin_Sum(Par));
+	return(-Quark_Spectrum(omega, Energy(0, Par[3]/2., k, theta), Par[2], Temp)*Quark_Spectrum(sqrt(Par[4]+pow(Par[3],2))-omega, Energy(0, Par[3]/2., -k, theta), Par[2], Temp)*Spin_Sum(Par)*(1.-Fermi(omega, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))-omega, Temp)));
 }
