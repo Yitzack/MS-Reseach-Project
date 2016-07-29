@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 					Par[4] = 552.25+GaussLa[j-513];
 			}
 
-			if(Par[3] > 600.8)
+			if(j > 150 && i > 751)
 			{
 				Table[j][0] = Table[j][1] = Table[j][2] = 0;
 			}
