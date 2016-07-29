@@ -20,22 +20,21 @@ int main(int argc, char* argv[])
 	strcat(File, Process);			//Appends the process number to the file name
 	ofstream TPlot(File);
 	const int Temp = atoi(argv[3]);
-	int Frame = 0;	//Frame count
 	int i,j;	//counters
 	const int iProcess = atoi(argv[1]) % atoi(argv[2]);
 	const int Total = atoi(argv[2]);
-	complex<long double> TMat;
-	long double Table[863][3];
-	long double Par[6] = {-40.911801176826934, 2.6137584278702777, 1.8, 0, 0, 0};
+	long double Table[811][3];
+	long double Par[5] = {-42.96210630522018, 2.1348192815218754, 1.8, 0, 0};
+	Elements holder;
+	long double GaussLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integration
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
-
 	#pragma omp parallel for
 	for(i = 0; i <= 751; i++)
 	{
-		for(j = iProcess; j < 863; j+=Total)	//Does the subset of E that has been assigned to this process
+		for(j = iProcess+400; j < 811; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
-			Par[1] = 1.4049344847006076;
+			Par[1] = 2.1348192815218754;
 			Par[2] = 1.8;
 			if(argc == 4)
 				switch(Temp)
@@ -68,23 +67,22 @@ int main(int argc, char* argv[])
 				else
 					Par[4] = pow(.8*i+j*13./500.-10.4,2)-pow(.8*i,2);
 			}
-			else if(j <= 425)
+			else if(j <= 436)
 				Par[4] = pow((j-400.)/10.,2);
-			else if(j <= 626)
-				Par[4] = pow(2.540308+(j-426.)/200.,2);
-			else if(j <= 667)
-				Par[4] = pow(3.55+11.*(j-627.)/800.,2);
+			else if(j <= 576)
+				Par[4] = pow(3.6+(j-436.)/100.,2);
+			else if(j <= 761)
+				Par[4] = pow(5.+(j-576.)/10.,2);
 			else
-				Par[4] = pow(4.1+(j-667.)/10.,2);
+				Par[4] = pow(23.5,2)+GaussLa[j-762];
 
-			TMat = TMatrix(Par, Temp);
-			TMat *= complex<long double>(Par[0]*pow(pow(Par[1],4)/(pow(Par[1],4)+pow(Par[4]-pow(2*Par[2],2),2)),2));
-			Table[j][1] = TMat.real();
-			Table[j][2] = TMat.imag();
-			Table[j][0] = Spectral(Par, Temp);
+			holder = theta_Int(Par, Temp);
+			Table[j][0] = holder.store(0);
+			Table[j][1] = holder.store(1);
+			Table[j][2] = holder.store(2);
 		}
 
-		for(j = iProcess; j < 863; j+=Total)	//Does the subset of E that has been assigned to this process
+		for(j = iProcess+400; j < 811; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
 			if(j <= 400)	//Defining s
 			{
@@ -93,14 +91,14 @@ int main(int argc, char* argv[])
 				else
 					Par[4] = pow(.8*i+j*13./500.-10.4,2)-pow(.8*i,2);
 			}
-			else if(j <= 425)
+			else if(j <= 436)
 				Par[4] = pow((j-400.)/10.,2);
-			else if(j <= 626)
-				Par[4] = pow(2.540308+(j-426.)/200.,2);
-			else if(j <= 667)
-				Par[4] = pow(3.55+11.*(j-627.)/800.,2);
+			else if(j <= 576)
+				Par[4] = pow(3.6+(j-436.)/100.,2);
+			else if(j <= 761)
+				Par[4] = pow(5.+(j-576.)/10.,2);
 			else
-				Par[4] = pow(4.1+(j-667.)/10.,2);
+				Par[4] = pow(23.5,2)+GaussLa[j-762];
 			TPlot << Temp <<  " " << i << " " << j << " " << Par[4] << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
 		}
 		TPlot << endl;
@@ -112,48 +110,32 @@ int main(int argc, char* argv[])
 	return(0);
 }
 
-void Plot(long double Temp, int Frame)
-{
-	cout << "set terminal pngcairo size 1600,792 enhanced" << endl;	//Output to gnuplot to make the terminal output to a png.
-	cout << "set output './Frames/Spectral" << Frame << ".png'" << endl;	//Set the output to a file so specified
-	/*switch(Temp)
-	{
-		case 0:	//Vacuum, T=0
-			cout << "set title \"Vacuum\"" << endl;
-			break;
-		case 3:	//Media, T=1.2T_c
-			cout << "set title \"T = 1.2T_c\"" << endl;
-			break;
-		case 1:	//Media, T=1.5T_c
-			cout << "set title \"T = 1.5T_c\"" << endl;
-			break;
-		case 2:	//Media, T=2T_c
-			cout << "set title \"T = 2T_c\"" << endl;
-			break;
-	}*/
-	if(Temp == 0)
-		cout << "set title \"Vacuum\"" << endl;
-	else
-		cout << "set title \"T = " << Temp << " T_c\"" << endl;
 
-	cout << "set multiplot" << endl;
 
-	cout << "set size 1,.5; set origin 0,.5" << endl;
-	cout << "set xrange[0:10]" << endl;	//Set the x range to between 0 and 5
-	cout << "set xlabel \"E (GeV)\"" << endl;
-	cout << "set ylabel \"{/Symbol s}\"" << endl;
-	cout << "set label \"m_{J/{/Symbol Y}}^2\" at 3.040308,0 point pointtype 1" << endl;
-	cout << "set label \"m_{{/Symbol Y}'}^2\" at 3.662752,0 point pointtype 1" << endl;
-	cout << "plot \'Spectral Plot.0\' using 3:4 every :::" << Frame << "::" << Frame << " with lines title \"Spectral Func\"" << endl;//Tell gnuplot to plot the function in the file so named
 
-	cout << "set size 1,.5; set origin 0,0" << endl;
-	cout << "set xrange[0:10]" << endl;	//Set the x range to between 0 and 5
-	cout << "set xlabel \"E (GeV)\"" << endl;
-	cout << "set ylabel \"T\"" << endl;
-	cout << "set label \"m_{J/{/Symbol Y}}^2\" at 3.040308,0 point pointtype 1" << endl;
-	cout << "set label \"m_{{/Symbol Y}'}^2\" at 3.662752,0 point pointtype 1" << endl;
-	cout << "plot \'Spectral Plot.0\' using 3:5 every :::" << Frame << "::" << Frame << " with lines title \"T-Matrix\"" << endl;//Tell gnuplot to plot the function in the file so named
 
-	cout << "unset multiplot" << endl;
-	return;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
