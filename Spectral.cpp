@@ -77,9 +77,9 @@ int main(int argc, char* argv[])
 				Par[4] = pow(GaussLa[j-762],2);
 
 			holder = theta_Int(Par, Temp);
-			Table[i][0] = holder.store(0);
-			Table[i][1] = holder.store(1);
-			Table[i][2] = holder.store(2);
+			Table[j][0] = holder.store(0);
+			Table[j][1] = holder.store(1);
+			Table[j][2] = holder.store(2);
 		}
 
 		for(j = iProcess+400; j < 811; j+=Total)	//Does the subset of E that has been assigned to this process
