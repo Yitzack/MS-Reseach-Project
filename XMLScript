@@ -1,3 +1,2 @@
 awk -f MS-Reseach-Project/XMLScript1 $1
 awk -f MS-Reseach-Project/XMLScript2 $1
-awk -f MS-Reseach-Project/XMLScript3 $1
