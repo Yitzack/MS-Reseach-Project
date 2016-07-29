@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 				Par[4] = pow(5.+(j-576.)/10.,2);
 			else
 				Par[4] = pow(GaussLa[j-762],2);
-			TPlot << Temp <<  " " << i << " " << j << " " << sqrt(Par[4]) << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
+			TPlot << Temp <<  " " << i << " " << j << " " << Par[4] << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
 		}
 		TPlot << endl;
 	}
