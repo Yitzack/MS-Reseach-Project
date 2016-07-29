@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
 					Par[4] = 552.25+GaussLa[j-513];
 			}
 
-			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << endl;//Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
+			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
 		}
 		TPlot << endl;
 	}
@@ -135,33 +135,3 @@ int main(int argc, char* argv[])
 
 	return(0);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
