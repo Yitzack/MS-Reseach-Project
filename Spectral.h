@@ -374,7 +374,7 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 				Poles--;
 			}
 		}
-	}*/
+	}
 
 	for(i = 0; i < Poles; i++)
 	{
