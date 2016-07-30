@@ -4,12 +4,12 @@ wLa={0.07496328305102102808055, 0.1745735743605928864303, 0.27450748338812252500
 Par={-42.96210630522018, 2.1348192815218754, 1.8, 0, 0};
 
 Master = Import["~/Physics/Research/MS/Spectral.0.xml"]; (*Import the table for interpolation extrapolation*)
-Sub1 = Transpose[{Master[[1,All,1]],Master[[1,All,2,1]]}]; (*Extract the subtables*)
-Sub2 = Transpose[{Master[[1,All,1]],Master[[1,All,2,2]]}];
-Sub3 = Transpose[{Master[[1,All,1]],Master[[1,All,2,3]]}];
-Sub4 = Transpose[{Master[[2,All,1]],Master[[2,All,2,1]]}];
-Sub5 = Transpose[{Master[[2,All,1]],Master[[2,All,2,2]]}];
-Sub6 = Transpose[{Master[[2,All,1]],Master[[2,All,2,3]]}];
+Sub1 = N[Transpose[{Master[[1,All,1]],Master[[1,All,2,1]]}]]; (*Extract the subtables*)
+Sub2 = N[Transpose[{Master[[1,All,1]],Master[[1,All,2,2]]}]];
+Sub3 = N[Transpose[{Master[[1,All,1]],Master[[1,All,2,3]]}]];
+Sub4 = N[Transpose[{Master[[2,All,1]],Master[[2,All,2,1]]}]];
+Sub5 = N[Transpose[{Master[[2,All,1]],Master[[2,All,2,2]]}]];
+Sub6 = N[Transpose[{Master[[2,All,1]],Master[[2,All,2,3]]}]];
 
 ImG1 = Interpolation[Sub1, Method -> "Spline"]; (*Turn the tables into an interpolation*)
 ImGV11 = Interpolation[Sub2, Method -> "Spline"];
@@ -20,18 +20,20 @@ ImGV22 = Interpolation[Sub6, Method -> "Spline"];
 
 i[P_,s_]:=Piecewise[{{10*Sqrt[P^2+s],Sqrt[P^2+s]<=20.8}},936/5+Sqrt[P^2+s]] (*Set up Imaginary functions*)
 j[P_,s_]:=P-Sqrt[P^2+s]
-P[i_,j_]:=Piecewise[{{i/10+j,i<=208},i+j-1872/10]
-s[i_,j_]:=Piecewise[{{-i*j/5-j^2,i<=208},-2*j*(i-1872/10)-j^2]
+P[i_,j_]:=Piecewise[{{i/10+j,i<=208}},i+j-1872/10]
+s[i_,j_]:=Piecewise[{{-i*j/5-j^2,i<=208}},-2*j*(i-1872/10)-j^2]
 ImG[P_,s_]:=If[s<=0,ImG1[i[P,s],j[P,s]],ImG2[P,s]]
 ImGV1[P_,s_]:=If[s<=0,ImGV11[i[P,s],j[P,s]],ImGV12[P,s]]
 ImGV2[P_,s_]:=If[s<=0,ImGV21[i[P,s],j[P,s]],ImGV22[P,s]]
 
-ReGV1[P_,s_]:=If[s<=0,NIntegrate[(ImGV1[P,sp]-ImGV1[P,s])/(sp-s),{sp,-P^2,0}]+ImGV1[P,s]*Integrate[1/(sp-s),{sp,-P^2,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV1[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}] (*Set up dispersion releation*)
-ReGV2[P_,s_]:=If[s<=0,NIntegrate[(ImGV2[P,sp]-ImGV2[P,s])/(sp-s),{sp,-P^2,0}]+ImGV2[P,s]*Integrate[1/(sp-s),{sp,-P^2,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV2[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}]
+ReGV1[P_,s_]:=NIntegrate[(ImGV1[P,sp]-ImGV1[P,s])/(sp-s),{sp,-P^2,23.5},Exclusions->sp==s]+ImGV1[P,s]*Integrate[1/(sp-s),{sp,-P^2,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV1[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}]/Pi (*Set up dispersion releation, T!=0*)
+ReGV2[P_,s_]:=NIntegrate[(ImGV2[P,sp]-ImGV2[P,s])/(sp-s),{sp,-P^2,23.5},Exclusions->sp==s]+ImGV2[P,s]*Integrate[1/(sp-s),{sp,-P^2,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV2[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}]/Pi
+(*ReGV1[P_,s_]:=NIntegrate[(ImGV1[P,sp]-ImGV1[P,s])/(sp-s),{sp,0,23.5},Exclusions->sp==s]+ImGV1[P,s]*Integrate[1/(sp-s),{sp,0,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV1[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}]/Pi (*Set up dispersion releation, T==0*)
+ReGV2[P_,s_]:=NIntegrate[(ImGV2[P,sp]-ImGV2[P,s])/(sp-s),{sp,0,23.5},Exclusions->sp==s]+ImGV2[P,s]*Integrate[1/(sp-s),{sp,0,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV2[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}]/Pi*)
 
-V[s_]:=Par[1]*(Par[2]^4/(Par[2]^4+(s-4*Par[3]^2)^2))^2 (*TMatrix and Spectral function definitions*)
+V[s_]:=Par[1]*(Par[[2]]^4/(Par[[2]]^4+(s-4*Par[[3]]^2)^2))^2 (*TMatrix and Spectral function definitions*)
 TMat[P_,s_]:=V[s]/(1-ReGV2[P,s]-I*ImGV2[P,s])
-Spectral[P_,s_]:=-18/Pi*(ImG[P,s]+Im[Par[1]*(ReGV1[P,s]+I*ImGV1[P,s])^2/(1-ReGV2[P,s]-I*ImGV2[P,s])])
+Spectral[P_,s_]:=-18/Pi*(ImG[P,s]+Im[Par[[1]]*(ReGV1[P,s]+I*ImGV1[P,s])^2/(1-ReGV2[P,s]-I*ImGV2[P,s])])
 
 TList1=Sub1; (*Final calculation*)
 TList2=Sub4;
