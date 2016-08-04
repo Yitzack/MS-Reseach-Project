@@ -52,6 +52,6 @@ List5 = D[Spectral[P, e], P] /. P -> Range[0, 600.8, .8] /. e -> e1;
 List6 = 2*Sqrt[e]*D[Spectral[P, e], e] /. P -> Range[0, 600.8, .8] /. e -> e1;
 List7 = 2*Sqrt[e]*D[Spectral[P, e], P, e] /. P -> Range[0, 600.8, .8] /. e -> e1;
 
-Export["~/Physics/Research/MS/SpectralD.0.xml", {List0, List4, List1, List5, List2, List6, List3, List7}] (*Export the table*)
+Export["~/Physics/Research/MS/SpectralD.0.xml", {List0, List1, List2, List3, List4, List5, List6, List7}] (*Export the table*)
 
 Exit[]
