@@ -13,11 +13,10 @@ void Init(long double***[], int[], int[]);	//Initialize the table to the correct
 void Validate(long double***[], int[], int[]);	//Checks the points determine if they are valid or if direct calls to the spectral function are needed
 long double Spectral(long double***[], long double, long double, long double, int);	//The tabulated points and 2 inputs and returns the bicubic interpolation of that input
 long double Correlator(long double(*)(long double***[], long double, long double, int), long double***[], long double, int);	//Evaluates the spatial correlator
-long double Spatial0(long double***[], long double, long double, int);	//1D integral for spatial integrator with fixed E
-long double Spatial1(long double***[], long double, long double, int);	//1D integral for spatial integrator with fixed E
-long double Spatial2(long double***[], long double, long double, int);	//1D integral for spatial integrator with fixed E
+long double SpatialNeg(long double***[], long double, long double, int);	//1D integral for spatial integrator with fixed j, negative s
+long double SpatialPos(long double***[], long double, long double, int);	//1D integral for spatial integrator with fixed E, positive s
 long double SpatialVac(long double***[], long double, long double, int);	//1D analytic integral for vacuum on assumption of Lorentz invariance
-long double Euclidean(long double***[], long double, long double, int);	//Kernal for eucledian-time correlator
+long double Euclidean(long double***[], long double, long double, int);		//Kernal for eucledian-time correlator
 
 char* Process;
 
@@ -87,14 +86,13 @@ int main(int argc, char* argv[])
 	{
 		z = .3+i*.02;
 		tau = i*.008;
-		holder[0] = Correlator(Spatial0, Table, z, Temp);
-		holder[1] = Correlator(Spatial1, Table, z, Temp);
-		holder[2] = Correlator(Spatial2, Table, z, Temp);
-		holder[3] = Correlator(SpatialVac, Table, z, Temp);
-		holder[4] = Correlator(Euclidean, Table, tau, Temp);
+		holder[0] = Correlator(SpatialNeg, Table, z, Temp);
+		holder[1] = Correlator(SpatialPos, Table, z, Temp);
+		holder[2] = Correlator(SpatialVac, Table, z, Temp);
+		holder[3] = Correlator(Euclidean, Table, tau, Temp);
 		#pragma omp critical
 		{
-			TPlot << z << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << tau << " " << holder[4] << endl;
+			TPlot << z << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << tau << " " << holder[3] << endl;
 		}
 	}//*/
 
@@ -105,8 +103,8 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 {
 	long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of data point
-	long double x1[24];	//These are the two other points required for 97th order Gaussian quadrature for this interval
-	long double x3[24];
+	long double x1;	//These are the two other points required for 97th order Gaussian quadrature for this interval
+	long double x2;
 	long double distance[] = {5e-2, 2e-2, 1.5e-2, 1e-2, 2.5e-3, 1e-4, 1e-5, 1e-6};	//Stride of the integral
 	long double Answer = 0;
 	long double F_a, F_b, F_ave;
@@ -114,7 +112,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	long double b = 0;
 	int i, j;
 
-	if(Kernal == Spatial2 || Kernal == Euclidean || Kernal == SpatialVac)
+	if(Kernal != SpatialNeg)
 	{
 		for(i = 0; i < 8; i++)
 		{
@@ -122,11 +120,11 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 			F_a = F_b = 0;	//Start integration at 0
 			for(j = 0; j < 24; j++)
 			{
-				x1[j] = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
-				x3[j] = (b+a+Disp[j]*(b-a))/2.;
+				x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+				x2 = (b+a+Disp[j]*(b-a))/2.;
 
-				F_a += Kernal(Table, x1[j], z, Temp)*w[j+1];	//Evaluate k integral at x1
-				F_b += Kernal(Table, x3[j], z, Temp)*w[j+1];	//Evaluate k integral at x3
+				F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
+				F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
@@ -137,11 +135,11 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 		F_a = F_b = 0;	//Start integration at 0
 		for(j = 0; j < 24; j++)
 		{
-			x1[j] = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
-			x3[j] = (b+a+Disp[j]*(b-a))/2.;
+			x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F_a += Kernal(Table, x1[j], z, Temp)*w[j+1];	//Evaluate k integral at x1
-			F_b += Kernal(Table, x3[j], z, Temp)*w[j+1];	//Evaluate k integral at x3
+			F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
+			F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
@@ -153,11 +151,11 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 			F_a = F_b = 0;	//Start integration at 0
 			for(j = 0; j < 24; j++)
 			{
-				x1[j] = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
-				x3[j] = (b+a+Disp[j]*(b-a))/2.;
+				x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+				x2 = (b+a+Disp[j]*(b-a))/2.;
 
-				F_a += Kernal(Table, x1[j], z, Temp)*w[j+1];	//Evaluate k integral at x1
-				F_b += Kernal(Table, x3[j], z, Temp)*w[j+1];	//Evaluate k integral at x3
+				F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
+				F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
@@ -168,11 +166,11 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 		F_a = F_b = 0;	//Start integration at 0
 		for(j = 0; j < 24; j++)
 		{
-			x1[j] = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
-			x3[j] = (b+a+Disp[j]*(b-a))/2.;
+			x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F_a += Kernal(Table, x1[j], z, Temp)*w[j+1];	//Evaluate k integral at x1
-			F_b += Kernal(Table, x3[j], z, Temp)*w[j+1];	//Evaluate k integral at x3
+			F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
+			F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
@@ -184,11 +182,11 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 			F_a = F_b = 0;	//Start integration at 0
 			for(j = 0; j < 24; j++)
 			{
-				x1[j] = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
-				x3[j] = (b+a+Disp[j]*(b-a))/2.;
+				x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+				x2 = (b+a+Disp[j]*(b-a))/2.;
 
-				F_a += Kernal(Table, x1[j], z, Temp)*w[j+1];	//Evaluate k integral at x1
-				F_b += Kernal(Table, x3[j], z, Temp)*w[j+1];	//Evaluate k integral at x3
+				F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
+				F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
@@ -199,11 +197,11 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 		F_a = F_b = 0;	//Start integration at 0
 		for(j = 0; j < 24; j++)
 		{
-			x1[j] = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
-			x3[j] = (b+a+Disp[j]*(b-a))/2.;
+			x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F_a += Kernal(Table, x1[j], z, Temp)*w[j+1];	//Evaluate k integral at x1
-			F_b += Kernal(Table, x3[j], z, Temp)*w[j+1];	//Evaluate k integral at x3
+			F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
+			F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
@@ -213,11 +211,11 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 		F_a = F_b = 0;	//Start integration at 0
 		for(j = 0; j < 24; j++)
 		{
-			x1[j] = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
-			x3[j] = (b+a+Disp[j]*(b-a))/2.;
+			x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F_a += Kernal(Table, x1[j], z, Temp)*w[j+1];	//Evaluate k integral at x1
-			F_b += Kernal(Table, x3[j], z, Temp)*w[j+1];	//Evaluate k integral at x3
+			F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
+			F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
@@ -227,28 +225,44 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 		F_a = F_b = 0;	//Start integration at 0
 		for(j = 0; j < 24; j++)
 		{
-			x1[j] = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
-			x3[j] = (b+a+Disp[j]*(b-a))/2.;
+			x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F_a += Kernal(Table, x1[j], z, Temp)*w[j+1];	//Evaluate k integral at x1
-			F_b += Kernal(Table, x3[j], z, Temp)*w[j+1];	//Evaluate k integral at x3
+			F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
+			F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 	}
 	else
 	{
-		for(i = 0; i < 10; i++)
+		for(i = 0; i < 8; i++)
 		{
-			b = 40.*(i+1);
+			b = 26.*(i+1);
 			F_a = F_b = 0;	//Start integration at 0
 			for(j = 0; j < 24; j++)
 			{
-				x1[j] = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
-				x3[j] = (b+a+Disp[j]*(b-a))/2.;
+				x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+				x2 = (b+a+Disp[j]*(b-a))/2.;
 
-				F_a += Kernal(Table, x1[j], z, Temp)*w[j+1];	//Evaluate k integral at x1
-				F_b += Kernal(Table, x3[j], z, Temp)*w[j+1];	//Evaluate k integral at x3
+				F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
+				F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
+			}
+			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
+			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
+			a = b;
+		}
+		for(i = 0; i < 10; i++)
+		{
+			b = 58.*(i+1)+208.;
+			F_a = F_b = 0;	//Start integration at 0
+			for(j = 0; j < 24; j++)
+			{
+				x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+				x2 = (b+a+Disp[j]*(b-a))/2.;
+
+				F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
+				F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
@@ -259,118 +273,59 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	return(Answer);
 }
 
-long double Spatial0(long double*** Table[], long double j, long double z, int Temp)
+long double SpatialNeg(long double*** Table[], long double i, long double z, int Temp)
 {
 	long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of data point
-	long double x1[24];	//These are the two other points required for 97th order Gaussian quadrature for this interval
-	long double x3[24];
+	long double x1;	//These are the two other points required for 95th order Gaussian quadrature for this interval
+	long double x2;
 	long double Answer = 0;
-	long double stride = 5.*M_PI/(2.*z);	//Stride of the integral
+	long double stride = 2.*M_PI/z;	//Stride of the integral
 	long double F_a, F_b, F_ave;
 	long double a = 0;
-	long double b = 0;
-	int i;
+	long double b = 0;	//The location of where the current stride should have ended
+	int j;
 
-//This code is for integating out to a z dependant boundary
-	while(b <= 13.-stride)	//need to start the count off from where it left off in the previous integration block
+	F_a = F_b = 0;	//Start integration at 0
+	do
 	{
 		b += stride;
-		F_a = F_b = 0;	//Start integration at 0
-		for(i = 0; i < 24; i++)
+		if(b > 150)
+			b = 150;
+
+		for(j = 0; j < 24; i++)
 		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
+			x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F_a += Spectral(Table, j, x1[i], z, 0)*16./(5.*j)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
-			F_b += Spectral(Table, j, x3[i], z, 0)*16./(5.*j)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
+			if(i <= 208)
+			{
+				F_a += Spectral(Table, i, x1, z, 0)/i*cos((i/10.+x1)*z)*w[j+1];	//Evaluate k integral at x1
+				F_b += Spectral(Table, i, x2, z, 0)/i*cos((i/10.+x2)*z)*w[j+1];	//Evaluate k integral at x3
+			}
+			else
+			{
+				F_a += Spectral(Table, i, x1, z, 0)*abs(374.4+2.*(x1-i))*cos((i+x1-187.2)*z)/(35043.84-374.4*i+pow(i,2)+pow(x1,2))*w[j+1];	//Evaluate k integral at x1
+				F_b += Spectral(Table, i, x2, z, 0)*abs(374.4+2.*(x2-i))*cos((i+x2-187.2)*z)/(35043.84-374.4*i+pow(i,2)+pow(x2,2))*w[j+1];	//Evaluate k integral at x3
+			}
 		}
-		F_ave = Spectral(Table, j, a/2.+b/2., z, 0)*16./(5.*j)*cos(.8*z*(a/2.+b/2.));
-		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
-		a = b;
-	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result
+		if(i <= 208)
+			F_ave = Spectral(Table, i, (a+b)/2., z, 0)/i*cos((i/10.+(a+b)/2.)*z);
+		else
+			F_ave = Spectral(Table, i, (a+b)/2., z, 0)*abs(374.4+2.*((a+b)/2.-i))*cos((i+(a+b)/2.-187.2)*z)/(35043.84-374.4*i+pow(i,2)+pow((a+b)/2.,2));
+		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
+	}while(b < 150)
 
-	b = 13;	//End on i = 13
-	F_a = F_b = 0;	//Start integration at 0
-	for(i = 0; i < 24; i++)
-	{
-		x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-		x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-		F_a += Spectral(Table, j, x1[i], z, 0)*16./(5.*j)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
-		F_b += Spectral(Table, j, x3[i], z, 0)*16./(5.*j)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
-	}
-	F_ave = Spectral(Table, j, a/2.+b/2., z, 0)*16./(5.*j)*cos(.8*z*(a/2.+b/2.));
-	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
-
+	//Carefulness with high momentum cutoff is hopefully not needed as Spectral(P,s) should become smaller than machin precision out there
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
 
-long double Spatial1(long double*** Table[], long double j, long double z, int Temp)
+long double SpatialPos(long double*** Table[], long double roots, long double z, int Temp)
 {
 	long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of data point
-	long double x1[24];	//These are the two other points required for 97th order Gaussian quadrature for this interval
-	long double x3[24];
-	long double Answer = 0;
-	long double stride = 5.*M_PI/(2.*z);	//Stride of the integral
-	long double F_a, F_b, F_ave;
-	long double a = 13;
-	long double b = (1+(int)(13./stride))*stride;	//The location of where the current stride should have ended
-	int i;
-
-	F_a = F_b = 0;	//Start integration at 0
-	for(i = 0; i < 24; i++)
-	{
-		x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-		x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-		F_a += Spectral(Table, j, x1[i], z, 1)*208./(2000.*x1[i]+65.*j-26000.)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
-		F_b += Spectral(Table, j, x3[i], z, 1)*208./(2000.*x3[i]+65.*j-26000.)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
-	}
-	F_ave = Spectral(Table, j, a/2.+b/2., z, 1)*208./(2000.*(a/2.+b/2.)+65.*j-26000.)*cos(.8*z*(a/2.+b/2.));
-	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
-
-//This code is for integating out to a z dependant boundary
-	while(b < stride*1000.5)	//need to start the count off from where it left off in the previous integration block
-	{
-		b += stride;
-		F_a = F_b = 0;	//Start integration at 0
-		for(i = 0; i < 24; i++)
-		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-			F_a += Spectral(Table, j, x1[i], z, 1)*208./(2000.*x1[i]+65.*j-26000.)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
-			F_b += Spectral(Table, j, x3[i], z, 1)*208./(2000.*x3[i]+65.*j-26000.)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
-		}
-		F_ave = Spectral(Table, j, a/2.+b/2., z, 1)*208./(2000.*(a/2.+b/2.)+65.*j-26000.)*cos(.8*z*(a/2.+b/2.));
-		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
-		a = b;
-	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result
-
-	b += stride/2.;	//Evaluate an extra half stride, should result in a result between the extrems of a quarter and three quarter strides
-	F_a = F_b = 0;	//Start integration at 0
-	for(i = 0; i < 24; i++)
-	{
-		x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-		x3[i] = (b+a+Disp[i]*(b-a))/2.;
-
-		F_a += Spectral(Table, j, x1[i], z, 1)*208./(2000.*x1[i]+65.*j-26000.)*cos(.8*z*x1[i])*w[i+1];	//Evaluate k integral at x1
-		F_b += Spectral(Table, j, x3[i], z, 1)*208./(2000.*x3[i]+65.*j-26000.)*cos(.8*z*x3[i])*w[i+1];	//Evaluate k integral at x3
-	}
-	F_ave = Spectral(Table, j, a/2.+b/2., z, 1)*208./(2000.*(a/2.+b/2.)+65.*j-26000.)*cos(.8*z*(a/2.+b/2.));
-	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
-
-	return(Answer);	//return the best estimate of the integral on the interval*/
-}
-
-long double Spatial2(long double*** Table[], long double roots, long double z, int Temp)
-{
-	long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center
-	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of data point
-	long double x1[24];	//These are the two other points required for 97th order Gaussian quadrature for this interval
-	long double x3[24];
+	long double x1;	//These are the two other points required for 97th order Gaussian quadrature for this interval
+	long double x2;
 	long double Answer = 0;
 	long double stride = 2*M_PI/z;	//Stride of the integral
 	long double F_a, F_b, F_ave;
@@ -385,13 +340,13 @@ long double Spatial2(long double*** Table[], long double roots, long double z, i
 		F_a = F_b = 0;	//Start integration at 0
 		for(i = 0; i < 24; i++)
 		{
-			x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x3[i] = (b+a+Disp[i]*(b-a))/2.;
+			x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
+			x2 = (b+a+Disp[i]*(b-a))/2.;
 
-			F_a += Spectral(Table, roots, x1[i], z, 2)*4.*roots/(x1[i]*x1[i]+pow(roots,2))*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
-			F_b += Spectral(Table, roots, x3[i], z, 2)*4.*roots/(x3[i]*x3[i]+pow(roots,2))*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
+			F_a += Spectral(Table, roots, x1, z, 1)*4.*roots/(pow(x1,2)+pow(roots,2))*cos(z*x1)*w[i+1];	//Evaluate k integral at x1
+			F_b += Spectral(Table, roots, x2, z, 1)*4.*roots/(pow(x2,2)+pow(roots,2))*cos(z*x2)*w[i+1];	//Evaluate k integral at x3
 		}
-		F_ave = Spectral(Table, roots, a/2.+b/2., z, 2)*4.*roots/(pow(a/2.+b/2.,2)+pow(roots,2))*cos(z*(a/2.+b/2.));
+		F_ave = Spectral(Table, roots, a/2.+b/2., z, 1)*4.*roots/(pow(a/2.+b/2.,2)+pow(roots,2))*cos(z*(a/2.+b/2.));
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result
@@ -400,13 +355,13 @@ long double Spatial2(long double*** Table[], long double roots, long double z, i
 	F_a = F_b = 0;	//Start integration at 0
 	for(i = 0; i < 24; i++)
 	{
-		x1[i] = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-		x3[i] = (b+a+Disp[i]*(b-a))/2.;
+		x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
+		x2 = (b+a+Disp[i]*(b-a))/2.;
 
-		F_a += Spectral(Table, roots, x1[i], z, 2)*4.*roots/(x1[i]*x1[i]+pow(roots,2))*cos(z*x1[i])*w[i+1];	//Evaluate k integral at x1
-		F_b += Spectral(Table, roots, x3[i], z, 2)*4.*roots/(x3[i]*x3[i]+pow(roots,2))*cos(z*x3[i])*w[i+1];	//Evaluate k integral at x3
+		F_a += Spectral(Table, roots, x1, z, 1)*4.*roots/(pow(x1,2)+pow(roots,2))*cos(z*x1)*w[i+1];	//Evaluate k integral at x1
+		F_b += Spectral(Table, roots, x2, z, 1)*4.*roots/(pow(x2,2)+pow(roots,2))*cos(z*x2)*w[i+1];	//Evaluate k integral at x3
 	}
-	F_ave = Spectral(Table, roots, a/2.+b/2., z, 2)*4.*roots/(pow(a/2.+b/2.,2)+pow(roots,2))*cos(z*(a/2.+b/2.));
+	F_ave = Spectral(Table, roots, a/2.+b/2., z, 1)*4.*roots/(pow(a/2.+b/2.,2)+pow(roots,2))*cos(z*(a/2.+b/2.));
 	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
@@ -414,7 +369,7 @@ long double Spatial2(long double*** Table[], long double roots, long double z, i
 
 long double SpatialVac(long double*** Table[], long double roots, long double z, int Temp)
 {
-	return(2.*M_PI*exp(-roots*z)*Spectral(Table, roots, 0, 0, 2));	//return the integral for vacuum from 0 to infinity
+	return(2.*M_PI*exp(-roots*z)*Spectral(Table, roots, 0, 0, 1));	//return the integral for vacuum from 0 to infinity
 }
 
 long double Euclidean(long double*** Table[], long double roots, long double tau, int Temp)
@@ -440,7 +395,7 @@ long double Euclidean(long double*** Table[], long double roots, long double tau
 	if(tau > 1./(2.*T))
 		return(0);
 
-	return(cosh(roots*(tau-1./(2.*T)))/sinh(roots/(2.*T))*Spectral(Table, roots, 0, 0, 2)/(2.*M_PI));	//return the integral for vacuum from 0 to infinity
+	return(cosh(roots*(tau-1./(2.*T)))/sinh(roots/(2.*T))*Spectral(Table, roots, 0, 0, 1)/(2.*M_PI));	//return the integral for vacuum from 0 to infinity
 }
 
 long double Spectral(long double*** Table[], long double E, long double p, long double z, int Specify)
@@ -449,7 +404,7 @@ long double Spectral(long double*** Table[], long double E, long double p, long 
 	long double t, u;
 	int i, j;
 
-	if(Specify == 2)
+	if(Specify == 1)
 	{
 		t = p/.8;	//returns the p index with the fractional part
 		if(E < 2.5)	//These are to give the fractional distance from one E-point to the next+the index
@@ -478,10 +433,8 @@ long double Spectral(long double*** Table[], long double E, long double p, long 
 		j = E;
 		t = p - i;
 		u = E - j;
-		if(Specify == 1 && z > 0 && i > ((long double)(int(1474.*z/(5.*M_PI)))-.25)*5.*M_PI/(2.*z))
+		if(Specify == 0 && z > 0 && i > ((long double)(int(1474.*z/(5.*M_PI)))-.25)*5.*M_PI/(2.*z))
 	                return(Spectral(Table, E, ((long double)(int(1474.*z/(5.*M_PI)))-.25)*5.*M_PI/(2.*z), z, Specify));
-		if(Specify == 1)//else
-			i - 13;	//Drop down 13 spots to reflect 13 will be in the 0 index for Spectral[1]
 	}
 
 	if(Table[Specify][i][j][4] == 0 || Table[Specify][i+1][j][4] == 0 || Table[Specify][i][j+1][4] == 0 || Table[Specify][i+1][j+1][4] == 0)	//If any of the required points have been invalidated, calculate points from integrals.
