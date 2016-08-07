@@ -31,10 +31,10 @@ int main(int argc, char* argv[])
 	strcat(File, Process);			//Appends the process number to the file name
 	ofstream TPlot(File);
 	TPlot << setprecision(18);
-	long double*** Table[3];	//The table of values computed by Spectral
+	long double*** Table[2];	//The table of values computed by Spectral
 	long double z, tau;	//The position value of the spactial correlator and tau of the euclidean-time correlator
 	long double holder[5];
-	int N[3] = {14,739,752}, M[3] = {401,401,463};	//The size of the table
+	int N[2] = {789,752}, M[2] = {151,463};	//The size of the table
 	const int iProcess = atoi(argv[1]);
 	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[5]);
@@ -236,25 +236,10 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	}
 	else
 	{
-		for(i = 0; i < 8; i++)
+		long double stride = 8.*M_PI/z;	//four cycles in j
+		do
 		{
-			b = 26.*(i+1);
-			F_a = F_b = 0;	//Start integration at 0
-			for(j = 0; j < 24; j++)
-			{
-				x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
-				x2 = (b+a+Disp[j]*(b-a))/2.;
-
-				F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
-				F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
-			}
-			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
-			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
-			a = b;
-		}
-		for(i = 0; i < 10; i++)
-		{
-			b = 58.*(i+1)+208.;
+			b += stride;
 			F_a = F_b = 0;	//Start integration at 0
 			for(j = 0; j < 24; j++)
 			{
@@ -273,46 +258,54 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	return(Answer);
 }
 
-long double SpatialNeg(long double*** Table[], long double i, long double z, int Temp)
+long double SpatialNeg(long double*** Table[], long double j, long double z, int Temp)
 {
 	long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of data point
 	long double x1;	//These are the two other points required for 95th order Gaussian quadrature for this interval
 	long double x2;
 	long double Answer = 0;
-	long double stride = 2.*M_PI/z;	//Stride of the integral
+	long double stride;	//Stride of the integral
 	long double F_a, F_b, F_ave;
 	long double a = 0;
 	long double b = 0;	//The location of where the current stride should have ended
-	int j;
+	int i;
 
 	F_a = F_b = 0;	//Start integration at 0
 	do
 	{
-		b += stride;
-		if(b > 150)
-			b = 150;
+		if(b < 150)
+			stride = .8*M_PI/z;	//four cycles in i up to i=150
+		else
+			stride = 8.*M_PI/z;	//four cycles in i after i=150
 
-		for(j = 0; j < 24; i++)
+		b += stride;
+
+		if(a < 150 && b > 150)
+			b = 150;
+		else if(b > 2001.*M_PI/z-j+187.2)
+			b = 2001.*M_PI/z-j+187.2;
+
+		for(i = 0; i < 24; i++)
 		{
-			x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
-			x2 = (b+a+Disp[j]*(b-a))/2.;
+			x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
+			x2 = (b+a+Disp[i]*(b-a))/2.;
 
 			if(i <= 208)
 			{
-				F_a += Spectral(Table, i, x1, z, 0)/i*cos((i/10.+x1)*z)*w[j+1];	//Evaluate k integral at x1
-				F_b += Spectral(Table, i, x2, z, 0)/i*cos((i/10.+x2)*z)*w[j+1];	//Evaluate k integral at x3
+				F_a += Spectral(Table, j, x1, z, 0)/x1*cos((x1/10.+j)*z)*w[i+1];	//Evaluate k integral at x1
+				F_b += Spectral(Table, j, x2, z, 0)/x2*cos((x2/10.+j)*z)*w[i+1];	//Evaluate k integral at x3
 			}
 			else
 			{
-				F_a += Spectral(Table, i, x1, z, 0)*abs(374.4+2.*(x1-i))*cos((i+x1-187.2)*z)/(35043.84-374.4*i+pow(i,2)+pow(x1,2))*w[j+1];	//Evaluate k integral at x1
-				F_b += Spectral(Table, i, x2, z, 0)*abs(374.4+2.*(x2-i))*cos((i+x2-187.2)*z)/(35043.84-374.4*i+pow(i,2)+pow(x2,2))*w[j+1];	//Evaluate k integral at x3
+				F_a += Spectral(Table, j, x1, z, 0)*abs(374.4+2.*(j-x1))*cos((j+x1-187.2)*z)/(35043.84-374.4*x1+pow(x1,2)+pow(j,2))*w[i+1];	//Evaluate k integral at x1
+				F_b += Spectral(Table, j, x2, z, 0)*abs(374.4+2.*(j-x2))*cos((j+x2-187.2)*z)/(35043.84-374.4*x2+pow(x2,2)+pow(j,2))*w[i+1];	//Evaluate k integral at x3
 			}
 		}
 		if(i <= 208)
-			F_ave = Spectral(Table, i, (a+b)/2., z, 0)/i*cos((i/10.+(a+b)/2.)*z);
+			F_ave = Spectral(Table, j, (a+b)/2., z, 0)*2./(a+b)*cos(((a+b)/20.+j)*z);
 		else
-			F_ave = Spectral(Table, i, (a+b)/2., z, 0)*abs(374.4+2.*((a+b)/2.-i))*cos((i+(a+b)/2.-187.2)*z)/(35043.84-374.4*i+pow(i,2)+pow((a+b)/2.,2));
+			F_ave = Spectral(Table, j, (a+b)/2., z, 0)*abs(374.4+2.*(j-(a+b)/2.))*cos((i+(a+b)/2.-187.2)*z)/(35043.84-187.2*(a+b)+pow((a+b)/2.,2)+pow(j,2));
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
 	}while(b < 150)
 
@@ -429,12 +422,12 @@ long double Spectral(long double*** Table[], long double E, long double p, long 
 	}
 	else
 	{
+		if(z > 0 && p > 788.-fmod(acos(cos((600.8+p)*z))+M_PI/2.,M_PI/2.)*2.*M_PI/z)
+	                return(Spectral(Table, E, 788.-fmod(acos(cos((600.8+p)*z))+M_PI/2.,M_PI/2.)*2.*M_PI/z, z, Specify));
 		i = p;
 		j = E;
 		t = p - i;
 		u = E - j;
-		if(Specify == 0 && z > 0 && i > ((long double)(int(1474.*z/(5.*M_PI)))-.25)*5.*M_PI/(2.*z))
-	                return(Spectral(Table, E, ((long double)(int(1474.*z/(5.*M_PI)))-.25)*5.*M_PI/(2.*z), z, Specify));
 	}
 
 	if(Table[Specify][i][j][4] == 0 || Table[Specify][i+1][j][4] == 0 || Table[Specify][i][j+1][4] == 0 || Table[Specify][i+1][j+1][4] == 0)	//If any of the required points have been invalidated, calculate points from integrals.
@@ -554,75 +547,9 @@ void Validate(long double*** Table[], int M[], int N[])
 bool ReadIn(long double*** Table[], int N[], int M[], char* FileReadIn)
 {
 	ifstream File(FileReadIn);
-	int i,j,k;	//Counters
+	int i,j,k,m;	//Counters
 	long double Holder;
-	float Dump;
-	if(File.fail())
-	{
-		cout << "Check the Spectral function file name dingus." << endl;
-		return(false);
-	}
 
-	while(!File.eof())
-	{
-		File >> Dump >> i >> j;	//Dump Temp and momentum and collect energy
-		File >> Holder;	//Capture the spectral function in the first level in the matrix
-		File >> Dump;	//Dump the Real T-Matrix
-		File >> Dump;	//Dump the Imaginary T-Matrix
-
-		if(File.eof())
-			break;
-		else if(j < 400)
-		{
-			if(i < 13)
-			{
-				Table[0][i][j][0] = Holder;
-				Table[0][i][j][4] = 1;
-			}
-			else if( i == 13)
-			{
-				Table[0][i][j][0] = Holder;
-				Table[1][i-13][j][0] = Holder;
-				Table[0][i][j][4] = 1;
-				Table[1][i-13][j][4] = 1;
-			}
-			else
-			{
-				Table[1][i-13][j][0] = Holder;
-				Table[1][i-13][j][4] = 1;
-			}
-
-		}
-		else if(j > 400)
-		{
-			Table[2][i][j-400][0] = Holder;
-			Table[2][i][j-400][4] = 1;
-		}
-		else
-		{
-			if(i < 13)
-			{
-				Table[0][i][j][0] = Holder;
-				Table[0][i][j][4] = 1;
-			}
-			else if( i == 13)
-			{
-				Table[0][i][j][0] = Holder;
-				Table[1][i-13][j][0] = Holder;
-				Table[0][i][j][4] = 1;
-				Table[1][i-13][j][4] = 1;
-			}
-			else
-			{
-				Table[1][i-13][j][0] = Holder;
-				Table[1][i-13][j][4] = 1;
-			}
-			Table[2][i][j-400][0] = Holder;
-			Table[2][i][j-400][1] = 1;
-		}
-	}
-
-	File.close();
 	File.open(strcat(FileReadIn, ".xml"));
 	if(File.fail())
 	{
@@ -630,33 +557,33 @@ bool ReadIn(long double*** Table[], int N[], int M[], char* FileReadIn)
 		return(false);
 	}
 
-	for(int m = 0; m < 3; m++)
+	for(m = 0; m < 2; m++)	//Table count
 	{
-		for(i = 0; i < 3; i++)
+		for(i = 0; i < 4; i++)	//Value type count
 		{
-			for(j = 0; j < N[i]; j++)
+			for(j = 0; j < N[i]; j++)	//j/sqrt(s) count
 			{
-				for(k = 0; k < M[i]; k++)
+				for(k = 0; k < M[i]; k++)	//i/P count
 				{
-					File >> Table[i][j][k][m+1];
-					if(i == 2)
+					File >> Table[m][j][k][i];
+					if(m == 1)
 					{
-						if(m == 0 || m == 2)
-							Table[i][j][k][m+1] *= .8;	//*=dP/di
-						if(m == 1 || m == 2)
+						if(i == 1 || i == 3)
+							Table[m][j][k][i] *= .8;	//*=dP/di
+						if(i == 2 || i == 3)
 						{
 							if(k < 25)
-								Table[i][j][k][m+1] *= .1;
+								Table[m][j][k][i] *= .1;
 							else if(k < 26)
-								Table[i][j][k][m+1] *= .040308;
+								Table[m][j][k][i] *= .040308;
 							else if(k < 226)
-								Table[i][j][k][m+1] *= .005;
+								Table[m][j][k][i] *= .005;
 							else if(k < 227)
-								Table[i][j][k][m+1] *= .009692;
+								Table[m][j][k][i] *= .009692;
 							else if(k < 267)
-								Table[i][j][k][m+1] *= .01375;
+								Table[m][j][k][i] *= .01375;
 							else
-								Table[i][j][k][m+1] *= .1;
+								Table[m][j][k][i] *= .1;
 						}
 					}
 				}
@@ -671,7 +598,7 @@ void Init(long double*** Table[], int N[], int M[])
 {
 	int i, j, k;
 
-	for(k = 0; k < 3; k++)
+	for(k = 0; k < 2; k++)
 	{
 		Table[k] = new long double**[N[k]];
 		for(i = 0; i < N[k]; i++)
