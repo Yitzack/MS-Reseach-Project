@@ -395,7 +395,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		a = b;
 	}while(b < Max);
 
-	return(Answer);
+	return(Answer/pow(M_PI,2));
 }
 
 void Characterize_Folding(long double Par[5], int Temp, long double k, long double theta, long double zero[4], long double gamma[4], int &Poles)
@@ -595,7 +595,7 @@ long double Quark_Spectrum(long double omega, long double k, long double M, int 
 
 long double Spin_Sum(long double Par[5])	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
 {
-	return(Par[4]);
+	return(4.*(-pow(Par[3],2)/4.+pow(k,2)+Par[3]*k*cos(theta)+2.*pow(Par[2],2)+omega*(sqrt(Par[4]+pow(Par[3],2))-omega)));
 }
 
 long double Folding_Integrand(long double Par[5], long double omega, long double k, long double theta, int Temp)	//Integrand of the folding integral
