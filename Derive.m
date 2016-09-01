@@ -33,7 +33,7 @@ ReGV2[P_,s_]:=NIntegrate[(ImGV2[P,sp]-ImGV2[P,s])/(sp-s),{sp,0,23.5},Exclusions-
 
 V[s_]:=Par[1]*(Par[[2]]^4/(Par[[2]]^4+(s-4*Par[[3]]^2)^2))^2 (*TMatrix and Spectral function definitions*)
 TMat[P_,s_]:=V[s]/(1-ReGV2[P,s]-I*ImGV2[P,s])
-Spectral[P_,s_]:=-18/Pi*(ImG[P,s]+Im[Par[[1]]*(ReGV1[P,s]+I*ImGV1[P,s])^2/(1-ReGV2[P,s]-I*ImGV2[P,s])])
+(*Spectral[P_,s_]:=-18/Pi*(ImG[P,s]+Im[Par[[1]]*(ReGV1[P,s]+I*ImGV1[P,s])^2/(1-ReGV2[P,s]-I*ImGV2[P,s])]) Check factor out front for the 2 from spin-spin sum, commented out to make file not work until checked.*)
 
 TList1=Sub1; (*Final calculation*)
 TList2=Sub4;
