@@ -26,10 +26,10 @@ ImG[P_,s_]:=If[s<=0,ImG1[i[P,s],j[P,s]],ImG2[P,s]]
 ImGV1[P_,s_]:=If[s<=0,ImGV11[i[P,s],j[P,s]],ImGV12[P,s]]
 ImGV2[P_,s_]:=If[s<=0,ImGV21[i[P,s],j[P,s]],ImGV22[P,s]]
 
-ReGV1[P_,s_]:=NIntegrate[(ImGV1[P,sp]-ImGV1[P,s])/(sp-s),{sp,-P^2,23.5},Exclusions->sp==s]+ImGV1[P,s]*Integrate[1/(sp-s),{sp,-P^2,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV1[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}]/Pi (*Set up dispersion releation, T!=0*)
-ReGV2[P_,s_]:=NIntegrate[(ImGV2[P,sp]-ImGV2[P,s])/(sp-s),{sp,-P^2,23.5},Exclusions->sp==s]+ImGV2[P,s]*Integrate[1/(sp-s),{sp,-P^2,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV2[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}]/Pi
-(*ReGV1[P_,s_]:=NIntegrate[(ImGV1[P,sp]-ImGV1[P,s])/(sp-s),{sp,0,23.5},Exclusions->sp==s]+ImGV1[P,s]*Integrate[1/(sp-s),{sp,0,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV1[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}]/Pi (*Set up dispersion releation, T==0*)
-ReGV2[P_,s_]:=NIntegrate[(ImGV2[P,sp]-ImGV2[P,s])/(sp-s),{sp,0,23.5},Exclusions->sp==s]+ImGV2[P,s]*Integrate[1/(sp-s),{sp,0,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV2[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}]/Pi*)
+ReGV1[P_,s_]:=(NIntegrate[(ImGV1[P,sp]-ImGV1[P,s])/(sp-s),{sp,-P^2,23.5},Exclusions->sp==s]+ImGV1[P,s]*Integrate[1/(sp-s),{sp,-P^2,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV1[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}])/Pi (*Set up dispersion releation, T!=0*)
+ReGV2[P_,s_]:=(NIntegrate[(ImGV2[P,sp]-ImGV2[P,s])/(sp-s),{sp,-P^2,23.5},Exclusions->sp==s]+ImGV2[P,s]*Integrate[1/(sp-s),{sp,-P^2,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV2[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}])/Pi
+(*ReGV1[P_,s_]:=(NIntegrate[(ImGV1[P,sp]-ImGV1[P,s])/(sp-s),{sp,0,23.5},Exclusions->sp==s]+ImGV1[P,s]*Integrate[1/(sp-s),{sp,0,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV1[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}])/Pi (*Set up dispersion releation, T==0*)
+ReGV2[P_,s_]:=(NIntegrate[(ImGV2[P,sp]-ImGV2[P,s])/(sp-s),{sp,0,23.5},Exclusions->sp==s]+ImGV2[P,s]*Integrate[1/(sp-s),{sp,0,23.5},PrincipalValue->True]+Sum[wLa[[k]]*ImGV2[P,552.25+DispLa[[k]]]/(552.25+DispLa[[k]]-s),{k,1,49}])/Pi*)
 
 V[s_]:=Par[1]*(Par[[2]]^4/(Par[[2]]^4+(s-4*Par[[3]]^2)^2))^2 (*TMatrix and Spectral function definitions*)
 TMat[P_,s_]:=V[s]/(1-ReGV2[P,s]-I*ImGV2[P,s])
