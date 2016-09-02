@@ -409,7 +409,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		a = b;
 	}while(b < Max);
 
-	return(Answer/pow(M_PI,2));
+	return(Answer/M_PI);
 }
 
 void Characterize_Folding(long double Par[5], int Temp, long double k, long double theta, long double zero[4], long double gamma[4], int &Poles)
@@ -604,7 +604,7 @@ long double Potential2(long double Par[5], long double omega, long double k)	//P
 
 long double Quark_Spectrum(long double omega, long double k, long double M, int Temp)	//Single quark spectral function
 {
-	return(Self_Energy(M, omega, k, Temp)/(pow(pow(omega,2)-pow(k,2)-pow(M,2),2)+pow(Self_Energy(M, omega, k, Temp),2))/M_PI);
+	return(Self_Energy(M, omega, k, Temp)/(pow(pow(omega,2)-pow(k,2)-pow(M,2),2)+pow(Self_Energy(M, omega, k, Temp),2)));
 }
 
 long double Spin_Sum(long double Par[5], long double omega, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
