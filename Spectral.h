@@ -144,7 +144,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 
 		b += Width;	//Set next b keeping in mind the upper limit of integration
 
-		if(b > Min_upper && a != Min_upper)	//If (a,b) incompasses Min_upper, make b equal to Min_upper
+		if(b > Min_upper && a < Min_upper)	//If (a,b) incompasses Min_upper, make b equal to Min_upper
 			b = Min_upper;
 
 		F_a.null();
