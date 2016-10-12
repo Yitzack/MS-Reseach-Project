@@ -27,7 +27,7 @@ long double Quark_Spectrum(long double, long double, long double, int);	//Single
 long double Spin_Sum(long double[5], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
 long double Folding_Integrand(long double[5], long double, long double, long double, int);	//Integrand of the folding integral
 
-#define GAMMA -.3
+#define GAMMA -.002
 
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
@@ -172,11 +172,22 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 	long double previous[2];
 	int i, j = 0, l;
 
-	if(sqrt(Par[4]) > 2.*Par[2])	//Find the poles and estimate a width (distance to pole)
-		zero[2] = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
-	else
-		zero[2] = 0;
+        if(sqrt(Par[4]) > 2.*Par[2])    //Find the poles and estimate a width (distance to pole)
+        {
+                zero[0] = (Par[4]-pow(2.*Par[2],2))/(4.*sqrt(Par[4]+pow(Par[3],2))-8.*Par[3]*cos(theta));
+                zero[1] = (Par[4]-pow(2.*Par[2],2))/(4.*sqrt(Par[4]+pow(Par[3],2))+8.*Par[3]*cos(theta));
+                zero[2] = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
+               	Poles = 3;
+        }
+        else
+       	{
+                zero[0] = 0;
+               	zero[1] = 0;
+                zero[2] = 0;
+                Poles = 0;
+        }
 
+	/*Relieved of duty due to change of potiential. Lambda^4 has been traded out for Lambda^2. The poles moved around and are now analytically known.
 	zero[0] = zero[1] = zero[2];	//Start the Newton's search for other k poles
 	i = Newtons_Test_k_Int(Par[1], Par[4], Par[3], Par[2], zero, theta);
 	if(i)
@@ -213,7 +224,7 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 			gamma[0] = 1e-3;
 		Poles = 1;
 		return;
-	}
+	}*/
 
 	for(i = 2; i >= 0; i--)	//Bubble sort
 	{
@@ -306,7 +317,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	long double x1, x2;	//Abscissa
 	long double zero[4];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[4];	//Imaginary part of poles
-	long double Stutter = k+.5*sqrt(Par[4]+pow(Par[3],2));	//Marks a discontinuty in the potiential
+	//long double Stutter = k+.5*sqrt(Par[4]+pow(Par[3],2));	//Marks a discontinuty in the potiential
 	int Poles = 0;		//Number of poles with real parts between 0 and E
 	int i, j, l;		//Counting varibles
 
@@ -355,7 +366,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			if(i+1 < Poles && zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1]) //There exists a next pole and their ranges overlap
 				Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i]; //Sets early terminantion point
 		}
-		else if(Poles != 0 && j < 8 && (a >= zero[i]-64.*gamma[i] && a <= zero[i]+64.*gamma[i]) && !(b == 0 || b == Energy(0,Par[3]/2.,k,theta)))
+		else if(Poles != 0 && j < 8 && (a >= zero[i]-64.*gamma[i] && a <= zero[i]+64.*gamma[i]) && (b == 0 || b == Energy(0,Par[3]/2.,k,theta)))
 		{//Integrating a pole and the width wan't resolved by the first condition after do, 24 lines up
 			Width = gamma[i]*(Range[j+1]-Range[j]);
 			j++;
@@ -381,14 +392,14 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		if(b > Max)
 			b = Max;
 
-		reStutter:	//Use of goto statement to split interval in to two parts that puts the discontinutiy on either limit of integration. This is probably the similest way to do this without screwing everything else up. *Not advised*
+		/*reStutter:	//Use of goto statement to split interval in to two parts that puts the discontinutiy on either limit of integration. This is probably the similest way to do this without screwing everything else up. *Not advised*
 		if(b == Stutter && b-a < Width)	//Catch the second pass of the reStutter step first as it is easier catch here than after the initiation
 		{
 			b = a + Width;
 			a = Stutter;
 		}
 		else if(b > Stutter && a < Stutter) //reStutter loop initiated
-			b = Stutter;
+			b = Stutter;*/
 
 		F_a.null();
 		F_b.null();
@@ -403,8 +414,8 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		F_ave = Elements(1, Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Folding_Integrand(Par,(a+b)/2.,k,theta,Temp)*w[0];
 		Answer += (F_a+F_ave+F_b)*(b-a)/2.;
 
-		if(b == Stutter && b-a < Width)	//execute the second step of the reStutter loop
-			goto reStutter;
+		//if(b == Stutter && b-a < Width)	//execute the second step of the reStutter loop
+		//	goto reStutter;
 
 		a = b;
 	}while(b < Max);
@@ -429,10 +440,15 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 		Upper = sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta);
 	}
 
+        zero[0] = .5*sqrt(Par[4]+pow(Par[3],2))-k;	//Potential poles, I know exactly where these are at.
+        zero[1] = .5*sqrt(Par[4]+pow(Par[3],2))+k;	                                                     
+        gamma[0] = sqrt(pow(k,2)+pow(Par[1]/2.,2))-k;
+        gamma[1] = sqrt(pow(k,2)+pow(Par[1]/2.,2))-k;
+	/*Relieved of duty due to change of potiential. Lambda^4 has been traded out for Lambda^2. The poles moved around and are now analytically known.
 	zero[0] = .5*(sqrt(Par[4]+pow(Par[3],2))+pow(pow(2.*k,4)+pow(Par[1],4),.25)*cos(.5*atan(pow(Par[1]/(2.*k),2))));	//Potential poles, I know exactly where these are at.
 	zero[1] = .5*(sqrt(Par[4]+pow(Par[3],2))-pow(pow(2.*k,4)+pow(Par[1],4),.25)*cos(.5*atan(pow(Par[1]/(2.*k),2))));
 	gamma[0] = .5*(pow(pow(2.*k,4)+pow(Par[1],4),.25)*sin(.5*atan(pow(Par[1]/(2.*k),2))));
-	gamma[1] = .5*(pow(pow(2.*k,4)+pow(Par[1],4),.25)*sin(.5*atan(pow(Par[1]/(2.*k),2))));
+	gamma[1] = .5*(pow(pow(2.*k,4)+pow(Par[1],4),.25)*sin(.5*atan(pow(Par[1]/(2.*k),2))));*/
 
 	holder = GAMMA;
 	zero[2] = pow(pow(pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(holder,2)/2.,2)+.25*(pow(2.*Par[2]*holder,2)-pow(holder,4)),.25)*cos(.5*atan(sqrt(pow(2.*Par[2]*holder,2)-pow(holder,4))/(2.*pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(holder,2))));	//Exact vacuum
