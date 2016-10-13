@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	//#pragma omp parallel for
-	for(i = 0; i <= 0; i++)
+	for(i = 0; i <= 788; i++)
 	{
 		#pragma omp parallel for
 		for(j = iProcess+151; j <= 616; j+=Total)	//Does the subset of E that has been assigned to this process
