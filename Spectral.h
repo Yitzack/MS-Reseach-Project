@@ -320,6 +320,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	//long double Stutter = k+.5*sqrt(Par[4]+pow(Par[3],2));	//Marks a discontinuty in the potiential
 	int Poles = 0;		//Number of poles with real parts between 0 and E
 	int i, j, l;		//Counting varibles
+	Elements Holder;
 
 	Characterize_Folding(Par, Temp, k, theta, zero, gamma, Poles);	//Get the poles that I have to be concerned about
 
@@ -343,7 +344,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 
 	do
 	{
-		if((b == 0 || b == Energy(0,Par[3]/2.,k,theta)) && j != 0)	//First pole is closer than zero-64*gamma to lower limit of integration
+		if((b == 0 || b == Energy(0,Par[3]/2.,k,theta)) && j != 0 && zero[i]+Range[j]*gamma[i] != b)	//First pole is closer than zero-64*gamma to lower limit of integration
 			Width = zero[i]+Range[j]*gamma[i]-b;
 		else if((i < Poles && b+100 < zero[i]-64.*gamma[i]) || b+100 < Max)	//Middle of nowhere intervals
 			Width = 100;
@@ -366,7 +367,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			if(i+1 < Poles && zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1]) //There exists a next pole and their ranges overlap
 				Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i]; //Sets early terminantion point
 		}
-		else if(Poles != 0 && j < 8 && (a >= zero[i]-64.*gamma[i] && a <= zero[i]+64.*gamma[i]) && (b == 0 || b == Energy(0,Par[3]/2.,k,theta)))
+		else if(Poles != 0 && j < 8 && (a >= zero[i]-64.*gamma[i] && a <= zero[i]+64.*gamma[i]) && !(b == 0 || b == Energy(0,Par[3]/2.,k,theta)))
 		{//Integrating a pole and the width wan't resolved by the first condition after do, 24 lines up
 			Width = gamma[i]*(Range[j+1]-Range[j]);
 			j++;
@@ -400,7 +401,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		}
 		else if(b > Stutter && a < Stutter) //reStutter loop initiated
 			b = Stutter;*/
-
+		cerr << setprecision(18);
 		F_a.null();
 		F_b.null();
 		for(l = 0; l < 9; l++)	//Integrate the sub-interval
@@ -408,8 +409,8 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			x1 = (b+a-Disp[l]*(b-a))/2.;
 			x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			F_a += Elements(Spin_Sum(Par, x1, k, theta), Potential1(Par,x1,k), Potential2(Par,x1,k))*Folding_Integrand(Par,x1,k,theta,Temp)*w[l+1];
-			F_b += Elements(Spin_Sum(Par, x2, k, theta), Potential1(Par,x2,k), Potential2(Par,x2,k))*Folding_Integrand(Par,x2,k,theta,Temp)*w[l+1];
+			F_a += Elements(Spin_Sum(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*Folding_Integrand(Par,x1,k,theta,Temp)*w[l+1];
+			F_b += Elements(Spin_Sum(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*Folding_Integrand(Par,x2,k,theta,Temp)*w[l+1];
 		}
 		F_ave = Elements(1, Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Folding_Integrand(Par,(a+b)/2.,k,theta,Temp)*w[0];
 		Answer += (F_a+F_ave+F_b)*(b-a)/2.;
