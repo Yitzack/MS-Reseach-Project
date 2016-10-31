@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 	for(i = atoi(argv[6]); i <= 788; i++)	//Argv[6] allows to restart where ever
 	{
 		#pragma omp parallel for
-		for(j = iProcess+151; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process
+		for(j = iProcess; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
 			Par[1] = 2.499740775983683;
 			Par[2] = 1.8;
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		for(j = iProcess+151; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process
+		for(j = iProcess; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
 			if(j <= 150)
 			{
