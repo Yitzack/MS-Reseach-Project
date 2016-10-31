@@ -252,11 +252,10 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 
 void Newtons_k_Int(long double Lambda, long double s, long double P, long double M, long double k[3], long double theta)
 {
-	long double f1 = Energy(M,P/2.,k[0],theta)-.5*(sqrt(s+pow(P,2))-pow(pow(2.*k[0],4)+pow(Lambda,4),.25)*sqrt(.5+2./sqrt(16.+pow(Lambda/k[0],4))));
-	long double fp1 = pow(pow(2.*k[0],4)+pow(Lambda,4),-.25)*sqrt((pow(Lambda,4)+4.*pow(k[0],4)*(4.+sqrt(16.+pow(Lambda/k[0],4)))))/(k[0]*sqrt(8.+pow(Lambda/k[0],4)/2.))+(2.*k[0]+P*cos(theta))/(2.*Energy(M,P/2.,k[0],theta));
-	long double f2 = -Energy(M,P/2.,-k[1],theta)-.5*(-sqrt(s+pow(P,2))+pow(pow(2.*k[1],4)+pow(Lambda,4),.25)*sqrt(.5+2./sqrt(16.+pow(Lambda/k[1],4))));
-	long double fp2 = -pow(pow(2.*k[1],4)+pow(Lambda,4),-.25)*sqrt((pow(Lambda,4)+4.*pow(k[1],4)*(4.+sqrt(16.+pow(Lambda/k[1],4)))))/(k[1]*sqrt(8.+pow(Lambda/k[1],4)/2.))-(2.*k[1]-P*cos(theta))/(2.*Energy(M,P/2.,-k[1],theta));
-
+	long double f1 = -sqrt(2.)*sqrt(s+pow(P,2))+pow(16.*pow(k[0],4)+pow(Lambda,4),.25)*sqrt(1.+4./sqrt(16.+pow(Lambda/k[0],4)))+2.*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[0],theta),4)))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[0],theta),4),.25);
+	long double fp1 = (4.*pow(k[0],3)*(4.+sqrt(16.+pow(Lambda/k[0],4))))/(pow(16.*pow(k[0],4)+pow(Lambda,4),.75)*sqrt((pow(Lambda,4)+4.*pow(k[0],4)*(4.+sqrt(16.+pow(Lambda/k[0],4))))/(16.*pow(k[0],4)+pow(Lambda,4))))+((2.*k[0]+P*cos(theta))*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[0],theta),4)))*pow(Energy(M,P/2.,k[0],theta),2))/pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[0],theta),4),.75)+(pow(M*GAMMA,2)*(2.*k[0]+P*cos(theta))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[0],theta),4),.25))/(sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[0],theta),4)))*pow(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[0],theta),4),1.5)*pow(Energy(M,P/2.,k[0],theta),6));
+	long double f2 = -sqrt(2.)*sqrt(s+pow(P,2))+pow(16.*pow(k[1],4)+pow(Lambda,4),.25)*sqrt(1.+4./sqrt(16.+pow(Lambda/k[1],4)))+2.*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[1],theta),4)))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,-k[1],theta),4),.25);
+	long double fp2 = (4.*pow(k[1],3)*(4.+sqrt(16.+pow(Lambda/k[1],4))))/(pow(16.*pow(k[1],4)+pow(Lambda,4),.75)*sqrt((pow(Lambda,4)+4.*pow(k[1],4)*(4.+sqrt(16.+pow(Lambda/k[1],4))))/(16.*pow(k[1],4)+pow(Lambda,4))))+((2.*k[1]-P*cos(theta))*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[1],theta),4)))*pow(Energy(M,P/2.,-k[1],theta),2))/pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,-k[1],theta),4),.75)+(pow(M*GAMMA,2)*(2.*k[1]-P*cos(theta))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,-k[1],theta),4),.25))/(sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[1],theta),4)))*pow(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[1],theta),4),1.5)*pow(Energy(M,P/2.,-k[1],theta),6));
 	k[0] -= f1/fp1;
 	k[1] -= f2/fp2;
 	return;
@@ -264,23 +263,26 @@ void Newtons_k_Int(long double Lambda, long double s, long double P, long double
 
 int Newtons_Test_k_Int(long double Lambda, long double s, long double P, long double M, long double k[3], long double theta)
 {
-	long double f1 = Energy(M,P/2.,k[2],theta)-.5*(sqrt(s+pow(P,2))-pow(pow(2.*k[2],4)+pow(Lambda,4),.25)*sqrt(.5+2./sqrt(16.+pow(Lambda/k[2],4))));
-	long double fp1 = pow(pow(2.*k[2],4)+pow(Lambda,4),-.25)*sqrt((pow(Lambda,4)+4.*pow(k[2],4)*(4.+sqrt(16.+pow(Lambda/k[2],4)))))/(k[2]*sqrt(8.+pow(Lambda/k[2],4)/2.))+(2.*k[2]+P*cos(theta))/(2.*Energy(M,P/2.,k[2],theta));
-	long double limit1 = sqrt(pow(M,2)+pow(P,2)/4.)-.5*sqrt(s+pow(P,2))+pow(2,-1.5)*Lambda;
-	long double f2 = -Energy(M,P/2.,-k[2],theta)+.5*(sqrt(s+pow(P,2))-pow(pow(2.*k[2],4)+pow(Lambda,4),.25)*sqrt(.5+2./sqrt(16.+pow(Lambda/k[2],4))));
-	long double fp2 = -pow(pow(2.*k[2],4)+pow(Lambda,4),-.25)*sqrt((pow(Lambda,4)+4.*pow(k[2],4)*(4.+sqrt(16.+pow(Lambda/k[2],4)))))/(k[2]*sqrt(8.+pow(Lambda/k[2],4)/2.))-(2.*k[2]-P*cos(theta))/(2.*Energy(M,P/2.,k[2],theta));
-	long double limit2 = -sqrt(pow(M,2)+pow(P,2)/4.)+.5*sqrt(s+pow(P,2))-pow(2,-1.5)*Lambda;
-	long double limitp = P*cos(theta)/sqrt(pow(2.*M,2)+pow(P,2));
+	long double f1 = -sqrt(2.)*sqrt(s+pow(P,2))+pow(16.*pow(k[2],4)+pow(Lambda,4),.25)*sqrt(1.+4./sqrt(16.+pow(Lambda/k[2],4)))+2.*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[2],theta),4)))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[2],theta),4),.25);
+	long double fp1 = (4.*pow(k[2],3)*(4.+sqrt(16.+pow(Lambda/k[2],4))))/(pow(16.*pow(k[2],4)+pow(Lambda,4),.75)*sqrt((pow(Lambda,4)+4.*pow(k[2],4)*(4.+sqrt(16.+pow(Lambda/k[2],4))))/(16.*pow(k[2],4)+pow(Lambda,4))))+((2.*k[2]+P*cos(theta))*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[2],theta),4)))*pow(Energy(M,P/2.,k[2],theta),2))/pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[2],theta),4),.75)+(pow(M*GAMMA,2)*(2.*k[2]+P*cos(theta))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[2],theta),4),.25))/(sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[2],theta),4)))*pow(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[2],theta),4),1.5)*pow(Energy(M,P/2.,k[2],theta),6));
+	long double limitp1 = (P*((16.*pow(M*GAMMA,2))/sqrt(1.+(16.*pow(M*GAMMA,2))/pow(4.*pow(M,2)+pow(P,2),2))+pow(4.*pow(M,2)+pow(P,2),2)*(1.+1./sqrt(1.+(16.*pow(M*GAMMA,2))/pow(4.*pow(M,2)+pow(P,2),2))))*cos(theta))/(2.*(4.*pow(M,2)+pow(P,2))*pow(16.*pow(M,4)+pow(P,4)+8.*pow(M,2)*(pow(P,2)+2.*pow(GAMMA,2)),.75)*sqrt(1.+1./sqrt(1.+(16.*pow(M*GAMMA,2))/pow(4.*pow(M,2)+pow(P,2),2))));
+	long double f2 = -sqrt(2.)*sqrt(s+pow(P,2))+pow(16.*pow(k[2],4)+pow(Lambda,4),.25)*sqrt(1.+4./sqrt(16.+pow(Lambda/k[2],4)))+2.*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[2],theta),4)))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,-k[2],theta),4),.25);
+	long double fp2 = (4.*pow(k[2],3)*(4.+sqrt(16.+pow(Lambda/k[2],4))))/(pow(16.*pow(k[2],4)+pow(Lambda,4),.75)*sqrt((pow(Lambda,4)+4.*pow(k[2],4)*(4.+sqrt(16.+pow(Lambda/k[2],4))))/(16.*pow(k[2],4)+pow(Lambda,4))))+((2.*k[2]-P*cos(theta))*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[2],theta),4)))*pow(Energy(M,P/2.,-k[2],theta),2))/pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,-k[2],theta),4),.75)+(pow(M*GAMMA,2)*(2.*k[2]-P*cos(theta))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,-k[2],theta),4),.25))/(sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[2],theta),4)))*pow(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[2],theta),4),1.5)*pow(Energy(M,P/2.,-k[2],theta),6));
+	long double limitp2 = (P*(-((16.*pow(M*GAMMA,2))/sqrt(1.+(16.*pow(M*GAMMA,2))/pow(4.*pow(M,2)+pow(P,2),2)))-pow(4.*pow(M,2)+pow(P,2),2)*(1.+1./sqrt(1.+(16.*pow(M*GAMMA,2))/pow(4.*pow(M,2)+pow(P,2),2))))*cos(theta))/(2.*(4.*pow(M,2)+pow(P,2))*pow(16.*pow(M,4)+pow(P,4)+8.*pow(M,2)*(pow(P,2)+2.*pow(GAMMA,2)),.75)*sqrt(1.+1./sqrt(1.+(16.*pow(M*GAMMA,2))/pow(4.*pow(M,2)+pow(P,2),2))));
+	long double limit = -sqrt(2)*sqrt(s+pow(P,2))+pow(16.*pow(M,4)+pow(P,4)+8.*pow(M,2)*(pow(P,2)+2.*pow(GAMMA,2)),.25)*sqrt(1.+1./sqrt(1.+16.*pow(M*GAMMA,2)/pow(4.*pow(M,2)+pow(P,2),2)))+Lambda;
 	int roots = 0;
 
-	if(f1*limit1 < 0 && f2*limit2 < 0)
-		roots = 1;
-	else if(fp1*limitp < 0 && limit1*limitp < 0)
-		roots = 2;
-	else if(fp2*limitp < 0 && limit2*limitp < 0)
-		roots = 3;
-	else if(f1*limit1 < 0 || f2*limit2 < 0)
-		cerr << "Unexepected outcome in Newton_Test_k_Int s=" << s << " P=" << P << " theta=" << theta << endl;
+	if(limit*f1 < 0)
+		roots++;
+	if(limit*f2 < 0)
+		roots++;
+	if(limitp1*fp1 < 0 && limitp1*limit < 0)
+		roots+=2;
+	if(limitp2*fp2 < 0 && limitp2*limit < 0)
+		roots+=2;
+
+	if(roots > 2)
+		cerr << "Unexepected outcome in Newtons_Test_k_Int s = " << s << " P = " << P << " theta = " << theta << endl;
 
 	if(roots == 0)
 	{
@@ -427,27 +429,27 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 
 	zero[0] = .5*(sqrt(Par[4]+pow(Par[3],2))+pow(pow(2.*k,4)+pow(Par[1],4),.25)*cos(.5*atan(pow(Par[1]/(2.*k),2))));	//Potential poles, I know exactly where these are at.
 	zero[1] = .5*(sqrt(Par[4]+pow(Par[3],2))-pow(pow(2.*k,4)+pow(Par[1],4),.25)*cos(.5*atan(pow(Par[1]/(2.*k),2))));
-	gamma[0] = .5*(pow(pow(2.*k,4)+pow(Par[1],4),.25)*sin(.5*atan(pow(Par[1]/(2.*k),2))));
-	gamma[1] = .5*(pow(pow(2.*k,4)+pow(Par[1],4),.25)*sin(.5*atan(pow(Par[1]/(2.*k),2))));
+	gamma[0] = abs(.5*(pow(pow(2.*k,4)+pow(Par[1],4),.25)*sin(.5*atan(pow(Par[1]/(2.*k),2)))));
+	gamma[1] = abs(.5*(pow(pow(2.*k,4)+pow(Par[1],4),.25)*sin(.5*atan(pow(Par[1]/(2.*k),2)))));
 
 	holder = GAMMA;
-	zero[2] = pow(pow(pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(holder,2)/2.,2)+.25*(pow(2.*Par[2]*holder,2)-pow(holder,4)),.25)*cos(.5*atan(sqrt(pow(2.*Par[2]*holder,2)-pow(holder,4))/(2.*pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(holder,2))));	//Exact vacuum
-	zero[3] = pow(pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(holder,2)/2.,2)+.25*(pow(2.*Par[2]*holder,2)-pow(holder,4)),.25)*cos(.5*atan(sqrt(pow(2.*Par[2]*holder,2)-pow(holder,4))/(2.*pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(holder,2))));	//Start of exact vacuum
+	zero[2] = pow(pow(Energy(Par[2],Par[3]/2.,k,theta),4)+pow(Par[2]*holder,2),.25)*cos(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,k,theta),2)));	//Exact vacuum
+	zero[3] = pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),4)+pow(Par[2]*holder,2),.25)*cos(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,-k,theta),2)));	//Start of exact vacuum
 
 	if(Temp != 0)	//media estimate
 	{
 		holder = Self_Energy(Par[2], zero[2], Energy(0,Par[3]/2.,k,theta), Temp)/sqrt(pow(zero[2],2)-pow(Energy(0,Par[3]/2.,k,theta),2));
-		zero[2] = pow(pow(pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(holder,2)/2.,2)+.25*(pow(2.*Par[2]*holder,2)-pow(holder,4)),.25)*cos(.5*atan(sqrt(pow(2.*Par[2]*holder,2)-pow(holder,4))/(2.*pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(holder,2))));
-		gamma[2] = pow(pow(pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(holder,2)/2.,2)+.25*(pow(2.*Par[2]*holder,2)-pow(holder,4)),.25)*sin(.5*atan(sqrt(pow(2.*Par[2]*holder,2)-pow(holder,4))/(2.*pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(holder,2))));
+		zero[2] = pow(pow(Energy(Par[2],Par[3]/2.,k,theta),4)+pow(Par[2]*holder,2),.25)*cos(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,k,theta),2)));
+		gamma[2] = abs(pow(pow(Energy(Par[2],Par[3]/2.,k,theta),4)+pow(Par[2]*holder,2),.25)*sin(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,k,theta),2))));
 
 		holder = Self_Energy(Par[2], zero[3], Energy(0,Par[3]/2.,-k,theta), Temp)/sqrt(pow(zero[3],2)-pow(Energy(0,Par[3]/2.,k,theta),2));
-		zero[3] = sqrt(Par[4]+pow(Par[3],2))-pow(pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(holder,2)/2.,2)+.25*(pow(2.*Par[2]*holder,2)-pow(holder,4)),.25)*cos(.5*atan(sqrt(pow(2.*Par[2]*holder,2)-pow(holder,4))/(2.*pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(holder,2))));
-		gamma[3] = pow(pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(holder,2)/2.,2)+.25*(pow(2.*Par[2]*holder,2)-pow(holder,4)),.25)*sin(.5*atan(sqrt(pow(2.*Par[2]*holder,2)-pow(holder,4))/(2.*pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(holder,2))));
+		zero[3] = sqrt(Par[4]+pow(Par[3],2))-pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),4)+pow(Par[2]*holder,2),.25)*cos(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,-k,theta),2)));
+		gamma[3] = abs(pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),4)+pow(Par[2]*holder,2),.25)*sin(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,-k,theta),2))));
 	}
 	else	//Finish up exact vacuum calculations
 	{
-		gamma[2] = pow(pow(pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(holder,2)/2.,2)+.25*(pow(2.*Par[2]*holder,2)-pow(holder,4)),.25)*sin(.5*atan(sqrt(pow(2.*Par[2]*holder,2)-pow(holder,4))/(2.*pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(holder,2))));
-		gamma[3] = pow(pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(holder,2)/2.,2)+.25*(pow(2.*Par[2]*holder,2)-pow(holder,4)),.25)*sin(.5*atan(sqrt(pow(2.*Par[2]*holder,2)-pow(holder,4))/(2.*pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(holder,2))));
+		gamma[2] = abs(pow(pow(Energy(Par[2],Par[3]/2.,k,theta),4)+pow(Par[2]*holder,2),.25)*sin(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,k,theta),2))));
+		gamma[3] = abs(pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),4)+pow(Par[2]*holder,2),.25)*sin(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,-k,theta),2))));
 		zero[3] = sqrt(Par[4]+pow(Par[3],2))-zero[3];
 	}
 
