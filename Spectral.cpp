@@ -18,7 +18,6 @@ int main(int argc, char* argv[])
 #else
      	char File[25] = "Spectralbb.";  //Name of the file
 #endif
-	char File[25] = "Spectral.";	//Name of the file
 	Process = argv[1];
 	strcat(File, argv[3]);
 	strcat(File, ".");
