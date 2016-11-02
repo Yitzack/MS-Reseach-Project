@@ -207,6 +207,8 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 			gamma[0] = Folding(Par, Temp, zero[0], theta).Min();
 			if(gamma[0] < 1e-3)	//If width is smaller than this value, make it this big
 				gamma[0] = 1e-3;
+			else if(gamma[0] > abs(2.*Par[2]*GAMMA))
+				gamma[0] = abs(2.*Par[2]*GAMMA);
 			Poles = 1;
 			return;
 		}
@@ -217,6 +219,8 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 		gamma[0] = Folding(Par, Temp, zero[0], theta).Min();
 		if(gamma[0] < 1e-3)	//If width is smaller than this value, make it this big
 			gamma[0] = 1e-3;
+		else if(gamma[0] > abs(2.*Par[2]*GAMMA))
+			gamma[0] = abs(2.*Par[2]*GAMMA);
 		Poles = 1;
 		return;
 	}
@@ -246,6 +250,8 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 		gamma[i] = Folding(Par, Temp, zero[i], theta).Min();
 		if(gamma[i] < 1e-3)	//If width is smaller than this value, make it this big
 			gamma[i] = 1e-3;
+		if(i == Poles-1 && gamma[i] > abs(2.*Par[2]*GAMMA))
+			gamma[i] = abs(2.*Par[2]*GAMMA);
 	}
 	return;
 }
@@ -390,7 +396,6 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		if(b > Max)
 			b = Max;
 
-		cerr << setprecision(18);
 		F_a.null();
 		F_b.null();
 		for(l = 0; l < 9; l++)	//Integrate the sub-interval
