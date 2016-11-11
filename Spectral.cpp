@@ -13,7 +13,7 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-#ifdef CC	//use option -D CC= to activate CC macro
+#ifndef BB	//use option -D BB= to activate BB macro
 	char File[25] = "Spectralcc.";  //Name of the file
 #else
      	char File[25] = "Spectralbb.";  //Name of the file
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 			else
 			{
 				Par[3] = i*.8;
-#ifdef CC
+#ifndef BB
                                 if(j <= 181)
                                         Par[4] = pow((j-151.)/10.,2);
                                 else if(j <= 381)
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 			else
 			{
 				Par[3] = i*.8;
-#ifdef CC
+#ifndef BB
                                 if(j <= 181)
                                         Par[4] = pow((j-151.)/10.,2);
                                 else if(j <= 381)
