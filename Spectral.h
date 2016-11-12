@@ -38,12 +38,10 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 	long double x1, x2;	//Abscissa
 	Elements F;	//Sum of ordinate*weights
 	Elements Answer(0,0,0);	//Answer to be returned
-	Elements Compensator(0,0,0);
-	Elements Int1, Int2;
 	long double a = 0, b;	//Sub-interval limits of integration
 	int i, j;	//Counters
 
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < 8; i++)
 	{
 		b = Range[i];
 
@@ -53,31 +51,10 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 			x1 = (b+a-Disp[j]*(b-a))/2.;
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			Int1 = k_Int(Par, Temp, x1)*sin(x1)*w[j+1]-Compensator;
-			Int2 = F+Int1;
-			Compensator = (Int2-F)-Int1;
-			F = Int2;
-			Int1 = k_Int(Par, Temp, x2)*sin(x2)*w[j+1]-Compensator;
-			Int2 = F+Int1;
-			Compensator = (Int2-F)-Int1;
-			F = Int2;
-			Int1 = k_Int(Par, Temp, M_PI-x1)*sin(M_PI-x1)*w[j+1]-Compensator;
-			Int2 = F+Int1;
-			Compensator = (Int2-F)-Int1;
-			F = Int2;
-			Int1 = k_Int(Par, Temp, M_PI-x2)*sin(M_PI-x2)*w[j+1]-Compensator;
-			Int2 = F+Int1;
-			Compensator = (Int2-F)-Int1;
-			F = Int2;
+			F += k_Int(Par, Temp, x1)*sin(x1)*w[j+1];
+			F += k_Int(Par, Temp, x2)*sin(x2)*w[j+1];
 		}
-		Int1 = k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.)*w[0]-Compensator;
-		Int2 = F+Int1;
-		Compensator = (Int2-F)-Int1;
-		F = Int2;
-		Int1 = k_Int(Par, Temp, M_PI-(a+b)/2.)*sin(M_PI-(a+b)/2.)*w[0]-Compensator;
-		Int2 = F+Int1;
-		Compensator = (Int2-F)-Int1;
-		F = Int2;
+		F += k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.)*w[0];
 		Answer += F*(b-a)/2.;
 		a = b;
 	}
