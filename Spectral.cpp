@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 	for(i = atoi(argv[6]); i <= 788; i++)	//Argv[6] allows to restart where ever
 	{
 		#pragma omp parallel for
-		for(j = iProcess; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process
+		for(j = iProcess+151; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
 			Par[1] = 2.643945190802571;
 			Par[2] = 1.8;
@@ -68,6 +68,7 @@ int main(int argc, char* argv[])
 
 			if(j <= 150)
 			{
+				cout << "If you come down this way, you have to alter the curvilinar system used to sample. You will want to use lines of constant s, or sqrt(E^2+P^2). You must do this before you do anything in s<0GeV^2 region" << endl;
 				if(i <= 208)
 				{
 					Par[3] = i/10.+j;
@@ -114,7 +115,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		for(j = iProcess; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process
+		for(j = iProcess+151; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
 			if(j <= 150)
 			{
