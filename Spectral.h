@@ -326,10 +326,12 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 
 	/*a = b = End_Points[0];
 	Max = End_Points[1];//*/
-	if(Temp != 0)
+	if(false)//Temp != 0) //This may or may not be a permanent change. Due to this uncertainity, I'm leaving it here.
 	{
 		a = b = 0;
 		Max = sqrt(Par[4]+pow(Par[3],2));
+		cout << "If you've come down this way,you must first correct issues of pole intersections between potiential and quark propagators. I have attempted to fuck everything up if you miss this warning." << endl;
+		return(Elements(0./0.,0./0.,0./0.));
 	}
 	else
 	{
@@ -421,7 +423,7 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 	long double holder;
 	int i, j;
 
-	if(Temp != 0)
+	if(false)//Temp != 0)
 	{
 		Lower = 0;
 		Upper = sqrt(Par[4]+pow(Par[3],2));
