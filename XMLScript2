@@ -3,7 +3,7 @@ BEGIN{
 }
 {
 	if (length($0) == 0) {}
-	else if($2 >= 151)
+	else if($2 >= 151 && $1 <= 751)
 	{
 		print "   <Function>"
 		print "    <Symbol>List</Symbol>"

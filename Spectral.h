@@ -159,7 +159,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
 		Answer += PartialAnswer;
 		a = b;
-	}while(b <= Min_upper || abs(PartialAnswer/Answer) >= .0001);
+	}while(b < Min_upper/* || abs(PartialAnswer/Answer) >= .0001*/);
 
 	return(Answer);
 }
@@ -300,7 +300,7 @@ int Newtons_Test_k_Int(long double Lambda, long double s, long double P, long do
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements Folding(long double Par[5], int Temp, long double k, long double theta)	//Folding integral, energy integral
 {
-	if(Temp == 0 && sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta) <= Energy(0,Par[3]/2.,k,theta))	//Let's save some time and just return 0, because it is
+	if(/*Temp == 0 && */sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta) <= Energy(0,Par[3]/2.,k,theta))	//Let's save some time and just return 0, because it is
 		return(Elements(0,0,0));
 	else if(Par[4]+pow(Par[3],2) <= 0)
 		return(Elements(0,0,0));	//Bad data trap and time saver
@@ -523,10 +523,13 @@ long double Self_Energy(long double M, long double omega, long double k, int Tem
 	long double b1, b2;	//width of lorentzian
 	long double Delta;	//Exponential parameters
 
+	if(omega < k)
+		return(0);
+
 	switch(Temp)
 	{
 		case 0:
-			if(omega>k)
+			if(omega>=k)
 				return(GAMMA*M);
 			else
 				return(0);
