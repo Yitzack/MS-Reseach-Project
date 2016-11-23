@@ -15,9 +15,7 @@ List4 = Flatten[D[ImGV2[P, e], P] /. P -> Range[0, 600.8, .8] /. e -> e1];
 List5 = Flatten[2*Sqrt[e]*D[ImGV2[P, e], e] /. P -> Range[0, 600.8, .8] /. e -> e1];
 List6 = Flatten[2*Sqrt[e]*D[ImGV2[P, e], P, e] /. P -> Range[0, 600.8, .8] /. e -> e1];
 
-Print[StringJoin[Directory[],"/",input[[Dimensions[input]]],"ImGV1.csv"]]
 Export[StringJoin[Directory[],"/",input[[Dimensions[input]]],"ImGV1.csv"], Transpose[{List1,List2,List3}]] (*Export the table*)
-Print[StringJoin[Directory[],"/",input[[Dimensions[input]]],"ImGV2.csv"]]
 Export[StringJoin[Directory[],"/",input[[Dimensions[input]]],"ImGV2.csv"], Transpose[{List4,List5,List6}]]
 
 Exit[]
