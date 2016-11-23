@@ -1,2 +1,8 @@
-awk -f MS-Reseach-Project/XMLScript1 $1
-awk -f MS-Reseach-Project/XMLScript2 $1
+sort -nk2 -nk1 ${1} -o ${1}
+tail -n366885 ${1} | sort -nk1 -nk2 | head -n349680 > Table
+mv Table ${1}
+awk -f MS-Reseach-Project/XMLScript1 ${1} > ${1}.xml
+awk -f MS-Reseach-Project/XMLScript2 ${1} >> ${1}.xml
+math -script MS-Reseach-Project/Derive.m ${1}
+sed 's/,/ /g' ${1}ImGV1.csv | paste -d\  ${1} - | cut -d\  -f3,4,6,8,9,10 > ${1}ImGV1
+sed 's/,/ /g' ${1}ImGV2.csv | paste -d\  ${1} - | cut -d\  -f3,4,7,8,9,10 > ${1}ImGV2
