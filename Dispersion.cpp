@@ -39,7 +39,7 @@ int main(int argc, char* argv[])	//Process#, # of Process, output file name, Inp
 	if(!ReadIn(Table, N, M, argv[4]))
 		return(0);
 
-	for(i = atoi(argv[5]); i <= 788; i++)	//Argv[5] allows to restart where ever
+	/*for(i = atoi(argv[5]); i <= 788; i++)	//Argv[5] allows to restart where ever
 	{
 		for(j = iProcess+151; j < 567; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
@@ -131,6 +131,9 @@ int main(int argc, char* argv[])	//Process#, # of Process, output file name, Inp
 
 	TPlot.close();//*/
 
+	for(long double i = 0; i <= 23.5; i += .001)
+		TPlot << i*i << " " << Imaginary(Table, i, 0) << endl;
+
 	return(0);
 }
 
@@ -217,6 +220,14 @@ long double Imaginary(long double*** Table[], long double E, long double p)
 	}
 
 	long double f[16] = {Table[Specify][j][i][0], Table[Specify][j][i+1][0], Table[Specify][j+1][i][0], Table[Specify][j+1][i+1][0], Table[Specify][j][i][1], Table[Specify][j][i+1][1], Table[Specify][j+1][i][1], Table[Specify][j+1][i+1][1], Table[Specify][j][i][2], Table[Specify][j][i+1][2], Table[Specify][j+1][i][2], Table[Specify][j+1][i+1][2], Table[Specify][j][i][3], Table[Specify][j][i+1][3], Table[Specify][j+1][i][3], Table[Specify][j+1][i+1][3]};	//fetch the data points and store them
+
+	if(E >= 3 && E <= 5)	//resolve the width of the sqrt(s) to keep things more correct over trying to resolve it with the table load
+		for(int k = 8; k < 16; k++)
+			f[k] *= .01;
+	else
+		for(int k = 8; k < 16; k++)
+			f[k] *= .1;
+
 	long double a[16] = {	f[0],	//Calculate the coeffecients of the function
 				f[4],
 				-3.*f[0]+3.*f[1]-2.*f[4]-f[5],
@@ -260,7 +271,7 @@ bool ReadIn(long double*** Table[], int N[], int M[], char* FileReadIn)
 					{
 						if(i == 1 || i == 3)
 							Table[m][j][k][i] *= .8;	//*=dP/di
-						if(i == 2 || i == 3)
+						/*if(i == 2 || i == 3)
 						{
 							if(j < 30)
 								Table[m][j][k][i] *= .1;
@@ -268,7 +279,7 @@ bool ReadIn(long double*** Table[], int N[], int M[], char* FileReadIn)
 								Table[m][j][k][i] *= .01;
 							else
 								Table[m][j][k][i] *= .1;
-						}
+						}*/
 					}
 				}
 			}
