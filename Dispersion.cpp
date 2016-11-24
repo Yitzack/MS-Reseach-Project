@@ -39,7 +39,7 @@ int main(int argc, char* argv[])	//Process#, # of Process, output file name, Inp
 	if(!ReadIn(Table, N, M, argv[4]))
 		return(0);
 
-	/*for(i = atoi(argv[5]); i <= 788; i++)	//Argv[5] allows to restart where ever
+	for(i = atoi(argv[5]); i <= 788; i++)	//Argv[5] allows to restart where ever
 	{
 		for(j = iProcess+151; j < 567; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
@@ -130,9 +130,6 @@ int main(int argc, char* argv[])	//Process#, # of Process, output file name, Inp
 	}
 
 	TPlot.close();//*/
-
-	for(long double i = 0; i <= 23.5; i += .001)
-		TPlot << i*i << " " << Imaginary(Table, i, 0) << endl;
 
 	return(0);
 }
