@@ -14,9 +14,9 @@ char* Process;
 int main(int argc, char* argv[])
 {
 #ifndef BB	//use option -D BB= to activate BB macro
-	char File[25] = "Spectralcc.";  //Name of the file
+	char File[30] = "Spectralcc.";  //Name of the file
 #else
-     	char File[25] = "Spectralbb.";  //Name of the file
+     	char File[30] = "Spectralbb.";  //Name of the file
 #endif
 	Process = argv[1];
 	strcat(File, argv[3]);

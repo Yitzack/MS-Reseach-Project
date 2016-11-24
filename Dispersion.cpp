@@ -14,20 +14,22 @@ long double Real(long double***[], long double, long double);	//Returns the real
 
 char* Process;
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[])	//Process#, # of Process, output file name, Input file name, starting point
 {
-	char* File = new char[25];	//Name of the file
+	char* File = new char[30];	//Name of the file
 	strcpy(File, argv[3]);
 	Process = argv[1];
 	strcat(File, ".");
-	strcat(File, argv[5]);
-	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
-	ofstream TPlot(File);
+	ofstream TPlot;
+	if(atoi(argv[5]) == 0)	//If starting from the beginning, overwrite
+		TPlot.open(File);
+	else	//If not starting from the beginning, append
+		TPlot.open(File, ios::app);
 	TPlot << setprecision(18);
 	long double*** Table[2];	//The table of values computed by Spectral
 	long double holder[416];
-	int N[2] = {0,752}, M[2] = {0,463};	//The size of the table
+	int N[2] = {0,465}, M[2] = {0,752};	//The size of the table
 	const int iProcess = atoi(argv[1]);
 	const int Total = atoi(argv[2]);
 	int i, j;
@@ -37,7 +39,7 @@ int main(int argc, char* argv[])
 	if(!ReadIn(Table, N, M, argv[4]))
 		return(0);
 
-	for(i = atoi(argv[6]); i <= 788; i++)	//Argv[6] allows to restart where ever
+	for(i = atoi(argv[5]); i <= 788; i++)	//Argv[5] allows to restart where ever
 	{
 		for(j = iProcess+151; j < 567; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
@@ -59,19 +61,20 @@ int main(int argc, char* argv[])
 			{
 				P = i*.8;
 #ifndef BB
-                                if(j <= 181)
-                                        s = pow((j-151.)/10.,2);
-                                else if(j <= 381)
-                                        s = pow((j-181.)/100.+3.,2);
-                                else
-                                        s = pow((j-381.)/10.+5.,2);
+				if(j <= 181)
+					s = pow((j-151.)/10.,2);
+				else if(j <= 381)
+					s = pow((j-181.)/100.+3.,2);
+				else
+					s = pow((j-381.)/10.+5.,2);
+
 #else
-                                if(j <= 251)
-                                        s = pow((j-151.)/10.,2);
-                                else if(j <= 451)
-                                        s = pow((j-251.)/100.+10.,2);
-                                else
-                                        s = pow((j-451.)/10.+12.,2);
+				if(j <= 251)
+					s = pow((j-151.)/10.,2);
+				else if(j <= 451)
+					s = pow((j-251.)/100.+10.,2);
+				else
+					s = pow((j-451.)/10.+12.,2);
 #endif
 			}
 
@@ -105,19 +108,19 @@ int main(int argc, char* argv[])
 			{
 				P = i*.8;
 #ifndef BB
-                                if(j <= 181)
-                                        s = pow((j-151.)/10.,2);
-                                else if(j <= 381)
-                                        s = pow((j-181.)/100.+3.,2);
-                                else
-                                        s = pow((j-381.)/10.+5.,2);
+				if(j <= 181)
+					s = pow((j-151.)/10.,2);
+				else if(j <= 381)
+					s = pow((j-181.)/100.+3.,2);
+				else
+					s = pow((j-381.)/10.+5.,2);
 #else
-                                if(j <= 251)
-                                        s = pow((j-151.)/10.,2);
-                                else if(j <= 451)
-                                        s = pow((j-251.)/100.+10.,2);
-                                else
-                                        s = pow((j-451.)/10.+12.,2);
+				if(j <= 251)
+					s = pow((j-151.)/10.,2);
+				else if(j <= 451)
+					s = pow((j-251.)/100.+10.,2);
+				else
+					s = pow((j-451.)/10.+12.,2);
 #endif
 			}
 
@@ -127,6 +130,8 @@ int main(int argc, char* argv[])
 	}
 
 	TPlot.close();//*/
+
+	return(0);
 }
 
 long double Real(long double*** Table[], long double s, long double p)
@@ -164,8 +169,8 @@ long double Real(long double*** Table[], long double s, long double p)
 	F_a = 0;
 	for(j = 0; j < 49; j++)
 	{
-		x1 = 552.25+wLa[j];
-		F_a += Imaginary(Table, sqrt(x1), p)/(x1-s)*w[j+1]; //Evaluate function at x1
+		x1 = 552.25+DispLa[j];
+		F_a += Imaginary(Table, sqrt(x1), p)/(x1-s)*wLa[j]; //Evaluate function at x1
 	}
 	Answer += F_a;
 
@@ -176,32 +181,42 @@ long double Imaginary(long double*** Table[], long double E, long double p)
 {
 	long double t, u;
 	int i, j;
-	int Specify = 0;	//The specify varible was to specify between 2 different table. At the moment, I only have one. But I don't know if I'll get a second, so I'll leave as much structure as possible for the possiblity of getting it.
+	int Specify = 1;	//The specify varible was to specify between 2 different table. At the moment, I only have one. But I don't know if I'll get a second, so I'll leave as much structure as possible for the possiblity of getting it.
 
 	t = p/.8;	//returns the p index with the fractional part
-	if(E < 3)	//These are to give the fractional distance from one E-point to the next+the index
-		u = E/.1;
-	else if(E < 5)
-		u = 30+(E-3)/.01;
-	else if(E < 23.5)
-		u = 230+(E-5)/.1;
+	i = t;	//p index in the Table
+	t -= i;	//Removes the index leaving the fractional part
+	if(p >= 600.8)	//Resolves P=600.8, which is at the upper edge of the P Table
+	{
+		i--;
+		t++;
+	}
+
+	if(E <= 23.5)
+	{
+		if(E < 3)	//These are to give the fractional distance from one E-point to the next+the index
+			u = E/.1;
+		else if(E < 5)
+			u = 30+(E-3)/.01;
+		else
+			u = 230+(E-5)/.1;
+		j = u;	//E index in the Table
+		u -= j;
+	}
 	else
 	{
 		long double GaussLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integrationsomething cleaver for the Gauss-Laugare region
-		E = sqrt(pow(E,2)-552.25);
-		i = 0;
+		E = pow(E,2)-552.25;
+		j = 0;
 		u = 1;	//When above 23.5, I should only ask for points that I have. I only need those points in one end or the other. It is most likely they'll be in the upper end the way I've written it.
-		while(i < 49 && !((abs(E-GaussLa[i+1]) < .00001) || (abs(E-GaussLa[i]) < .00001)))
-			i++;
-		if(abs(E-GaussLa[i]) < .00001) //Written for case where the point is in the lower end
+		while(j < 49 && !((abs(E-GaussLa[j+1]) < .00001) || (abs(E-GaussLa[j]) < .00001)))
+			j++;
+		if(abs(E-GaussLa[j]) < .00001) //Written for case where the point is in the lower end
 			u = 0;
+		j += 416;
 	}
-	i = t;	//p index in the Table
-	j = u;	//E index in the Table
-	t -= i;	//Removes the index leaving the fractional part
-	u -= j;
 
-	long double f[16] = {Table[Specify][i][j][0], Table[Specify][i+1][j][0], Table[Specify][i][j+1][0], Table[Specify][i+1][j+1][0], Table[Specify][i][j][1], Table[Specify][i+1][j][1], Table[Specify][i][j+1][1], Table[Specify][i+1][j+1][1], Table[Specify][i][j][2], Table[Specify][i+1][j][2], Table[Specify][i][j+1][2], Table[Specify][i+1][j+1][2], Table[Specify][i][j][3], Table[Specify][i+1][j][3], Table[Specify][i][j+1][3], Table[Specify][i+1][j+1][3]};	//fetch the data points and store them
+	long double f[16] = {Table[Specify][j][i][0], Table[Specify][j][i+1][0], Table[Specify][j+1][i][0], Table[Specify][j+1][i+1][0], Table[Specify][j][i][1], Table[Specify][j][i+1][1], Table[Specify][j+1][i][1], Table[Specify][j+1][i+1][1], Table[Specify][j][i][2], Table[Specify][j][i+1][2], Table[Specify][j+1][i][2], Table[Specify][j+1][i+1][2], Table[Specify][j][i][3], Table[Specify][j][i+1][3], Table[Specify][j+1][i][3], Table[Specify][j+1][i+1][3]};	//fetch the data points and store them
 	long double a[16] = {	f[0],	//Calculate the coeffecients of the function
 				f[4],
 				-3.*f[0]+3.*f[1]-2.*f[4]-f[5],
@@ -228,20 +243,17 @@ bool ReadIn(long double*** Table[], int N[], int M[], char* FileReadIn)
 	int i,j,k,m;	//Counters
 	long double Holder;
 
-	File.open(strcat(FileReadIn, ".xml"));
-	if(File.fail())
-	{
-		cout << "Make sure the *.xml file has the same name as the Spectral function file dingus." << endl;
+	if(File.good() == false)
 		return(false);
-	}
 
 	for(m = 0; m < 2; m++)	//Table count
 	{
-		for(i = 0; i < 4; i++)	//Value type count
+		for(k = 0; k < M[m]; k++)	//i/P count
 		{
-			for(j = 0; j < N[i]; j++)	//j/sqrt(s) count
+			for(j = 0; j < N[m]; j++)	//j/sqrt(s) count
 			{
-				for(k = 0; k < M[i]; k++)	//i/P count
+				File >> Holder >> Holder;
+				for(i = 0; i < 4; i++)	//Value type count
 				{
 					File >> Table[m][j][k][i];
 					if(m == 1)
@@ -250,9 +262,9 @@ bool ReadIn(long double*** Table[], int N[], int M[], char* FileReadIn)
 							Table[m][j][k][i] *= .8;	//*=dP/di
 						if(i == 2 || i == 3)
 						{
-							if(k < 30)
+							if(j < 30)
 								Table[m][j][k][i] *= .1;
-							else if(k < 230)
+							else if(j < 230)
 								Table[m][j][k][i] *= .01;
 							else
 								Table[m][j][k][i] *= .1;
