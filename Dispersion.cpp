@@ -39,7 +39,7 @@ int main(int argc, char* argv[])	//Process#, # of Process, output file name, Inp
 	if(!ReadIn(Table, N, M, argv[4]))
 		return(0);
 
-	for(i = atoi(argv[5]); i <= 788; i++)	//Argv[5] allows to restart where ever
+	for(i = atoi(argv[5]); i <= 751; i++)	//Argv[5] allows to restart where ever
 	{
 		for(j = iProcess+151; j < 567; j+=Total)	//Does the subset of E that has been assigned to this process
 		{
@@ -147,6 +147,16 @@ long double Real(long double*** Table[], long double s, long double p)
 	long double a, b;
 	int i, j;
 
+	if(abs(s) < pow(.001,2)*.1)	//Take linear limits to subvert issues with the endpoints of log((552.25-s)/s) causing issues
+	{
+		return(2.*Real(Table, pow(.001,2), p)-Real(Table, pow(.002,2), p));
+	}
+	else if(abs(s-552.25) < .00001)
+	{
+		return(-Real(Table, pow(23.498,2), p)+2.*Real(Table, pow(23.499,2), p));
+	}
+
+//cout << sqrt(s) << " " << Answer;
 	a = b = 0;
 	for(i = 0; i < 6; i++)
 	{
@@ -166,6 +176,7 @@ long double Real(long double*** Table[], long double s, long double p)
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}
+//cout << " " << Answer-Imaginary(Table, sqrt(s), p)*log(552.25/s-1.);
 	F_a = 0;
 	for(j = 0; j < 49; j++)
 	{
@@ -173,7 +184,7 @@ long double Real(long double*** Table[], long double s, long double p)
 		F_a += Imaginary(Table, sqrt(x1), p)/(x1-s)*wLa[j]; //Evaluate function at x1
 	}
 	Answer += F_a;
-
+//cout << " " << F_a;
 	return(Answer/M_PI);
 }
 
