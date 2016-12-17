@@ -28,7 +28,7 @@ long double Quark_Spectrum(long double, long double, long double, int);	//Single
 long double Spin_Sum(long double[5], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
 long double Folding_Integrand(long double[5], long double, long double, long double, int);	//Integrand of the folding integral
 
-#define GAMMA -.0075
+#define GAMMA -.015
 
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
