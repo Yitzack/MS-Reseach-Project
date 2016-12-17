@@ -640,7 +640,7 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 			break;
 		default:
 			a = 0;
-			c = 0
+			c = 0;
 			gamma = 1;
 			Par[0] = 1;
 			Par[1] = 1;
@@ -652,7 +652,7 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 	}
 	Par[3] = 0;
 
-	return(2.*M*(Par[0]*exp(-pow(k/Par[1],2))+(1-Par[0])*exp(-pow(k/Par[2],2))+Par[3])*(a*(omega-c)/(pow(omega-c,2)+pow(gamma,2)));
+	return(2.*M*(Par[0]*exp(-pow(k/Par[1],2))+(1-Par[0])*exp(-pow(k/Par[2],2))+Par[3])*(a*(omega-c)/(pow(omega-c,2)+pow(gamma,2))));
 }
 
 long double Energy(long double M, long double P, long double k, long double theta)	//Single quark energy, can return momentum if M=0
