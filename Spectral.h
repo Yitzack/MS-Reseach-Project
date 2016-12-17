@@ -17,7 +17,8 @@ int Newtons_Test_k_Int(long double, long double, long double, long double, long 
 void Characterize_Folding(long double[5], int, long double, long double, long double[4], long double[4], long double[2], int&);	//Returns the poles of the folding integral's integrands
 
 //Straight Functions everything is built from
-long double Self_Energy(long double, long double, long double, int);	//Single quark self energy
+long double ImSelf_Energy(long double, long double, long double, int);	//Imaginary single quark self energy
+long double ReSelf_Energy(long double, long double, long double, int);	//Real single quark self energy
 long double Energy(long double, long double, long double, long double);	//Single quark energy, can return momentum if M=0
 long double Fermi(long double, int);	//Fermi factor
 long double Potential_on(long double[5]);	//On-shell potential for the on-shell T-Matrix
@@ -468,11 +469,11 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 
 	if(Temp != 0)	//media estimate
 	{
-		holder = Self_Energy(Par[2], zero[2], Energy(0,Par[3]/2.,k,theta), Temp)/sqrt(pow(zero[2],2)-pow(Energy(0,Par[3]/2.,k,theta),2));
+		holder = ImSelf_Energy(Par[2], zero[2], Energy(0,Par[3]/2.,k,theta), Temp)/sqrt(pow(zero[2],2)-pow(Energy(0,Par[3]/2.,k,theta),2));
 		zero[2] = pow(pow(Energy(Par[2],Par[3]/2.,k,theta),4)+pow(Par[2]*holder,2),.25)*cos(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,k,theta),2)));
 		gamma[2] = abs(pow(pow(Energy(Par[2],Par[3]/2.,k,theta),4)+pow(Par[2]*holder,2),.25)*sin(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,k,theta),2))));
 
-		holder = Self_Energy(Par[2], zero[3], Energy(0,Par[3]/2.,-k,theta), Temp)/sqrt(pow(zero[3],2)-pow(Energy(0,Par[3]/2.,-k,theta),2));
+		holder = ImSelf_Energy(Par[2], zero[3], Energy(0,Par[3]/2.,-k,theta), Temp)/sqrt(pow(zero[3],2)-pow(Energy(0,Par[3]/2.,-k,theta),2));
 		zero[3] = sqrt(Par[4]+pow(Par[3],2))-pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),4)+pow(Par[2]*holder,2),.25)*cos(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,-k,theta),2)));
 		gamma[3] = abs(pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),4)+pow(Par[2]*holder,2),.25)*sin(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,-k,theta),2))));
 		
@@ -515,13 +516,13 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 }
 
 //long double Par[5] = {g, Lambda, M, P, s}
-long double Self_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
+long double ImSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
 {
 	long double Par[6];	//Momentum dependance parameterization
 	long double E_0 = Energy(M,k,0,0);	//location of lorentzian
 	long double Sigma;	//size of energy dependance
-	long double b1, b2;	//width of lorentzian
-	long double Delta;	//Exponential parameters
+	long double b1, b2;	//slope of exponential decrease to left and right
+	long double Delta;	//concavity or length of transition from left to right
 
 	if(omega < k)
 		return(0);
@@ -585,7 +586,73 @@ long double Self_Energy(long double M, long double omega, long double k, int Tem
 	}
 	Par[3] = 0;
 
-	return((Par[0]*exp(-pow(k/Par[1],2))+(1-Par[0])*exp(-pow(k/Par[2],2))+Par[3])*(Sigma*exp(Delta+(b1-b2)*(omega-E_0)*E_0/2.-sqrt(b1*b2*pow((omega-E_0)*E_0,2)+pow(Delta+(b1-b2)*(omega-E_0)*E_0/2.,2))))+M*GAMMA);
+	return(2.*M*(Par[0]*exp(-pow(k/Par[1],2))+(1-Par[0])*exp(-pow(k/Par[2],2))+Par[3])*(Sigma*exp(Delta+(b1-b2)*(omega-E_0)*E_0/2.-sqrt(b1*b2*pow((omega-E_0)*E_0,2)+pow(Delta+(b1-b2)*(omega-E_0)*E_0/2.,2))))+M*GAMMA);
+}
+
+long double ReSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
+{
+	long double Par[6];	//Momentum dependance parameterization
+	long double E_0 = Energy(M,k,0,0);	//location of lorentzian
+	long double a;	//size of energy dependance
+	long double gamma;	//width of lorentzian
+	long double c;	//zero crossing, might be better as the on-shell energy
+
+	if(omega < k)
+		return(0);
+
+	switch(Temp)
+	{
+		case 0:
+			return(0);
+			break;
+		case 1://235.2MeV
+			a = .0412729;
+			c = 1.68597;
+			gamma = .340028;
+			Par[0] = .7359389831810698;
+			Par[1] = 7.487501146014314;
+			Par[2] = 1.9490238595657456;
+			Par[3] = .700215754;
+			Par[4] = 10;
+			Par[5] = 3;
+			break;
+		case 2://294MeV
+			a = .0366063;
+			c = 1.5945;
+			gamma = .39357;
+			Par[0] = .7409390219065235;
+			Par[1] = 7.450458343071824;
+			Par[2] = 1.8620618988580635;
+			Par[3] = .860810762;
+			Par[4] = 10;
+			Par[5] = 3;
+			break;
+		case 3://362MeV
+			a = .05127;
+			c = 1.55455;
+			gamma = .518487;
+			Par[0] = .7426375963204489;
+			Par[1] = 7.698646415632565;
+			Par[2] = 1.771465704769189;
+			Par[3] = .608717852;
+			Par[4] = 10;
+			Par[5] = 3;
+			break;
+		default:
+			a = 0;
+			c = 0
+			gamma = 1;
+			Par[0] = 1;
+			Par[1] = 1;
+			Par[2] = 1;
+			Par[3] = 0;
+			Par[4] = 0;
+			Par[5] = 0;
+			break;
+	}
+	Par[3] = 0;
+
+	return(2.*M*(Par[0]*exp(-pow(k/Par[1],2))+(1-Par[0])*exp(-pow(k/Par[2],2))+Par[3])*(a*(omega-c)/(pow(omega-c,2)+pow(gamma,2)));
 }
 
 long double Energy(long double M, long double P, long double k, long double theta)	//Single quark energy, can return momentum if M=0
@@ -635,7 +702,7 @@ long double Potential2(long double Par[5], long double omega, long double k)	//P
 
 long double Quark_Spectrum(long double omega, long double k, long double M, int Temp)	//Single quark spectral function
 {
-	return(Self_Energy(M, omega, k, Temp)/(pow(pow(omega,2)-pow(k,2)-pow(M,2),2)+pow(Self_Energy(M, omega, k, Temp),2)));
+	return(ImSelf_Energy(M, omega, k, Temp)/(pow(pow(omega,2)-pow(k,2)-pow(M,2)-ReSelf_Energy(M, omega, k, Temp),2)+pow(ImSelf_Energy(M, omega, k, Temp),2)));
 }
 
 long double Spin_Sum(long double Par[5], long double omega, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
