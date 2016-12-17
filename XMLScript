@@ -1,4 +1,5 @@
-head -n349680 ${1} > Table
+sort -nk2 -nk1 ${1} -o ${1}
+tail -n366885 ${1} | sort -nk1 -nk2 | head -n349680 > Table
 mv Table ${1}
 awk -f MS-Reseach-Project/XMLScript1 ${1} > ${1}.xml
 awk -f MS-Reseach-Project/XMLScript2 ${1} >> ${1}.xml
