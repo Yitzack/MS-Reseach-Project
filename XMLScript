@@ -1,5 +1,4 @@
-sort -nk2 -nk1 ${1} -o ${1}
-tail -n366885 ${1} | sort -nk1 -nk2 | head -n349680 > Table
+head -n349681 ${1} | tail -n349680 > Table
 mv Table ${1}
 awk -f MS-Reseach-Project/XMLScript1 ${1} > ${1}.xml
 awk -f MS-Reseach-Project/XMLScript2 ${1} >> ${1}.xml
@@ -21,4 +20,3 @@ math -script MS-Reseach-Project/Derive2.m ${1}ReGV1 ${1}ReGV2 ${1}
 echo Completed mathematica Derive2
 sed 's/,/ /g' ${1}.csv > ${1}.output
 echo Script done
-
