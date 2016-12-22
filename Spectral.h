@@ -301,7 +301,7 @@ int Newtons_Test_k_Int(long double Lambda, long double s, long double P, long do
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements Folding(long double Par[5], int Temp, long double k, long double theta)	//Folding integral, energy integral
 {
-	if(/*Temp == 0 && */sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta) <= Energy(0,Par[3]/2.,k,theta))	//Let's save some time and just return 0, because it is
+	if(/*Temp == 0 && */abs(sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta)-Energy(0,Par[3]/2.,k,theta)) < 1e-12)	//Let's save some time and just return 0, because it is
 		return(Elements(0,0,0));
 	else if(Par[4]+pow(Par[3],2) <= 0)
 		return(Elements(0,0,0));	//Bad data trap and time saver
@@ -339,7 +339,6 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		a = b = Energy(0,Par[3]/2.,k,theta);
 		Max = sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta);
 	}//*/
-
 
 	i = 0;	//Pole counter
 	j = 0;	//Range counter
