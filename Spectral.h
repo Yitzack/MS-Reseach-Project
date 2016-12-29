@@ -75,15 +75,20 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	long double x1, x2;	//Abscissa
 	long double a = 0, b = 0;//Sub-interval limits of integration
 	int Poles;	//Number of poles
-	long double zero[3];	//The real part of the signular pole
-	long double gamma[3];	//The distance to the singular, maybe
+	long double zero[5];	//The real part of the signular pole
+	long double gamma[5];	//The distance to the singular, maybe
 	long double Min_upper;	//The integral has to go at least this far
 	long double Width;	//Length of the next sub-interval
 	long double Early = 0;	//Early change from one pole to the next, notes the location of change, 0 means no early change
 	long double NextWidth = 0;//The next width that will be used in the event of an early change of poles
 	int i = 0, j, l;	//Counters
+	Elements Holder;
+	//ofstream Table("k Tables", ios::app);
+	//ofstream Pole_Tab("k Poles", ios::app);
 
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
+	//for(j = 0; j < Poles; j++)
+	//	Pole_Tab << Par[3] << " " << Par[4] << " " << theta << " " << zero[j] << " " << gamma[j] << endl;
 
 	Min_upper = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//This the upper bound that the vacuum calls for, Partial/total will promote higher as needed
 
@@ -153,10 +158,16 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 			x1 = (b+a-Disp[l]*(b-a))/2.; //Actual evaluation points
 			x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			F_a += Folding(Par, Temp, x1, theta)*pow(x1,2)*w[l+1]; //Evaluate function at x1
-			F_b += Folding(Par, Temp, x2, theta)*pow(x2,2)*w[l+1]; //Evaluate function at x2
+			Holder = Folding(Par, Temp, x1, theta);
+			F_a += Holder*pow(x1,2)*w[l+1]; //Evaluate function at x1
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << Holder.store(0) << " " << Holder.store(1) << " " << Holder.store(2) << endl;
+			Holder = Folding(Par, Temp, x2, theta);
+			F_b += Holder*pow(x2,2)*w[l+1]; //Evaluate function at x2
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << Holder.store(0) << " " << Holder.store(1) << " " << Holder.store(2) << endl;
 		}
-		F_ave = Folding(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
+		Holder = Folding(Par, Temp, (a+b)/2., theta);
+		F_ave = Holder*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
+		//Table << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << Holder.store(0) << " " << Holder.store(1) << " " << Holder.store(2) << endl;
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
 		Answer += PartialAnswer;
 		a = b;
@@ -165,7 +176,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	return(Answer);
 }
 
-void Characterize_k_Int(long double Par[5], int Temp, long double theta, long double zero[3], long double gamma[3], int &Poles) //Returns the poles of the k integral's integrands
+void Characterize_k_Int(long double Par[5], int Temp, long double theta, long double zero[5], long double gamma[5], int &Poles) //Returns the poles of the k integral's integrands
 {
 	long double holder;
 	long double previous[2];
@@ -209,7 +220,6 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 			else if(gamma[0] > abs(2.*Par[2]*GAMMA))
 				gamma[0] = abs(2.*Par[2]*GAMMA);
 			Poles = 1;
-			return;
 		}
 	}
 	else
@@ -221,10 +231,27 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 		else if(gamma[0] > abs(2.*Par[2]*GAMMA))
 			gamma[0] = abs(2.*Par[2]*GAMMA);
 		Poles = 1;
-		return;
 	}
 
-	for(i = 2; i >= 0; i--)	//Bubble sort
+	if(pow(Par[2],2)-.5*pow(Par[3]*sin(theta),2)+sqrt(pow(Par[3]*sin(theta),2)/8.*(8.*pow(Par[2],2)+2.*pow(Par[3]*sin(theta),2))) <= Par[4])
+	{
+		if(Par[3] == 0)
+		{
+			zero[Poles] = (Par[4]-pow(Par[2],2))/(sqrt(4.*Par[4]));
+			gamma[Poles] = abs(2.*Par[2]*GAMMA);
+			Poles++;
+		}
+		else
+		{
+			zero[Poles] = abs(pow(Par[2],2)*Par[3]*cos(theta)+sqrt((pow(Par[3],2)+Par[4])*(pow(pow(Par[2],2)-Par[4],2)+(Par[4]-2.*pow(Par[2],2))*pow(Par[3]*sin(theta),2))))/(2.*(Par[4]+pow(Par[3]*sin(theta),2)));
+			zero[Poles+1] = abs(pow(Par[2],2)*Par[3]*cos(theta)-sqrt((pow(Par[3],2)+Par[4])*(pow(pow(Par[2],2)-Par[4],2)+(Par[4]-2.*pow(Par[2],2))*pow(Par[3]*sin(theta),2))))/(2.*(Par[4]+pow(Par[3]*sin(theta),2)));
+			gamma[Poles] = abs(2.*Par[2]*GAMMA);
+			gamma[Poles+1] = abs(2.*Par[2]*GAMMA);
+			Poles += 2;
+		}
+	}
+
+	for(i = Poles-1; i >= 0; i--)	//Bubble sort
 	{
 		for(j = 0; j < i; j++)
 		{
@@ -236,7 +263,7 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 			}
 			else if(zero[j] == zero[j+1])	//Remove duplicates
 			{
-				for(l = j; l < 2; l++)
+				for(l = j; l < Poles-1; l++)
 					zero[l] = zero[l+1];
 				zero[2] = sqrt(Par[4]+pow(Par[3],2)); //Need to use the biggest finite value of reason or it will be attempted to be sorted to the bottom when it is invalid
 				Poles--;
@@ -249,7 +276,7 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 		gamma[i] = Folding(Par, Temp, zero[i], theta).Min();
 		if(gamma[i] < 1e-3)	//If width is smaller than this value, make it this big
 			gamma[i] = 1e-3;
-		if(i == Poles-1 && gamma[i] > abs(2.*Par[2]*GAMMA))
+		if(gamma[i] > abs(2.*Par[2]*GAMMA))
 			gamma[i] = abs(2.*Par[2]*GAMMA);
 	}
 	return;
