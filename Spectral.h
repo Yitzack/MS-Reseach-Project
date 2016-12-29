@@ -82,13 +82,8 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	long double Early = 0;	//Early change from one pole to the next, notes the location of change, 0 means no early change
 	long double NextWidth = 0;//The next width that will be used in the event of an early change of poles
 	int i = 0, j, l;	//Counters
-	Elements Holder;
-	//ofstream Table("k Tables", ios::app);
-	//ofstream Pole_Tab("k Poles", ios::app);
 
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
-	//for(j = 0; j < Poles; j++)
-	//	Pole_Tab << Par[3] << " " << Par[4] << " " << theta << " " << zero[j] << " " << gamma[j] << endl;
 
 	Min_upper = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//This the upper bound that the vacuum calls for, Partial/total will promote higher as needed
 
@@ -158,16 +153,10 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 			x1 = (b+a-Disp[l]*(b-a))/2.; //Actual evaluation points
 			x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			Holder = Folding(Par, Temp, x1, theta);
-			F_a += Holder*pow(x1,2)*w[l+1]; //Evaluate function at x1
-			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << Holder.store(0) << " " << Holder.store(1) << " " << Holder.store(2) << endl;
-			Holder = Folding(Par, Temp, x2, theta);
-			F_b += Holder*pow(x2,2)*w[l+1]; //Evaluate function at x2
-			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << Holder.store(0) << " " << Holder.store(1) << " " << Holder.store(2) << endl;
+			F_a += Folding(Par, Temp, x1, theta)*pow(x1,2)*w[l+1]; //Evaluate function at x1
+			F_b += Folding(Par, Temp, x2, theta)*pow(x2,2)*w[l+1]; //Evaluate function at x2
 		}
-		Holder = Folding(Par, Temp, (a+b)/2., theta);
-		F_ave = Holder*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
-		//Table << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << Holder.store(0) << " " << Holder.store(1) << " " << Holder.store(2) << endl;
+		F_ave = Folding(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
 		Answer += PartialAnswer;
 		a = b;
