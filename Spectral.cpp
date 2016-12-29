@@ -72,12 +72,12 @@ int main(int argc, char* argv[])
 				if(i <= 208)
 				{
 					Par[3] = i/10.+j;
-					Par[4] = -i*j/5.-pow(j,2);
+					Par[4] = -i*j/5.-j*j;
 				}
 				else
 				{
 					Par[3] = i+j-187.2;
-					Par[4] = -2.*j*(i-187.2)-pow(j,2);
+					Par[4] = -2.*j*(i-187.2)-j*j;
 				}
 			}
 			else
@@ -122,12 +122,12 @@ int main(int argc, char* argv[])
 				if(i <= 208)
 				{
 					Par[3] = i/10.+j;
-					Par[4] = -i*j/5.-pow(j,2);
+					Par[4] = -i*j/5.-j*j;
 				}
 				else
 				{
 					Par[3] = i+j-187.2;
-					Par[4] = -2.*j*(i-187.2)-pow(j,2);
+					Par[4] = -2.*j*(i-187.2)-j*j;
 				}
 			}
 			else
