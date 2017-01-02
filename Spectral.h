@@ -12,9 +12,10 @@ Elements theta_Int(long double[5], int);	//Integrates the theta results
 Elements k_Int(long double[5], int, long double);	//Integrates the k momentum results
 Elements Folding(long double[5], int, long double, long double);	//Folding integral, energy integral
 void Characterize_k_Int(long double[5], int, long double, long double[4], long double[4], int&);	//Returns the poles of the k integral's integrands
+long double Width(long double[4], long double[4], int, int[4]);	//Returns the width that is approiate for the V/on-shell integral
 void Newtons_k_Int(long double, long double, long double, long double, long double[3], long double);	//Newton's method of finding roots for Characterize_k_Int
 int Newtons_Test_k_Int(long double, long double, long double, long double, long double[3], long double);	//Trys to determine the number of roots Newton's method  is looking for and where they might be found
-void Characterize_Folding(long double[5], int, long double, long double, long double[4], long double[4], long double[2], int&);	//Returns the poles of the folding integral's integrands
+void Characterize_Folding(long double[5], int, long double, long double, long double[4], long double[4], long double[2], int&, int[4]);	//Returns the poles of the folding integral's integrands
 
 //Straight Functions everything is built from
 long double ImSelf_Energy(long double, long double, long double, int);	//Imaginary single quark self energy
@@ -42,7 +43,9 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 	long double a = 0, b;	//Sub-interval limits of integration
 	int i, j;	//Counters
 	Elements holder;
-	ofstream Table("theta Table", ios::app);
+	//ofstream Table("theta Table", ios::app);
+
+	//I have a theta pole to track down. I need to find theta where there no longer exists potiential poles inside the on-shell curves. Will need to look for extrema of V_pole(k). That looks like a mess. Try to keep it fast. Will only need to land that pole on the division lines.
 
 	for(i = 0; i < 12; i++)
 	{
@@ -56,14 +59,14 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 
 			holder = k_Int(Par, Temp, x1);
 			F += holder*sin(x1)*w[j+1];
-			Table << Par[3] << " " << Par[4] << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			holder = k_Int(Par, Temp, x2);
 			F += holder*sin(x2)*w[j+1];
-			Table << Par[3] << " " << Par[4] << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		}
 		holder = k_Int(Par, Temp, (a+b)/2.);
 		F += holder*sin((a+b)/2.)*w[0];
-		Table << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+		//Table << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		Answer += F*(b-a)/2.;
 		a = b;
 	}
@@ -91,12 +94,12 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	long double NextWidth = 0;//The next width that will be used in the event of an early change of poles
 	int i = 0, j, l;	//Counters
 	Elements holder;
-	ofstream Table("k Table", ios::app);
-	ofstream Pole_Tab("k Poles", ios::app);
+	//ofstream Table("k Table", ios::app);
+	//ofstream Pole_Tab("k Poles", ios::app);
 
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
-	for(i = 0; i < Poles; i++)
-		Pole_Tab << Par[3] << " " << Par[4] << " " << theta << " " << zero[i] << " " << gamma[i] << endl;
+	//for(i = 0; i < Poles; i++)
+	//	Pole_Tab << Par[3] << " " << Par[4] << " " << theta << " " << zero[i] << " " << gamma[i] << endl;
 
 	Min_upper = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//This the upper bound that the vacuum calls for, Partial/total will promote higher as needed
 
@@ -168,14 +171,14 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 
 			holder = Folding(Par, Temp, x1, theta);
 			F_a += holder*pow(x1,2)*w[l+1]; //Evaluate function at x1
-			Table << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			holder = Folding(Par, Temp, x2, theta);
 			F_b += holder*pow(x2,2)*w[l+1]; //Evaluate function at x2
-			Table << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		}
 		holder = Folding(Par, Temp, (a+b)/2., theta);
 		F_ave = holder*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
-		Table << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+		//Table << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
 		Answer += PartialAnswer;
 		a = b;
@@ -189,10 +192,15 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 	long double holder;
 	long double previous[2];
 	int i, j = 0, l;
+	long double Nothing[2];
+	long double gamma_fetch[4];
+	long double zero_fetch[4];
+	int Type[4];
 
-	if(sqrt(Par[4]) > 2.*Par[2])    //Find the poles and estimate a width (distance to pole)
+	if(sqrt(Par[4]) > 2.*Par[2])    //Find the double on-shell pole and estimate a width (distance to pole)
 	{
 		zero[2] = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
+		gamma[2] = abs(2.*Par[2]*GAMMA);
 		Poles = 3;
 	}
 	else
@@ -201,7 +209,7 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 		Poles = 0;
 	}
 
-	zero[0] = zero[1] = zero[2];	//Start the Newton's search for other k poles
+	zero[0] = zero[1] = zero[2];	//Start the Newton's search for potiential/on-shell pole
 	i = Newtons_Test_k_Int(Par[1], Par[4], Par[3], Par[2], zero, theta);
 	if(i)
 	{
@@ -217,6 +225,11 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 		{
 			zero[0] = abs(zero[0]);	//Through investigation of the results, I found that if both peaks are on one condition,
 			zero[1] = abs(zero[1]);	//then the lower one will be negative on the other condition
+
+			Characterize_Folding(Par, Temp, zero[0], theta, zero_fetch, gamma_fetch, Nothing, l, Type);	//Get the omega-zero data at k[0]
+			gamma[0] = Width(zero_fetch, gamma_fetch, l, Type);	//Use the incoming data to figure out the correct width to apply
+			Characterize_Folding(Par, Temp, zero[1], theta, zero_fetch, gamma_fetch, Nothing, l, Type);	//Get the omega-zero data at k[1]
+			gamma[1] = Width(zero_fetch, gamma_fetch, l, Type);	//Use the incoming data to figure out the correct width to apply
 			Poles = 3;
 		}
 		else
@@ -242,7 +255,7 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 	}
 
 	if(pow(Par[2],2)-.5*pow(Par[3]*sin(theta),2)+sqrt(pow(Par[3]*sin(theta),2)/8.*(8.*pow(Par[2],2)+2.*pow(Par[3]*sin(theta),2))) <= Par[4])
-	{
+	{//On-shell departure from the time-like region
 		if(Par[3] == 0)
 		{
 			zero[Poles] = (Par[4]-pow(Par[2],2))/(sqrt(4.*Par[4]));
@@ -279,15 +292,69 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 		}
 	}
 
-	for(i = 0; i < Poles; i++)
+	/*for(i = 0; i < Poles; i++)
 	{
 		gamma[i] = Folding(Par, Temp, zero[i], theta).Min();
 		if(gamma[i] < 1e-3)	//If width is smaller than this value, make it this big
 			gamma[i] = 1e-3;
 		if(gamma[i] > abs(2.*Par[2]*GAMMA))
 			gamma[i] = abs(2.*Par[2]*GAMMA);
-	}
+	}*/
 	return;
+}
+
+long double Width(long double zero[4], long double gamma[4], int Poles, int Type[4])
+{
+	long double holder;
+	int i,j;
+	int Sum = 0;
+
+	for(i = Poles-1; i >= 0; i--)	//Bubble sort, resort based on Type instead of zero
+	{
+		for(j = 0; j < i; j++)
+		{
+			if(Type[j] > Type[j+1])
+			{
+				holder = zero[j+1];
+				zero[j+1] = zero[j];
+				zero[j] = holder;
+				holder = gamma[j+1];
+				gamma[j+1] = gamma[j];
+				gamma[j] = holder;
+				holder = Type[j+1];
+				Type[j+1] = Type[j];
+				Type[j] = holder;
+			}
+		}
+	}
+
+	for(i = 0; i < Poles; i++)	//Sum the pole type by cross category
+	{
+		switch(Type[i])
+		{
+			case 0:
+			case 3:
+				Sum += 1;
+				break;
+			case 1:
+			case 2:
+				break;
+		}
+	}
+
+	if(Poles == 4)	//Should only get here if there is an actual zeroes in the omega at k
+	{
+		if(abs(zero[0]-zero[3]) < abs(zero[1]-zero[2]))	//V+/omega-
+			return(gamma[0]+gamma[3]);
+		else	//V-/omega+
+			return(gamma[1]+gamma[2]);
+	}
+	else if(Sum == 2)	//There is only 3 poles in either of the next 2 cases, V+/omega-
+		return(gamma[0]+gamma[2]);	//If you ever need to debug this, look at pg 148 in 2016 notes
+	else	//The Sum can only be 1, V-/omega+
+		return(gamma[0]+gamma[1]);
+
+	return(0);
 }
 
 void Newtons_k_Int(long double Lambda, long double s, long double P, long double M, long double k[3], long double theta)
@@ -355,15 +422,16 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	long double zero[4];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[4];	//Imaginary part of poles
 	long double End_Points[2];	//The end points of the omega integral
+	int Nothing[4];		//Something to send to Characterize_Folding
 	int Poles = 0;		//Number of poles with real parts between 0 and E
 	int i, j, l;		//Counting varibles
 	Elements holder;
-	ofstream Table("omega Table", ios::app);
-	ofstream Pole_Tab("omega Poles", ios::app);
+	//ofstream Table("omega Table", ios::app);
+	//ofstream Pole_Tab("omega Poles", ios::app);
 
-	Characterize_Folding(Par, Temp, k, theta, zero, gamma, End_Points, Poles);	//Get the poles that I have to be concerned about
-	for(i = 0; i < Poles; i++)
-		Pole_Tab << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << zero[i] << " " << gamma[i] << endl;
+	Characterize_Folding(Par, Temp, k, theta, zero, gamma, End_Points, Poles, Nothing);	//Get the poles that I have to be concerned about
+	//for(i = 0; i < Poles; i++)
+	//	Pole_Tab << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << zero[i] << " " << gamma[i] << endl;
 
 	/*a = b = End_Points[0];
 	Max = End_Points[1];//*/
@@ -447,14 +515,14 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 
 			holder = Elements(Spin_Sum(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*Folding_Integrand(Par,x1,k,theta,Temp);
 			F_a += holder*w[l+1];
-			Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			holder = Elements(Spin_Sum(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*Folding_Integrand(Par,x2,k,theta,Temp);
 			F_b += holder*w[l+1];
-			Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		}
 		holder = Elements(Spin_Sum(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Folding_Integrand(Par,(a+b)/2.,k,theta,Temp);
 		F_ave = holder*w[0];
-		Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+		//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		Answer += (F_a+F_ave+F_b)*(b-a)/2.;
 
 		a = b;
@@ -463,7 +531,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	return(Answer/M_PI);
 }
 
-void Characterize_Folding(long double Par[5], int Temp, long double k, long double theta, long double zero[4], long double gamma[4], long double End_Points[2], int &Poles)
+void Characterize_Folding(long double Par[5], int Temp, long double k, long double theta, long double zero[4], long double gamma[4], long double End_Points[2], int &Poles, int Type[4])
 {
 	long double Lower, Upper;	//Limits of integration in Folding, vacuum limits are much smaller
 	long double holder;
@@ -507,6 +575,8 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 	zero[1] = .5*(sqrt(Par[4]+pow(Par[3],2))-pow(pow(2.*k,4)+pow(Par[1],4),(long double).25)*cos(.5*atan(pow(Par[1]/(2.*k),2))));
 	gamma[0] = abs(.5*(pow(pow(2.*k,4)+pow(Par[1],4),(long double).25)*sin(.5*atan(pow(Par[1]/(2.*k),2)))));
 	gamma[1] = abs(.5*(pow(pow(2.*k,4)+pow(Par[1],4),(long double).25)*sin(.5*atan(pow(Par[1]/(2.*k),2)))));
+	Type[0] = 0;	//Labels which pole goes with the other at V/on-shell intersections
+	Type[1] = 1;
 
 	holder = GAMMA;
 	zero[2] = pow(pow(Energy(Par[2],Par[3]/2.,k,theta),4)+pow(Par[2]*holder,2),(long double).25)*cos(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,k,theta),2)));	//Exact vacuum
@@ -521,7 +591,6 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 		holder = ImSelf_Energy(Par[2], zero[3], Energy(0,Par[3]/2.,-k,theta), Temp)/sqrt(pow(zero[3],2)-pow(Energy(0,Par[3]/2.,-k,theta),2));
 		zero[3] = sqrt(Par[4]+pow(Par[3],2))-pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),4)+pow(Par[2]*holder,2),(long double).25)*cos(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,-k,theta),2)));
 		gamma[3] = abs(pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),4)+pow(Par[2]*holder,2),(long double).25)*sin(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,-k,theta),2))));
-		
 	}
 	else	//Finish up exact vacuum calculations
 	{
@@ -529,6 +598,9 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 		gamma[3] = abs(pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),4)+pow(Par[2]*holder,2),(long double).25)*sin(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,-k,theta),2))));
 		zero[3] = sqrt(Par[4]+pow(Par[3],2))-zero[3];
 	}
+	Type[2] = 2;
+	Type[3] = 3;
+
 
 	for(i = 3; i >= 0; i--)	//Bubble sort
 	{
@@ -542,6 +614,9 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 				holder = gamma[j+1];
 				gamma[j+1] = gamma[j];
 				gamma[j] = holder;
+				holder = Type[j+1];
+				Type[j+1] = Type[j];
+				Type[j] = holder;
 			}
 		}
 	}
@@ -553,6 +628,7 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 	{
 		zero[j] = zero[i];
 		gamma[j] = gamma[i];
+		Type[j] = Type[i];
 		i++;
 		j++;
 	}
