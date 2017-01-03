@@ -36,7 +36,7 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 {
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 35th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp
-	long double Range[] = {.005,.01,.05,.1,M_PI/10.,M_PI/2.,M_PI*.9,M_PI-.1,M_PI-.05,M_PI-.01,M_PI-.005,M_PI};
+	long double Range[] = {.000001,.00001,.0001,.001,.01,.05,.1,M_PI/10.,M_PI/2.};
 	long double x1, x2;	//Abscissa
 	Elements F;	//Sum of ordinate*weights
 	Elements Answer(0,0,0);	//Answer to be returned
@@ -47,7 +47,7 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 
 	//I have a theta pole to track down. I need to find theta where there no longer exists potiential poles inside the on-shell curves. Will need to look for extrema of V_pole(k). That looks like a mess. Try to keep it fast. Will only need to land that pole on the division lines.
 
-	for(i = 0; i < 12; i++)
+	for(i = 0; i < 9; i++)
 	{
 		b = Range[i];
 
@@ -71,7 +71,7 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 		a = b;
 	}
 
-	return(Answer/pow(2.*M_PI,2));
+	return(Answer/pow(2.*M_PI,2)*2.);
 }
 
 //long double Par[5] = {g, Lambda, M, P, s}
@@ -281,12 +281,19 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 				holder = zero[j+1];
 				zero[j+1] = zero[j];
 				zero[j] = holder;
+				holder = gamma[j+1];
+				gamma[j+1] = gamma[j];
+				gamma[j] = holder;
 			}
 			else if(zero[j] == zero[j+1])	//Remove duplicates
 			{
 				for(l = j; l < Poles-1; l++)
+				{
 					zero[l] = zero[l+1];
+					gamma[l] = gamma[l+1];
+				}
 				zero[2] = sqrt(Par[4]+pow(Par[3],2)); //Need to use the biggest finite value of reason or it will be attempted to be sorted to the bottom when it is invalid
+				gamma[2] = 0;
 				Poles--;
 			}
 		}
