@@ -31,13 +31,14 @@ long double Spin_Sum(long double[5], long double, long double, long double);	//S
 long double Folding_Integrand(long double[5], long double, long double, long double, int);	//Integrand of the folding integral
 
 #define GAMMA -.015
+long double Boundary[] = {0.019600961676870018, 0.821761301044483669, 1.012238725327759, 2.190095607592969, 2.98703556366024176, 0.00029467745773908546, 1.51363535786413273, 1.70677842484274171, 1.98261600846959895, 2.20100831798979613, 0.0139057488418842529, 0.0170731497956814042, 0.0459689381950343586, 0.100000000000000006, 1.46267907772289364};
 
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 {
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 35th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp
-	long double Range[] = {-M_PI,0.0001,0.000630957344480193,0.0007943282347242813,0.001,0.001584893192461114,0.001995262314968879,0.0031622776601683794, 0.005011872336272725,0.01,0.03162277660168379,0.08912509381337455,0.12589254117941673,0.5,M_PI/2.};
+	long double Range[] = {-M_PI,Boundary[10],Boundary[11],Boundary[12],Boundary[13],Boundary[14],M_PI/2.};
 	long double x1, x2;	//Abscissa
 	Elements F;	//Sum of ordinate*weights
 	Elements Answer(0,0,0);	//Answer to be returned
@@ -47,7 +48,7 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 	//ofstream Table("theta Table", ios::app);
 	//Table << setprecision(18);
 
-	if(Range[0] > 0)	//Found a pole in theta
+	if(false)//Range[0] > 0)	//Found a pole in theta
 	{
 		for(i = 0; i < 15; i++)	//Bubble sort the single element to where it belongs
 		{
@@ -61,7 +62,7 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 				break;
 		}
 
-		for(i = 0; i < 15; i++)
+		for(i = 0; i < 6; i++)
 		{
 			b = Range[i];
 
@@ -86,7 +87,7 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 		}
 	}
 
-	for(i = 1; i < 15; i++)	//No pole found
+	for(i = 1; i < 6; i++)	//No pole found
 	{
 		b = Range[i];
 
@@ -156,7 +157,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 {
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 35th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp
-	long double Range[] = {-64,-8,-4,-1,-.5,0,.5,1,4,8,64};	//Number of gamma from center
+	long double Range[] = {-Boundary[9], -Boundary[8], -Boundary[7], -Boundary[6], -Boundary[5], 0, Boundary[5], Boundary[6], Boundary[7], Boundary[8], Boundary[9]};	//Number of gamma from center
 	Elements F_a, F_b, F_ave;	//Sum of ordinates*weights
 	Elements Answer(0,0,0);	//Answer to be returned
 	Elements PartialAnswer;	//Answer for sub-interval for determining completeness
@@ -496,7 +497,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 35th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204}; //Weight of the function at Disp
-	long double Range[] = {-64,-8,-1,-.75,-.5,-.3,-.2,-.125,0,.125,.2,.3,.5,.75,1,8,64};	//Number of gamma from center
+	long double Range[] = {-Boundary[4], -Boundary[3], -Boundary[2], -Boundary[1], -Boundary[0], 0, Boundary[0], Boundary[1], Boundary[2], Boundary[3], Boundary[4]};	//Number of gamma from center
 	long double a, b;	//Sub-interval limits of integration
 	long double Width;	//Next step size
 	long double Max;	//Upper limit of integration
@@ -556,7 +557,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		else
 			Width = 3;
 
-		if(j == 16 && i < Poles)	//Last pole has been integrated, time to reset for the next one
+		if(j == 10 && i < Poles)	//Last pole has been integrated, time to reset for the next one
 		{
 			i++;
 			j = 0;
@@ -568,7 +569,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			if(i+1 < Poles && zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1])	//There exists a next pole and their ranges overlap
 				Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i];	//Sets early terminantion point
 		}
-		else if(Poles != 0 && j < 16 && (a >= zero[i]-64.*gamma[i] && a <= zero[i]+64.*gamma[i]) && !(b == 0 || b == Energy(0,Par[3]/2.,k,theta)))
+		else if(Poles != 0 && j < 10 && (a >= zero[i]-64.*gamma[i] && a <= zero[i]+64.*gamma[i]) && !(b == 0 || b == Energy(0,Par[3]/2.,k,theta)))
 		{//Integrating a pole and the width wan't resolved by the first condition after do, 24 lines up
 			Width = gamma[i]*(Range[j+1]-Range[j]);
 			j++;
@@ -585,7 +586,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		{
 			Width = Early-b;
 			Early = 0;
-			j = 16-j;
+			j = 10-j;
 			NextWidth = Width*gamma[i+1]/gamma[i];
 			i++;
 		}
