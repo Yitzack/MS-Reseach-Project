@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 	//const int Total = atoi(argv[2]);
 	long double Table[616][3];
 	long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 0};
-	Elements holder[2];
+	Elements holder[28];
 	long double GaussLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integration
 
 	/*TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
@@ -164,68 +164,77 @@ int main(int argc, char* argv[])
 	cout << setprecision(18);
 	cerr << setprecision(18);
 	long double error[2];
-	//long double Previous[] = {0.00300924330128465351, 0.442601362559262469, 0.451513485499879631, 1.20991882303896124, 1.44949774880350291, .575787765, 1.15157552925623263, 2.68051950881741778, 4.45640008522702971, 4.5233352535591479, 0.0163230991588333888, 0.030185178723081924, 1.2503839633389987, 1.30407500329710415, 1.57077749428000556};	//0.000100856414742762348
-	//long double Previous[] = {0.291578498883548608, 0.720165912346227272, 1.55015691053536984, 1.55761059866011446, 1.62730007176000727, .416360034, 0.832720067502862974, 1.83574846818360759, 1.90769635342091171, 2.22353710930913173, 0.0314925523149615935, 0.0567068301957586579, 0.203139331479365549, 0.997170314513618977, 1.55770961996462859};	//0.000336658787375385528
-	//long double Previous[] = {0.518759082590660885, 1.4962602180610197, 1.86106632138239019, 2.05078864794541091, 2.05116743413531921, 0.0857184294106986406, 0.155743145798608365, 0.891080951392523191, 1.73672651108335208, 2.04852680213544164, 0.00652932134958220815, 0.0190340194584658977, 0.0459689381950343576, 0.393452240908789941, 1.4620919681392938};	//0.000105539920671404545
-	long double Previous[] = {0.0820716532733899833, 0.239224330646435021, 0.309750270152535038, 0.367483897687137997, 0.44569124074777497, .057304339, 0.114608677968662136, 1.54345279204582031, 5.18449912828339089, 6.17890696722002009, 0.135713527500317899, 0.691251209384860993, 0.806045082242754791, 0.819087447783942431, 1.46056456610580187};	//0.0913260469291547186
+	long double Previous[] = {.07,.25,.4,.65,.9,1.25,1.5,2,2.5,.06,.67,1,1.5,3.1,4.5,5.25,6,.07,.15,.2,.7,1,1.5};
+	long double slist[] = {3.24, 12.96, 25., 100., 225., 552.25, 729.};
+	long double Plist[] = {0, 20, 200, 600};
 	int count;
 	j = 0;
 
-	for(i = 0; i < 15; i++)
+	for(i = 0; i < 23; i++)
 		Boundary[i] = Previous[i];
 
-	Par[3] = 0;
-	Par[4] = pow(atof(argv[1]),2);
-	holder[0] = theta_Int(Par, 0);
-	Par[3] = atof(argv[2]);
-	Par[4] = pow(atof(argv[1]),2);
-	holder[1] = theta_Int(Par, 0);
+	for(i = 0; i < 4; i++)
+	{
+		for(j = 0; j < 7; j++)
+		{
+			Par[3] = Plist[i];
+			Par[4] = slist[j];
+			holder[i*7+j] = theta_Int(Par, 0);
+		}
+	}
 
-	error[0] =  abs(holder[1].store(0)/holder[0].store(0)-1.) + abs(holder[1].store(1)/holder[0].store(1)-1.) + abs(holder[1].store(2)/holder[0].store(2)-1.);
+	error[0] = 0;
+	for(i = 0; i < 28; i++)
+		error[0] += abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.) + abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.);
 	cout << error[0] << flush;
-	for(int i = 0; i < 15; i++)
+	for(int i = 0; i < 23; i++)
 		cout << " " << Previous[i] << flush;
 	cout << endl;
-	srand(time(NULL));
+	srand(time(NULL)+atoi(argv[1])+atoi(argv[2]));
 
 	do
 	{
-		count = rand()%15;
+		count = rand()%23;
 		switch(count)
 		{
 			case 0:
 				Boundary[count] = RandFloat(0,Boundary[1]);
 				break;
-			case 4:
-				Boundary[count] = RandFloat(Boundary[3],Boundary[4]+1.);
-				break;
-			case 5:
-				Boundary[count] = RandFloat(0,Boundary[6]);
+			case 8:
+				Boundary[count] = RandFloat(Boundary[7],Boundary[8]+1.);
 				break;
 			case 9:
-				Boundary[count] = RandFloat(Boundary[8],Boundary[9]+1.);
+				Boundary[count] = RandFloat(0,Boundary[10]);
 				break;
-			case 10:
-				Boundary[count] = RandFloat(0,Boundary[11]);
+			case 16:
+				Boundary[count] = RandFloat(Boundary[15],Boundary[16]+1.);
 				break;
-			case 14:
-				Boundary[count] = RandFloat(Boundary[13],M_PI/2.);
+			case 17:
+				Boundary[count] = RandFloat(0,Boundary[18]);
+				break;
+			case 22:
+				Boundary[count] = RandFloat(Boundary[21],M_PI/2.);
 				break;
 			default:
 				Boundary[count] = RandFloat(Boundary[count-1],Boundary[count+1]);
 				break;
 		}
 
-		Par[3] = 0;
-		Par[4] = pow(atof(argv[1]),2);
-		holder[0] = theta_Int(Par, 0);
-		Par[3] = atof(argv[2]);
-		Par[4] = pow(atof(argv[1]),2);
-		holder[1] = theta_Int(Par, 0);
+		for(i = 0; i < 4; i++)
+		{
+			for(j = 0; j < 7; j++)
+			{
+				Par[3] = Plist[i];
+				Par[4] = slist[j];
+				holder[i*7+j] = theta_Int(Par, 0);
+			}
+		}
 
-		error[1] =  abs(holder[1].store(0)/holder[0].store(0)-1.) + abs(holder[1].store(1)/holder[0].store(1)-1.) + abs(holder[1].store(2)/holder[0].store(2)-1.);
+		error[1] = 0;
+		for(i = 0; i < 28; i++)
+			error[1] += abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.) + abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.);
 		cout << error[1] << flush;
-		for(int i = 0; i < 15; i++)
+		for(int i = 0; i < 23; i++)
 			cout << " " << Boundary[i] << flush;
 		cout << endl;
 
