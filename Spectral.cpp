@@ -164,8 +164,8 @@ int main(int argc, char* argv[])
 	cout << setprecision(18);
 	cerr << setprecision(18);
 	long double error[2];
-	long double Previous[] = {.07,.25,.4,.65,.9,1.25,1.5,2,2.5,.06,.67,1,1.5,3.1,4.5,5.25,6,.07,.15,.2,.7,1,1.5};
-	long double slist[] = {3.24, 12.96, 25., 100., 225., 552.25, 729.};
+	long double Previous[] = {0.312379491459463623, 0.429472477671619594, 0.766004905595495368, 1.04325140946930728, 1.20095800503667351, 1.39985294171272379, 1.5, 2.01349032173865936, 2.06611785410480822, 1.16531468919242779, 1.45345948905750199, 1.47080976850804197, 1.5, 4.49713641079009343, 5.20843773670529365, 5.25, 6, 0.0569732893290805094, 0.149999999999999994, 0.439622439010128934, 0.958155177514141043, 1.33569562548856497, 1.52381994804613603};
+	long double slist[] = {.01, 3.24, 4., 12.96, 25., 100., 552.25};
 	long double Plist[] = {0, 20, 200, 600};
 	int count;
 	j = 0;
@@ -179,13 +179,16 @@ int main(int argc, char* argv[])
 		{
 			Par[3] = Plist[i];
 			Par[4] = slist[j];
-			holder[i*7+j] = theta_Int(Par, 0);
+			holder[i+4*j] = theta_Int(Par, 0);
 		}
 	}
 
 	error[0] = 0;
 	for(i = 0; i < 28; i++)
-		error[0] += abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.) + abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.);
+	{
+		if(Plist[i%4] != 0)
+			error[0] += (abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.) + abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.))*exp(-6.1*slist[int(floor(i/4.))])/pow(Plist[i%4],2);
+	}
 	cout << error[0] << flush;
 	for(int i = 0; i < 23; i++)
 		cout << " " << Previous[i] << flush;
@@ -226,13 +229,16 @@ int main(int argc, char* argv[])
 			{
 				Par[3] = Plist[i];
 				Par[4] = slist[j];
-				holder[i*7+j] = theta_Int(Par, 0);
+				holder[i+4*j] = theta_Int(Par, 0);
 			}
 		}
 
 		error[1] = 0;
 		for(i = 0; i < 28; i++)
-			error[1] += abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.) + abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.);
+		{
+			if(Plist[i%4] != 0)
+				error[1] += (abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.) + abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.))*exp(-6.1*slist[int(floor(i/4.))])/pow(Plist[i%4],2);
+		}
 		cout << error[1] << flush;
 		for(int i = 0; i < 23; i++)
 			cout << " " << Boundary[i] << flush;
