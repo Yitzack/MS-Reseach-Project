@@ -187,7 +187,7 @@ int main(int argc, char* argv[])
 	for(i = 0; i < 28; i++)
 	{
 		if(Plist[i%4] != 0)
-			error[0] += (abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.) + abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.))*exp(-6.1*slist[int(floor(i/4.))])/pow(Plist[i%4],2);
+			error[0] += (abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.) + abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.))*exp(-6.1*sqrt(slist[int(floor(i/4.))]))/pow(Plist[i%4],2) + (abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.))*exp(-18.5459215)/(pow(Plist[i%4],2)*abs(9.243515299-slist[int(floor(i/4.))]));
 	}
 	cout << error[0] << flush;
 	for(int i = 0; i < 23; i++)
@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
 		for(i = 0; i < 28; i++)
 		{
 			if(Plist[i%4] != 0)
-				error[1] += (abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.) + abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.))*exp(-6.1*slist[int(floor(i/4.))])/pow(Plist[i%4],2);
+				error[1] += (abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.) + abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.))*exp(-6.1*sqrt(slist[int(floor(i/4.))]))/pow(Plist[i%4],2) + (abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.))*exp(-18.5459215)/(pow(Plist[i%4],2)*abs(9.243515299-slist[int(floor(i/4.))]));
 		}
 		cout << error[1] << flush;
 		for(int i = 0; i < 23; i++)
@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
 		}
 
 		j++;
-	}while(error[0] > .0001 && j < 2000);
+	}while(error[0] > 2e-8 && j < 2000);
 
 	return(0);
 }
