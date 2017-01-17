@@ -9,12 +9,13 @@ using namespace std;
 
 void Plot(long double, int);	//Plots the functions from table
 long double RandFloat(long double, long double);
+bool Poll(long double[2][84]);
 
 char* Process;
 
 int main(int argc, char* argv[])
 {
-#ifndef BB	//use option -D BB= to activate BB macro
+/*#ifndef BB	//use option -D BB= to activate BB macro
 	char File[30] = "Spectralcc.";  //Name of the file
 #else
      	char File[30] = "Spectralbb.";  //Name of the file
@@ -27,17 +28,17 @@ int main(int argc, char* argv[])
 	if(atoi(argv[6]) == 0)	//If starting from the beginning, overwrite
 		TPlot.open(File);
 	else	//If not starting from the beginning, append
-		TPlot.open(File, ios::app);//*/
+		TPlot.open(File, ios::app);
 	const int Temp = atoi(argv[3]);
 	int i,j;	//counters
 	const int iProcess = atoi(argv[1]) % atoi(argv[2]);
 	const int Total = atoi(argv[2]);
-	long double Table[616][3];
+	long double Table[616][3];//*/
 	long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 0};
-	Elements holder;
+	Elements holder[28];
 	long double GaussLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integration
 
-	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
+	/*TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = atoi(argv[6]); i <= 788; i++)	//Argv[6] allows to restart where ever
 	{
 		#pragma omp parallel for
@@ -161,14 +162,13 @@ int main(int argc, char* argv[])
 	//TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
 
-	/*cout << setprecision(18);
 	cerr << setprecision(18);
-	long double error[2];
-	long double Previous[] = {.07,.25,.4,.65,.9,1.25,1.5,2,2.5,.06,.67,1,1.5,3.1,4.5,5.25,6,.07,.15,.2,.7,1,1.5};
+	long double error[2][84];
+	long double Previous[] = {.5,.25,.4,.65,1,1.25,1.5,8,64,.06,.5,1,1.5,3.1,4.5,8,64,.005,.01,.05,.1,M_PI/10.,1.5};
 	long double slist[] = {.01, 3.24, 4., 12.96, 25., 100., 552.25};
 	long double Plist[] = {0, 20, 200, 600};
 	int count;
-	j = 0;
+	int i, j = 0;
 
 	for(i = 0; i < 23; i++)
 		Boundary[i] = Previous[i];
@@ -180,19 +180,21 @@ int main(int argc, char* argv[])
 			Par[3] = Plist[i];
 			Par[4] = slist[j];
 			holder[i+4*j] = theta_Int(Par, 0);
-			cout << Par[3] << " " << sqrt(Par[4]) << " " << holder[i+4*j].store(0) << " " << holder[i+4*j].store(1) << " " << holder[i+4*j].store(2) << endl;
+			//cout << Par[3] << " " << sqrt(Par[4]) << " " << holder[i+4*j].store(0) << " " << holder[i+4*j].store(1) << " " << holder[i+4*j].store(2) << endl;
 		}
 	}
 
-	/*error[0] = 0;
+	cout << setprecision(4);
 	for(i = 0; i < 28; i++)
 	{
-		if(Plist[i%4] != 0)
-			error[0] += (abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.) + abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.))*exp(-6.1*sqrt(slist[int(floor(i/4.))]))/pow(Plist[i%4],2) + (abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.))*exp(-18.5459215)/(pow(Plist[i%4],2)*abs(9.243515299-slist[int(floor(i/4.))]));
+		error[0][3*i] = abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.);
+		error[0][3*i+1] = abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.);
+		error[0][3*i+2] = abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.);
+		cout << error[0][3*i] << " " << error[0][3*i+1] << " " << error[0][3*i+2] << " " << flush;
 	}
-	cout << error[0] << flush;
-	for(int i = 0; i < 23; i++)
-		cout << " " << Previous[i] << flush;
+	cout << setprecision(18);
+	for(i = 0; i < 23; i++)
+		cout << Previous[i] << " " << flush;
 	cout << endl;
 	srand(time(NULL)+atoi(argv[1])+atoi(argv[2]));
 
@@ -234,31 +236,47 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		error[1] = 0;
+		cout << setprecision(4);
 		for(i = 0; i < 28; i++)
 		{
-			if(Plist[i%4] != 0)
-				error[1] += (abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.) + abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.))*exp(-6.1*sqrt(slist[int(floor(i/4.))]))/pow(Plist[i%4],2) + (abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.) + abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.))*exp(-18.5459215)/(pow(Plist[i%4],2)*abs(9.243515299-slist[int(floor(i/4.))]));
+			error[1][3*i] = abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.);
+			error[1][3*i+1] = abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.);
+			error[1][3*i+2] = abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.);
+			cout << error[1][3*i] << " " << error[1][3*i+1] << " " << error[1][3*i+2] << " " << flush;
 		}
-		cout << error[1] << flush;
-		for(int i = 0; i < 23; i++)
-			cout << " " << Boundary[i] << flush;
+		cout << setprecision(18);
+		for(i = 0; i < 23; i++)
+			cout << Boundary[i] << " " << flush;
 		cout << endl;
 
-		if(error[0] < error[1])
+		if(Poll(error))
 		{	//reject
 			Boundary[count] = Previous[count];
 		}
 		else	//keep
 		{
 			Previous[count] = Boundary[count];
-			error[0] = error[1];
+			for(i = 0; i < 28; i++)
+				error[0][i] = error[1][i];
 		}
 
 		j++;
-	}while(error[0] > 2e-8 && j < 2000);*/
+	}while(j < 2000);//*/
 
 	return(0);
+}
+
+bool Poll(long double error[2][84])
+{
+	int count = 0;
+
+	for(int i = 0; i < 84; i++)
+		if(error[0][i] < error[1][i])	//Count reject conditions
+			count++;
+
+	if(RandFloat(0,1)*84. < count)
+		return(true);
+	return(false);
 }
 
 long double RandFloat(long double a, long double b)
