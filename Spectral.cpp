@@ -274,7 +274,7 @@ bool Poll(long double error[2][84])
 		if(error[0][i] < error[1][i])	//Count reject conditions
 			count++;
 
-	if(RandFloat(0,1)*84. < count)
+	if(RandFloat(0,.2)*84. < count)
 		return(true);
 	return(false);
 }
