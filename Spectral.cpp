@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
 	for(i = 0; i < 23; i++)
 		cout << Previous[i] << " " << flush;
 	cout << endl;
-	srand(time(NULL)+atoi(argv[1])+atoi(argv[2]));
+	srand(time(NULL)+atoi(argv[1])*30+100*atoi(argv[2]));
 
 	do
 	{
