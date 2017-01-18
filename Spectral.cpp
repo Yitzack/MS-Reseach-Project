@@ -164,8 +164,10 @@ int main(int argc, char* argv[])
 
 	cerr << setprecision(18);
 	long double error[2][84];
-	long double Previous[] = {.5,.25,.4,.65,1,1.25,1.5,8,64,.06,.5,1,1.5,3.1,4.5,8,64,.005,.01,.05,.1,M_PI/10.,1.5};
-	long double slist[] = {.01, 3.24, 4., 12.96, 25., 100., 552.25};
+	//long double Previous[] = {1.39461036156073218, 6.332062117923765, 7.01846419642699572, 17.3474665827736626, 20.0872380683069175, 29.8258531041717639, 46.704784395474316, 50.713420893829978, 51.278938722070447, 0.043158410019226763, 2.57317145318693376, 12.3076691166712644, 14.4865250760850598, 23.5028086983717032, 23.5103874011593978, 24.8348072100687947, 29.1168316508529893, 0.00594803112485079734, 0.00739439903373680452, 0.380668112496927022, 0.458735834559289807, 0.826951279575519325, 1.56823398390205848};	//well with P=20 and 600 at sqrt(s)=2
+	//long double Previous[] = {0.123580343549897199, 0.541741934373112939, 7.69782055247488887, 8.72622414180869948, 11.6402506402220173, 26.0054177880140755, 33.3572779676262976, 40.5098268871267691, 42.4422552553474719, 1.44398460776065712, 1.91040368553818341, 2.5609217895117776, 3.00573801292983285, 9.12381233459490903, 10.1514320355772167, 12.4660249393208086, 15.3692872963081938, 0.0600075833235828519, 0.0786135669260155975, 0.669714802844075505, 0.794854226355800526, 1.2758869640745808, 1.56895224717512517};	//exceptional with P=200 at sqrt(s)=2
+	long double Previous[] = {0.0428680552208614973, 0.351360127706610333, 0.400000000000000022, 0.41560939420741491, 2.4889659741563509, 27.5736341741087481, 30.3611216126246189, 64.1888719042480827, 65.7977831341683622, 0.0173088638452181461, 0.836829860598354491, 1.19162592788339509, 1.91451047357362453, 3.14427392232442597, 4.44058339437223329, 11.2562239844174467, 39.9320959431304673, 0.00853563204339899112, 0.0103170045937223034, 0.010382813423813732, 0.540182131169703438, 0.739622753171926845, 1.5};	//Pretty shitty at 23.5GeV
+	long double slist[] = {.01, 3.24, 4., 12.96, 25.};//, 100., 552.25};
 	long double Plist[] = {0, 20, 200, 600};
 	int count;
 	int i, j = 0;
@@ -175,7 +177,7 @@ int main(int argc, char* argv[])
 
 	for(i = 0; i < 4; i++)
 	{
-		for(j = 0; j < 7; j++)
+		for(j = 0; j < 5; j++)
 		{
 			Par[3] = Plist[i];
 			Par[4] = slist[j];
@@ -184,8 +186,8 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	cout << setprecision(4);
-	for(i = 0; i < 28; i++)
+	cout << setprecision(18);
+	for(i = 0; i < 20; i++)
 	{
 		error[0][3*i] = abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.);
 		error[0][3*i+1] = abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.);
@@ -228,7 +230,7 @@ int main(int argc, char* argv[])
 
 		for(i = 0; i < 4; i++)
 		{
-			for(j = 0; j < 7; j++)
+			for(j = 0; j < 5; j++)
 			{
 				Par[3] = Plist[i];
 				Par[4] = slist[j];
@@ -236,8 +238,8 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		cout << setprecision(4);
-		for(i = 0; i < 28; i++)
+		cout << setprecision(18);
+		for(i = 0; i < 20; i++)
 		{
 			error[1][3*i] = abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.);
 			error[1][3*i+1] = abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.);
@@ -251,10 +253,12 @@ int main(int argc, char* argv[])
 
 		if(Poll(error))
 		{	//reject
+			cout << "attempt rejected" << endl;
 			Boundary[count] = Previous[count];
 		}
 		else	//keep
 		{
+			cout << "attempt accepted" << endl;
 			Previous[count] = Boundary[count];
 			for(i = 0; i < 28; i++)
 				error[0][i] = error[1][i];
@@ -268,13 +272,74 @@ int main(int argc, char* argv[])
 
 bool Poll(long double error[2][84])
 {
-	int count = 0;
+	long double count = 0;
 
-	for(int i = 0; i < 84; i++)
-		if(error[0][i] < error[1][i])	//Count reject conditions
-			count++;
+	for(int i = 0; i < 60; i++)
+	{
+		switch(int(floor(i/12.)))	//{.1, 1.8, 2, 3.6, 5, 10, 23.5}
+		{
+			case 0:	//sqrt(s)==.1 GeV has 4 votes
+				if(i%12 <= 2);	//Nan, no useful information
+				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
+				else if(error[0][i] < error[1][i])	//Count reject conditions
+					count += 4.*abs(error[0][i]/error[1][i]-1.);
+				else
+					count -= 2.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
+				break;
+			case 1:	//sqrt(s)==1.8 GeV has 4 votes
+				if(i%12 <= 2);
+				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
+				else if(error[0][i] < error[1][i])	//Count reject conditions
+					count += 4.*abs(error[0][i]/error[1][i]-1.);
+				else
+					count -= 2.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
+				break;
+			case 2:	//sqrt(s)==2 GeV has 4 votes
+				if(i%12 <= 2);
+				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
+				else if(error[0][i] < error[1][i])	//Count reject conditions
+					return(true);	//this one has veto rights
+				else
+					count -= 4.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
+				break;
+			case 3:	//sqrt(s)==3.6 GeV has 4 votes
+				if(i%12 <= 2);
+				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
+				else if(error[0][i] < error[1][i])	//Count reject conditions
+					count += 4.*abs(error[0][i]/error[1][i]-1.);
+				else
+					count -= 2.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
+				break;
+			case 4:	//sqrt(s)==5 GeV has 2 votes
+				if(i%12 <= 2);
+				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
+				else if(error[0][i] < error[1][i])	//Count reject conditions
+					count += 2.*abs(error[0][i]/error[1][i]-1.);
+				else
+					count -= 2.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
+				break;
+			case 5:	//sqrt(s)==10 GeV has 2 votes
+				if(i%12 <= 2);
+				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
+				else if(error[0][i] < error[1][i])	//Count reject conditions
+					count += 2.*abs(error[0][i]/error[1][i]-1.);
+				else
+					count -= 1.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
+				break;
+			case 6:	//sqrt(s)==23.5 GeV has 2 votes
+				if(i%12 <= 2);
+				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
+				else if(error[0][i] < error[1][i])	//Count reject conditions
+					count += 2.*abs(error[0][i]/error[1][i]-1.);
+				else
+					count -= 1.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
+				break;
+		}
+	}
 
-	if(RandFloat(0,.2)*84. < count)
+	long double rand = RandFloat(0,3);
+	cout << rand << " " << count << endl;
+	if(rand < count)
 		return(true);
 	return(false);
 }
