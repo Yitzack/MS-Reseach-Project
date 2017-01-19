@@ -14,8 +14,9 @@ Elements Folding(long double[5], int, long double, long double);	//Folding integ
 long double Binary_Pole(long double[5]);	//Binary search for a theta pole
 void Characterize_k_Int(long double[5], int, long double, long double[4], long double[4], int&);	//Returns the poles of the k integral's integrands
 long double Width(long double[4], long double[4], int, int[4]);	//Returns the width that is approiate for the V/on-shell integral
-void Newtons_k_Int(long double, long double, long double, long double, long double[3], long double);	//Newton's method of finding roots for Characterize_k_Int
-int Newtons_Test_k_Int(long double, long double, long double, long double, long double[3], long double);	//Trys to determine the number of roots Newton's method  is looking for and where they might be found
+void Newtons_k_Int1(long double, long double, long double, long double, long double[3], long double);	//Newton's method of finding roots for Characterize_k_Int (V/on-shell)
+void Newtons_k_Int2(long double, long double, long double, long double, long double[3], long double);	//Newton's method of finding roots for Characterize_k_Int (V/time-like)
+int Newtons_Test_k_Int(long double, long double, long double, long double, long double[3], long double);	//TRYS (I think it always returns 2) to determine the number of roots Newton's method  is looking for and where they might be found
 void Characterize_Folding(long double[5], int, long double, long double, long double[4], long double[4], long double[2], int&, int[4]);	//Returns the poles of the folding integral's integrands
 
 //Straight Functions everything is built from
@@ -31,7 +32,7 @@ long double Spin_Sum(long double[5], long double, long double, long double);	//S
 long double Folding_Integrand(long double[5], long double, long double, long double, int);	//Integrand of the folding integral
 
 #define GAMMA -.015
-long double Boundary[] = {0.0428680552208614973, 0.351360127706610333, 0.400000000000000022, 0.41560939420741491, 2.4889659741563509, 27.5736341741087481, 30.3611216126246189, 64.1888719042480827, 65.7977831341683622, 0.0173088638452181461, 0.836829860598354491, 1.19162592788339509, 1.91451047357362453, 3.14427392232442597, 4.44058339437223329, 11.2562239844174467, 39.9320959431304673, 0.00853563204339899112, 0.0103170045937223034, 0.010382813423813732, 0.540182131169703438, 0.739622753171926845, 1.5};
+long double Boundary[] = {0.0986993643, 0.1780983439, 0.4, 0.7800455449, 1, 3.3208646228, 5.3179901248, 8, 64, 0.4361671565, 0.5635558214, 1.0033450222, 1.5, 6.7036366445, 7.8065507362, 17.5523402379, 64, 0.005, 0.0176151009, 0.0623916288, 0.223490252, M_PI/10., 1.5507833488};
 
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
@@ -267,7 +268,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	return(Answer);
 }
 
-void Characterize_k_Int(long double Par[5], int Temp, long double theta, long double zero[5], long double gamma[5], int &Poles) //Returns the poles of the k integral's integrands
+void Characterize_k_Int(long double Par[5], int Temp, long double theta, long double zero[7], long double gamma[7], int &Poles) //Returns the poles of the k integral's integrands
 {
 	long double holder;
 	long double previous[2];
@@ -279,59 +280,61 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 
 	if(sqrt(Par[4]) > 2.*Par[2])    //Find the double on-shell pole and estimate a width (distance to pole)
 	{
-		zero[2] = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
-		gamma[2] = zero[2]*.0021/13.38036;
-		Poles = 3;
+		zero[0] = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
+		gamma[0] = zero[2]*.0021/13.38036;
+		Poles = 1;
 	}
 	else
 	{
-		zero[2] = 0;
+		zero[0] = 0;
 		Poles = 0;
 	}
 
-	zero[0] = zero[1] = zero[2];	//Start the Newton's search for potiential/on-shell pole
+	zero[1] = zero[2] = zero[0];	//Start the Newton's search for potiential/on-shell pole
 	i = Newtons_Test_k_Int(Par[1], Par[4], Par[3], Par[2], zero, theta);
 	if(i)
 	{
 		do
 		{
-			previous[0] = zero[0];
 			previous[1] = zero[1];
-			Newtons_k_Int(Par[1], Par[4], Par[3], Par[2], zero, theta);
+			previous[2] = zero[2];
+			Newtons_k_Int1(Par[1], Par[4], Par[3], Par[2], zero, theta);
 			j++;
-		}while((abs(previous[0]/zero[0]-1.) > .001 || abs(previous[1]/zero[1]-1.) > .001) && ((i >= 2 && j <= 10) || i <= 1));	//Keep going while both poles are not known better than 1MeV
+		}while((abs(previous[0]/zero[0]-1.) > .001 || abs(previous[1]/zero[1]-1.) > .001) && j <= 10);	//Keep going while both poles are not known better than 1MeV
 
 		if(j <= 10)
 		{
-			zero[0] = abs(zero[0]);	//Through investigation of the results, I found that if both peaks are on one condition,
-			zero[1] = abs(zero[1]);	//then the lower one will be negative on the other condition
+			zero[1] = abs(zero[1]);	//Through investigation of the results, I found that if both peaks are on one condition,
+			zero[2] = abs(zero[2]);	//then the lower one will be negative on the other condition
 
 			Characterize_Folding(Par, Temp, zero[0], theta, zero_fetch, gamma_fetch, Nothing, l, Type);	//Get the omega-zero data at k[0]
-			gamma[0] = Width(zero_fetch, gamma_fetch, l, Type);	//Use the incoming data to figure out the correct width to apply
-			Characterize_Folding(Par, Temp, zero[1], theta, zero_fetch, gamma_fetch, Nothing, l, Type);	//Get the omega-zero data at k[1]
 			gamma[1] = Width(zero_fetch, gamma_fetch, l, Type);	//Use the incoming data to figure out the correct width to apply
-			Poles = 3;
-		}
-		else
-		{
-			zero[0] = zero[2];
-			gamma[0] = zero[2]*.0021/13.38036;//Folding(Par, Temp, zero[0], theta).Min();
-			/*if(gamma[0] < 1e-3)	//If width is smaller than this value, make it this big
-				gamma[0] = 1e-3;
-			else if(gamma[0] > abs(2.*Par[2]*GAMMA))
-				gamma[0] = abs(2.*Par[2]*GAMMA);*/
-			Poles = 1;
+			Characterize_Folding(Par, Temp, zero[1], theta, zero_fetch, gamma_fetch, Nothing, l, Type);	//Get the omega-zero data at k[1]
+			gamma[2] = Width(zero_fetch, gamma_fetch, l, Type);	//Use the incoming data to figure out the correct width to apply
+			Poles += 2;
 		}
 	}
-	else
+
+	zero[Poles] = zero[Poles+1] = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//Start the Newton's search for potiential/time-like departure
+	j = 0;
+	do
 	{
-		zero[0] = zero[2];
-		gamma[0] = zero[2]*.0021/13.38036;//Folding(Par, Temp, zero[0], theta).Min();
-		/*if(gamma[0] < 1e-3)	//If width is smaller than this value, make it this big
-			gamma[0] = 1e-3;
-		else if(gamma[0] > abs(2.*Par[2]*GAMMA))
-			gamma[0] = abs(2.*Par[2]*GAMMA);*/
-		Poles = 1;
+		previous[1] = zero[Poles];
+		previous[2] = zero[Poles+1];
+		Newtons_k_Int2(Par[1], Par[4], Par[3], Par[2], zero, theta);
+		j++;
+	}while((abs(previous[0]/zero[0]-1.) > .001 || abs(previous[1]/zero[1]-1.) > .001) && j <= 10);	//Keep going while both poles are not known better than 1MeV
+
+	if(j <= 10)
+	{
+		zero[Poles] = abs(zero[Poles]);	//Through investigation of the results, I found that if both peaks are on one condition,
+		zero[Poles+1] = abs(zero[Poles+1]);	//then the lower one will be negative on the other condition
+
+		Characterize_Folding(Par, Temp, zero[Poles], theta, zero_fetch, gamma_fetch, Nothing, l, Type);	//Get the omega-zero data at k[0]
+		gamma[Poles] = Width(zero_fetch, gamma_fetch, l, Type);	//Use the incoming data to figure out the correct width to apply
+		Characterize_Folding(Par, Temp, zero[Poles+1], theta, zero_fetch, gamma_fetch, Nothing, l, Type);	//Get the omega-zero data at k[1]
+		gamma[Poles+1] = Width(zero_fetch, gamma_fetch, l, Type);	//Use the incoming data to figure out the correct width to apply
+		Poles += 2;
 	}
 
 	if(pow(Par[2],2)-.5*pow(Par[3]*sin(theta),2)+sqrt(pow(Par[3]*sin(theta),2)/8.*(8.*pow(Par[2],2)+2.*pow(Par[3]*sin(theta),2))) <= Par[4])
@@ -444,7 +447,7 @@ long double Width(long double zero[4], long double gamma[4], int Poles, int Type
 	return(0);
 }
 
-void Newtons_k_Int(long double Lambda, long double s, long double P, long double M, long double k[3], long double theta)
+void Newtons_k_Int1(long double Lambda, long double s, long double P, long double M, long double k[5], long double theta)
 {
 	long double f1 = -sqrt(2.)*sqrt(s+pow(P,2))+pow(16.*pow(k[0],4)+pow(Lambda,4),(long double).25)*sqrt(1.+4./sqrt(16.+pow(Lambda/k[0],4)))+2.*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[0],theta),4)))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[0],theta),4),(long double).25);
 	long double fp1 = (4.*pow(k[0],3)*(4.+sqrt(16.+pow(Lambda/k[0],4))))/(pow(16.*pow(k[0],4)+pow(Lambda,4),(long double).75)*sqrt((pow(Lambda,4)+4.*pow(k[0],4)*(4.+sqrt(16.+pow(Lambda/k[0],4))))/(16.*pow(k[0],4)+pow(Lambda,4))))+((2.*k[0]+P*cos(theta))*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[0],theta),4)))*pow(Energy(M,P/2.,k[0],theta),2))/pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[0],theta),4),(long double).75)+(pow(M*GAMMA,2)*(2.*k[0]+P*cos(theta))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[0],theta),4),(long double).25))/(sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[0],theta),4)))*pow(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[0],theta),4),(long double)1.5)*pow(Energy(M,P/2.,k[0],theta),6));
@@ -455,13 +458,24 @@ void Newtons_k_Int(long double Lambda, long double s, long double P, long double
 	return;
 }
 
-int Newtons_Test_k_Int(long double Lambda, long double s, long double P, long double M, long double k[3], long double theta)
+void Newtons_k_Int2(long double Lambda, long double s, long double P, long double M, long double k[5], long double theta)
 {
-	long double f1 = -sqrt(2.)*sqrt(s+pow(P,2))+pow(16.*pow(k[2],4)+pow(Lambda,4),(long double).25)*sqrt(1.+4./sqrt(16.+pow(Lambda/k[2],4)))+2.*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[2],theta),4)))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[2],theta),4),(long double).25);
-	long double fp1 = (4.*pow(k[2],3)*(4.+sqrt(16.+pow(Lambda/k[2],4))))/(pow(16.*pow(k[2],4)+pow(Lambda,4),(long double).75)*sqrt((pow(Lambda,4)+4.*pow(k[2],4)*(4.+sqrt(16.+pow(Lambda/k[2],4))))/(16.*pow(k[2],4)+pow(Lambda,4))))+((2.*k[2]+P*cos(theta))*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[2],theta),4)))*pow(Energy(M,P/2.,k[2],theta),2))/pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[2],theta),4),(long double).75)+(pow(M*GAMMA,2)*(2.*k[2]+P*cos(theta))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[2],theta),4),(long double).25))/(sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[2],theta),4)))*pow(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[2],theta),4),(long double)1.5)*pow(Energy(M,P/2.,k[2],theta),6));
+	long double f3 = .5*sqrt(s+pow(P,2))-.25*pow(pow(2.*k[2],4)+pow(Lambda,4),.25)*sqrt(2.+8.*pow(k[2],2)/sqrt(pow(2.*k[2],4)+pow(Lambda,4)))-Energy(0,P/2.,-k[2],theta);
+	long double fp3 = -(sqrt(2.)*k[2]*pow(Lambda,4)/(pow(pow(2.*k[2],4)+pow(Lambda,4),1.25)*sqrt(1.+pow(2.*k[2],2)/sqrt(pow(2.*k[2],4)+pow(Lambda,4)))))-(4.*pow(k[2],3)*sqrt(2.+8.*pow(k[2],2)/sqrt(pow(2.*k[2],4)+pow(Lambda,4))))/pow(pow(2.*k[2],4)+pow(Lambda,4),.75)+(-2.*k[2]+P*cos(theta))/(2.*Energy(0,P/2.,-k[2],theta));
+	long double f4 = -.5*sqrt(s+pow(P,2))+.25*pow(pow(2.*k[3],4)+pow(Lambda,4),.25)*sqrt(2.+8.*pow(k[3],2)/sqrt(pow(2.*k[3],4)+pow(Lambda,4)))+Energy(0,P/2.,k[3],theta);
+	long double fp4 = sqrt(2.)*k[3]*pow(Lambda,4)/(pow(pow(2.*k[3],4)+pow(Lambda,4),1.25)*sqrt(1.+pow(2.*k[3],2)/sqrt(pow(2.*k[3],4)+pow(Lambda,4))))+(4.*pow(k[3],3)*sqrt(2.+8.*pow(k[3],2)/sqrt(pow(2.*k[3],4)+pow(Lambda,4))))/pow(pow(2.*k[3],4)+pow(Lambda,4),.75)+(2.*k[3]+P*cos(theta))/(2.*Energy(0,P/2.,k[3],theta));
+	k[2] -= f3/fp3;
+	k[3] -= f4/fp4;
+	return;
+}
+
+int Newtons_Test_k_Int(long double Lambda, long double s, long double P, long double M, long double k[5], long double theta)
+{
+	long double f1 = -sqrt(2.)*sqrt(s+pow(P,2))+pow(16.*pow(k[4],4)+pow(Lambda,4),(long double).25)*sqrt(1.+4./sqrt(16.+pow(Lambda/k[4],4)))+2.*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[4],theta),4)))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[4],theta),4),(long double).25);
+	long double fp1 = (4.*pow(k[4],3)*(4.+sqrt(16.+pow(Lambda/k[4],4))))/(pow(16.*pow(k[4],4)+pow(Lambda,4),(long double).75)*sqrt((pow(Lambda,4)+4.*pow(k[4],4)*(4.+sqrt(16.+pow(Lambda/k[4],4))))/(16.*pow(k[4],4)+pow(Lambda,4))))+((2.*k[4]+P*cos(theta))*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[4],theta),4)))*pow(Energy(M,P/2.,k[4],theta),2))/pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[4],theta),4),(long double).75)+(pow(M*GAMMA,2)*(2.*k[4]+P*cos(theta))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,k[4],theta),4),(long double).25))/(sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[4],theta),4)))*pow(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,k[4],theta),4),(long double)1.5)*pow(Energy(M,P/2.,k[4],theta),6));
 	long double limitp1 = (P*((16.*pow(M*GAMMA,2))/sqrt(1.+(16.*pow(M*GAMMA,2))/pow(4.*pow(M,2)+pow(P,2),2))+pow(4.*pow(M,2)+pow(P,2),2)*(1.+1./sqrt(1.+(16.*pow(M*GAMMA,2))/pow(4.*pow(M,2)+pow(P,2),2))))*cos(theta))/(2.*(4.*pow(M,2)+pow(P,2))*pow(16.*pow(M,4)+pow(P,4)+8.*pow(M,2)*(pow(P,2)+2.*pow(GAMMA,2)),(long double).75)*sqrt(1.+1./sqrt(1.+(16.*pow(M*GAMMA,2))/pow(4.*pow(M,2)+pow(P,2),2))));
-	long double f2 = -sqrt(2.)*sqrt(s+pow(P,2))+pow(16.*pow(k[2],4)+pow(Lambda,4),(long double).25)*sqrt(1.+4./sqrt(16.+pow(Lambda/k[2],4)))+2.*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[2],theta),4)))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,-k[2],theta),4),(long double).25);
-	long double fp2 = (4.*pow(k[2],3)*(4.+sqrt(16.+pow(Lambda/k[2],4))))/(pow(16.*pow(k[2],4)+pow(Lambda,4),(long double).75)*sqrt((pow(Lambda,4)+4.*pow(k[2],4)*(4.+sqrt(16.+pow(Lambda/k[2],4))))/(16.*pow(k[2],4)+pow(Lambda,4))))+((2.*k[2]-P*cos(theta))*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[2],theta),4)))*pow(Energy(M,P/2.,-k[2],theta),2))/pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,-k[2],theta),4),(long double).75)+(pow(M*GAMMA,2)*(2.*k[2]-P*cos(theta))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,-k[2],theta),4),(long double).25))/(sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[2],theta),4)))*pow(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[2],theta),4),(long double)1.5)*pow(Energy(M,P/2.,-k[2],theta),6));
+	long double f2 = -sqrt(2.)*sqrt(s+pow(P,2))+pow(16.*pow(k[4],4)+pow(Lambda,4),(long double).25)*sqrt(1.+4./sqrt(16.+pow(Lambda/k[4],4)))+2.*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[4],theta),4)))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,-k[4],theta),4),(long double).25);
+	long double fp2 = (4.*pow(k[4],3)*(4.+sqrt(16.+pow(Lambda/k[4],4))))/(pow(16.*pow(k[4],4)+pow(Lambda,4),(long double).75)*sqrt((pow(Lambda,4)+4.*pow(k[4],4)*(4.+sqrt(16.+pow(Lambda/k[4],4))))/(16.*pow(k[4],4)+pow(Lambda,4))))+((2.*k[4]-P*cos(theta))*sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[4],theta),4)))*pow(Energy(M,P/2.,-k[4],theta),2))/pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,-k[4],theta),4),(long double).75)+(pow(M*GAMMA,2)*(2.*k[4]-P*cos(theta))*pow(pow(M*GAMMA,2)+pow(Energy(M,P/2.,-k[4],theta),4),(long double).25))/(sqrt(1.+1./sqrt(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[4],theta),4)))*pow(1.+(pow(M*GAMMA,2))/pow(Energy(M,P/2.,-k[4],theta),4),(long double)1.5)*pow(Energy(M,P/2.,-k[4],theta),6));
 	long double limitp2 = (P*(-((16.*pow(M*GAMMA,2))/sqrt(1.+(16.*pow(M*GAMMA,2))/pow(4.*pow(M,2)+pow(P,2),2)))-pow(4.*pow(M,2)+pow(P,2),2)*(1.+1./sqrt(1.+(16.*pow(M*GAMMA,2))/pow(4.*pow(M,2)+pow(P,2),2))))*cos(theta))/(2.*(4.*pow(M,2)+pow(P,2))*pow(16.*pow(M,4)+pow(P,4)+8.*pow(M,2)*(pow(P,2)+2.*pow(GAMMA,2)),(long double).75)*sqrt(1.+1./sqrt(1.+(16.*pow(M*GAMMA,2))/pow(4.*pow(M,2)+pow(P,2),2))));
 	long double limit = -sqrt(2)*sqrt(s+pow(P,2))+pow(16.*pow(M,4)+pow(P,4)+8.*pow(M,2)*(pow(P,2)+2.*pow(GAMMA,2)),(long double).25)*sqrt(1.+1./sqrt(1.+16.*pow(M*GAMMA,2)/pow(4.*pow(M,2)+pow(P,2),2)))+Lambda;
 	int roots = 0;
