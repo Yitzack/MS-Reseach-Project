@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 	const int Total = atoi(argv[2]);
 	long double Table[616][3];//*/
 	long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 0};
-	Elements holder;
+	Elements holder[28];
 	long double GaussLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integration
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
@@ -164,17 +164,14 @@ int main(int argc, char* argv[])
 
 	/*cerr << setprecision(18);
 	long double error[2][84];
-	//long double Previous[] = {1.39461036156073218, 6.332062117923765, 7.01846419642699572, 17.3474665827736626, 20.0872380683069175, 29.8258531041717639, 46.704784395474316, 50.713420893829978, 51.278938722070447, 0.043158410019226763, 2.57317145318693376, 12.3076691166712644, 14.4865250760850598, 23.5028086983717032, 23.5103874011593978, 24.8348072100687947, 29.1168316508529893, 0.00594803112485079734, 0.00739439903373680452, 0.380668112496927022, 0.458735834559289807, 0.826951279575519325, 1.56823398390205848};	//well with P=20 and 600 at sqrt(s)=2
-	//long double Previous[] = {0.123580343549897199, 0.541741934373112939, 7.69782055247488887, 8.72622414180869948, 11.6402506402220173, 26.0054177880140755, 33.3572779676262976, 40.5098268871267691, 42.4422552553474719, 1.44398460776065712, 1.91040368553818341, 2.5609217895117776, 3.00573801292983285, 9.12381233459490903, 10.1514320355772167, 12.4660249393208086, 15.3692872963081938, 0.0600075833235828519, 0.0786135669260155975, 0.669714802844075505, 0.794854226355800526, 1.2758869640745808, 1.56895224717512517};	//exceptional with P=200 at sqrt(s)=2
-	//long double Previous[] = {0.0428680552208614973, 0.351360127706610333, 0.400000000000000022, 0.41560939420741491, 2.4889659741563509, 27.5736341741087481, 30.3611216126246189, 64.1888719042480827, 65.7977831341683622, 0.0173088638452181461, 0.836829860598354491, 1.19162592788339509, 1.91451047357362453, 3.14427392232442597, 4.44058339437223329, 11.2562239844174467, 39.9320959431304673, 0.00853563204339899112, 0.0103170045937223034, 0.010382813423813732, 0.540182131169703438, 0.739622753171926845, 1.5};	//Pretty shitty at 23.5GeV
-	//long double Previous[] = {.25,.4,.5,.65,1,1.25,1.5,8,64,.06,.5,1,1.5,3.1,4.5,8,64,.005,.01,.05,.1,M_PI/10.,1.5};
-	long double Previous[] = {0.0986993643, 0.1780983439, 0.4, 0.7800455449, 1, 3.3208646228, 5.3179901248, 8, 64, 0.4361671565, 0.5635558214, 1.0033450222, 1.5, 6.7036366445, 7.8065507362, 17.5523402379, 64, 0.005, 0.0176151009, 0.0623916288, 0.223490252, M_PI/10., 1.5507833488};
+	//long double Previous[] = {0.5, 1, 8, 64, 0.5, 4.28893794784739, 8, 64, 0.0008, 0.01, 0.05, 0.1, M_PI/10.};
+	long double Previous[] = {0.5, 1, 8, 64, 0.5, 1, 8, 64, 0.0008, 0.01, 0.05, 0.1, M_PI/10.};
 	long double slist[] = {.01, 3.24, 4., 12.96, 25., 100., 552.25};
 	long double Plist[] = {0, 20, 200, 600};
 	int count;
 	int i, j = 0;
 
-	for(i = 0; i < 23; i++)
+	for(i = 0; i < 13; i++)
 		Boundary[i] = Previous[i];
 
 	for(i = 0; i < 4; i++)
@@ -197,33 +194,33 @@ int main(int argc, char* argv[])
 		cout << error[0][3*i] << " " << error[0][3*i+1] << " " << error[0][3*i+2] << " " << flush;
 	}
 	cout << setprecision(18);
-	for(i = 0; i < 23; i++)
+	for(i = 0; i < 13; i++)
 		cout << Previous[i] << " " << flush;
 	cout << endl;
-	srand(time(NULL)+atoi(argv[1])*30+100*atoi(argv[2]));
+	/*srand(time(NULL)+atoi(argv[1])*30+100*atoi(argv[2]));
 
 	do
 	{
-		count = rand()%23;
+		count = rand()%13;
 		switch(count)
 		{
 			case 0:
 				Boundary[count] = RandFloat(0,Boundary[1]);
 				break;
+			case 3:
+				Boundary[count] = RandFloat(Boundary[2],Boundary[3]+1.);
+				break;
+			case 4:
+				Boundary[count] = RandFloat(0,Boundary[5]);
+				break;
+			case 7:
+				Boundary[count] = RandFloat(Boundary[6],Boundary[7]+1.);
+				break;
 			case 8:
-				Boundary[count] = RandFloat(Boundary[7],Boundary[8]+1.);
+				Boundary[count] = RandFloat(0,Boundary[9]);
 				break;
-			case 9:
-				Boundary[count] = RandFloat(0,Boundary[10]);
-				break;
-			case 16:
-				Boundary[count] = RandFloat(Boundary[15],Boundary[16]+1.);
-				break;
-			case 17:
-				Boundary[count] = RandFloat(0,Boundary[18]);
-				break;
-			case 22:
-				Boundary[count] = RandFloat(Boundary[21],M_PI/2.);
+			case 12:
+				Boundary[count] = RandFloat(Boundary[11],M_PI/2.);
 				break;
 			default:
 				Boundary[count] = RandFloat(Boundary[count-1],Boundary[count+1]);
@@ -249,7 +246,7 @@ int main(int argc, char* argv[])
 			cout << error[1][3*i] << " " << error[1][3*i+1] << " " << error[1][3*i+2] << " " << flush;
 		}
 		cout << setprecision(18);
-		for(i = 0; i < 23; i++)
+		for(i = 0; i < 13; i++)
 			cout << Boundary[i] << " " << flush;
 		cout << endl;
 
@@ -300,7 +297,7 @@ bool Poll(long double error[2][84])
 				if(i%12 <= 2);
 				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
 				else if(error[0][i] < error[1][i])	//Count reject conditions
-					return(true);	//this one has veto rights
+					count += 4.*abs(error[0][i]/error[1][i]-1.);	//this one has veto rights
 				else
 					count -= 4.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
 				break;
@@ -339,7 +336,7 @@ bool Poll(long double error[2][84])
 		}
 	}
 
-	long double rand = RandFloat(0,3);
+	long double rand = RandFloat(0,16);
 	cout << rand << " " << count << endl;
 	if(rand < count)
 		return(true);
