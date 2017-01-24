@@ -32,14 +32,14 @@ long double Spin_Sum(long double[5], long double, long double, long double);	//S
 long double Folding_Integrand(long double[5], long double, long double, long double, int);	//Integrand of the folding integral
 
 #define GAMMA -.015
-long double Boundary[] = {0.5, 1, 2, 4, 0.5, 1, 8, 64, 0.0008, 0.005, 0.01, 0.05, 0.1, M_PI/10.};
+long double Boundary[] = {0.5, 1, 8, 64, 0.5, 1, 2, 4, 0.0008, 0.005, 0.01, 0.05, 0.1, M_PI/10.};
 
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 {
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 35th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp
-	long double Range[] = {Boundary[8],Boundary[9],Boundary[10],Boundary[11],Boundary[12],M_PI/2.};
+	long double Range[] = {Boundary[8],Boundary[9],Boundary[10],Boundary[11],Boundary[12],Boundary[13],M_PI/2.};
 	long double x1, x2;	//Abscissa
 	Elements F;	//Sum of ordinate*weights
 	Elements Answer(0,0,0);	//Answer to be returned
@@ -62,14 +62,14 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 
 			holder = k_Int(Par, Temp, x1);
 			F += holder*sin(x1)*w[j+1];
-			//Table << Par[3] << " " << Par[4] << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//cout << Par[3] << " " << Par[4] << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			holder = k_Int(Par, Temp, x2);
 			F += holder*sin(x2)*w[j+1];
-			//Table << Par[3] << " " << Par[4] << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//cout << Par[3] << " " << Par[4] << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		}
 		holder = k_Int(Par, Temp, (a+b)/2.);
 		F += holder*sin((a+b)/2.)*w[0];
-		//Table << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+		//cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		Answer += F*(b-a)/2.;
 		a = b;
 	}
@@ -112,18 +112,18 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	j = 0;	//Range counter
 	while(Poles != 0 && zero[i]+Range[j]*gamma[i] < a) j++;	//Pole doesn't need to be checked as all poles are within the limits of integration
 
-	if(zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1] && i+1 < Poles && j != 0)	//j!=0 is because the loop will find other early termination
+	if(zero[i]-Range[0]*gamma[i] > zero[i+1]+Range[0]*gamma[i+1] && i+1 < Poles && j != 0)	//j!=0 is because the loop will find other early termination
 		Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i];
 
 	do
 	{
 		if(b == 0 && j != 0)	//First pole is closer than zero-64*gamma to lower limit of integration
 			Width = zero[i]+Range[j]*gamma[i]-b;
-		else if((i < Poles && b+100 < zero[i]-64.*gamma[i]) || a-100 > Min_upper || b+100 < Min_upper || (i > 0 && a-100 > zero[i-1]+64.*gamma[i-1]))	//Middle of nowhere intervals
+		else if((i < Poles && b+100 < zero[i]+Range[0]*gamma[i]) || a-100 > Min_upper || b+100 < Min_upper || (i > 0 && a-100 > zero[i-1]-Range[0]*gamma[i-1]))	//Middle of nowhere intervals
 			Width = 100;
-		else if((i < Poles && b+50 < zero[i]-64.*gamma[i]) || a-50 > Min_upper || b+50 < Min_upper || (i > 0 && a-50 > zero[i-1]+64.*gamma[i-1]))
+		else if((i < Poles && b+50 < zero[i]+Range[0]*gamma[i]) || a-50 > Min_upper || b+50 < Min_upper || (i > 0 && a-50 > zero[i-1]-Range[0]*gamma[i-1]))
 			Width = 50;
-		else if((i < Poles && b+10 < zero[i]-64.*gamma[i]) || a-10 > Min_upper || b+10 < Min_upper || (i > 0 && a-10 > zero[i-1]+64.*gamma[i-1]))
+		else if((i < Poles && b+10 < zero[i]+Range[0]*gamma[i]) || a-10 > Min_upper || b+10 < Min_upper || (i > 0 && a-10 > zero[i-1]-Range[0]*gamma[i-1]))
 			Width = 10;
 		else
 			Width = 3;
@@ -134,13 +134,13 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 			j = 0;
 		}
 
-		if(Poles != 0 && (a < zero[i]-64.*gamma[i] && b+Width >= zero[i]-64.*gamma[i]))	//Stutter step before the next pole
+		if(Poles != 0 && (a < zero[i]+Range[0]*gamma[i] && b+Width >= zero[i]+Range[0]*gamma[i]))	//Stutter step before the next pole
 		{
-			Width = zero[i]-64.*gamma[i]-b;
-			if(i+1 < Poles && zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1]) //There exists a next pole and their ranges overlap
+			Width = zero[i]+Range[0]*gamma[i]-b;
+			if(i+1 < Poles && zero[i]-Range[0]*gamma[i] > zero[i+1]+Range[0]*gamma[i+1]) //There exists a next pole and their ranges overlap
 				Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i]; //Sets early terminantion point
 		}
-		else if(Poles != 0 && j < 8 && (a >= zero[i]-64.*gamma[i] && a <= zero[i]+64.*gamma[i]) && (b != 0 || Width == 0))
+		else if(Poles != 0 && j < 8 && (a >= zero[i]+Range[0]*gamma[i] && a <= zero[i]-Range[0]*gamma[i]) && (b != 0 || Width == 0))
 		{//Integrating a pole and the width wan't resolved by the first condition after do, 24 lines up
 			Width = gamma[i]*(Range[j+1]-Range[j]);
 			j++;
@@ -150,7 +150,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 		{
 			Width = NextWidth;
 			NextWidth = 0;
-			if(i+1 < Poles && zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1]) //There exists a next pole and their ranges overlap
+			if(i+1 < Poles && zero[i]-Range[0]*gamma[i] > zero[i+1]+Range[0]*gamma[i+1]) //There exists a next pole and their ranges overlap
 				Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i]; //Sets early terminantion point
 		}
 		else if(Early != 0 && b+Width > Early)
@@ -414,7 +414,7 @@ int Newtons_Test_k_Int(long double Lambda, long double s, long double P, long do
 		roots+=2;
 
 	if(roots > 2)
-		cerr << "Unexepected outcome in Newtons_Test_k_Int s = " << s << " P = " << P << " theta = " << theta << endl;
+		cerr << "Unexepected outcome in Newtons_Test_k_Int s = " << s << " P = " << P << " theta = " << theta << " number of roots found = " << roots << endl;
 
 	if(roots == 0)
 	{
@@ -479,18 +479,18 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	j = 0;	//Range counter
 	while(Poles != 0 && zero[i]+Range[j]*gamma[i] < a) j++;	//Pole doesn't need to be checked as all poles are within the limits of integration
 
-	if(zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1] && i+1 < Poles && j != 0) //j!=0 is because the loop will find other early termination
+	if(zero[i]-Range[0]*gamma[i] > zero[i+1]+Range[0]*gamma[i+1] && i+1 < Poles && j != 0) //j!=0 is because the loop will find other early termination
 		Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i];
 
 	do
 	{
 		if((b == 0 || b == Energy(0,Par[3]/2.,k,theta)) && j != 0 && zero[i]+Range[j]*gamma[i] != b)	//First pole is closer than zero-64*gamma to lower limit of integration
 			Width = zero[i]+Range[j]*gamma[i]-b;
-		else if((i < Poles && b+100 < zero[i]-64.*gamma[i]) || b+100 < Max)	//Middle of nowhere intervals
+		else if((i < Poles && b+100 < zero[i]+Range[0]*gamma[i]) || b+100 < Max)	//Middle of nowhere intervals
 			Width = 100;
-		else if((i < Poles && b+50 < zero[i]-64.*gamma[i]) || b+50 < Max)
+		else if((i < Poles && b+50 < zero[i]+Range[0]*gamma[i]) || b+50 < Max)
 			Width = 50;
-		else if((i < Poles && b+10 < zero[i]-64.*gamma[i]) || b+10 < Max)
+		else if((i < Poles && b+10 < zero[i]+Range[0]*gamma[i]) || b+10 < Max)
 			Width = 10;
 		else
 			Width = 3;
@@ -501,13 +501,13 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			j = 0;
 		}
 
-		if(Poles != 0 && (a < zero[i]-64.*gamma[i] && b+Width >= zero[i]-64.*gamma[i]))	//Stutter step before the next pole
+		if(Poles != 0 && (a < zero[i]+Range[0]*gamma[i] && b+Width >= zero[i]+Range[0]*gamma[i]))	//Stutter step before the next pole
 		{
-			Width = zero[i]-64.*gamma[i]-b;
-			if(i+1 < Poles && zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1])	//There exists a next pole and their ranges overlap
+			Width = zero[i]+Range[0]*gamma[i]-b;
+			if(i+1 < Poles && zero[i]-Range[0]*gamma[i] > zero[i+1]+Range[0]*gamma[i+1])	//There exists a next pole and their ranges overlap
 				Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i];	//Sets early terminantion point
 		}
-		else if(Poles != 0 && j < 8 && (a >= zero[i]-64.*gamma[i] && a <= zero[i]+64.*gamma[i]) && !(b == 0 || b == Energy(0,Par[3]/2.,k,theta)))
+		else if(Poles != 0 && j < 8 && (a >= zero[i]+Range[0]*gamma[i] && a <= zero[i]-Range[0]*gamma[i]) && !(b == 0 || b == Energy(0,Par[3]/2.,k,theta)))
 		{//Integrating a pole and the width wan't resolved by the first condition after do, 24 lines up
 			Width = gamma[i]*(Range[j+1]-Range[j]);
 			j++;
@@ -517,7 +517,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		{
 			Width = NextWidth;
 			NextWidth = 0;
-			if(i+1 < Poles && zero[i]+64.*gamma[i] > zero[i+1]-64.*gamma[i+1])	//There exists a next pole and their ranges overlap
+			if(i+1 < Poles && zero[i]-Range[0]*gamma[i] > zero[i+1]+Range[0]*gamma[i+1])	//There exists a next pole and their ranges overlap
 				Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i];	//Sets early terminantion point
 		}
 		else if(Early != 0 && b+Width > Early)

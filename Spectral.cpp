@@ -9,13 +9,13 @@ using namespace std;
 
 void Plot(long double, int);	//Plots the functions from table
 long double RandFloat(long double, long double);
-bool Poll(long double[2][84]);
+bool Poll(long double[][2], int);
 
 char* Process;
 
 int main(int argc, char* argv[])
 {
-#ifndef BB	//use option -D BB= to activate BB macro
+/*#ifndef BB	//use option -D BB= to activate BB macro
 	char File[30] = "Spectralcc.";  //Name of the file
 #else
      	char File[30] = "Spectralbb.";  //Name of the file
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 	Elements holder[28];
 	long double GaussLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integration
 
-	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
+	/*TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = atoi(argv[6]); i <= 788; i++)	//Argv[6] allows to restart where ever
 	{
 		#pragma omp parallel for
@@ -162,46 +162,57 @@ int main(int argc, char* argv[])
 	//TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
 
-	/*cerr << setprecision(18);
-	long double error[2][84];
+	/*Par[4] = 25;
+	for(Par[3] = 0; Par[3] <= 600; Par[3] += .8)
+	{
+		holder[0] = theta_Int(Par, 0);
+		cout << Par[3] << " " << Par[4] << " " << holder[0].store(0) << " " << holder[0].store(1) << " " << holder[0].store(2) << endl;
+	}//*/
+
+	cerr << setprecision(18);
 	//long double Previous[] = {0.5, 1, 8, 64, 0.5, 4.28893794784739, 8, 64, 0.0008, 0.01, 0.05, 0.1, M_PI/10.};
-	long double Previous[] = {0.5, 1, 8, 64, 0.5, 1, 8, 64, 0.0008, 0.01, 0.05, 0.1, M_PI/10.};
+	long double Previous[] = {0.5, 1, 8, 64, 0.5, 1, 2, 4, 0.0008, 0.005, 0.01, 0.05, 0.1, M_PI/10.};
 	long double slist[] = {.01, 3.24, 4., 12.96, 25., 100., 552.25};
 	long double Plist[] = {0, 20, 200, 600};
+	//long double slist[] = {4., 25.};
+	//long double Plist[] = {0, 20, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600};
 	int count;
 	int i, j = 0;
+	int s_size = 7;
+	int P_size = 4;
+	long double error[3*s_size*P_size][2];
 
-	for(i = 0; i < 13; i++)
+	for(i = 0; i < 14; i++)
 		Boundary[i] = Previous[i];
 
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < P_size; i++)
 	{
-		for(j = 0; j < 7; j++)
+		for(j = 0; j < s_size; j++)
 		{
 			Par[3] = Plist[i];
 			Par[4] = slist[j];
-			holder[i+4*j] = theta_Int(Par, 0);
-			cout << Par[3] << " " << sqrt(Par[4]) << " " << holder[i+4*j].store(0) << " " << holder[i+4*j].store(1) << " " << holder[i+4*j].store(2) << endl;
+			holder[i+P_size*j] = theta_Int(Par, 0);
+			cout << Par[3] << " " << sqrt(Par[4]) << " " << holder[i+P_size*j].store(0) << " " << holder[i+P_size*j].store(1) << " " << holder[i+P_size*j].store(2) << endl;
 		}
 	}
 
 	cout << setprecision(4);
-	for(i = 0; i < 28; i++)
+	for(i = 0; i < P_size*s_size; i++)
 	{
-		error[0][3*i] = abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.);
-		error[0][3*i+1] = abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.);
-		error[0][3*i+2] = abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.);
-		cout << error[0][3*i] << " " << error[0][3*i+1] << " " << error[0][3*i+2] << " " << flush;
+		error[3*i][0] = abs(holder[i].store(0)/holder[int(floor(float(i)/float(P_size)))*P_size].store(0)-1.);
+		error[3*i+1][0] = abs(holder[i].store(1)/holder[int(floor(float(i)/float(P_size)))*P_size].store(1)-1.);
+		error[3*i+2][0] = abs(holder[i].store(2)/holder[int(floor(float(i)/float(P_size)))*P_size].store(2)-1.);
+		cout << error[3*i][0] << " " << error[3*i+1][0] << " " << error[3*i+2][0] << " " << flush;
 	}
 	cout << setprecision(18);
-	for(i = 0; i < 13; i++)
+	for(i = 0; i < 14; i++)
 		cout << Previous[i] << " " << flush;
 	cout << endl;
-	/*srand(time(NULL)+atoi(argv[1])*30+100*atoi(argv[2]));
+	srand(time(NULL)+atoi(argv[1])*30+100*atoi(argv[2]));
 
-	do
+	for(int l = 0; l <= 2000; l++)
 	{
-		count = rand()%13;
+		count = rand()%14;
 		switch(count)
 		{
 			case 0:
@@ -219,38 +230,41 @@ int main(int argc, char* argv[])
 			case 8:
 				Boundary[count] = RandFloat(0,Boundary[9]);
 				break;
-			case 12:
-				Boundary[count] = RandFloat(Boundary[11],M_PI/2.);
+			case 13:
+				Boundary[count] = RandFloat(Boundary[12],M_PI/2.);
 				break;
 			default:
 				Boundary[count] = RandFloat(Boundary[count-1],Boundary[count+1]);
 				break;
 		}
 
-		for(i = 0; i < 4; i++)
+		cout << setprecision(6);
+		for(i = 0; i < P_size; i++)
 		{
-			for(j = 0; j < 7; j++)
+			for(j = 0; j < s_size; j++)
 			{
 				Par[3] = Plist[i];
 				Par[4] = slist[j];
-				holder[i+4*j] = theta_Int(Par, 0);
+				holder[i+P_size*j] = theta_Int(Par, 0);
+				//if(l%10 == 9)
+				//	cout << Par[3] << " " << sqrt(Par[4]) << " " << holder[i+P_size*j].store(0) << " " << holder[i+P_size*j].store(1) << " " << holder[i+P_size*j].store(2) << endl;
 			}
 		}
 
 		cout << setprecision(4);
-		for(i = 0; i < 28; i++)
+		for(i = 0; i < P_size*s_size; i++)
 		{
-			error[1][3*i] = abs(holder[i].store(0)/holder[int(floor(i/4.))*4].store(0)-1.);
-			error[1][3*i+1] = abs(holder[i].store(1)/holder[int(floor(i/4.))*4].store(1)-1.);
-			error[1][3*i+2] = abs(holder[i].store(2)/holder[int(floor(i/4.))*4].store(2)-1.);
-			cout << error[1][3*i] << " " << error[1][3*i+1] << " " << error[1][3*i+2] << " " << flush;
+			error[3*i][1] = abs(holder[i].store(0)/holder[int(floor(float(i)/float(P_size)))*P_size].store(0)-1.);
+			error[3*i+1][1] = abs(holder[i].store(1)/holder[int(floor(float(i)/float(P_size)))*P_size].store(1)-1.);
+			error[3*i+2][1] = abs(holder[i].store(2)/holder[int(floor(float(i)/float(P_size)))*P_size].store(2)-1.);
+			cout << error[3*i][1] << " " << error[3*i+1][1] << " " << error[3*i+2][1] << " " << flush;
 		}
 		cout << setprecision(18);
-		for(i = 0; i < 13; i++)
+		for(i = 0; i < 14; i++)
 			cout << Boundary[i] << " " << flush;
 		cout << endl;
 
-		if(Poll(error))
+		if(Poll(error, P_size*s_size))
 		{	//reject
 			cout << "attempt rejected" << endl;
 			Boundary[count] = Previous[count];
@@ -259,84 +273,23 @@ int main(int argc, char* argv[])
 		{
 			cout << "attempt accepted" << endl;
 			Previous[count] = Boundary[count];
-			for(i = 0; i < 28; i++)
+			for(i = 0; i < 3*s_size*P_size; i++)
 				error[0][i] = error[1][i];
 		}
-
-		j++;
-	}while(j < 2000);//*/
+	}//*/
 
 	return(0);
 }
 
-bool Poll(long double error[2][84])
+bool Poll(long double error[][2], int elements)
 {
 	long double count = 0;
 
-	for(int i = 0; i < 84; i++)
-	{
-		switch(int(floor(i/12.)))	//{.1, 1.8, 2, 3.6, 5, 10, 23.5}
-		{
-			case 0:	//sqrt(s)==.1 GeV has 4 votes
-				if(i%12 <= 2);	//Nan, no useful information
-				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
-				else if(error[0][i] < error[1][i])	//Count reject conditions
-					count += 4.*abs(error[0][i]/error[1][i]-1.);
-				else
-					count -= 2.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
-				break;
-			case 1:	//sqrt(s)==1.8 GeV has 4 votes
-				if(i%12 <= 2);
-				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
-				else if(error[0][i] < error[1][i])	//Count reject conditions
-					count += 4.*abs(error[0][i]/error[1][i]-1.);
-				else
-					count -= 2.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
-				break;
-			case 2:	//sqrt(s)==2 GeV has 4 votes
-				if(i%12 <= 2);
-				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
-				else if(error[0][i] < error[1][i])	//Count reject conditions
-					count += 4.*abs(error[0][i]/error[1][i]-1.);	//this one has veto rights
-				else
-					count -= 4.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
-				break;
-			case 3:	//sqrt(s)==3.6 GeV has 4 votes
-				if(i%12 <= 2);
-				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
-				else if(error[0][i] < error[1][i])	//Count reject conditions
-					count += 4.*abs(error[0][i]/error[1][i]-1.);
-				else
-					count -= 2.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
-				break;
-			case 4:	//sqrt(s)==5 GeV has 2 votes
-				if(i%12 <= 2);
-				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
-				else if(error[0][i] < error[1][i])	//Count reject conditions
-					count += 2.*abs(error[0][i]/error[1][i]-1.);
-				else
-					count -= 2.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
-				break;
-			case 5:	//sqrt(s)==10 GeV has 2 votes
-				if(i%12 <= 2);
-				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
-				else if(error[0][i] < error[1][i])	//Count reject conditions
-					count += 2.*abs(error[0][i]/error[1][i]-1.);
-				else
-					count -= 1.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
-				break;
-			case 6:	//sqrt(s)==23.5 GeV has 2 votes
-				if(i%12 <= 2);
-				else if(abs(error[0][i]/error[1][i]-1.) < 1e-2);	//Don't care (vote present)
-				else if(error[0][i] < error[1][i])	//Count reject conditions
-					count += 2.*abs(error[0][i]/error[1][i]-1.);
-				else
-					count -= 1.*abs(error[0][i]/error[1][i]-1.);	//Count accept conditions
-				break;
-		}
-	}
+	for(int i = 0; i < elements*3; i++)
+		if(error[i][0] != 0)//error[i][0] < error[i][1])	//Count reject conditions
+			count -= error[i][0]-error[i][1];
 
-	long double rand = RandFloat(0,16);
+	long double rand = RandFloat(0,1);
 	cout << rand << " " << count << endl;
 	if(rand < count)
 		return(true);
