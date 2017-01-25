@@ -32,14 +32,14 @@ long double Spin_Sum(long double[5], long double, long double, long double);	//S
 long double Folding_Integrand(long double[5], long double, long double, long double, int);	//Integrand of the folding integral
 
 #define GAMMA -.015
-long double Boundary[] = {0.5, 1, 8, 64, 0.5, 1, 2, 4, 0.0008, 0.005, 0.01, 0.05, 0.1, M_PI/10.};
+long double Boundary[] = {0.6170548948, 5.336790161, 7.2540982549, 9.8670692826, 0.4551849905, 1.3360455228, 3.1251811032, 3.3741396594, 0.0008, 0.001, 0.0025, 0.0043940136, 0.009815549, 0.0219264221, 0.07, 0.2212950766, 0.4520017117};
 
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 {
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 35th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp
-	long double Range[] = {Boundary[8],Boundary[9],Boundary[10],Boundary[11],Boundary[12],Boundary[13],M_PI/2.};
+	long double Range[] = {Boundary[8],Boundary[9],Boundary[10],Boundary[11],Boundary[12],Boundary[13],Boundary[14],Boundary[15],Boundary[16],M_PI/2.};
 	long double x1, x2;	//Abscissa
 	Elements F;	//Sum of ordinate*weights
 	Elements Answer(0,0,0);	//Answer to be returned
@@ -50,7 +50,7 @@ Elements theta_Int(long double Par[5], int Temp)	//Integrates the theta results
 	//Table << setprecision(18);
 
 
-	for(i = 0; i < 7; i++)	//No pole found
+	for(i = 0; i < 10; i++)	//No pole found
 	{
 		b = Range[i];
 

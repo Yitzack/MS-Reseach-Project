@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
 	//TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
 
-	/*Par[4] = 25;
+	/*Par[4] = 4;
 	for(Par[3] = 0; Par[3] <= 600; Par[3] += .8)
 	{
 		holder[0] = theta_Int(Par, 0);
@@ -171,18 +171,20 @@ int main(int argc, char* argv[])
 
 	cerr << setprecision(18);
 	//long double Previous[] = {0.5, 1, 8, 64, 0.5, 4.28893794784739, 8, 64, 0.0008, 0.01, 0.05, 0.1, M_PI/10.};
-	long double Previous[] = {0.5, 1, 8, 64, 0.5, 1, 2, 4, 0.0008, 0.005, 0.01, 0.05, 0.1, M_PI/10.};
-	long double slist[] = {.01, 3.24, 4., 12.96, 25., 100., 552.25};
-	long double Plist[] = {0, 20, 200, 600};
+	long double Previous[] = {0.6170548948, 5.336790161, 7.2540982549, 9.8670692826, 0.4551849905, 1.3360455228, 3.1251811032, 3.3741396594, 0.0008, 0.001, 0.0025, 0.0043940136, 0.009815549, 0.0219264221, 0.07, 0.2212950766, 0.4520017117};
+	//long double slist[] = {.01, 3.24, 4., 12.96, 25., 100., 552.25};
+	//long double Plist[] = {0, 20, 200, 600};
 	//long double slist[] = {4., 25.};
 	//long double Plist[] = {0, 20, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600};
+	long double slist[] = {25.};
+	long double Plist[] = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 114.4, 132.8, 151.2, 169.6, 188, 206.4, 224.8, 243.2, 261.6, 280, 298.4, 316.8, 335.2, 353.6, 372};
 	int count;
 	int i, j = 0;
-	int s_size = 7;
-	int P_size = 4;
+	int s_size = 1;
+	int P_size = 28;
 	long double error[3*s_size*P_size][2];
 
-	for(i = 0; i < 14; i++)
+	for(i = 0; i < 17; i++)
 		Boundary[i] = Previous[i];
 
 	for(i = 0; i < P_size; i++)
@@ -205,14 +207,14 @@ int main(int argc, char* argv[])
 		cout << error[3*i][0] << " " << error[3*i+1][0] << " " << error[3*i+2][0] << " " << flush;
 	}
 	cout << setprecision(18);
-	for(i = 0; i < 14; i++)
+	for(i = 0; i < 17; i++)
 		cout << Previous[i] << " " << flush;
 	cout << endl;
 	srand(time(NULL)+atoi(argv[1])*30+100*atoi(argv[2]));
 
 	for(int l = 0; l <= 2000; l++)
 	{
-		count = rand()%14;
+		count = rand()%8;
 		switch(count)
 		{
 			case 0:
@@ -230,8 +232,8 @@ int main(int argc, char* argv[])
 			case 8:
 				Boundary[count] = RandFloat(0,Boundary[9]);
 				break;
-			case 13:
-				Boundary[count] = RandFloat(Boundary[12],M_PI/2.);
+			case 14:
+				Boundary[count] = RandFloat(Boundary[13],M_PI/2.);
 				break;
 			default:
 				Boundary[count] = RandFloat(Boundary[count-1],Boundary[count+1]);
@@ -247,7 +249,7 @@ int main(int argc, char* argv[])
 				Par[4] = slist[j];
 				holder[i+P_size*j] = theta_Int(Par, 0);
 				//if(l%10 == 9)
-				//	cout << Par[3] << " " << sqrt(Par[4]) << " " << holder[i+P_size*j].store(0) << " " << holder[i+P_size*j].store(1) << " " << holder[i+P_size*j].store(2) << endl;
+					cout << Par[3] << " " << sqrt(Par[4]) << " " << holder[i+P_size*j].store(0) << " " << holder[i+P_size*j].store(1) << " " << holder[i+P_size*j].store(2) << endl;
 			}
 		}
 
@@ -260,18 +262,18 @@ int main(int argc, char* argv[])
 			cout << error[3*i][1] << " " << error[3*i+1][1] << " " << error[3*i+2][1] << " " << flush;
 		}
 		cout << setprecision(18);
-		for(i = 0; i < 14; i++)
+		for(i = 0; i < 17; i++)
 			cout << Boundary[i] << " " << flush;
 		cout << endl;
 
 		if(Poll(error, P_size*s_size))
 		{	//reject
-			cout << "attempt rejected" << endl;
+			cout << l << "th attempt rejected" << endl;
 			Boundary[count] = Previous[count];
 		}
 		else	//keep
 		{
-			cout << "attempt accepted" << endl;
+			cout << l << "th attempt accepted" << endl;
 			Previous[count] = Boundary[count];
 			for(i = 0; i < 3*s_size*P_size; i++)
 				error[0][i] = error[1][i];
@@ -287,7 +289,7 @@ bool Poll(long double error[][2], int elements)
 
 	for(int i = 0; i < elements*3; i++)
 		if(error[i][0] != 0)//error[i][0] < error[i][1])	//Count reject conditions
-			count -= error[i][0]-error[i][1];
+			count = error[i][1]/error[i][0]-1.;
 
 	long double rand = RandFloat(0,1);
 	cout << rand << " " << count << endl;
