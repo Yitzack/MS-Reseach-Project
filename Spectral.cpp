@@ -162,16 +162,15 @@ int main(int argc, char* argv[])
 	//TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
 
-	/*Par[4] = 25;
+	Par[4] = 4;
 	for(Par[3] = 0; Par[3] <= 600; Par[3] += 21.6)
 	{
 		holder[0] = theta_Int(Par, 0);
 		cout << Par[3] << " " << Par[4] << " " << holder[0].store(0) << " " << holder[0].store(1) << " " << holder[0].store(2) << endl;
-	}
-	cout << endl;//*/
+	}//*/
 
-	cerr << setprecision(18);
-	long double Previous[] = {.5, 1, 2, 4, 0.5, .75, 1, 2, 5, 8, 12, 0.5, 0.92, 0.5};
+	/*cerr << setprecision(18);
+	long double Previous[] = {.5, 1, 2, 4, 0.75, 5.6, 6.2, 7.5, 8.15, 9.25, 10.5, 13., 0.5, 0.92, 0.5};
 	long double slist[] = {.01, 3.24, 4., 12.96, 25., 100., 552.25};
 	long double Plist[] = {0, 20, 200, 600};
 	//long double slist[] = {4., 25.};
@@ -210,7 +209,7 @@ int main(int argc, char* argv[])
 	for(i = 0; i < 14; i++)
 		cout << Previous[i] << " " << flush;
 	cout << endl;
-	srand(time(NULL)+atoi(argv[1])*30+100*atoi(argv[2]));
+	/*srand(time(NULL)+atoi(argv[1])*30+100*atoi(argv[2]));
 
 	for(int l = 0; l <= 2000; l++)
 	{
