@@ -267,7 +267,7 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 	if(sqrt(Par[4]) > 2.*Par[2])    //Find the double on-shell pole and estimate a width (distance to pole)
 	{
 		zero[0] = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
-		gamma[0] = zero[0]*.220854/(pow(Par[4],.627686)*sqrt(Par[4]-pow(2.*Par[2],2)));
+		gamma[0] = zero[0]*.220854/(pow(Par[4],(long double).627686)*sqrt(Par[4]-pow(2.*Par[2],2)));
 		Poles = 1;
 	}
 	else
