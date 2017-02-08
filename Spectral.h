@@ -35,7 +35,7 @@ long double Spin_Sum(long double[5], long double, long double, long double);	//S
 long double Folding_Integrand(long double[5], long double, long double, long double, int);	//Integrand of the folding integral
 
 #define GAMMA -.015
-long double Boundary[] = {.3, .5, .9, 3.5, 9.6, 11.8, 16, .2, 1.5, 2.5, 3, 4, 5.5, 7.7, 0.3, 0.08};
+long double Boundary[] = {.3, .5, .9, 3.5, 9.6, 11.8, 16, .2, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
 
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements theta_Int(long double Par[5], int Temp)
@@ -49,16 +49,21 @@ Elements theta_Int(long double Par[5], int Temp)
 		x1 = Newtons_theta(Par[2], Par[3], pow(2.*Par[2],2)*1.0001, M_PI/25.);
 	if(x1>M_PI/10.)
 		x1 = M_PI/10.;
-	long double Range[] = {x1*Boundary[14], x1, x1*(2.-Boundary[14]), x1*(2.-Boundary[14])*(1.-Boundary[15])+M_PI/2.*Boundary[15], M_PI/2.};
+	long double Range[] = {x1*Boundary[14], x1*Boundary[15], x1, x1*(2.-Boundary[15]), x1*(2.-Boundary[15])*(1.-Boundary[16])+M_PI/2.*Boundary[16], M_PI/2.};
 	Elements F;	//Sum of ordinate*weights
 	Elements Answer = Elements(0,0,0);	//Answer to be returned
 	long double a = 0, b;	//Sub-interval limits of integration
 	int i, j;	//Counters
 	Elements holder;
-	//ofstream Table("theta Table", ios::app);
+	//Table Table("theta Table", ios::app);
 	//Table << setprecision(18);
 
+	/*cerr << Par[3] << " " << Par[4] << flush;
 	for(i = 0; i < 5; i++)
+		cerr << " " << Range[i] << flush;
+	cerr << endl;*/
+
+	for(i = 0; i < 6; i++)
 	{
 		b = Range[i];
 
@@ -159,14 +164,14 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	long double NextWidth = 0;//The next width that will be used in the event of an early change of poles
 	int i = 0, j, l;	//Counters
 	Elements holder;
-	//ofstream Table("k Table", ios::app);
-	//ofstream Pole_Tab("k Poles", ios::app);
+	//Table Table("k Table", ios::app);
+	//Table Pole_Tab("k Poles", ios::app);
 	//Table << setprecision(18);
 	//Pole_Tab << setprecision(18);
 
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
 	//for(i = 0; i < Poles; i++)
-	//	Pole_Tab << Par[3] << " " << Par[4] << " " << theta << " " << zero[i] << " " << gamma[i] << endl;
+		//Pole_Tab << Par[3] << " " << Par[4] << " " << theta << " " << zero[i] << " " << gamma[i] << endl;
 
 	Min_upper = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//This the upper bound that the vacuum calls for, Partial/total will promote higher as needed
 
@@ -505,7 +510,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	long double NextWidth = 0;//The next width that will be used in the event of an early change of poles
 	Elements F_a, F_b, F_ave;	//Sum of ordinates*weights
 	Elements Answer(0,0,0);	//Results to be returned
-	long double x1, x2;	//Abscissa
+	//long double x1, x2;	//Abscissa
 	long double zero[4];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[4];	//Imaginary part of poles
 	long double End_Points[2];	//The end points of the omega integral
@@ -513,8 +518,8 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	int Poles = 0;		//Number of poles with real parts between 0 and E
 	int i, j, l;		//Counting varibles
 	Elements holder;
-	//ofstream Table("omega Table", ios::app);
-	//ofstream Pole_Tab("omega Poles", ios::app);
+	//Table Table("omega Table", ios::app);
+	//Table Pole_Tab("omega Poles", ios::app);
 	//Table << setprecision(18);
 	//Pole_Tab << setprecision(18);
 
@@ -597,10 +602,11 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 
 		F_a.null();
 		F_b.null();
+		#pragma omp parallel for
 		for(l = 0; l < 9; l++)	//Integrate the sub-interval
 		{
-			x1 = (b+a-Disp[l]*(b-a))/2.;
-			x2 = (b+a+Disp[l]*(b-a))/2.;
+			long double x1 = (b+a-Disp[l]*(b-a))/2.;
+			long double x2 = (b+a+Disp[l]*(b-a))/2.;
 
 			holder = Elements(Spin_Sum(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*Folding_Integrand(Par,x1,k,theta,Temp);
 			F_a += holder*w[l+1];

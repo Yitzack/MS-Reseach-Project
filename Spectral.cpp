@@ -162,15 +162,16 @@ int main(int argc, char* argv[])
 	//TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
 
-	/*#pragma omp parallel for
-	for(int i = 0; i <= 751; i++)
+	/*cout << setprecision(18);
+	//#pragma omp parallel for
+	for(int i = 0; i <= 751; i+=27)
 	{
-		long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 552.25};
+		long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 13.69};
 		Par[3] = i*0.8;
-		holder[omp_get_thread_num()] = theta_Int(Par, 0);
-		#pragma omp critical
+		holder[0] = theta_Int(Par, 0);
+		//#pragma omp critical
 		{
-			cout << Par[3] << " " << Par[4] << " " << holder[omp_get_thread_num()].store(0) << " " << holder[omp_get_thread_num()].store(1) << " " << holder[omp_get_thread_num()].store(2) << endl;
+			cout << Par[3] << " " << Par[4] << " " << holder[0].store(0) << " " << holder[0].store(1) << " " << holder[0].store(2) << endl;
 		}
 	}//*/
 
