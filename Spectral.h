@@ -55,8 +55,8 @@ Elements theta_Int(long double Par[5], int Temp)
 	long double a = 0, b;	//Sub-interval limits of integration
 	int i, j;	//Counters
 	Elements holder;
-	ofstream Table("theta Table", ios::app);
-	Table << setprecision(18);
+	//ofstream Table("theta Table", ios::app);
+	//Table << setprecision(18);
 
 	/*cerr << Par[3] << " " << Par[4] << flush;
 	for(i = 0; i < 5; i++)
@@ -75,14 +75,14 @@ Elements theta_Int(long double Par[5], int Temp)
 
 			holder = k_Int(Par, Temp, x1);
 			F += holder*sin(x1)*w[j+1];
-			Table << Par[3] << " " << Par[4] << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			holder = k_Int(Par, Temp, x2);
 			F += holder*sin(x2)*w[j+1];
-			Table << Par[3] << " " << Par[4] << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		}
 		holder = k_Int(Par, Temp, (a+b)/2.);
 		F += holder*sin((a+b)/2.)*w[0];
-		Table << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+		//Table << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		Answer += F*(b-a)/2.;
 		a = b;
 	}
@@ -164,14 +164,14 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	long double NextWidth = 0;//The next width that will be used in the event of an early change of poles
 	int i = 0, j, l;	//Counters
 	Elements holder;
-	ofstream Table("k Table", ios::app);
-	ofstream Pole_Tab("k Poles", ios::app);
-	Table << setprecision(18);
-	Pole_Tab << setprecision(18);
+	//ofstream Table("k Table", ios::app);
+	//ofstream Pole_Tab("k Poles", ios::app);
+	//Table << setprecision(18);
+	//Pole_Tab << setprecision(18);
 
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
-	for(i = 0; i < Poles; i++)
-		Pole_Tab << Par[3] << " " << Par[4] << " " << theta << " " << zero[i] << " " << gamma[i] << endl;
+	//for(i = 0; i < Poles; i++)
+		//Pole_Tab << Par[3] << " " << Par[4] << " " << theta << " " << zero[i] << " " << gamma[i] << endl;
 
 	Min_upper = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//This the upper bound that the vacuum calls for, Partial/total will promote higher as needed
 
@@ -243,14 +243,14 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 
 			holder = Folding(Par, Temp, x1, theta);
 			F_a += holder*pow(x1,2)*w[l+1]; //Evaluate function at x1
-			Table << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			holder = Folding(Par, Temp, x2, theta);
 			F_b += holder*pow(x2,2)*w[l+1]; //Evaluate function at x2
-			Table << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		}
 		holder = Folding(Par, Temp, (a+b)/2., theta);
 		F_ave = holder*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
-		Table << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+		//Table << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
 		Answer += PartialAnswer;
 		a = b;
@@ -518,14 +518,14 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	int Poles = 0;		//Number of poles with real parts between 0 and E
 	int i, j, l;		//Counting varibles
 	Elements holder;
-	ofstream Table("omega Table", ios::app);
-	ofstream Pole_Tab("omega Poles", ios::app);
-	Table << setprecision(18);
-	Pole_Tab << setprecision(18);
+	//ofstream Table("omega Table", ios::app);
+	//ofstream Pole_Tab("omega Poles", ios::app);
+	//Table << setprecision(18);
+	//Pole_Tab << setprecision(18);
 
 	Characterize_Folding(Par, Temp, k, theta, zero, gamma, End_Points, Poles, Nothing);	//Get the poles that I have to be concerned about
-	for(i = 0; i < Poles; i++)
-		Pole_Tab << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << zero[i] << " " << gamma[i] << endl;
+	//for(i = 0; i < Poles; i++)
+		//Pole_Tab << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << zero[i] << " " << gamma[i] << endl;
 
 	/*a = b = End_Points[0];
 	Max = End_Points[1];//*/
@@ -610,14 +610,14 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 
 			holder = Elements(Spin_Sum(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*Folding_Integrand(Par,x1,k,theta,Temp);
 			F_a += holder*w[l+1];
-			Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			holder = Elements(Spin_Sum(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*Folding_Integrand(Par,x2,k,theta,Temp);
 			F_b += holder*w[l+1];
-			Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		}
 		holder = Elements(Spin_Sum(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Folding_Integrand(Par,(a+b)/2.,k,theta,Temp);
 		F_ave = holder*w[0];
-		Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+		//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		Answer += (F_a+F_ave+F_b)*(b-a)/2.;
 
 		a = b;
