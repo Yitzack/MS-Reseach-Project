@@ -35,7 +35,7 @@ long double Spin_Sum(long double[5], long double, long double, long double);	//S
 long double Folding_Integrand(long double[5], long double, long double, long double, int);	//Integrand of the folding integral
 
 #define GAMMA -.015
-long double Boundary[] = {.3, .5, .9, 3.5, 9.6, 11.8, 16, .2, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
+long double Boundary[] = {0.0985, 0.195, 0.537, 0.822, 1.8, 3.5, 5.8, .2, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
 
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements theta_Int(long double Par[5], int Temp)
