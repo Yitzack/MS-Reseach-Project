@@ -149,7 +149,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 {
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 35th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp
-	long double Range[] = {-Boundary[13], -Boundary[12], -Boundary[11], -Boundary[10], -Boundary[9], -Boundary[8], -Boundary[7], 0, Boundary[7], Boundary[8], Boundary[9], Boundary[10], Boundary[11], Boundary[12], Boundary[13]};	//Number of gamma from center
+	long double Range[] = {-Boundary[13], 0, Boundary[13]};	//Number of gamma from center
 	Elements F_a, F_b, F_ave;	//Sum of ordinates*weights
 	Elements Answer(0,0,0);	//Answer to be returned
 	Elements PartialAnswer;	//Answer for sub-interval for determining completeness
@@ -195,7 +195,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 		else
 			Width = 3;
 
-		if(j == 14 && i < Poles)	//Last pole has been integrated, time to reset for the next one
+		if(j == 2 && i < Poles)	//Last pole has been integrated, time to reset for the next one
 		{
 			i++;
 			j = 0;
@@ -207,7 +207,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 			if(i+1 < Poles && zero[i]-Range[0]*gamma[i] > zero[i+1]+Range[0]*gamma[i+1]) //There exists a next pole and their ranges overlap
 				Early = zero[i]+(zero[i+1]-zero[i])/(gamma[i]+gamma[i+1])*gamma[i]; //Sets early terminantion point
 		}
-		else if(Poles != 0 && j < 14 && (a >= zero[i]+Range[0]*gamma[i] && a <= zero[i]-Range[0]*gamma[i]) && (b != 0 || Width == 0))
+		else if(Poles != 0 && j < 2 && (a >= zero[i]+Range[0]*gamma[i] && a <= zero[i]-Range[0]*gamma[i]) && (b != 0 || Width == 0))
 		{//Integrating a pole and the width wan't resolved by the first condition after do, 24 lines up
 			Width = gamma[i]*(Range[j+1]-Range[j]);
 			j++;
@@ -224,7 +224,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 		{
 			Width = Early-b;
 			Early = 0;
-			j = 14-j;
+			j = 2-j;
 			NextWidth = Width*gamma[i+1]/gamma[i];
 			i++;
 		}
