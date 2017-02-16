@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
 	cout << setprecision(18);
 	long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 0};
 	//long double Previous[] = {0.0985, 0.195, 0.537, 0.822, 1.8, 3.5, 5.8, .2, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
-	long double Previous[] = {atof(argv[1]), atof(argv[2]), atof(argv[3]), atof(argv[4]), atof(argv[5]), atof(argv[6]), atof(argv[7]), .0245, .0985, .195, .644, 1.22, 1.8, 2.85, 1./17., 0.3, 0.08};
+	long double Previous[] = {atof(argv[1]), atof(argv[2]), atof(argv[3]), atof(argv[4]), atof(argv[5]), atof(argv[6]), atof(argv[7]), atof(argv[8]), .0985, .195, .644, 1.22, 1.8, 2.85, 1./17., 0.3, 0.08};
 	//long double slist[] = {.01, 3.24, 4., 12.96, 25., 100., 552.25};
 	//long double Plist[] = {0, 20, 200, 600};
 	//long double slist[] = {4., 25.};
@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
 			Par[3] = Plist[i];
 			Par[4] = slist[j];
 			holder[i+P_size*j] = theta_Int(Par, 0);
-			cout << Par[3] << " " << sqrt(Par[4]) << " " << holder[i+P_size*j].store(0) << " " << holder[i+P_size*j].store(1) << " " << holder[i+P_size*j].store(2) << endl;
+			//cout << Par[3] << " " << sqrt(Par[4]) << " " << holder[i+P_size*j].store(0) << " " << holder[i+P_size*j].store(1) << " " << holder[i+P_size*j].store(2) << endl;
 		}
 	}
 
