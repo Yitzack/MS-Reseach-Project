@@ -163,15 +163,16 @@ int main(int argc, char* argv[])
 	TPlot.close();//*/
 
 	/*cout << setprecision(18);
+	Elements holder;
 	//#pragma omp parallel for
-	for(int i = 0; i <= 48; i+=8)
+	for(int i = 0; i <= 751; i+=27)
 	{
-		long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 18.9225};
+		long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 16};
 		Par[3] = i*0.8;
-		holder[0] = theta_Int(Par, 0);
+		holder = theta_Int(Par, 0);
 		//#pragma omp critical
 		{
-			cout << Par[3] << " " << Par[4] << " " << holder[0].store(0) << " " << holder[0].store(1) << " " << holder[0].store(2) << endl;
+			cout << Par[3] << " " << Par[4] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		}
 	}//*/
 
@@ -184,11 +185,11 @@ int main(int argc, char* argv[])
 	//long double slist[] = {4., 25.};
 	//long double Plist[] = {0, 20, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600};
 	//long double slist[] = {18.9225};
-	long double slist[] = {12.96, 13.3225, 13.69};
+	long double slist[] = {12.96, 13.3225, 13.69, 16.};
 	long double Plist[] = {0, 21.6, 43.2, 64.8, 86.4, 108, 129.6, 151.2, 172.8, 194.4, 216, 237.6, 259.2, 280.8, 302.4, 324, 345.6, 367.2, 388.8, 410.4, 432, 453.6, 475.2, 496.8, 518.4, 540, 561.6, 583.2, 604.8};
 	int count;
 	int i, j = 0;
-	int s_size = 3;
+	int s_size = 4;
 	int P_size = 29;
 	long double error[3*s_size*P_size][2];
 	long double Total_error = 0;
@@ -217,10 +218,10 @@ int main(int argc, char* argv[])
 		cout << Plist[i%P_size] << " " << sqrt(slist[int(floor(float(i)/float(P_size)))]) << " " << holder[i].store(0) << " " << holder[i].store(1) << " " << holder[i].store(2) << " " << error[3*i][0] << " " << error[3*i+1][0] << " " << error[3*i+2][0] << " " << endl;
 		Total_error += abs(error[3*i][0]) + abs(error[3*i+1][0]) + abs(error[3*i+2][0]);
 	}
-	cout << Total_error << endl;
+	cout << Total_error << flush;
 	cout << setprecision(18);
 	for(i = 0; i < 17; i++)
-		cout << Previous[i] << " " << flush;
+		cout << " " << Previous[i] << flush;
 	cout << endl;
 	/*srand(time(NULL)+atoi(argv[1])*30+100*atoi(argv[2]));
 
