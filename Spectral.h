@@ -35,8 +35,7 @@ long double Spin_Sum(long double[5], long double, long double, long double);	//S
 long double Folding_Integrand(long double[5], long double, long double, long double, int);	//Integrand of the folding integral
 
 #define GAMMA -.015
-//long double Boundary[] = {0.0173, 0.0267, 0.0491, 0.0985, .802, 1.8, 1.01, 4.85, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
-long double Boundary[] = {0.0985, 0.195, 0.537, 0.822, 1.8, 3.5, 5.8, 5.8, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
+long double Boundary[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
 
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements theta_Int(long double Par[5], int Temp)
@@ -56,8 +55,8 @@ Elements theta_Int(long double Par[5], int Temp)
 	long double a = 0, b;	//Sub-interval limits of integration
 	int i, j;	//Counters
 	Elements holder;
-	//ofstream Table("theta Table", ios::app);
-	//Table << setprecision(18);
+	ofstream Table("theta Table", ios::app);
+	Table << setprecision(18);
 
 	/*cerr << Par[3] << " " << Par[4] << flush;
 	for(i = 0; i < 5; i++)
@@ -76,14 +75,14 @@ Elements theta_Int(long double Par[5], int Temp)
 
 			holder = k_Int(Par, Temp, x1);
 			F += holder*sin(x1)*w[j+1];
-			//Table << Par[3] << " " << Par[4] << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			Table << Par[3] << " " << Par[4] << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			holder = k_Int(Par, Temp, x2);
 			F += holder*sin(x2)*w[j+1];
-			//Table << Par[3] << " " << Par[4] << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			Table << Par[3] << " " << Par[4] << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		}
 		holder = k_Int(Par, Temp, (a+b)/2.);
 		F += holder*sin((a+b)/2.)*w[0];
-		//Table << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+		Table << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		Answer += F*(b-a)/2.;
 		a = b;
 	}

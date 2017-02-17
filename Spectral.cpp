@@ -15,7 +15,7 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-/*#ifndef BB	//use option -D BB= to activate BB macro
+#ifndef BB	//use option -D BB= to activate BB macro
 	char File[30] = "Spectralcc.";  //Name of the file
 #else
      	char File[30] = "Spectralbb.";  //Name of the file
@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
 	//#pragma omp parallel for
 	for(int i = 0; i <= 751; i+=27)
 	{
-		long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 16};
+		long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 12.96};
 		Par[3] = i*0.8;
 		holder = theta_Int(Par, 0);
 		//#pragma omp critical
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 		}
 	}//*/
 
-	cout << setprecision(18);
+	/*cout << setprecision(18);
 	long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 0};
 	//long double Previous[] = {0.0985, 0.195, 0.537, 0.822, 1.8, 3.5, 5.8, .2, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
 	long double Previous[] = {atof(argv[1]), atof(argv[2]), atof(argv[3]), atof(argv[4]), atof(argv[5]), atof(argv[6]), atof(argv[7]), atof(argv[8]), .0985, .195, .644, 1.22, 1.8, 2.85, 1./17., 0.3, 0.08};
