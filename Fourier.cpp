@@ -24,7 +24,7 @@ long double ReGV1(long double[4], long double);
 long double ImGV1(long double[4], long double);
 long double ReGV2(long double[4], long double);
 long double ImGV2(long double[4], long double);
-complex<long double> tanh(complex<long double>);
+complex<long double> atanh(complex<long double>);
 
 char* Process;
 
@@ -501,9 +501,10 @@ long double ImGV2(long double Par[4], long double s)
 	return(GV2.imag());
 }*/
 
-complex<long double> tanh(complex<long double> x)
+complex<long double> atanh(complex<long double> x)
 {
-	return(complex<long double>(0.,-1.)*tan(complex<long double>(0.,1.)*x));
+	return(complex<long double>(.5,0)*log((complex<long double>(1.,0)+x)/(complex<long double>(1.
+,0)-x)));
 }
 
 long double Spectral_Analytic(long double roots, long double P)
