@@ -18,6 +18,12 @@ long double SpatialDebug(long double***[], long double, long double, int);	//1D 
 long double SpatialPos(long double***[], long double, long double, int);	//1D integral for spatial integrator with fixed E, positive s
 long double SpatialVac(long double***[], long double, long double, int);	//1D analytic integral for vacuum on assumption of Lorentz invariance
 long double Euclidean(long double***[], long double, long double, int);		//Kernal for eucledian-time correlator
+long double Spectral_Analytic(long double, long double);	//Analytic spectral function fit
+long double ImG(long double[4], long double);	//The 5 inputs to get the spectral function back
+long double ReGV1(long double[4], long double);
+long double ImGV1(long double[4], long double);
+long double ReGV2(long double[4], long double);
+long double ImGV2(long double[4], long double);
 
 char* Process;
 
@@ -27,7 +33,7 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	strcpy(File, argv[3]);
 	Process = argv[1];
 	strcat(File, ".");
-	strcat(File, argv[5]);
+	strcat(File, argv[4]);
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
 	ofstream TPlot(File);
@@ -38,9 +44,9 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	int N[2] = {0,462}, M[2] = {0,752};	//The size of the table
 	const int iProcess = atoi(argv[1]);
 	const int Total = atoi(argv[2]);
-	const int Temp = atoi(argv[5]);
+	const int Temp = atoi(argv[4]);
 
-	Init(Table, N, M);
+	/*Init(Table, N, M);
 	if(!ReadIn(Table, N, M, argv[4]))
 		return(0);
 	Validate(Table, N, M);
@@ -97,7 +103,15 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 		{
 			TPlot << z << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << tau << " " << holder[3] << endl;
 		}
-	}//*/
+	}
+
+	TPlot << endl;
+	for(long double P = 0; P <= 100.1; P += .8)
+	{
+		for(long double roots; roots <= 23.5; roots += .01)
+			TPlot << P << " " << roots << " " << Spectral_Analytic(roots, P) << endl;
+		TPlot << endl;
+	}
 
 	return(0);
 }
@@ -340,10 +354,10 @@ long double SpatialDebug(long double*** Table[], long double roots, long double 
 			x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x2 = (b+a+Disp[i]*(b-a))/2.;
 
-			F_a += (Spectral(Table, roots, x1, z, 1)-Spectral(Table, roots, 600., -1, 1))*4.*roots/(pow(x1,2)+pow(roots,2))*cos(z*x1)*w[i+1];	//Evaluate k integral at x1
-			F_b += (Spectral(Table, roots, x2, z, 1)-Spectral(Table, roots, 600., -1, 1))*4.*roots/(pow(x2,2)+pow(roots,2))*cos(z*x2)*w[i+1];	//Evaluate k integral at x3
+			F_a += (Spectral(Table, roots, x1, z, 1)-Spectral(Table, roots, 0., -1, 1))*4.*roots/(pow(x1,2)+pow(roots,2))*cos(z*x1)*w[i+1];	//Evaluate k integral at x1
+			F_b += (Spectral(Table, roots, x2, z, 1)-Spectral(Table, roots, 0., -1, 1))*4.*roots/(pow(x2,2)+pow(roots,2))*cos(z*x2)*w[i+1];	//Evaluate k integral at x3
 		}
-		F_ave = (Spectral(Table, roots, a/2.+b/2., z, 1)-Spectral(Table, roots, 600., -1, 1))*4.*roots/(pow(a/2.+b/2.,2)+pow(roots,2))*cos(z*(a/2.+b/2.));
+		F_ave = (Spectral(Table, roots, a/2.+b/2., z, 1)-Spectral(Table, roots, 0., -1, 1))*4.*roots/(pow(a/2.+b/2.,2)+pow(roots,2))*cos(z*(a/2.+b/2.));
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}	//For the bulk of the integral where either the result is well approximated by either the finite or zero width analytic result
@@ -355,10 +369,10 @@ long double SpatialDebug(long double*** Table[], long double roots, long double 
 		x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 		x2 = (b+a+Disp[i]*(b-a))/2.;
 
-		F_a += (Spectral(Table, roots, x1, z, 1)-Spectral(Table, roots, 600., -1, 1))*4.*roots/(pow(x1,2)+pow(roots,2))*cos(z*x1)*w[i+1];	//Evaluate k integral at x1
-		F_b += (Spectral(Table, roots, x2, z, 1)-Spectral(Table, roots, 600., -1, 1))*4.*roots/(pow(x2,2)+pow(roots,2))*cos(z*x2)*w[i+1];	//Evaluate k integral at x3
+		F_a += (Spectral(Table, roots, x1, z, 1)-Spectral(Table, roots, 0., -1, 1))*4.*roots/(pow(x1,2)+pow(roots,2))*cos(z*x1)*w[i+1];	//Evaluate k integral at x1
+		F_b += (Spectral(Table, roots, x2, z, 1)-Spectral(Table, roots, 0., -1, 1))*4.*roots/(pow(x2,2)+pow(roots,2))*cos(z*x2)*w[i+1];	//Evaluate k integral at x3
 	}
-	F_ave = (Spectral(Table, roots, a/2.+b/2., z, 1)-Spectral(Table, roots, 600., -1, 1))*4.*roots/(pow(a/2.+b/2.,2)+pow(roots,2))*cos(z*(a/2.+b/2.));
+	F_ave = (Spectral(Table, roots, a/2.+b/2., z, 1)-Spectral(Table, roots, 0., -1, 1))*4.*roots/(pow(a/2.+b/2.,2)+pow(roots,2))*cos(z*(a/2.+b/2.));
 	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);//*/
 
 	return(Answer);	//return the best estimate of the integral on the interval*/
@@ -441,8 +455,139 @@ long double Euclidean(long double*** Table[], long double roots, long double tau
 	return(cosh(roots*(tau-1./(2.*T)))/sinh(roots/(2.*T))*Spectral(Table, roots, 0, 0, 1)/(2.*M_PI));	//return the integral for vacuum from 0 to infinity
 }
 
+long double ImG(long double Par[4], long double s)
+{
+	long double M = Par[2];
+	long double Gamma = Par[3];
+	return((2.*pow(M,2)+s)*.5*(sqrt(complex<long double>(s-pow(2.*M,2),4.*Gamma)/complex<long double>(s,4.*Gamma))*atanh(sqrt(complex<long double>(s,4.*Gamma)/complex<long double>(s-pow(2.*M,2),4.*Gamma)))).imag());
+}
+
+long double ReGV1(long double Par[4], long double s)
+{
+	long double Lambda = Par[1];
+	long double M = Par[2];
+	long double Gamma = Par[3];
+	complex<long double> GV1 = (long double).5*M*pow(Lambda,4)*(-complex<long double>(0,M*M_PI)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))/(pow(Lambda,2)*complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)))+complex<long double>(0,M*M_PI)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))/(pow(Lambda,2)*complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)))+complex<long double>(0,M*M_PI)/(complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s)*sqrt(complex<long double>(pow(Lambda,4),-pow(2.*M*Lambda,2))))-complex<long double>(0,M*M_PI)/(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)*sqrt(complex<long double>(pow(Lambda,4),pow(2.*M*Lambda,2))))+(long double)2.*M*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))*asin(sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma))/((long double)2.*M))/(pow(Lambda,2)*complex<long double>(M*Gamma-pow(Lambda,2),pow(2.*M,2)-s))-(long double)2.*M*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))*asin(sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma))/((long double)2.*M))/(pow(Lambda,2)*complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s))+complex<long double>(0,2.*M)*asin(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M)))/(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)*sqrt(complex<long double>(pow(Lambda,4),pow(2.*M*Lambda,2))))+(long double)2.*M*asinh(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M)))/(complex<long double>(M*Gamma-pow(Lambda,2),pow(2.*M,2)-s)*sqrt(complex<long double>(pow(Lambda,4),-pow(2.*M*Lambda,2))))-complex<long double>(0,M*log(4.))/(pow(Lambda,2)*complex<long double>(pow(2.*M,2)-s,-M*Gamma+pow(Lambda,2)))-complex<long double>(0,M*log(4.))/(pow(Lambda,2)*complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)))+complex<long double>(M*log(4.),-M*log(4.))*sqrt(complex<long double>(pow(2.*M,2),pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),-8.*pow(M*Lambda,2)))/(Lambda*complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s))+complex<long double>(M*log(4.),M*log(4.))*sqrt(complex<long double>(pow(2.*M,2),-pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),8.*pow(M*Lambda,2)))/(Lambda*complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s))-complex<long double>(2.*M*log(M),2.*M*log(M))*sqrt(complex<long double>(pow(2.*M,2),pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),-8.*pow(M*Lambda,2)))/(Lambda*complex<long double>(pow(2.*M,2)-s,-M*Gamma+pow(Lambda,2)))-complex<long double>(2.*M*log(M),2.*M*log(M))*sqrt(complex<long double>(pow(2.*M,2),-pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),8.*pow(M*Lambda,2)))/(Lambda*complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s))+complex<long double>(0,2.*M*log(M))/(pow(Lambda,2)*complex<long double>(pow(2.*M,2)-s,-M*Gamma+pow(Lambda,2)))+complex<long double>(0,2.*M*log(M))/(pow(Lambda,2)*complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2))));
+	return(GV1.real());
+}
+
+long double ImGV1(long double Par[4], long double s)
+{
+	long double Lambda = Par[1];
+	long double M = Par[2];
+	long double Gamma = Par[3];
+	complex<long double> GV1 = (long double).5*M*pow(Lambda,4)*(-complex<long double>(0,M*M_PI)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))/(pow(Lambda,2)*complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)))+complex<long double>(0,M*M_PI)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))/(pow(Lambda,2)*complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)))+complex<long double>(0,M*M_PI)/(complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s)*sqrt(complex<long double>(pow(Lambda,4),-pow(2.*M*Lambda,2))))-complex<long double>(0,M*M_PI)/(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)*sqrt(complex<long double>(pow(Lambda,4),pow(2.*M*Lambda,2))))+(long double)2.*M*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))*asin(sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma))/((long double)2.*M))/(pow(Lambda,2)*complex<long double>(M*Gamma-pow(Lambda,2),pow(2.*M,2)-s))-(long double)2.*M*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))*asin(sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma))/((long double)2.*M))/(pow(Lambda,2)*complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s))+complex<long double>(0,2.*M)*asin(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M)))/(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)*sqrt(complex<long double>(pow(Lambda,4),pow(2.*M*Lambda,2))))+(long double)2.*M*asinh(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M)))/(complex<long double>(M*Gamma-pow(Lambda,2),pow(2.*M,2)-s)*sqrt(complex<long double>(pow(Lambda,4),-pow(2.*M*Lambda,2))))-complex<long double>(0,M*log(4.))/(pow(Lambda,2)*complex<long double>(pow(2.*M,2)-s,-M*Gamma+pow(Lambda,2)))-complex<long double>(0,M*log(4.))/(pow(Lambda,2)*complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)))+complex<long double>(M*log(4.),-M*log(4.))*sqrt(complex<long double>(pow(2.*M,2),pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),-8.*pow(M*Lambda,2)))/(Lambda*complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s))+complex<long double>(M*log(4.),M*log(4.))*sqrt(complex<long double>(pow(2.*M,2),-pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),8.*pow(M*Lambda,2)))/(Lambda*complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s))-complex<long double>(2.*M*log(M),2.*M*log(M))*sqrt(complex<long double>(pow(2.*M,2),pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),-8.*pow(M*Lambda,2)))/(Lambda*complex<long double>(pow(2.*M,2)-s,-M*Gamma+pow(Lambda,2)))-complex<long double>(2.*M*log(M),2.*M*log(M))*sqrt(complex<long double>(pow(2.*M,2),-pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),8.*pow(M*Lambda,2)))/(Lambda*complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s))+complex<long double>(0,2.*M*log(M))/(pow(Lambda,2)*complex<long double>(pow(2.*M,2)-s,-M*Gamma+pow(Lambda,2)))+complex<long double>(0,2.*M*log(M))/(pow(Lambda,2)*complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2))));
+	return(GV1.imag());
+}
+
+long double ReGV2(long double Par[4], long double s)
+{
+	long double G = Par[0];
+	long double Lambda = Par[1];
+	long double M = Par[2];
+	long double Gamma = Par[3];
+	complex<long double> GV2 = (long double).25*G*pow(M,2)*(-M_PI*pow(Lambda,4)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)),2)-M_PI*pow(Lambda,4)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)),2)-complex<long double>(0,M_PI*pow(Lambda,2))*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))/complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2))+complex<long double>(0,M_PI*pow(Lambda,2))*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))/complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2))+complex<long double>(0,M_PI*pow(Lambda,6))/(pow(complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s),2)*sqrt(complex<long double>(pow(Lambda,4),-pow(2.*M*Lambda,2))))+complex<long double>(0,M_PI*pow(Lambda,6))/(pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)),2)*sqrt(complex<long double>(pow(Lambda,4),pow(2.*M*Lambda,2))))+complex<long double>(0,M_PI*pow(Lambda,4))/(complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s)*sqrt(complex<long double>(pow(Lambda,4),-pow(2.*M*Lambda,2))))-complex<long double>(0,M_PI*pow(Lambda,4))/(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)*sqrt(complex<long double>(pow(Lambda,4),pow(2.*M*Lambda,2))))+(long double)2.*pow(Lambda,2)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))*asin(sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma))/((long double)2.*M))/complex<long double>(M*Gamma-pow(Lambda,2),pow(2.*M,2)-s)-(long double)2.*pow(Lambda,2)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))*asin(sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma))/((long double)2.*M))/complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)+(long double)2.*pow(Lambda,4)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))*asin(sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma))/((long double)2.*M))/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)),2)+(long double)2.*pow(Lambda,4)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))*asin(sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma))/((long double)2.*M))/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)),2)+complex<long double>(0,2.*pow(Lambda,6))*asin(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M)))/(pow(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s),2)*sqrt(complex<long double>(pow(Lambda,4),pow(2.*M*Lambda,2))))-(long double)2.*pow(Lambda,6)*asinh(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M)))/(pow(complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s),2)*sqrt(complex<long double>(pow(Lambda,4),-pow(2.*M*Lambda,2))))+complex<long double>(0,2.*pow(Lambda,4))*asin(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M)))/(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)*sqrt(complex<long double>(pow(Lambda,4),pow(2.*M*Lambda,2))))-(long double)2.*pow(Lambda,4)*asinh(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M)))/(complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s)*sqrt(complex<long double>(pow(Lambda,4),-pow(2.*M*Lambda,2))))+pow(Lambda,3)*(complex<long double>(0,-2.*M_PI*pow(M,2))+Lambda*sqrt(complex<long double>(-pow(Lambda,2),pow(2.*M,2)))+pow(2.*M,2)*asinh(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M))))/(pow(complex<long double>(-pow(Lambda,2),pow(2.*M,2)),(long double)1.5)*complex<long double>(M*Gamma-pow(Lambda,2),pow(2.*M,2)-s))+complex<long double>(pow(Lambda,3)/sqrt(2.),pow(Lambda,3)/sqrt(2.))*(complex<long double>(0,2.*M_PI*pow(M,2))+Lambda*sqrt(complex<long double>(-pow(Lambda,2),-pow(2.*M,2)))+pow(2.*M,2)*asinh(complex<long double>(Lambda/(sqrt(8.)*M),-Lambda/(sqrt(8.)*M))))/(pow(complex<long double>(pow(2.*M,2),-pow(Lambda,2)),(long double)1.5)*complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)))+pow(Lambda,4)*log((long double)4.)/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)),2)+pow(Lambda,4)*log((long double)4.)/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)),2)-complex<long double>(0,pow(Lambda,2)*log((long double)4.))/complex<long double>(pow(2.*M,2)-s,-M*Gamma+pow(Lambda,2))-complex<long double>(0,pow(Lambda,2)*log((long double)4.))/complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2))+complex<long double>(-pow(Lambda,5)*log((long double)4.),pow(Lambda,5)*log((long double)4.))*sqrt(complex<long double>(pow(2.*M,2),pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),-8.*pow(M*Lambda,2)))/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)),2)+complex<long double>(pow(Lambda,5)*log((long double)4.),pow(Lambda,5)*log((long double)4.))*sqrt(complex<long double>(pow(2.*M,2),-pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),8.*pow(M*Lambda,2)))/pow(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s),2)+complex<long double>(2.*pow(Lambda,5)*log(M),-2.*pow(Lambda,5)*log(M))*sqrt(complex<long double>(pow(2.*M,2),pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),-8.*pow(M*Lambda,2)))/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)),2)+complex<long double>(-2.*pow(Lambda,5)*log(M),-2.*pow(Lambda,5)*log(M))*sqrt(complex<long double>(pow(2.*M,2),-pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),8.*pow(M*Lambda,2)))/pow(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s),2)+complex<long double>(pow(Lambda,3)*log((long double)4.),-pow(Lambda,3)*log((long double)4.))*sqrt(complex<long double>(pow(2.*M,2),pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),-8.*pow(M*Lambda,2)))/complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s)+complex<long double>(pow(Lambda,3)*log((long double)4.),pow(Lambda,3)*log((long double)4.))*sqrt(complex<long double>(pow(2.*M,2),-pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),8.*pow(M*Lambda,2)))/complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)+complex<long double>(-2.*pow(Lambda,3)*log(M),-2.*pow(Lambda,3)*log(M))*sqrt(complex<long double>(pow(2.*M,2),pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),-8.*pow(M*Lambda,2)))/complex<long double>(pow(2.*M,2)-s,-M*Gamma+pow(Lambda,2))+complex<long double>(-2.*pow(Lambda,3)*log(M),-2.*pow(Lambda,3)*log(M))*sqrt(complex<long double>(pow(2.*M,2),-pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),8.*pow(M*Lambda,2)))/complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)-(long double)2.*pow(Lambda,4)*log(M)/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)),2)-(long double)2.*pow(Lambda,4)*log(M)/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)),2)+complex<long double>(0,2.*pow(Lambda,2)*log(M))/complex<long double>(pow(2.*M,2)-s,-M*Gamma+pow(Lambda,2))+complex<long double>(0,2.*pow(Lambda,2)*log(M))/complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)));
+	return(GV2.real());
+}
+
+long double ImGV2(long double Par[4], long double s)
+{
+	long double G = Par[0];
+	long double Lambda = Par[1];
+	long double M = Par[2];
+	long double Gamma = Par[3];
+	complex<long double> GV2 = (long double).25*G*pow(M,2)*(-M_PI*pow(Lambda,4)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)),2)-M_PI*pow(Lambda,4)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)),2)-complex<long double>(0,M_PI*pow(Lambda,2))*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))/complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2))+complex<long double>(0,M_PI*pow(Lambda,2))*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))/complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2))+complex<long double>(0,M_PI*pow(Lambda,6))/(pow(complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s),2)*sqrt(complex<long double>(pow(Lambda,4),-pow(2.*M*Lambda,2))))+complex<long double>(0,M_PI*pow(Lambda,6))/(pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)),2)*sqrt(complex<long double>(pow(Lambda,4),pow(2.*M*Lambda,2))))+complex<long double>(0,M_PI*pow(Lambda,4))/(complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s)*sqrt(complex<long double>(pow(Lambda,4),-pow(2.*M*Lambda,2))))-complex<long double>(0,M_PI*pow(Lambda,4))/(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)*sqrt(complex<long double>(pow(Lambda,4),pow(2.*M*Lambda,2))))+(long double)2.*pow(Lambda,2)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))*asin(sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma))/((long double)2.*M))/complex<long double>(M*Gamma-pow(Lambda,2),pow(2.*M,2)-s)-(long double)2.*pow(Lambda,2)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))*asin(sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma))/((long double)2.*M))/complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)+(long double)2.*pow(Lambda,4)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))*asin(sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma))/((long double)2.*M))/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)),2)+(long double)2.*pow(Lambda,4)*sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma)/complex<long double>(s,M*Gamma))*asin(sqrt(complex<long double>(pow(2.*M,2)-s,-M*Gamma))/((long double)2.*M))/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)),2)+complex<long double>(0,2.*pow(Lambda,6))*asin(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M)))/(pow(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s),2)*sqrt(complex<long double>(pow(Lambda,4),pow(2.*M*Lambda,2))))-(long double)2.*pow(Lambda,6)*asinh(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M)))/(pow(complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s),2)*sqrt(complex<long double>(pow(Lambda,4),-pow(2.*M*Lambda,2))))+complex<long double>(0,2.*pow(Lambda,4))*asin(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M)))/(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)*sqrt(complex<long double>(pow(Lambda,4),pow(2.*M*Lambda,2))))-(long double)2.*pow(Lambda,4)*asinh(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M)))/(complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s)*sqrt(complex<long double>(pow(Lambda,4),-pow(2.*M*Lambda,2))))+pow(Lambda,3)*(complex<long double>(0,-2.*M_PI*pow(M,2))+Lambda*sqrt(complex<long double>(-pow(Lambda,2),pow(2.*M,2)))+pow(2.*M,2)*asinh(complex<long double>(Lambda/(sqrt(8.)*M),Lambda/(sqrt(8.)*M))))/(pow(complex<long double>(-pow(Lambda,2),pow(2.*M,2)),(long double)1.5)*complex<long double>(M*Gamma-pow(Lambda,2),pow(2.*M,2)-s))+complex<long double>(pow(Lambda,3)/sqrt(2.),pow(Lambda,3)/sqrt(2.))*(complex<long double>(0,2.*M_PI*pow(M,2))+Lambda*sqrt(complex<long double>(-pow(Lambda,2),-pow(2.*M,2)))+pow(2.*M,2)*asinh(complex<long double>(Lambda/(sqrt(8.)*M),-Lambda/(sqrt(8.)*M))))/(pow(complex<long double>(pow(2.*M,2),-pow(Lambda,2)),(long double)1.5)*complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)))+pow(Lambda,4)*log((long double)4.)/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)),2)+pow(Lambda,4)*log((long double)4.)/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)),2)-complex<long double>(0,pow(Lambda,2)*log((long double)4.))/complex<long double>(pow(2.*M,2)-s,-M*Gamma+pow(Lambda,2))-complex<long double>(0,pow(Lambda,2)*log((long double)4.))/complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2))+complex<long double>(-pow(Lambda,5)*log((long double)4.),pow(Lambda,5)*log((long double)4.))*sqrt(complex<long double>(pow(2.*M,2),pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),-8.*pow(M*Lambda,2)))/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)),2)+complex<long double>(pow(Lambda,5)*log((long double)4.),pow(Lambda,5)*log((long double)4.))*sqrt(complex<long double>(pow(2.*M,2),-pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),8.*pow(M*Lambda,2)))/pow(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s),2)+complex<long double>(2.*pow(Lambda,5)*log(M),-2.*pow(Lambda,5)*log(M))*sqrt(complex<long double>(pow(2.*M,2),pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),-8.*pow(M*Lambda,2)))/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)),2)+complex<long double>(-2.*pow(Lambda,5)*log(M),-2.*pow(Lambda,5)*log(M))*sqrt(complex<long double>(pow(2.*M,2),-pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),8.*pow(M*Lambda,2)))/pow(complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s),2)+complex<long double>(pow(Lambda,3)*log((long double)4.),-pow(Lambda,3)*log((long double)4.))*sqrt(complex<long double>(pow(2.*M,2),pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),-8.*pow(M*Lambda,2)))/complex<long double>(-M*Gamma+pow(Lambda,2),-pow(2.*M,2)+s)+complex<long double>(pow(Lambda,3)*log((long double)4.),pow(Lambda,3)*log((long double)4.))*sqrt(complex<long double>(pow(2.*M,2),-pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),8.*pow(M*Lambda,2)))/complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)+complex<long double>(-2.*pow(Lambda,3)*log(M),-2.*pow(Lambda,3)*log(M))*sqrt(complex<long double>(pow(2.*M,2),pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),-8.*pow(M*Lambda,2)))/complex<long double>(pow(2.*M,2)-s,-M*Gamma+pow(Lambda,2))+complex<long double>(-2.*pow(Lambda,3)*log(M),-2.*pow(Lambda,3)*log(M))*sqrt(complex<long double>(pow(2.*M,2),-pow(Lambda,2))/complex<long double>(2.*pow(Lambda,4),8.*pow(M*Lambda,2)))/complex<long double>(M*Gamma+pow(Lambda,2),pow(2.*M,2)-s)-(long double)2.*pow(Lambda,4)*log(M)/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma-pow(Lambda,2)),2)-(long double)2.*pow(Lambda,4)*log(M)/pow(complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)),2)+complex<long double>(0,2.*pow(Lambda,2)*log(M))/complex<long double>(pow(2.*M,2)-s,-M*Gamma+pow(Lambda,2))+complex<long double>(0,2.*pow(Lambda,2)*log(M))/complex<long double>(-pow(2.*M,2)+s,M*Gamma+pow(Lambda,2)));
+	return(GV2.imag());
+}
+
+long double Spectral_Analytic(long double roots, long double P)
+{
+	if(roots < 1e-6)
+		return(0);
+
+	long double s = pow(roots, 2);
+	long double ImPar[4];
+	long double RePar[4];
+	long double a = 1.03955e-6+(9.5e-7-1.03955e-6)*exp(-pow(P/30.,2));
+	long double b = 4.30378+(3.5-4.30378)*exp(-pow(P/30.,2));
+	long double c = .00151141+(3.5e-6-.00151141)*exp(-pow(P/30.,2));
+	long double d = 1.37704+(.555-1.37704)*exp(-pow(P/30.,2));
+	long double e = 4.8317+(11.-4.8317)*exp(-pow(P/30.,2));
+	long double f = 0.+(.1-0.)*exp(-pow(P/30.,2));
+	long double g = .001+(.02-.001)*exp(-pow(P/30.,2));
+	long double x0 = 1.95+(1.8-1.95)*exp(-pow(P/30.,2));
+	long double knee0 = .02+(.272-.02)*exp(-pow(P/30.,2));
+	long double x1 = 3.005+(3.095-3.005)*exp(-pow(P/30.,2));
+	long double knee1 = .165+(.422-.165)*exp(-pow(P/30.,2));
+	long double sigma = .11+(1.-.11)*exp(-pow(P/30.,2));
+	long double ImGamma = 1;//9.96;
+	long double J_Psi_M = 3.040308+(3.36032-3.040308)*exp(-pow(P/30.,2));
+	/*long double L = 4.15;
+	long double R = .73;
+	long double x2 = 3.18;
+	long double sigma2 = .405;
+	long double x3 = 3.14;
+	long double sigma3 = .625;
+	long double A = -1.59;
+	long double ReGamma = 1.;
+	long double h1 = 6.130446994485819;
+	long double h2 = 64.9788399627048;
+	long double h3 = 64.9788399627048;
+	long double h4 = 64.9788399627048;
+	long double h5 = 64.9788399627048;
+	ImPar[0] = -80.;	//G
+	ImPar[1] = 2.08;	//Lambda*/
+	ImPar[2] = 1.8;	//M
+	ImPar[3] = .25*ImGamma*(2.*exp(-pow(abs((roots-x1)/sigma),g))*f-2.*exp(-pow(abs(x1/sigma),g))*f+a*pow(roots,b)-c*pow(abs(d),e)+c*pow(abs(d-roots),e)-(a*(pow(roots,b)-pow(x0,b))-c*pow(abs(d-roots),e)+c*pow(abs(d-x0),e))*tanh((roots-x0)/knee0)+(a*pow(x0,b)+c*pow(abs(d),e)-c*pow(abs(d-x0),e))*tanh(x0/knee0)-tanh((roots-x1)/knee1)*(2.*f-2.*exp(-pow(abs((roots-x1)/sigma),g))*f+a*pow(roots,b)-a*pow(x1,b)+c*pow(abs(d-roots),e)-c*pow(abs(d-x1),e)-(a*(pow(roots,b)-pow(x0,b))-c*pow(abs(d-roots),e)+c*pow(abs(d-x0),e))*tanh((roots-x0)/knee0)+(a*(-pow(x0,b)+pow(x1,b))+c*pow(abs(d-x0),e)-c*pow(abs(d-x1),e))*tanh((-x0+x1)/knee0))-tanh(x1/knee1)*(2.*f-2.*exp(-pow(abs(x1/sigma),g))*f-a*pow(x1,b)+c*pow(abs(d),e)-c*pow(abs(d-x1),e)-(a*pow(x0,b)+c*pow(abs(d),e)-c*pow(abs(d-x0),e))*tanh(x0/knee0)+(a*(-pow(x0,b)+pow(x1,b))+c*pow(abs(d-x0),e)-c*pow(abs(d-x1),e))*tanh((-x0+x1)/knee0)));
+	/*RePar[0] = -91;
+	RePar[1] = 2.51;
+	RePar[2] = 1.8;
+	RePar[3] = ReGamma*((L+R)/2.-(L-R)/2.*tanh((roots-x2)/sigma2)+A*exp(-pow((roots-x3)/sigma3,2)));*/
+	long double SpectralVac = 1.2*ImPar[3]/M_PI*(1./(pow(roots-J_Psi_M,2)+pow(ImPar[3],2))-1./(pow(roots+J_Psi_M,2)+pow(ImPar[3],2)))+.95*ImG(ImPar,s);//-18./M_PI*(ImG(ImPar, s)/h1+ImPar[0]*(pow(complex<long double>(ReGV1(RePar, s)/h2,ImGV1(ImPar, s)/h3),2)/((long double)(1.)-complex<long double>(ReGV2(RePar, s)/h4,ImGV2(ImPar, s)/h5))).imag());
+
+	/*a = 9.5e-7;
+	b = 3.5;
+	c = 3.5e-6;
+	d = .555;
+	e = 11.;
+	f = .1;
+	g = .02;
+	x0 = 1.8;
+	knee0 = .272;
+	x1 = 3.095;
+	knee1 = .422;
+	sigma = 1.;
+	ImGamma = 3.04;
+	J_Psi_M = 3.36032;
+	/*L = 7.38;
+	R = .6;
+	x2 = 2.84;
+	sigma2 = .6;
+	x3 = 2.97;
+	sigma3 = .81;
+	A = .28;
+	ReGamma = 1.;
+	h1 = 5.882036839;
+	h2 = 147.2;
+	h3 = 144.6286981;
+	h4 = 1.;
+	h5 = 1.;
+	ImPar[0] = -.5;	//G
+	ImPar[1] = 2.86;	//Lambda
+	ImPar[2] = 1.8;	//M
+	ImPar[3] = .25*ImGamma*(2.*exp(-pow(abs((roots-x1)/sigma),g))*f-2.*exp(-pow(abs(x1/sigma),g))*f+a*pow(roots,b)-c*pow(abs(d),e)+c*pow(abs(d-roots),e)-(a*(pow(roots,b)-pow(x0,b))-c*pow(abs(d-roots),e)+c*pow(abs(d-x0),e))*tanh((roots-x0)/knee0)+(a*pow(x0,b)+c*pow(abs(d),e)-c*pow(abs(d-x0),e))*tanh(x0/knee0)-tanh((roots-x1)/knee1)*(2.*f-2.*exp(-pow(abs((roots-x1)/sigma),g))*f+a*pow(roots,b)-a*pow(x1,b)+c*pow(abs(d-roots),e)-c*pow(abs(d-x1),e)-(a*(pow(roots,b)-pow(x0,b))-c*pow(abs(d-roots),e)+c*pow(abs(d-x0),e))*tanh((roots-x0)/knee0)+(a*(-pow(x0,b)+pow(x1,b))+c*pow(abs(d-x0),e)-c*pow(abs(d-x1),e))*tanh((-x0+x1)/knee0))-tanh(x1/knee1)*(2.*f-2.*exp(-pow(abs(x1/sigma),g))*f-a*pow(x1,b)+c*pow(abs(d),e)-c*pow(abs(d-x1),e)-(a*pow(x0,b)+c*pow(abs(d),e)-c*pow(abs(d-x0),e))*tanh(x0/knee0)+(a*(-pow(x0,b)+pow(x1,b))+c*pow(abs(d-x0),e)-c*pow(abs(d-x1),e))*tanh((-x0+x1)/knee0)));
+	/*RePar[0] = -.55;
+	RePar[1] = 3.38;
+	RePar[2] = 1.8;
+	RePar[3] = ReGamma*((L+R)/2.-(L-R)/2.*tanh((roots-x2)/sigma2)+A*exp(-pow((roots-x3)/sigma3,2)));
+	long double SpectralMed = .5*ImPar[3]/M_PI*(1./(pow(roots-J_Psi_M,2)+pow(ImPar[3],2))-1./(pow(roots+J_Psi_M,2)+pow(ImPar[3],2)))+.5*ImG(ImPar,s);//-18./M_PI*(ImG(ImPar, s)/h1+ImPar[0]*(pow(complex<long double>(ReGV1(RePar, s)/h2,ImGV1(ImPar, s)/h3),2)/((long double)(1.)-complex<long double>(ReGV2(RePar, s)/h4,ImGV2(ImPar, s)/h5))).imag());*/
+
+	return(SpectralVac);//+(SpectralMed-SpectralVac)*exp(-pow(P/30.,2)));
+}
+
 long double Spectral(long double*** Table[], long double E, long double p, long double z, int Specify)
 {
+	return(Spectral_Analytic(E,p));
 	long double Interpolation;
 	long double t, u;
 	int i, j;
