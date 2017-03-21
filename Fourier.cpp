@@ -106,12 +106,15 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 		}
 	}
 
-	TPlot << endl;
-	for(long double P = 0; P <= 100.1; P += .8)
+	if(atoi(argv[1]) == 0)
 	{
-		for(long double roots; roots <= 23.5; roots += .01)
-			TPlot << P << " " << roots << " " << Spectral_Analytic(roots, P) << endl;
 		TPlot << endl;
+		for(long double P = 0; P <= 100.1; P += .8)
+		{
+			for(long double roots = 0; roots <= 23.5; roots += .01)
+				TPlot << P << " " << roots << " " << Spectral_Analytic(roots, P) << endl;
+			TPlot << endl;
+		}
 	}
 
 	return(0);
@@ -460,7 +463,7 @@ long double ImG(long double Par[4], long double s)
 {
 	long double M = Par[2];
 	long double Gamma = Par[3];
-	return((2.*pow(M,2)+s)*.5*(sqrt(complex<long double>(s-pow(2.*M,2),4.*Gamma)/complex<long double>(s,4.*Gamma))*atanh(sqrt(complex<long double>(s,4.*Gamma)/complex<long double>(s-pow(2.*M,2),4.*Gamma)))).imag());
+	return(-(2.*pow(M,2)+s)*.5*(sqrt(complex<long double>(s-pow(2.*M,2),4.*Gamma)/complex<long double>(s,4.*Gamma))*atanh(sqrt(complex<long double>(s,4.*Gamma)/complex<long double>(s-pow(2.*M,2),4.*Gamma)))).imag());
 }
 
 /*long double ReGV1(long double Par[4], long double s)
