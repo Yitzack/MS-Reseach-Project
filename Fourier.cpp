@@ -27,10 +27,11 @@ long double ImGV2(long double[4], long double);
 complex<long double> atanh(complex<long double>);
 
 char* Process;
+long double List[9];
 
 int main(int argc, char* argv[])	//Process, # of Process, Output file, Input file, Temp
 {
-	char* File = new char[25];	//Name of the file
+	char* File = new char[50];	//Name of the file
 	strcpy(File, argv[3]);
 	Process = argv[1];
 	strcat(File, ".");
@@ -46,6 +47,16 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	const int iProcess = atoi(argv[1]);
 	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[4]);
+
+	List[0] = atof(argv[5]);
+	List[1] = atof(argv[6]);
+	List[2] = atof(argv[7]);
+	List[3] = atof(argv[8]);
+	List[4] = atof(argv[9]);
+	List[5] = atof(argv[10]);
+	List[6] = atof(argv[11]);
+	List[7] = atof(argv[12]);
+	List[8] = atof(argv[13]);
 
 	/*Init(Table, N, M);
 	if(!ReadIn(Table, N, M, argv[4]))
@@ -91,7 +102,7 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 
 //The actual program
 	#pragma omp parallel for private(tau, z, holder)
-	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i++)
+	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i+=5)
 	{
 		z = .3+i*.02;
 		tau = i*.008;
@@ -517,22 +528,45 @@ long double Spectral_Analytic(long double roots, long double P)
 
 	long double s = pow(roots, 2);
 	long double ImPar[4];
-	long double RePar[4];
-	long double a = 1.03955e-6+(9.5e-7-1.03955e-6)*exp(-pow(P/30.,2));
-	long double b = 4.30378+(3.5-4.30378)*exp(-pow(P/30.,2));
-	long double c = .00151141+(3.5e-6-.00151141)*exp(-pow(P/30.,2));
-	long double d = 1.37704+(.555-1.37704)*exp(-pow(P/30.,2));
-	long double e = 4.8317+(11.-4.8317)*exp(-pow(P/30.,2));
-	long double f = 0.+(.1-0.)*exp(-pow(P/30.,2));
-	long double g = .001+(.02-.001)*exp(-pow(P/30.,2));
-	long double x0 = 1.95+(1.8-1.95)*exp(-pow(P/30.,2));
-	long double knee0 = .02+(.272-.02)*exp(-pow(P/30.,2));
-	long double x1 = 3.005+(3.095-3.005)*exp(-pow(P/30.,2));
-	long double knee1 = .165+(.422-.165)*exp(-pow(P/30.,2));
-	long double sigma = .11+(1.-.11)*exp(-pow(P/30.,2));
+	long double A1;
+	long double A2;
+	long double M_J_Psi;
+	long double Gamma;
+	long double Lambda_Gamma = List[6];
+	long double Lambda_M_J_Psi = List[7];
+	long double Lambda = List[8];
+
+	/*A1 = 8.5;
+	A2 = .94;
+	M_J_Psi = 3.040308;
+	Gamma = .037;
+	ImPar[2] = 1.8;
+	ImPar[3] = .006;*/
+
+	A1 = 8.5+(List[0]-8.5)*exp(-P/Lambda);
+	A2 = .94+(List[3]-.94)*exp(-P/Lambda);
+	M_J_Psi = 3.040308+(List[1]-3.040308)*exp(-P/Lambda_M_J_Psi);
+	Gamma = .037+(List[2]-.037)*exp(-P/Lambda_Gamma);
+	ImPar[2] = 1.8;
+	ImPar[3] = roots*(.006+(List[5]-.006)*exp(-P/Lambda));
+
+	return(A1*roots*Gamma/(M_PI*(pow(s-pow(M_J_Psi,2),2)+s*pow(Gamma,2)))+A2*ImG(ImPar,s));
+	/*long double RePar[4];
+	long double a = 1.03955e-6;//+(9.5e-7-1.03955e-6)*exp(-pow(P/30.,2));
+	long double b = 4.30378;//+(3.5-4.30378)*exp(-pow(P/30.,2));
+	long double c = .00151141;//+(3.5e-6-.00151141)*exp(-pow(P/30.,2));
+	long double d = 1.37704;//+(.555-1.37704)*exp(-pow(P/30.,2));
+	long double e = 4.8317;//+(11.-4.8317)*exp(-pow(P/30.,2));
+	long double f = 0.;//+(.1-0.)*exp(-pow(P/30.,2));
+	long double g = .001;//+(.02-.001)*exp(-pow(P/30.,2));
+	long double x0 = 1.95;//+(1.8-1.95)*exp(-pow(P/30.,2));
+	long double knee0 = .02;//+(.272-.02)*exp(-pow(P/30.,2));
+	long double x1 = 3.005;//+(3.095-3.005)*exp(-pow(P/30.,2));
+	long double knee1 = .165;//+(.422-.165)*exp(-pow(P/30.,2));
+	long double sigma = .11;//+(1.-.11)*exp(-pow(P/30.,2));
 	long double ImGamma = 1;//9.96;
-	long double J_Psi_M = 3.040308+(3.36032-3.040308)*exp(-pow(P/30.,2));
-	/*long double L = 4.15;
+	long double J_Psi_M = 3.040308;//+(3.36032-3.040308)*exp(-pow(P/30.,2));
+	long double L = 4.15;
 	long double R = .73;
 	long double x2 = 3.18;
 	long double sigma2 = .405;
@@ -546,14 +580,14 @@ long double Spectral_Analytic(long double roots, long double P)
 	long double h4 = 64.9788399627048;
 	long double h5 = 64.9788399627048;
 	ImPar[0] = -80.;	//G
-	ImPar[1] = 2.08;	//Lambda*/
+	ImPar[1] = 2.08;	//Lambda
 	ImPar[2] = 1.8;	//M
 	ImPar[3] = .25*ImGamma*(2.*exp(-pow(abs((roots-x1)/sigma),g))*f-2.*exp(-pow(abs(x1/sigma),g))*f+a*pow(roots,b)-c*pow(abs(d),e)+c*pow(abs(d-roots),e)-(a*(pow(roots,b)-pow(x0,b))-c*pow(abs(d-roots),e)+c*pow(abs(d-x0),e))*tanh((roots-x0)/knee0)+(a*pow(x0,b)+c*pow(abs(d),e)-c*pow(abs(d-x0),e))*tanh(x0/knee0)-tanh((roots-x1)/knee1)*(2.*f-2.*exp(-pow(abs((roots-x1)/sigma),g))*f+a*pow(roots,b)-a*pow(x1,b)+c*pow(abs(d-roots),e)-c*pow(abs(d-x1),e)-(a*(pow(roots,b)-pow(x0,b))-c*pow(abs(d-roots),e)+c*pow(abs(d-x0),e))*tanh((roots-x0)/knee0)+(a*(-pow(x0,b)+pow(x1,b))+c*pow(abs(d-x0),e)-c*pow(abs(d-x1),e))*tanh((-x0+x1)/knee0))-tanh(x1/knee1)*(2.*f-2.*exp(-pow(abs(x1/sigma),g))*f-a*pow(x1,b)+c*pow(abs(d),e)-c*pow(abs(d-x1),e)-(a*pow(x0,b)+c*pow(abs(d),e)-c*pow(abs(d-x0),e))*tanh(x0/knee0)+(a*(-pow(x0,b)+pow(x1,b))+c*pow(abs(d-x0),e)-c*pow(abs(d-x1),e))*tanh((-x0+x1)/knee0)));
-	/*RePar[0] = -91;
+	RePar[0] = -91;
 	RePar[1] = 2.51;
 	RePar[2] = 1.8;
-	RePar[3] = ReGamma*((L+R)/2.-(L-R)/2.*tanh((roots-x2)/sigma2)+A*exp(-pow((roots-x3)/sigma3,2)));*/
-	long double SpectralVac = 1.2*ImPar[3]/M_PI*(1./(pow(roots-J_Psi_M,2)+pow(ImPar[3],2))-1./(pow(roots+J_Psi_M,2)+pow(ImPar[3],2)))+.95*ImG(ImPar,s);//-18./M_PI*(ImG(ImPar, s)/h1+ImPar[0]*(pow(complex<long double>(ReGV1(RePar, s)/h2,ImGV1(ImPar, s)/h3),2)/((long double)(1.)-complex<long double>(ReGV2(RePar, s)/h4,ImGV2(ImPar, s)/h5))).imag());
+	RePar[3] = ReGamma*((L+R)/2.-(L-R)/2.*tanh((roots-x2)/sigma2)+A*exp(-pow((roots-x3)/sigma3,2)));
+	long double SpectralVac = 1.2*ImPar[3]/M_PI*(1./(pow(roots-J_Psi_M,2)+pow(ImPar[3],2))-1./(pow(roots+J_Psi_M,2)+pow(ImPar[3],2)))+.95*ImG(ImPar,s);//-18./M_PI*(ImG(ImPar, s)/h1+ImPar[0]*(pow(complex<long double>(ReGV1(RePar, s)/h2,ImGV1(ImPar, s)/h3),2)/((long double)(1.)-complex<long double>(ReGV2(RePar, s)/h4,ImGV2(ImPar, s)/h5))).imag());*/
 
 	/*a = 9.5e-7;
 	b = 3.5;
@@ -592,7 +626,7 @@ long double Spectral_Analytic(long double roots, long double P)
 	RePar[3] = ReGamma*((L+R)/2.-(L-R)/2.*tanh((roots-x2)/sigma2)+A*exp(-pow((roots-x3)/sigma3,2)));
 	long double SpectralMed = .5*ImPar[3]/M_PI*(1./(pow(roots-J_Psi_M,2)+pow(ImPar[3],2))-1./(pow(roots+J_Psi_M,2)+pow(ImPar[3],2)))+.5*ImG(ImPar,s);//-18./M_PI*(ImG(ImPar, s)/h1+ImPar[0]*(pow(complex<long double>(ReGV1(RePar, s)/h2,ImGV1(ImPar, s)/h3),2)/((long double)(1.)-complex<long double>(ReGV2(RePar, s)/h4,ImGV2(ImPar, s)/h5))).imag());*/
 
-	return(SpectralVac);//+(SpectralMed-SpectralVac)*exp(-pow(P/30.,2)));
+	//return(SpectralVac);+(SpectralMed-SpectralVac)*exp(-pow(P/30.,2)));
 }
 
 long double Spectral(long double*** Table[], long double E, long double p, long double z, int Specify)
