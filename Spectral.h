@@ -254,7 +254,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
 		Answer += PartialAnswer;
 		a = b;
-	}while(b < Min_upper/* || abs(PartialAnswer/Answer) >= .0001*/);
+	}while(b < Min_upper && (abs(PartialAnswer/Answer) >= .0001 || Temp == 0));
 
 	return(Answer);
 }
@@ -495,7 +495,7 @@ int Newtons_Test_k_Int(long double Lambda, long double s, long double P, long do
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements Folding(long double Par[5], int Temp, long double k, long double theta)	//Folding integral, energy integral
 {
-	if(/*Temp == 0 && */abs(sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta)-Energy(0,Par[3]/2.,k,theta)) < 1e-12)	//Let's save some time and just return 0, because it is
+	if(Temp == 0 && abs(sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta)-Energy(0,Par[3]/2.,k,theta)) < 1e-12)	//Let's save some time and just return 0, because it is
 		return(Elements(0,0,0));
 	else if(Par[4]+pow(Par[3],2) <= 0)
 		return(Elements(0,0,0));	//Bad data trap and time saver
@@ -529,12 +529,15 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 
 	/*a = b = End_Points[0];
 	Max = End_Points[1];//*/
-	if(false)//Temp != 0) //This may or may not be a permanent change. Due to this uncertainity, I'm leaving it here.
+	if(Temp != 0) //This may or may not be a permanent change. Due to this uncertainity, I'm leaving it here.
 	{
 		a = b = 0;
 		Max = sqrt(Par[4]+pow(Par[3],2));
-		cout << "If you've come down this way,you must first correct issues of pole intersections between potiential and quark propagators. I have attempted to fuck everything up if you miss this warning." << endl;
-		return(Elements(0./0.,0./0.,0./0.));
+		if(Par[4] < pow(Par[3], 2))
+		{
+			cout << "If you've come down this way,you must first correct issues of pole intersections between potiential and quark propagators at negative s. I have attempted to fuck everything up if you miss this warning." << endl;
+			return(Elements(0./0.,0./0.,0./0.));
+		}
 	}
 	else
 	{
