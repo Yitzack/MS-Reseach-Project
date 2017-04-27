@@ -254,7 +254,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 		PartialAnswer = (F_a+F_ave+F_b)*(b-a)/(2.);
 		Answer += PartialAnswer;
 		a = b;
-	}while(b < Min_upper && (abs(PartialAnswer/Answer) >= .0001 || Temp == 0));
+	}while(b < Min_upper || (abs(PartialAnswer/Answer) >= .0001 && Temp != 0));
 
 	return(Answer);
 }
@@ -533,7 +533,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	{
 		a = b = 0;
 		Max = sqrt(Par[4]+pow(Par[3],2));
-		if(Par[4] < pow(Par[3], 2))
+		if(Par[4] < 0)
 		{
 			cout << "If you've come down this way,you must first correct issues of pole intersections between potiential and quark propagators at negative s. I have attempted to fuck everything up if you miss this warning." << endl;
 			return(Elements(0./0.,0./0.,0./0.));
@@ -744,9 +744,6 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	long double b1, b2;	//slope of exponential decrease to left and right
 	long double Delta;	//concavity or length of transition from left to right
 
-	if(omega < k)
-		return(0);
-
 	switch(Temp)
 	{
 		case 0:
@@ -887,7 +884,10 @@ long double Fermi(long double omega, int T)	//Fermi factor
 	switch(T)
 	{
 		case 0:
-			return(0);
+			if(omega > 0)	//Fermi factor for vacuum
+				return(0.);
+			else
+				return(1.);
 			break;
 		case 1:
 			Temp = .2352;

@@ -90,15 +90,15 @@ Elements Elements::abs()
 
 bool Elements::operator>=(long double A)
 {
-	return(Array[0] >= A &&
-		Array[1] >= A &&
+	return(Array[0] >= A ||
+		Array[1] >= A ||
 		Array[2] >= A);
 }
 
 bool Elements::operator>(long double A)
 {
-	return(Array[0] > A &&
-		Array[1] > A &&
+	return(Array[0] > A ||
+		Array[1] > A ||
 		Array[2] > A);
 }
 
