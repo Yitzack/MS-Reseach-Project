@@ -110,7 +110,7 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 
 //The actual program
 	TPlot << "#" << flush;
-	for(int i = 0; i <= argc; i++)
+	for(int i = 0; i < argc; i++)
 		TPlot << argv[i] << " " << flush;
 	TPlot << endl;
 
