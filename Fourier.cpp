@@ -25,13 +25,14 @@ long double ImGV1(long double[4], long double);
 long double ReGV2(long double[4], long double);
 long double ImGV2(long double[4], long double);
 complex<long double> atanh(complex<long double>);
+long double Tail_Factor(long double);
 
 char* Process;
-long double List[9];
+long double List[16];
 
 int main(int argc, char* argv[])	//Process, # of Process, Output file, Input file, Temp
 {
-	char* File = new char[50];	//Name of the file
+	char* File = new char[150];	//Name of the file
 	strcpy(File, argv[3]);
 	Process = argv[1];
 	strcat(File, ".");
@@ -57,6 +58,13 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	List[6] = atof(argv[11]);
 	List[7] = atof(argv[12]);
 	List[8] = atof(argv[13]);
+	List[9] = atof(argv[14]);
+	List[10] = atof(argv[15]);
+	List[11] = atof(argv[16]);
+	List[12] = atof(argv[17]);
+	List[13] = atof(argv[18]);
+	List[14] = atof(argv[19]);
+	List[15] = atof(argv[20]);
 
 	/*Init(Table, N, M);
 	if(!ReadIn(Table, N, M, argv[4]))
@@ -101,6 +109,22 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	}//*/
 
 //The actual program
+	TPlot << "#" << flush;
+	for(int i = 0; i <= argc; i++)
+		TPlot << argv[i] << " " << flush;
+	TPlot << endl;
+
+	if(atoi(argv[1]) == 0)
+	{
+		TPlot << endl;
+		for(long double P = 0; P <= 100.1; P += .8)
+		{
+			for(long double roots = 0; roots <= 23.5; roots += .01)
+				TPlot << P << " " << roots << " " << Spectral_Analytic(roots, P) << " " << Spectral_Analytic(roots, 0) << " " << Tail_Factor(roots) << endl;
+			TPlot << endl;
+		}
+	}
+
 	#pragma omp parallel for private(tau, z, holder)
 	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i+=5)
 	{
@@ -115,18 +139,7 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 		{
 			TPlot << z << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << tau << " " << holder[3] << endl;
 		}
-	}
-
-	if(atoi(argv[1]) == 0)
-	{
-		TPlot << endl;
-		for(long double P = 0; P <= 100.1; P += .8)
-		{
-			for(long double roots = 0; roots <= 23.5; roots += .01)
-				TPlot << P << " " << roots << " " << Spectral_Analytic(roots, P) << endl;
-			TPlot << endl;
-		}
-	}
+	}//*/
 
 	return(0);
 }
@@ -521,6 +534,11 @@ complex<long double> atanh(complex<long double> x)
 ,0)-x)));
 }
 
+long double Tail_Factor(long double roots)
+{
+	return(.25*(2.+pow((long double)10.,List[7])*pow(List[11],List[6])+pow((long double)10.,List[7])*pow(roots,List[6])-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9])+(pow((long double)10.,List[7])*(pow(List[11],List[6])-pow(roots,List[6]))-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9]))*tanh((roots-List[12])/List[13])-(-2.+pow((long double)10.,List[7])*pow(List[11],List[6])+pow((long double)10.,List[7])*pow(roots,List[6])-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9])+(pow((long double)10.,List[7])*(pow(List[11],List[6])-pow(roots,List[6]))-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9]))*tanh((roots-List[12])/List[13]))*tanh((roots-List[14])/List[15])));
+}
+
 long double Spectral_Analytic(long double roots, long double P)
 {
 	if(roots < 1e-6)
@@ -532,9 +550,6 @@ long double Spectral_Analytic(long double roots, long double P)
 	long double A2;
 	long double M_J_Psi;
 	long double Gamma;
-	long double Lambda_Gamma = List[6];
-	long double Lambda_M_J_Psi = List[7];
-	long double Lambda = List[8];
 
 	/*A1 = 8.5;
 	A2 = .94;
@@ -543,12 +558,12 @@ long double Spectral_Analytic(long double roots, long double P)
 	ImPar[2] = 1.8;
 	ImPar[3] = .006;*/
 
-	A1 = 8.5+(List[0]-8.5)*exp(-P/Lambda);
-	A2 = .94+(List[3]-.94)*exp(-P/Lambda);
-	M_J_Psi = 3.040308+(List[1]-3.040308)*exp(-P/Lambda_M_J_Psi);
-	Gamma = .037+(List[2]-.037)*exp(-P/Lambda_Gamma);
-	ImPar[2] = 1.8;
-	ImPar[3] = roots*(.006+(List[5]-.006)*exp(-P/Lambda));
+	A1 = List[0];
+	M_J_Psi = List[1];
+	Gamma = List[2]*Tail_Factor(roots);
+	A2 = List[3];
+	ImPar[2] = List[4];
+	ImPar[3] = roots*List[5]*Tail_Factor(roots);
 
 	return(A1*roots*Gamma/(M_PI*(pow(s-pow(M_J_Psi,2),2)+s*pow(Gamma,2)))+A2*ImG(ImPar,s));
 	/*long double RePar[4];
