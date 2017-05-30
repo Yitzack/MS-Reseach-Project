@@ -49,22 +49,8 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[4]);
 
-	List[0] = atof(argv[5]);
-	List[1] = atof(argv[6]);
-	List[2] = atof(argv[7]);
-	List[3] = atof(argv[8]);
-	List[4] = atof(argv[9]);
-	List[5] = atof(argv[10]);
-	List[6] = atof(argv[11]);
-	List[7] = atof(argv[12]);
-	List[8] = atof(argv[13]);
-	List[9] = atof(argv[14]);
-	List[10] = atof(argv[15]);
-	List[11] = atof(argv[16]);
-	List[12] = atof(argv[17]);
-	List[13] = atof(argv[18]);
-	List[14] = atof(argv[19]);
-	List[15] = atof(argv[20]);
+	for(int i = 0; i < 10; i++)
+		List[i] = atof(argv[i+5]);
 
 	/*Init(Table, N, M);
 	if(!ReadIn(Table, N, M, argv[4]))
@@ -126,13 +112,13 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	}
 
 	#pragma omp parallel for private(tau, z, holder)
-	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i+=5)
+	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i+=1)
 	{
 		z = .3+i*.02;
 		tau = i*.008;
-		holder[0] = 0;	//Correlator(SpatialNeg, Table, z, Temp);
-		holder[0] = Correlator(SpatialDebug, Table, z, Temp);
-		holder[1] = Correlator(SpatialPos, Table, z, Temp);
+		holder[1] = holder[0] = 0;	//Correlator(SpatialNeg, Table, z, Temp);
+		//holder[0] = Correlator(SpatialDebug, Table, z, Temp);
+		//holder[1] = Correlator(SpatialPos, Table, z, Temp);
 		holder[2] = Correlator(SpatialVac, Table, z, Temp);
 		holder[3] = Correlator(Euclidean, Table, tau, Temp);
 		#pragma omp critical
@@ -153,7 +139,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	long double distance[] = {5e-2, 2e-2, 1.5e-2, 1e-2, 2.5e-3, 1e-4, 1e-5, 1e-6};	//Stride of the integral
 	long double Answer = 0;
 	long double F_a, F_b, F_ave;
-	long double a = 0;
+	long double a = List[9];
 	long double b = 0;
 	int i, j;
 
@@ -530,13 +516,13 @@ long double ImGV2(long double Par[4], long double s)
 
 complex<long double> atanh(complex<long double> x)
 {
-	return(complex<long double>(.5,0)*log((complex<long double>(1.,0)+x)/(complex<long double>(1.
-,0)-x)));
+	return(complex<long double>(.5,0)*log((complex<long double>(1.,0)+x)/(complex<long double>(1.,0)-x)));
 }
 
 long double Tail_Factor(long double roots)
 {
-	return(.25*(2.+pow((long double)10.,List[7])*pow(List[11],List[6])+pow((long double)10.,List[7])*pow(roots,List[6])-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9])+(pow((long double)10.,List[7])*(pow(List[11],List[6])-pow(roots,List[6]))-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9]))*tanh((roots-List[12])/List[13])-(-2.+pow((long double)10.,List[7])*pow(List[11],List[6])+pow((long double)10.,List[7])*pow(roots,List[6])-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9])+(pow((long double)10.,List[7])*(pow(List[11],List[6])-pow(roots,List[6]))-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9]))*tanh((roots-List[12])/List[13]))*tanh((roots-List[14])/List[15])));
+	//return(.25*(2.+pow((long double)10.,List[7])*pow(List[11],List[6])+pow((long double)10.,List[7])*pow(roots,List[6])-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9])+(pow((long double)10.,List[7])*(pow(List[11],List[6])-pow(roots,List[6]))-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9]))*tanh((roots-List[12])/List[13])-(-2.+pow((long double)10.,List[7])*pow(List[11],List[6])+pow((long double)10.,List[7])*pow(roots,List[6])-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9])+(pow((long double)10.,List[7])*(pow(List[11],List[6])-pow(roots,List[6]))-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9]))*tanh((roots-List[12])/List[13]))*tanh((roots-List[14])/List[15])));
+	return(.5*(1.+pow(roots/List[6],List[7])+(1.-pow(roots/List[6],List[7]))*tanh((roots-List[6])/List[8])));
 }
 
 long double Spectral_Analytic(long double roots, long double P)
