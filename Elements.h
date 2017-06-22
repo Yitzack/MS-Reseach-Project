@@ -4,6 +4,7 @@ class Elements
 		Elements operator+(Elements);
 		void operator+=(const Elements &);
 		bool operator>=(long double);
+		bool operator==(long double);
 		bool operator>(long double);
 		Elements operator-(Elements);
 		Elements operator/(Elements);
@@ -86,6 +87,13 @@ Elements Elements::abs()
 	B.Array[1] = std::abs(Array[1]);
 	B.Array[2] = std::abs(Array[2]);
 	return(B);
+}
+
+bool Elements::operator==(long double A)
+{
+	return(Array[0] == A &&
+		Array[1] == A &&
+		Array[2] == A);
 }
 
 bool Elements::operator>=(long double A)
