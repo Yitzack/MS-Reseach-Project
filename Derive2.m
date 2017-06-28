@@ -6,18 +6,18 @@ input = $CommandLine
 MasterIm = Import[StringJoin[Directory[],"/",input[[Dimensions[input]]],".xml"]]; (*Import the table for interpolation extrapolation*)
 MasterRe2 = Import[StringJoin[Directory[],"/",input[[Dimensions[input]-1]],".xml"]]; (*Import the table for interpolation extrapolation*)
 MasterRe1 = Import[StringJoin[Directory[],"/",input[[Dimensions[input]-2]],".xml"]]; (*Import the table for interpolation extrapolation*)
-Sub1 = N[Transpose[{MasterIm[[2,All,1]],MasterIm[[2,All,2,1]]}]]; (*Extract the subtables*)
-Sub2 = N[Transpose[{MasterIm[[2,All,1]],MasterIm[[2,All,2,2]]}]];
-Sub3 = N[Transpose[{MasterIm[[2,All,1]],MasterIm[[2,All,2,3]]}]];
-Sub4 = N[Transpose[{MasterRe2[[2,All,1]],MasterRe2[[2,All,2]]}]];
-Sub5 = N[Transpose[{MasterRe1[[2,All,1]],MasterRe1[[2,All,2]]}]];
+Sub1 = N[Transpose[{MasterIm[[2,All,1]],MasterIm[[2,All,2,1]]}],6]; (*Extract the subtables*)
+Sub2 = N[Transpose[{MasterIm[[2,All,1]],MasterIm[[2,All,2,2]]}],6];
+Sub3 = N[Transpose[{MasterIm[[2,All,1]],MasterIm[[2,All,2,3]]}],6];
+Sub4 = N[Transpose[{MasterRe2[[2,All,1]],MasterRe2[[2,All,2]]}],6];
+Sub5 = N[Transpose[{MasterRe1[[2,All,1]],MasterRe1[[2,All,2]]}],6];
 
-ImG=Interpolation[Sub1,Method->"Spline"];(*Turn the tables into an interpolation*)
-ReGV1=Interpolation[Sub5,Method->"Spline"];
-ImGV1=Interpolation[Sub2,Method->"Spline"];
+ImG=Interpolation[Sub1, Method -> "Spline", InterpolationOrder -> 2];(*Turn the tables into an interpolation*)
+ReGV1=Interpolation[Sub5, Method -> "Spline", InterpolationOrder -> 2];
+ImGV1=Interpolation[Sub2, Method -> "Spline", InterpolationOrder -> 2];
 GV1[P_,s_]:=(ReGV1[P,s]+I*ImGV1[P,s])[[1]];
-ReGV2=Interpolation[Sub4,Method->"Spline"];
-ImGV2=Interpolation[Sub3,Method->"Spline"];
+ReGV2=Interpolation[Sub4, Method -> "Spline", InterpolationOrder -> 2];
+ImGV2=Interpolation[Sub3, Method -> "Spline", InterpolationOrder -> 2];
 GV2[P_,s_]:=(ReGV2[P,s]+I*ImGV2[P,s])[[1]];
 
 V[s_]:=Par[[1]]*(Par[[2]]^4/(Par[[2]]^4+(s-4*Par[[3]]^2)^2))^2 (*TMatrix and Spectral function definitions*)
@@ -35,6 +35,6 @@ List5 = Flatten[D[TMat[P, e], P] /. P -> Range[0, 600.8, .8] /. e -> e1];
 List6 = Flatten[2*Sqrt[e]*D[TMat[P, e], e] /. P -> Range[0, 600.8, .8] /. e -> e1];
 List7 = Flatten[2*Sqrt[e]*D[TMat[P, e], P, e] /. P -> Range[0, 600.8, .8] /. e -> e1];*)
 
-Export[StringJoin[Directory[],"/",input[[Dimensions[input]]],".csv"], Transpose[{ListT[[All, 1]], ListT[[All, 2]], Re[ListT[[All, 3]]], Im[ListT[[All, 3]]], List0, List1, List2, List3}]] (*Export the table*)
+Export[StringJoin[Directory[],"/",input[[Dimensions[input]]],".csv"], N[Transpose[{ListT[[All, 1]], ListT[[All, 2]], Re[ListT[[All, 3]]], Im[ListT[[All, 3]]], List0, List1, List2, List3}],6]] (*Export the table*)
 
 Exit[]

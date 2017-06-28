@@ -67,71 +67,38 @@ int main(int argc, char* argv[])
 	holder = theta_Int(Par, Temp);
 	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;*/
 
-	Par[3] = 0;
-	for(Par[4] = -pow(Par[3],2); Par[4] <= 0; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 25; Par[4] += .1)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 552; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-
-	Par[3] = 5;
-	for(Par[4] = -pow(Par[3],2); Par[4] <= 0; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 25; Par[4] += .1)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 552; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-
-	Par[3] = 10;
-	for(Par[4] = -pow(Par[3],2); Par[4] <= 0; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 25; Par[4] += .1)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 552; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-
-	Par[3] = 20;
-	for(Par[4] = -pow(Par[3],2); Par[4] <= 0; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 25; Par[4] += .1)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 552; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-
-	Par[3] = 50;
-	for(Par[4] = -pow(Par[3],2); Par[4] <= -100; Par[4] += 10)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+        Par[3] = atoi(argv[4]);
+        Par[4] = atof(argv[5]);
+        for(; Par[4] <= -1000; Par[4] += 100)
+        {
+                holder = theta_Int(Par, Temp);
+                cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+        }
+        for(; Par[4] <= -100; Par[4] += 10)
+        {
+                holder = theta_Int(Par, Temp);
+                cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+        }
 	for(; Par[4] <= 0; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 25; Par[4] += .1)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+        {
+                holder = theta_Int(Par, Temp);
+                cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+        }
+        for(; Par[4] <= 9; Par[4] += .1)
+        {
+                holder = theta_Int(Par, Temp);
+                cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+        }
+	for(; Par[4] <= 25; Par[4] += .01)
+        {
+                holder = theta_Int(Par, Temp);
+                cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+        }
 	for(; Par[4] <= 552; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-
-	Par[3] = 100;
-	for(Par[4] = -pow(Par[3],2); Par[4] <= -1000; Par[4] += 50)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= -100; Par[4] += 10)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 0; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 25; Par[4] += .1)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 552; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-
-	Par[3] = 200;
-	for(Par[4] = -pow(Par[3],2); Par[4] <= -1000; Par[4] += 50)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= -100; Par[4] += 10)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 0; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 25; Par[4] += .1)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	for(; Par[4] <= 552; Par[4]++)
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+        {
+                holder = theta_Int(Par, Temp);
+                cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+        }
 
 	/*TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = atoi(argv[6]); i <= 788; i++)	//Argv[6] allows to restart where ever

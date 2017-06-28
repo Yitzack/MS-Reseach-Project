@@ -38,7 +38,8 @@ long double Potential_on(long double[5]);	//On-shell potential for the on-shell 
 long double Potential1(long double[5], long double, long double);	//Potiential for the numerator of the boson spectrum
 long double Potential2(long double[5], long double, long double);	//Potiential for the denominator of the T-Matrix and boson spectrum
 long double Quark_Spectrum(long double, long double, long double, int);	//Single quark spectral function
-long double Spin_Sum(long double[5], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
+long double Spin_Sum1(long double[5], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
+long double Spin_Sum2(long double[5], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
 long double Folding_Integrand1(long double[5], long double, long double, long double, int);	//Integrand of the folding integral for positive energy
 long double Folding_Integrand2(long double[5], long double, long double, long double, int);	//Integrand of the folding integral for negative energy (anti-particle/particle-hole)
 
@@ -256,7 +257,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 			F += Folding(Par, Temp, x1, theta)*pow(x1,2)*w[l+1]; //Evaluate function at x1
 			F += Folding(Par, Temp, x2, theta)*pow(x2,2)*w[l+1]; //Evaluate function at x2
 		}
-		F = Folding(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
+		F += Folding(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
 		Partial = F*(b-a)/(2.);
 		Answer += Partial;
 		a = b;
@@ -600,10 +601,10 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			long double x1 = (b+a-Disp[l]*(b-a))/2.;
 			long double x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			F += (Elements(Spin_Sum(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*Folding_Integrand1(Par,x1,k,theta,Temp)+Elements(Spin_Sum(Par, -x1, k, theta), 2.*Potential1(Par,-x1,k), Potential2(Par,-x1,k))*Folding_Integrand2(Par,-x1,k,theta,Temp))*w[l+1];
-			F += (Elements(Spin_Sum(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*Folding_Integrand1(Par,x2,k,theta,Temp)+Elements(Spin_Sum(Par, -x2, k, theta), 2.*Potential1(Par,-x2,k), Potential2(Par,-x2,k))*Folding_Integrand2(Par,-x2,k,theta,Temp))*w[l+1];
+			F += (Elements(Spin_Sum1(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*Folding_Integrand1(Par,x1,k,theta,Temp)+Elements(Spin_Sum2(Par, -x1, k, theta), 2.*Potential1(Par,-x1,k), Potential2(Par,-x1,k))*Folding_Integrand2(Par,-x1,k,theta,Temp))*w[l+1];
+			F += (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*Folding_Integrand1(Par,x2,k,theta,Temp)+Elements(Spin_Sum2(Par, -x2, k, theta), 2.*Potential1(Par,-x2,k), Potential2(Par,-x2,k))*Folding_Integrand2(Par,-x2,k,theta,Temp))*w[l+1];
 		}
-		F = (Elements(Spin_Sum(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Folding_Integrand1(Par,(a+b)/2.,k,theta,Temp)+Elements(Spin_Sum(Par, -(a+b)/2., k, theta), 2.*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*Folding_Integrand2(Par,-(a+b)/2.,k,theta,Temp))*w[0];
+		F += (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Folding_Integrand1(Par,(a+b)/2.,k,theta,Temp)+Elements(Spin_Sum2(Par, -(a+b)/2., k, theta), 2.*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*Folding_Integrand2(Par,-(a+b)/2.,k,theta,Temp))*w[0];
 
 		Partial = F*(b-a)/(2.);
 		Answer += Partial;
@@ -631,10 +632,10 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 				long double x1 = (b+a-Disp[l]*(b-a))/2.;
 				long double x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			F += (Elements(Spin_Sum(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*Folding_Integrand1(Par,x1,k,theta,Temp)+Elements(Spin_Sum(Par, -x1, k, theta), 2.*Potential1(Par,-x1,k), Potential2(Par,-x1,k))*Folding_Integrand2(Par,-x1,k,theta,Temp))*w[l+1];
-			F += (Elements(Spin_Sum(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*Folding_Integrand1(Par,x2,k,theta,Temp)+Elements(Spin_Sum(Par, -x2, k, theta), 2.*Potential1(Par,-x2,k), Potential2(Par,-x2,k))*Folding_Integrand2(Par,-x2,k,theta,Temp))*w[l+1];
+			F += (Elements(Spin_Sum1(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Spin_Sum1(Par, x1, k, theta)*Potential2(Par,x1,k))*Folding_Integrand1(Par,x1,k,theta,Temp)+Elements(Spin_Sum2(Par, -x1, k, theta), 2.*Potential1(Par,-x1,k), Spin_Sum2(Par, -x1, k, theta)*Potential2(Par,-x1,k))*Folding_Integrand2(Par,-x1,k,theta,Temp))*w[l+1];
+			F += (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Spin_Sum1(Par, x2, k, theta)*Potential2(Par,x2,k))*Folding_Integrand1(Par,x2,k,theta,Temp)+Elements(Spin_Sum2(Par, -x2, k, theta), 2.*Potential1(Par,-x2,k), Spin_Sum2(Par, -x2, k, theta)*Potential2(Par,-x2,k))*Folding_Integrand2(Par,-x2,k,theta,Temp))*w[l+1];
 		}
-		F = (Elements(Spin_Sum(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Folding_Integrand1(Par,(a+b)/2.,k,theta,Temp)+Elements(Spin_Sum(Par, -(a+b)/2., k, theta), 2.*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*Folding_Integrand2(Par,-(a+b)/2.,k,theta,Temp))*w[0];
+		F += (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Spin_Sum1(Par, (a+b)/2., k, theta)*Potential2(Par,(a+b)/2.,k))*Folding_Integrand1(Par,(a+b)/2.,k,theta,Temp)+Elements(Spin_Sum2(Par, -(a+b)/2., k, theta), 2.*Potential1(Par,-(a+b)/2.,k), Spin_Sum2(Par, -(a+b)/2., k, theta)*Potential2(Par,-(a+b)/2.,k))*Folding_Integrand2(Par,-(a+b)/2.,k,theta,Temp))*w[0];
 
 			Partial = F*(b-a)/(2.);
 			Answer += Partial;
@@ -944,9 +945,14 @@ long double Quark_Spectrum(long double omega, long double k, long double M, int 
 	return(ImSelf_Energy(M, omega, k, Temp)/(pow(pow(omega,2)-pow(k,2)-pow(M,2)-ReSelf_Energy(M, omega, k, Temp),2)+pow(ImSelf_Energy(M, omega, k, Temp),2)));
 }
 
-long double Spin_Sum(long double Par[5], long double omega, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
+long double Spin_Sum1(long double Par[5], long double omega, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
 {
 	return(4.*(-pow(Par[3],2)/4.+pow(k,2)+2.*pow(Par[2],2)+omega*(sqrt(Par[4]+pow(Par[3],2))-omega)));
+}
+
+long double Spin_Sum2(long double Par[5], long double omega, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
+{
+	return(4.*(-pow(Par[3],2)/4.+pow(k,2)-2.*pow(Par[2],2)+omega*(sqrt(Par[4]+pow(Par[3],2))-omega)));
 }
 
 long double Folding_Integrand1(long double Par[5], long double omega, long double k, long double theta, int Temp)	//Integrand of the folding integral for positive energy
