@@ -1,3 +1,7 @@
+#include<complex>
+#include<cstdlib>
+using namespace std;
+
 class Elements
 {
 	public:
@@ -7,40 +11,33 @@ class Elements
 		bool operator==(long double);
 		bool operator>(long double);
 		Elements operator-(Elements);
-		Elements operator/(Elements);
+		Elements operator/(Elements);	//This is about accuracy, not the correct definition of division
 		Elements operator*(long double);
+		Elements operator*(complex<long double>);
 		Elements operator/(long double);
 		Elements operator+(long double);
 		Elements operator-(long double);
 		Elements abs();
-		long double abs(long double&);
+		//long double abs(long double&);
 		void operator=(const Elements&);
 		Elements();
 		Elements(long double, long double, long double);
+		Elements(complex<long double>, complex<long double>, complex<long double>);
 		Elements(long double[3]);
+		Elements(complex<long double>[3]);
 		Elements(const Elements&);
 		void null();
-		long double store(int);
-		long double Min();
+		complex<long double> store(int);
 	private:
-		long double Array[3];
+		complex<long double> Array[3];
 };
 
-long double Elements::abs(long double& A)
+/*long double Elements::abs(long double& A)
 {
 	return(A<0?-A:A);
-}
+}*/
 
-long double Elements::Min()
-{
-	long double Result = abs(Array[0]);
-	for(int i = 1; i < 3; i++)
-		if(Result > abs(Array[i]))
-			Result = abs(Array[i]);
-	return(Result);
-}
-
-long double Elements::store(int i)
+complex<long double> Elements::store(int i)
 {
 	return(Array[i]);
 }
@@ -59,6 +56,13 @@ Elements::Elements(long double A, long double B, long double C)
 	Array[2] = C;
 }
 
+Elements::Elements(complex<long double> A, complex<long double> B, complex<long double> C)
+{
+	Array[0] = A;
+	Array[1] = B;
+	Array[2] = C;
+}
+
 Elements::Elements(const Elements &A)
 {
 	Array[0] = A.Array[0];
@@ -66,7 +70,14 @@ Elements::Elements(const Elements &A)
 	Array[2] = A.Array[2];
 }
 
-Elements::Elements(long double A[5])
+Elements::Elements(long double A[3])
+{
+	Array[0] = A[0];
+	Array[1] = A[1];
+	Array[2] = A[2];
+}
+
+Elements::Elements(complex<long double> A[3])
 {
 	Array[0] = A[0];
 	Array[1] = A[1];
@@ -98,16 +109,16 @@ bool Elements::operator==(long double A)
 
 bool Elements::operator>=(long double A)
 {
-	return(Array[0] >= A ||
-		Array[1] >= A ||
-		Array[2] >= A);
+	return(std::abs(Array[0]) >= A ||
+		std::abs(Array[1]) >= A ||
+		std::abs(Array[2]) >= A);
 }
 
 bool Elements::operator>(long double A)
 {
-	return(Array[0] > A ||
-		Array[1] > A ||
-		Array[2] > A);
+	return(std::abs(Array[0]) > A ||
+		std::abs(Array[1]) > A ||
+		std::abs(Array[2]) > A);
 }
 
 void Elements::operator=(const Elements &A)
@@ -173,6 +184,15 @@ Elements Elements::operator-(long double A)
 }
 
 Elements Elements::operator*(long double A)
+{
+	Elements B;
+	B.Array[0] = Array[0] * A;
+	B.Array[1] = Array[1] * A;
+	B.Array[2] = Array[2] * A;
+	return(B);
+}
+
+Elements Elements::operator*(complex<long double> A)
 {
 	Elements B;
 	B.Array[0] = Array[0] * A;
