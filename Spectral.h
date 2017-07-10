@@ -38,6 +38,7 @@ long double Potential_on(long double[5]);	//On-shell potential for the on-shell 
 long double Potential1(long double[5], long double, long double);	//Potiential for the numerator of the boson spectrum
 long double Potential2(long double[5], long double, long double);	//Potiential for the denominator of the T-Matrix and boson spectrum
 long double ImD(long double, long double, long double, int);	//Single quark spectral function
+long double ReD(long double, long double, long double, int);	//Single quark spectral function
 long double Spin_Sum1(long double[5], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
 long double Spin_Sum2(long double[5], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
 long double ImFolding_Integrand1(long double[5], long double, long double, long double, int);	//Integrand of the folding integral for positive energy
@@ -242,12 +243,14 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 
 	if(Stops[l+1] == Stops[l+1])
 		mergeSort(Stops, 0, Poles*3+2);
-	else
+	else if(Stops[l] == Stops[l])
 		mergeSort(Stops, 0, Poles*3);
+	else
+		mergeSort(Stops, 0, Poles*3-1);
 
 	i = 0;
 	j = 0;
-	while(Stops[j] < 0)
+	while(Stops[j] <= 0)
 		j++;
 	for(; j < Poles*3+3; j++)
 	{
@@ -563,7 +566,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 {
 	if(Temp == 0 && abs(sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta)-Energy(0,Par[3]/2.,k,theta)) < 1e-12)	//Let's save some time and just return 0, because it is
 		return(Elements(0,0,0));
-	else if(Par[4]+pow(Par[3],2) <= 0)
+	else if(Par[4]+pow(Par[3],2) < 0)
 		return(Elements(0,0,0));	//Bad data trap and time saver
 
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 35th order Gauss-Legendre integration
