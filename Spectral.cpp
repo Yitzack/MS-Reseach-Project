@@ -38,86 +38,38 @@ int main(int argc, char* argv[])
 	Elements holder;
 	long double GaussLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integration
 
-	/*Par[3] = 200;//P
-	Par[4] = -1430;//s
-	holder = theta_Int(Par, Temp);
-	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	Par[3] = 200;//P
-	Par[4] = -1460;//s
-	holder = theta_Int(Par, Temp);
-	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	Par[3] = 200;//P
-	Par[4] = -28990;//s
-	holder = theta_Int(Par, Temp);
-	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	Par[3] = 200;//P
-	Par[4] = -29030;//s
-	holder = theta_Int(Par, Temp);
-	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	Par[3] = 5;//P
-	Par[4] = -23.9936;//s
-	holder = theta_Int(Par, Temp);
-	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	Par[3] = 5;//P
-	Par[4] = -11.5942;//s
-	holder = theta_Int(Par, Temp);
-	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	Par[3] = 5;//P
-	Par[4] = -4.6196;//s
-	holder = theta_Int(Par, Temp);
-	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	Par[3] = 5;//P
-	Par[4] = 5.4549;//s
-	holder = theta_Int(Par, Temp);
-	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	Par[3] = 5;//P
-	Par[4] = 10.6213;//s
-	holder = theta_Int(Par, Temp);
-	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	Par[3] = 5;//P
-	Par[4] = 19.9208;//s
-	holder = theta_Int(Par, Temp);
-	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	Par[3] = 5;//P
-	Par[4] = 31.2869;//s
-	holder = theta_Int(Par, Temp);
-	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-	Par[3] = 5;//P
-	Par[4] = 62.2853;//s
-	holder = theta_Int(Par, Temp);
-	cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;*/
-
 	Par[3] = atoi(argv[4]);
 	Par[4] = atof(argv[5]);
 	for(; Par[4] <= -1000; Par[4] += 100)
 	{
 		holder = theta_Int(Par, Temp);
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(1) << endl;
+		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 	}
 	for(; Par[4] <= -100; Par[4] += 10)
 	{
 		holder = theta_Int(Par, Temp);
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(1) << endl;
+		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 	}
 	for(; Par[4] <= 0; Par[4]++)
 	{
 		holder = theta_Int(Par, Temp);
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(1) << endl;
+		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 	}
 	for(; Par[4] <= 9; Par[4] += .1)
 	{
 		holder = theta_Int(Par, Temp);
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(1) << endl;
+		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 	}
 	for(; Par[4] <= 25; Par[4] += .01)
 	{
 		holder = theta_Int(Par, Temp);
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(1) << endl;
+		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 	}
 	for(; Par[4] <= 552; Par[4]++)
 	{
 		holder = theta_Int(Par, Temp);
-		cout << Par[4] << " " << Par[3] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(1) << endl;
+		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
+	}
 
 	/*TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = atoi(argv[6]); i <= 788; i++)	//Argv[6] allows to restart where ever
@@ -243,159 +195,5 @@ int main(int argc, char* argv[])
 	//TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
 
-	/*cout << setprecision(18);
-	Elements holder;
-	//#pragma omp parallel for
-	for(int i = 0; i <= 751; i+=27)
-	{
-		long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 12.96};
-		Par[3] = i*0.8;
-		holder = theta_Int(Par, 0);
-		//#pragma omp critical
-		{
-			cout << Par[3] << " " << Par[4] << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(1) << endl;
-		}
-	}//*/
-
-	/*cout << setprecision(18);
-	long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 0};
-	//long double Previous[] = {0.0985, 0.195, 0.537, 0.822, 1.8, 3.5, 5.8, .2, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
-	long double Previous[] = {atof(argv[1]), atof(argv[2]), atof(argv[3]), atof(argv[4]), atof(argv[5]), atof(argv[6]), atof(argv[7]), atof(argv[8]), .0985, .195, .644, 1.22, 1.8, 2.85, 1./17., 0.3, 0.08};
-	//long double slist[] = {.01, 3.24, 4., 12.96, 25., 100., 552.25};
-	//long double Plist[] = {0, 20, 200, 600};
-	//long double slist[] = {4., 25.};
-	//long double Plist[] = {0, 20, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600};
-	//long double slist[] = {18.9225};
-	long double slist[] = {12.96, 13.3225, 13.69, 16.};
-	long double Plist[] = {0, 21.6, 43.2, 64.8, 86.4, 108, 129.6, 151.2, 172.8, 194.4, 216, 237.6, 259.2, 280.8, 302.4, 324, 345.6, 367.2, 388.8, 410.4, 432, 453.6, 475.2, 496.8, 518.4, 540, 561.6, 583.2, 604.8};
-	int count;
-	int i, j = 0;
-	int s_size = 4;
-	int P_size = 29;
-	long double error[3*s_size*P_size][2];
-	long double Total_error = 0;
-	Elements holder[P_size*s_size];
-
-	for(i = 0; i < 17; i++)
-		Boundary[i] = Previous[i];
-
-	for(i = 0; i < P_size; i++)
-	{
-		for(j = 0; j < s_size; j++)
-		{
-			Par[3] = Plist[i];
-			Par[4] = slist[j];
-			holder[i+P_size*j] = theta_Int(Par, 0);
-			//cout << Par[3] << " " << sqrt(Par[4]) << " " << holder[i+P_size*j].store(0) << " " << holder[i+P_size*j].store(1) << " " << holder[i+P_size*j].store(2) << endl;
-		}
-	}
-
-	cout << setprecision(6);
-	for(i = 0; i < P_size*s_size; i++)
-	{
-		error[3*i][0] = holder[i].store(0)/holder[int(floor(float(i)/float(P_size)))*P_size].store(0)-1.;
-		error[3*i+1][0] = holder[i].store(1)/holder[int(floor(float(i)/float(P_size)))*P_size].store(1)-1.;
-		error[3*i+2][0] = holder[i].store(2)/holder[int(floor(float(i)/float(P_size)))*P_size].store(2)-1.;
-		cout << Plist[i%P_size] << " " << sqrt(slist[int(floor(float(i)/float(P_size)))]) << " " << holder[i].store(0) << " " << holder[i].store(1) << " " << holder[i].store(2) << " " << error[3*i][0] << " " << error[3*i+1][0] << " " << error[3*i+2][0] << " " << endl;
-		Total_error += abs(error[3*i][0]) + abs(error[3*i+1][0]) + abs(error[3*i+2][0]);
-	}
-	cout << Total_error << flush;
-	cout << setprecision(18);
-	for(i = 0; i < 17; i++)
-		cout << " " << Previous[i] << flush;
-	cout << endl;
-	/*srand(time(NULL)+atoi(argv[1])*30+100*atoi(argv[2]));
-
-	for(int l = 0; l <= 2000; l++)
-	{
-		do
-		{
-			count = rand()%16;
-		}while(count == 14);
-		switch(count)
-		{
-			case 0:
-				Boundary[count] = RandFloat(0,Boundary[1]);
-				break;
-			case 6:
-				Boundary[count] = RandFloat(Boundary[5],Boundary[6]+1.);
-				break;
-			case 7:
-				Boundary[count] = RandFloat(0,Boundary[8]);
-				break;
-			case 13:
-				Boundary[count] = RandFloat(Boundary[12],Boundary[13]+1.);
-				break;
-			case 15:
-				Boundary[count] = RandFloat(1/17.,1);
-				break;
-			case 17:
-				Boundary[count] = RandFloat(0,1);
-				break;
-			default:
-				Boundary[count] = RandFloat(Boundary[count-1],Boundary[count+1]);
-				break;
-		}
-
-		cout << setprecision(6);
-		for(i = 0; i < P_size; i++)
-		{
-			for(j = 0; j < s_size; j++)
-			{
-				Par[3] = Plist[i];
-				Par[4] = slist[j];
-				holder[i+P_size*j] = theta_Int(Par, 0);
-				if(l%10 == 9)
-					cout << Par[3] << " " << sqrt(Par[4]) << " " << holder[i+P_size*j].store(0) << " " << holder[i+P_size*j].store(1) << " " << holder[i+P_size*j].store(2) << endl;
-			}
-		}
-
-		cout << setprecision(4);
-		for(i = 0; i < P_size*s_size; i++)
-		{
-			error[3*i][1] = abs(holder[i].store(0)/holder[int(floor(float(i)/float(P_size)))*P_size].store(0)-1.);
-			error[3*i+1][1] = abs(holder[i].store(1)/holder[int(floor(float(i)/float(P_size)))*P_size].store(1)-1.);
-			error[3*i+2][1] = abs(holder[i].store(2)/holder[int(floor(float(i)/float(P_size)))*P_size].store(2)-1.);
-			cout << error[3*i][1] << " " << error[3*i+1][1] << " " << error[3*i+2][1] << " " << flush;
-		}
-		cout << setprecision(18);
-		for(i = 0; i < 16; i++)
-			cout << Boundary[i] << " " << flush;
-		cout << endl;
-
-		if(Poll(error, P_size*s_size))
-		{	//reject
-			cout << l << "th attempt rejected" << endl;
-			Boundary[count] = Previous[count];
-		}
-		else	//keep
-		{
-			cout << l << "th attempt accepted" << endl;
-			Previous[count] = Boundary[count];
-			for(i = 0; i < 3*s_size*P_size; i++)
-				error[0][i] = error[1][i];
-		}
-	}//*/
-
 	return(0);
-}
-
-bool Poll(long double error[][2], int elements)
-{
-	long double count = 0;
-
-	for(int i = 0; i < elements*3; i++)
-		if(error[i][0] != 0)//error[i][0] < error[i][1])	//Count reject conditions
-			count += error[i][1]/error[i][0]-1.;
-
-	long double rand = RandFloat(0,4);
-	cout << rand << " " << count << endl;
-	if(rand < count)
-		return(true);
-	return(false);
-}
-
-long double RandFloat(long double a, long double b)
-{
-	return(a+(b-a)*((long double)rand())/((long double)RAND_MAX));
 }
