@@ -259,7 +259,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 			Stops[i] = Stops[j];
 			i++;
 		}
-		else
+		else if(Stops[j] != Stops[j])
 			break;
 	}
 	Intervals = i;
