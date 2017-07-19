@@ -40,6 +40,8 @@ int main(int argc, char* argv[])
 
 	Par[3] = atoi(argv[4]);
 	Par[4] = atof(argv[5]);
+	/*holder = theta_Int(Par, Temp);
+	cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;//*/
 	for(; Par[4] <= -1000; Par[4] += 100)
 	{
 		holder = theta_Int(Par, Temp);
@@ -50,17 +52,35 @@ int main(int argc, char* argv[])
 		holder = theta_Int(Par, Temp);
 		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 	}
-	for(; Par[4] <= 0; Par[4]++)
+	for(; Par[4] < 0; Par[4]++)
 	{
 		holder = theta_Int(Par, Temp);
 		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 	}
-	for(; Par[4] <= 9; Par[4] += .1)
+	if(atoi(argv[5]) < 0)
+	{
+		Par[4] = -.01;
+		holder = theta_Int(Par, Temp);
+		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
+	}
+	if(atoi(argv[5]) <= 0)
+	{
+		Par[4] = .01;
+		holder = theta_Int(Par, Temp);
+		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
+		Par[4] = 0;
+	}
+	for(; Par[4] <= 6.2; Par[4] += .1)
 	{
 		holder = theta_Int(Par, Temp);
 		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 	}
-	for(; Par[4] <= 25; Par[4] += .01)
+	for(; Par[4] <= 16; Par[4] += .01)
+	{
+		holder = theta_Int(Par, Temp);
+		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
+	}
+	for(; Par[4] <= 25; Par[4] += .1)
 	{
 		holder = theta_Int(Par, Temp);
 		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
@@ -69,7 +89,7 @@ int main(int argc, char* argv[])
 	{
 		holder = theta_Int(Par, Temp);
 		cout << Par[4] << " " << Par[3] << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
-	}
+	}//*/
 
 	/*TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = atoi(argv[6]); i <= 788; i++)	//Argv[6] allows to restart where ever

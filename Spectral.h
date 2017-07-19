@@ -25,6 +25,8 @@ long double omega_Plus(long double, long double, long double, long double, long 
 long double E_P_omega_Minus(long double, long double, long double, long double, long double);
 long double M_omega_Plus(long double, long double, long double, long double, long double);
 long double E_M_omega_Minus(long double, long double, long double, long double, long double);
+long double Upper_Bound(long double, long double, long double, long double, long double);
+long double Lower_Bound(long double, long double, long double, long double, long double);
 void Characterize_Folding(long double[5], int, long double, long double, long double[6], long double[6], int&);	//Returns the poles of the folding integral's integrands
 long double Newton_Method_omega(long double, long double[5], long double, long double, int, long double (*)(long double[5], long double, long double, long double, int));
 long double omega_Width(long double, long double[5], long double, long double, int, long double (*)(long double[5], long double, long double, long double, int));
@@ -107,9 +109,9 @@ Elements theta_Int(long double Par[5], int Temp)
 	int i, j;	//Counters
 	//ofstream Table("theta Table", ios::app);
 
-	Range[7] = sqrt(4.*pow(Par[3],4)+8.*pow(Par[3],2)*Par[4]+4.*pow(Par[4],2.)-pow(Par[1],4))/pow(256.*pow(Par[3],4)+512.*pow(Par[3],2)*Par[4]+256.*pow(Par[4],2.),(long double).25);
+	Range[7] = sqrt(4.*pow(Par[3],4)+8.*pow(Par[3],2)*Par[4]+4.*pow(Par[4],2)-pow(Par[1],4))/pow(256.*pow(Par[3],4)+512.*pow(Par[3],2)*Par[4]+256.*pow(Par[4],2),(long double).25);
 	Range[7] = acos((pow(Range[7],2)+pow(Par[2],2)-Par[4]-(long double).75*pow(Par[3],2))/(Range[7]*Par[3]));
-	Range[8] = sqrt(4.*pow(Par[3],4)+8.*pow(Par[3],2)*Par[4]+4.*pow(Par[4],2.)-pow(Par[1],4))/pow(256.*pow(Par[3],4)+512.*pow(Par[3],2)*Par[4]+256.*pow(Par[4],2.),(long double).25);
+	Range[8] = sqrt(4.*pow(Par[3],4)+8.*pow(Par[3],2)*Par[4]+4.*pow(Par[4],2)-pow(Par[1],4))/pow(256.*pow(Par[3],4)+512.*pow(Par[3],2)*Par[4]+256.*pow(Par[4],2),(long double).25);
 	Range[8] = acos((pow(Range[8],2)+pow(Par[2],2)-Par[4]-(long double).75*pow(Par[3],2))/(-Range[8]*Par[3]));
 
 	if(Range[6] != Range[6] || Range[6] < 0)
@@ -131,14 +133,14 @@ Elements theta_Int(long double Par[5], int Temp)
 			x1 = (b+a-Disp[j]*(b-a))/2.;
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 			holder = k_Int(Par, Temp, x1);
-			//Table << Par[3] << " " << Par[4] << " " << x1 << " " << holder.store(0).imag() << " " << holder.store(1).imag() << " " << holder.store(2).imag() << endl;
+			//Table << Par[3] << " " << Par[4] << " " << x1 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 			F += holder*sin(x1)*w[j+1];
 			holder = k_Int(Par, Temp, x2);
-			//Table << Par[3] << " " << Par[4] << " " << x2 << " " << holder.store(0).imag() << " " << holder.store(1).imag() << " " << holder.store(2).imag() << endl;
+			//Table << Par[3] << " " << Par[4] << " " << x2 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 			F += holder*sin(x2)*w[j+1];
 		}
 		holder = k_Int(Par, Temp, (a+b)/2.);
-		//Table << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << holder.store(0).imag() << " " << holder.store(1).imag() << " " << holder.store(2).imag() << endl;
+		//Table << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 		F += holder*sin((a+b)/2.)*w[0];
 		Answer += F*(b-a)/2.;
 		a = b;
@@ -224,35 +226,43 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
 	//for(i = 0; i < Poles; i++)
 		//Poles_Table << Par[3] << " " << Par[4] << " "  << theta << " " << zero[i] << " " << gamma[i] << endl;
-	long double Stops[Poles*3+3];
+	long double Stops[Poles*3+6];
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
 	{
-		for(j = 0; j < 3; j++)
+		if(gamma[i] == gamma[i])	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
+			for(j = 0; j < 3; j++)
+			{
+				Stops[l] = zero[i]+gamma[i]*Range[j];	//Stops as required by poles
+				l++;
+			}
+		else	//At lease insert the central point of the pole so that a certain amount of information isn't lost
 		{
-			Stops[l] = zero[i]+gamma[i]*Range[j];	//Stops as required by poles
+			Stops[l] = zero[i];
 			l++;
 		}
 	}
 	Stops[l] = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//This the upper bound that the vacuum calls for, Partial/total will promote higher as needed
 	if(Stops[l] != Stops[l])
 		Stops[l] = .5*sqrt(-Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
-	Stops[l+1] = .5*abs(Par[3]*cos(theta)+sqrt(4.*(Par[4]+pow(Par[3],2)-pow(Par[2],2))-pow(Par[3]*sin(theta),2)));
+	Stops[l+1] = .5*abs(Par[3]*cos(theta)+sqrt(4.*(Par[4]+pow(Par[3],2)-pow(Par[2],2))-pow(Par[3]*sin(theta),2)));	//On-shells leaving the range 0 to E
 	Stops[l+2] = .5*abs(Par[3]*cos(theta)-sqrt(4.*(Par[4]+pow(Par[3],2)-pow(Par[2],2))-pow(Par[3]*sin(theta),2)));
+	Stops[l+3] = sqrt(4.*pow(Par[3],4)+8.*pow(Par[3],2)*Par[4]+4.*pow(Par[4],2)-pow(Par[1],4))/pow(256.*pow(Par[3],4)+512.*pow(Par[3],2)*Par[4]+256.*pow(Par[4],2),(long double).25);	//Potiential leaving the range 0 to E
+	Stops[l+4] = abs((pow(Par[2],2)*Par[3]*cos(theta)+sqrt((Par[4]+pow(Par[3],2))*(pow(Par[2],4)+(Par[4]+pow(Par[3]*sin(theta),2))*(Par[4]-2.*pow(Par[2],2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta),2))));	//On-shell leaving the range k+ to E-k-
+	Stops[l+5] = abs((pow(Par[2],2)*Par[3]*cos(theta)-sqrt((Par[4]+pow(Par[3],2))*(pow(Par[2],4)+(Par[4]+pow(Par[3]*sin(theta),2))*(Par[4]-2.*pow(Par[2],2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta),2))));
 
-	if(Stops[l+1] == Stops[l+1])
-		mergeSort(Stops, 0, Poles*3+2);
-	else if(Stops[l] == Stops[l])
-		mergeSort(Stops, 0, Poles*3);
-	else
-		mergeSort(Stops, 0, Poles*3-1);
+	for(i = l; i < l+6; i++)
+		if(Stops[i] != Stops[i])
+			Stops[i] = -1;
+
+	mergeSort(Stops, 0, l+5);
 
 	i = 0;
 	j = 0;
 	while(Stops[j] <= 0)
 		j++;
-	for(; j < Poles*3+3; j++)
+	for(; j < l+6; j++)
 	{
 		if(((i > 0 && Stops[i-1] != Stops[j]) || i == 0) && Stops[j] == Stops[j])
 		{
@@ -293,19 +303,19 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 			x2 = (b+a+Disp[l]*(b-a))/2.;
 
 			holder = Folding(Par, Temp, x1, theta);
-			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << holder.store(0).imag() << " " << holder.store(1).imag() << " " << holder.store(2).imag() << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 			F += holder*pow(x1,2)*w[l+1]; //Evaluate function at x1
 			holder = Folding(Par, Temp, x2, theta);
-			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << holder.store(0).imag() << " " << holder.store(1).imag() << " " << holder.store(2).imag() << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 			F += holder*pow(x2,2)*w[l+1]; //Evaluate function at x2
 		}
 		holder = Folding(Par, Temp, (a+b)/2., theta);
-		//Table << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << holder.store(0).imag() << " " << holder.store(1).imag() << " " << holder.store(2).imag() << endl;
+		//Table << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 		F += holder*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
 		Partial = F*(b-a)/(2.);
 		Answer += Partial;
 		a = b;
-	}while(!(Partial == 0) && (i < Intervals || ((abs(Partial/Answer) >= .0001) && Temp != 0)));
+	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a <= 20.*sqrt(Par[4]+pow(Par[3],2))); //k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }
@@ -316,7 +326,7 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 	int i, j, l;
 
 	Poles = 1;
-	zero[0] = .5*Par[3]*abs(cos(theta));
+	zero[0] = .5*Par[3]*abs(cos(theta));	//Near intersection of 2 on-shells
 	gamma[0] = .05;
 
 	if((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3]*sin(theta),2)) > 0.)
@@ -456,6 +466,32 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 		Poles++;
 	}
 
+	zero[Poles] = 0;
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Lower_Bound))	//V+ and V- leaving the limits of integration in vacuum
+	{
+		gamma[Poles] = 0./0.;	//Only need a location, width is of minimal interest
+		Poles++;
+	}
+	zero[Poles] = 10;
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Lower_Bound))
+	{
+		gamma[Poles] = 0./0.;
+		Poles++;
+	}
+
+	zero[Poles] = 0;
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Upper_Bound))
+	{
+		gamma[Poles] = 0./0.;
+		Poles++;
+	}
+	zero[Poles] = 10;
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Upper_Bound))
+	{
+		gamma[Poles] = 0./0.;
+		Poles++;
+	}
+
 	for(i = 0; i < Poles; i++)	//Any point that is less than is zero is replaced with zero width so that it will be removed in the bubble sort.
 		zero[i] = abs(zero[i]);
 
@@ -561,6 +597,16 @@ long double E_M_omega_Minus(long double s, long double P, long double k, long do
 	return(sqrt(s+pow(P,2))-Energy(M,P/2.,-k,theta));
 }
 
+long double Upper_Bound(long double s, long double P, long double k, long double theta, long double M)
+{
+	return(sqrt(s+pow(P,2))-Energy(0,P/2.,-k,theta));
+}
+
+long double Lower_Bound(long double s, long double P, long double k, long double theta, long double M)
+{
+	return(Energy(0,P/2.,k,theta));
+}
+
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements Folding(long double Par[5], int Temp, long double k, long double theta)	//Folding integral, energy integral
 {
@@ -590,7 +636,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	Characterize_Folding(Par, Temp, k, theta, zero, gamma, Poles);	//Get the poles that I have to be concerned about
 	//for(i = 0; i < Poles; i++)
 		//Poles_Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << zero[i] << " " << gamma[i] << endl;
-	long double Stops[Poles*17];	//Intervals that are required by integrating near poles
+	long double Stops[Poles*17+4];	//Intervals that are required by integrating near poles
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
@@ -607,8 +653,12 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			l++;
 		}
 	}
+	Stops[l] = Energy(0,Par[3]/2.,k,theta);
+	Stops[l+1] = sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta);
+	Stops[l+2] = 0;
+	Stops[l+3] = sqrt(Par[4]+pow(Par[3],2));
 
-	mergeSort(Stops, 0, l-1);
+	mergeSort(Stops, 0, l+3);
 
 	if(Temp != 0)
 	{
@@ -619,26 +669,30 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	{
 		a = b = Energy(0,Par[3]/2.,k,theta);
 		Max = sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta);
-	}//*/
+	}
 
 	i = 0;
 	j = 0;
 	while(Stops[j] < a)
 		j++;
-	for(; j < l; j++)
+	for(; j < l+4; j++)
 	{
-		if((i > 0 && Stops[i-1] != Stops[j]) || i == 0)
+		if(((i > 0 && Stops[i-1] != Stops[j]) || i == 0) && Stops[j] <= Max)
 		{
 			Stops[i] = Stops[j];
 			i++;
 		}
+		else if(Stops[j] > Max)
+			break;
 	}
 	Intervals = i;
 
 	i = 1;
 	do
 	{
-		if((i < Intervals && b+100 < Stops[i]) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
+		if(a > sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta) && a < Energy(0,Par[3]/2.,k,theta))	//This is the epitome of nowhere, especially in vacuum
+			b = Energy(0,Par[3]/2.,k,theta);
+		else if((i < Intervals && b+100 < Stops[i]) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
 		else if((i < Intervals && b+50 < Stops[i]) || Stops[Intervals-1] < a-50)
 			b += 50;
@@ -660,24 +714,25 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			long double x2 = (b+a+Disp[l]*(b-a))/2.;
 
 			holder = (Elements(Spin_Sum1(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*complex<long double>(ReFolding_Integrand1(Par,x1,k,theta,Temp),ImFolding_Integrand1(Par,x1,k,theta,Temp))/*+Elements(Spin_Sum2(Par, -x1, k, theta), 2.*Potential1(Par,-x1,k), Potential2(Par,-x1,k))*complex<long double>(ReFolding_Integrand2(Par,-x1,k,theta,Temp),ImFolding_Integrand2(Par,-x1,k,theta,Temp))*/);
-			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0).imag() << " " << holder.store(1).imag() << " " << holder.store(2).imag() << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 			F += holder*w[l+1];
 			holder = (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*complex<long double>(ReFolding_Integrand1(Par,x2,k,theta,Temp),ImFolding_Integrand1(Par,x2,k,theta,Temp))/*+Elements(Spin_Sum2(Par, -x2, k, theta), 2.*Potential1(Par,-x2,k), Potential2(Par,-x2,k))*complex<long double>(ReFolding_Integrand2(Par,-x2,k,theta,Temp),ImFolding_Integrand2(Par,-x2,k,theta,Temp))*/);
-			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0).imag() << " " << holder.store(1).imag() << " " << holder.store(2).imag() << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 			F += holder*w[l+1];
 		}
 		holder = (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*complex<long double>(ReFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp),ImFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp))/*+Elements(Spin_Sum2(Par, -(a+b)/2., k, theta), 2.*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*complex<long double>(ReFolding_Integrand2(Par,-(a+b)/2.,k,theta,Temp),ImFolding_Integrand2(Par,-(a+b)/2.,k,theta,Temp))*/);
-		//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0).imag() << " " << holder.store(1).imag() << " " << holder.store(2).imag() << endl;
+		//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 		F += holder*w[0];
 
 		Partial = F*(b-a)/(2.);
 		Answer += Partial;
 		a = b;
-	}while(!(Partial == 0) && (i < Intervals || ((abs(Partial/Answer) >= .0001) && Temp != 0)));
+	}while((!(Partial == 0) || a < Max) && (i < Intervals || ((abs(Partial/Answer) >= .0001)/* && Temp != 0*/)));
 
 	if(Temp != 0)
 	{
 		a = b = Stops[0];
+
 		do
 		{
 			if(b+100 < Stops[0])	//Middle of nowhere intervals below Stops[0]
@@ -697,14 +752,14 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 				long double x2 = (b+a+Disp[l]*(b-a))/2.;
 
 				holder = (Elements(Spin_Sum1(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*complex<long double>(ReFolding_Integrand1(Par,x1,k,theta,Temp),ImFolding_Integrand1(Par,x1,k,theta,Temp))/*+Elements(Spin_Sum2(Par, -x1, k, theta), 2.*Potential1(Par,-x1,k), Potential2(Par,-x1,k))*complex<long double>(ReFolding_Integrand2(Par,-x1,k,theta,Temp),ImFolding_Integrand2(Par,-x1,k,theta,Temp))*/);
-				//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0).imag() << " " << holder.store(1).imag() << " " << holder.store(2).imag() << endl;
+				//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 				F += holder*w[l+1];
 				holder = (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*complex<long double>(ReFolding_Integrand1(Par,x2,k,theta,Temp),ImFolding_Integrand1(Par,x2,k,theta,Temp))/*+Elements(Spin_Sum2(Par, -x2, k, theta), 2.*Potential1(Par,-x2,k), Potential2(Par,-x2,k))*complex<long double>(ReFolding_Integrand2(Par,-x2,k,theta,Temp),ImFolding_Integrand2(Par,-x2,k,theta,Temp))*/);
-				//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0).imag() << " " << holder.store(1).imag() << " " << holder.store(2).imag() << endl;
+				//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 				F += holder*w[l+1];
 			}
 			holder = (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*complex<long double>(ReFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp),ImFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp))/*+Elements(Spin_Sum2(Par, -(a+b)/2., k, theta), 2.*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*complex<long double>(ReFolding_Integrand2(Par,-(a+b)/2.,k,theta,Temp),ImFolding_Integrand2(Par,-(a+b)/2.,k,theta,Temp))*/);
-			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0).imag() << " " << holder.store(1).imag() << " " << holder.store(2).imag() << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 			F += holder*w[0];
 
 			Partial = F*(b-a)/(2.);
@@ -722,7 +777,7 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 	long double holder;
 	int i, j;
 
-	if(Temp != 0)
+	if(true)//Temp != 0)
 	{
 		Lower = -LDBL_MAX;
 		Upper = LDBL_MAX;	//Integrate from 0 to E and twice E to infinity (ie, I need all points greater than 0)
@@ -737,16 +792,16 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 	zero[1] = .5*(sqrt(Par[4]+pow(Par[3],2))-pow(pow(2.*k,4)+pow(Par[1],4),(long double).25)*cos(.5*atan(pow(Par[1]/(2.*k),2))));
 	gamma[0] = abs(.5*(pow(pow(2.*k,4)+pow(Par[1],4),(long double).25)*sin(.5*atan(pow(Par[1]/(2.*k),2)))));
 	gamma[1] = abs(.5*(pow(pow(2.*k,4)+pow(Par[1],4),(long double).25)*sin(.5*atan(pow(Par[1]/(2.*k),2)))));
-	zero[2] = -.5*(sqrt(Par[4]+pow(Par[3],2))+pow(pow(2.*k,4)+pow(Par[1],4),(long double).25)*cos(.5*atan(pow(Par[1]/(2.*k),2))));	//Potential poles, I know exactly where these are at.
+	zero[2] = -.5*(sqrt(Par[4]+pow(Par[3],2))+pow(pow(2.*k,4)+pow(Par[1],4),(long double).25)*cos(.5*atan(pow(Par[1]/(2.*k),2))));
 	zero[3] = -.5*(sqrt(Par[4]+pow(Par[3],2))-pow(pow(2.*k,4)+pow(Par[1],4),(long double).25)*cos(.5*atan(pow(Par[1]/(2.*k),2))));
 	gamma[2] = abs(.5*(pow(pow(2.*k,4)+pow(Par[1],4),(long double).25)*sin(.5*atan(pow(Par[1]/(2.*k),2)))));
 	gamma[3] = abs(.5*(pow(pow(2.*k,4)+pow(Par[1],4),(long double).25)*sin(.5*atan(pow(Par[1]/(2.*k),2)))));
 
 	holder = GAMMA;
-	zero[4] = pow(pow(Energy(Par[2],Par[3]/2.,k,theta),4)+pow(Par[2]*holder,2),(long double).25)*cos(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,k,theta),2)));	//Exact vacuum
-	zero[5] = -pow(pow(Energy(Par[2],Par[3]/2.,k,theta),4)+pow(Par[2]*holder,2),(long double).25)*cos(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,k,theta),2)));	//Exact vacuum
-	zero[6] = sqrt(Par[4]+pow(Par[3],2))-pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),4)+pow(Par[2]*holder,2),(long double).25)*cos(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,-k,theta),2)));
-	zero[7] = sqrt(Par[4]+pow(Par[3],2))+pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),4)+pow(Par[2]*holder,2),(long double).25)*cos(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,-k,theta),2)));
+	zero[4] = real(sqrt(complex<long double>(pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(GAMMA,2)/2.,sqrt(pow(Par[2]*GAMMA,2)-pow(GAMMA,4)/4.))));	//Exact vacuum
+	zero[5] = real(-sqrt(complex<long double>(pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(GAMMA,2)/2.,sqrt(pow(Par[2]*GAMMA,2)-pow(GAMMA,4)/4.))));
+	zero[6] = sqrt(Par[4]+pow(Par[3],2))+real(sqrt(complex<long double>(pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(GAMMA,2)/2.,sqrt(pow(Par[2]*GAMMA,2)-pow(GAMMA,4)/4.))));
+	zero[7] = sqrt(Par[4]+pow(Par[3],2))-real(sqrt(complex<long double>(pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(GAMMA,2)/2.,sqrt(pow(Par[2]*GAMMA,2)-pow(GAMMA,4)/4.))));
 
 	if(Temp != 0)	//media estimate
 	{
@@ -770,11 +825,16 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 	}
 	else	//Finish up exact vacuum calculations
 	{
-		gamma[3] = gamma[2] = abs(pow(pow(Energy(Par[2],Par[3]/2.,k,theta),4)+pow(Par[2]*holder,2),(long double).25)*sin(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,k,theta),2))));
-		gamma[5] = gamma[4] = abs(pow(pow(Energy(Par[2],Par[3]/2.,-k,theta),4)+pow(Par[2]*holder,2),(long double).25)*sin(.5*atan2(Par[2]*holder,pow(Energy(Par[2],Par[3]/2.,-k,theta),2))));
+		gamma[5] = gamma[4] = abs(imag(sqrt(complex<long double>(pow(Energy(Par[2],Par[3]/2.,k,theta),2)-pow(GAMMA,2)/2.,sqrt(pow(Par[2]*GAMMA,2)-pow(GAMMA,4)/4.)))));
+		gamma[7] = gamma[6] = abs(imag(sqrt(complex<long double>(pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(GAMMA,2)/2.,sqrt(pow(Par[2]*GAMMA,2)-pow(GAMMA,4)/4.)))));
 	}
 
-	for(i = 11; i >= 0; i--)	//Bubble sort
+	if(Temp == 0)
+		i = 7;
+	else
+		i = 11;
+
+	for(; i >= 0; i--)	//Bubble sort
 	{
 		for(j = 0; j < i; j++)
 		{
@@ -790,10 +850,10 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 		}
 	}
 
-	i = j = 0;	//Find the first zero greater than 0
+	i = j = 0;	//Find the first zero greater than lower bound
 	while(zero[i] < Lower) i++;
 
-	while(zero[i] <= Upper && i < 12)	//Move zeroes up to front of array, count off poles within the limits of integration
+	while(zero[i] <= Upper && (i < 12 || (i < 8 && Temp == 0)))	//Move zeroes up to front of array, count off poles within the limits of integration
 	{
 		zero[j] = zero[i];
 		gamma[j] = abs(gamma[i]);
@@ -841,7 +901,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	{
 		case 0:
 			if(pow(omega,2)>=pow(k,2))
-				return(M*GAMMA);
+				return(sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 			else
 				return(0);
 			break;
@@ -896,7 +956,10 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	}
 	Par[3] = 0;
 
-	return(2.*M*(Par[0]*exp(-pow(k/Par[1],2))+(1-Par[0])*exp(-pow(k/Par[2],2))+Par[3])*(Sigma*exp(Delta+(b1-b2)*(omega-E_0)*E_0/2.-sqrt(b1*b2*pow((omega-E_0)*E_0,2)+pow(Delta+(b1-b2)*(omega-E_0)*E_0/2.,2))))+M*GAMMA);
+	if(pow(omega,2)>=pow(k,2))
+		return(2.*M*(Par[0]*exp(-pow(k/Par[1],2))+(1-Par[0])*exp(-pow(k/Par[2],2))+Par[3])*(Sigma*exp(Delta+(b1-b2)*(omega-E_0)*E_0/2.-sqrt(b1*b2*pow((omega-E_0)*E_0,2)+pow(Delta+(b1-b2)*(omega-E_0)*E_0/2.,2))))+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+	else
+		return(2.*M*(Par[0]*exp(-pow(k/Par[1],2))+(1-Par[0])*exp(-pow(k/Par[2],2))+Par[3])*(Sigma*exp(Delta+(b1-b2)*(omega-E_0)*E_0/2.-sqrt(b1*b2*pow((omega-E_0)*E_0,2)+pow(Delta+(b1-b2)*(omega-E_0)*E_0/2.,2)))));
 }
 
 long double ReSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
@@ -974,7 +1037,7 @@ long double Fermi(long double omega, int T)	//Fermi factor
 	switch(T)
 	{
 		case 0:
-			if(omega > 0)	//Fermi factor for vacuum
+			if(omega >= 0)	//Fermi factor for vacuum
 				return(0.);
 			else
 				return(1.);

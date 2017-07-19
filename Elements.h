@@ -150,7 +150,7 @@ Elements Elements::operator+(Elements A)
 Elements Elements::operator/(Elements A)
 {
 	Elements B;
-	B.Array[0] = Array[0] / A.Array[0];
+	B.Array[0] = imag(Array[0]) / imag(A.Array[0]);
 	B.Array[1] = Array[1] / A.Array[1];
 	B.Array[2] = Array[2] / A.Array[2];
 	return(B);
