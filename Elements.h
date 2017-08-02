@@ -109,14 +109,14 @@ bool Elements::operator==(long double A)
 
 bool Elements::operator>=(long double A)
 {
-	return(std::abs(Array[0]) >= A ||
+	return(std::abs(std::imag(Array[0])) >= A ||
 		std::abs(Array[1]) >= A ||
 		std::abs(Array[2]) >= A);
 }
 
 bool Elements::operator>(long double A)
 {
-	return(std::abs(Array[0]) > A ||
+	return(std::abs(std::imag(Array[0])) > A ||
 		std::abs(Array[1]) > A ||
 		std::abs(Array[2]) > A);
 }
