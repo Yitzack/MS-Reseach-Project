@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 #else
      	char File[30] = "Spectralbb.";  //Name of the file
 #endif
-	/*Process = argv[1];
+	Process = argv[1];
 	strcat(File, argv[3]);
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 		TPlot.open(File, ios::app);
 	int i,j;	//counters
 	const int iProcess = atoi(argv[1]) % atoi(argv[2]);
-	const int Total = atoi(argv[2]);*/
+	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[3]);
 	long double Table[616][3];
 	//long double Par[5] = {-158.90117114622294, 2.643945190802571, 1.8, 0, 0};
