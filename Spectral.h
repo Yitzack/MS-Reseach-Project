@@ -1126,6 +1126,7 @@ long double ReFolding_Integrand1(long double Par[5], long double k0, long double
 	long double Answer = 0;		//Results to be returned
 	long double Partial = 0;	//Partial Answer
 	long double holder;
+	long double Width;	//The length of this interval; don't store distance to travel in it
 	//long double x1, x2;	//Abscissa
 	long double zero[3];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[3];	//Imaginary part of poles
@@ -1197,6 +1198,10 @@ long double ReFolding_Integrand1(long double Par[5], long double k0, long double
 			b = Stops[i];
 			i++;
 		}
+		else
+			b += 3;
+
+		Width = b-a;
 
 		F = 0;
 		#pragma omp parallel for
@@ -1219,10 +1224,10 @@ long double ReFolding_Integrand1(long double Par[5], long double k0, long double
 		//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << k0 << " " << (a+b)/2. << " " << holder << endl;
 		F += holder*w[0];
 
-		Partial = F*(b-a)/(2.);
+		Partial = F*Width/(2.);
 		Answer += Partial;
 		a = b;
-	}while(i < Intervals || abs(Partial/Answer) >= .0001);
+	}while(i < Intervals || abs(Partial/Answer)*3./Width >= .0001);
 	Max = a;
 
 	if(Par[4] != Min)
