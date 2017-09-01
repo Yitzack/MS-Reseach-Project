@@ -440,15 +440,15 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 
 	mergeSort(Stops, 0, l+3);
 
-	if(true)//Temp != 0)
+	if(Temp != 0)
 	{
-		a = b = Stops[0];
-		//Max = sqrt(Par[4]+pow(Par[3],2));//zero[Poles-1]+Boundary[7]*gamma[Poles-1];
+		a = b = -sqrt(Par[4]+pow(Par[3],2))/2.;
+		Max = sqrt(Par[4]+pow(Par[3],2))/2.;
 	}
 	else
 	{
 		a = b = Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.;
-		//Max = sqrt(Par[4]+pow(Par[3],2))/2.-Energy(0,Par[3]/2.,-k,theta);
+		Max = sqrt(Par[4]+pow(Par[3],2))/2.-Energy(0,Par[3]/2.,-k,theta);
 	}
 
 	i = 0;
@@ -457,17 +457,16 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		j++;
 	for(; j < l+4; j++)
 	{
-		if(((i > 0 && Stops[i-1] != Stops[j]) || i == 0)/* && Stops[j] <= Max*/)
+		if(((i > 0 && Stops[i-1] != Stops[j]) || i == 0) && Stops[j] <= Max)
 		{
 			Stops[i] = Stops[j];
 			i++;
 		}
-		//else if(Stops[j] > Max)
-		//	break;
+		else if(Stops[j] > Max)
+			break;
 	}
 	Intervals = i;
 
-	Max = Stops[i-1];
 	i = 1;
 	do
 	{
@@ -508,7 +507,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 		a = b;
 	}while((!(Partial == 0) || a < Max) && (i < Intervals || ((abs(Partial/Answer) >= .0001)/* && Temp != 0*/)));
 
-	if(Temp != 0)
+	/*if(Temp != 0)
 	{
 		a = b = Stops[0];
 
@@ -530,14 +529,14 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 				long double x1 = (b+a-Disp[l]*(b-a))/2.;
 				long double x2 = (b+a+Disp[l]*(b-a))/2.;
 
-				holder = (Elements(Spin_Sum1(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*ImFolding_Integrand1(Par,x1,k,theta,Temp)/*+Elements(Spin_Sum2(Par, -x1, k, theta), 2.*Potential1(Par,-x1,k), Potential2(Par,-x1,k))*ImFolding_Integrand2(Par,-x1,k,theta,Temp)*/);
+				holder = (Elements(Spin_Sum1(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*ImFolding_Integrand1(Par,x1,k,theta,Temp)/*+Elements(Spin_Sum2(Par, -x1, k, theta), 2.*Potential1(Par,-x1,k), Potential2(Par,-x1,k))*ImFolding_Integrand2(Par,-x1,k,theta,Temp));
 				//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(1) << " " << holder.store(2) << " " << holder.store(2) << endl;
 				F += holder*w[l+1];
-				holder = (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*ImFolding_Integrand1(Par,x2,k,theta,Temp)/*+Elements(Spin_Sum2(Par, -x2, k, theta), 2.*Potential1(Par,-x2,k), Potential2(Par,-x2,k))*ImFolding_Integrand2(Par,-x2,k,theta,Temp)*/);
+				holder = (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*ImFolding_Integrand1(Par,x2,k,theta,Temp)/*+Elements(Spin_Sum2(Par, -x2, k, theta), 2.*Potential1(Par,-x2,k), Potential2(Par,-x2,k))*ImFolding_Integrand2(Par,-x2,k,theta,Temp));
 				//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 				F += holder*w[l+1];
 			}
-			holder = (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*ImFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp)/*+Elements(Spin_Sum2(Par, -(a+b)/2., k, theta), 2.*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*ImFolding_Integrand2(Par,-(a+b)/2.,k,theta,Temp)*/);
+			holder = (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*ImFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp)/*+Elements(Spin_Sum2(Par, -(a+b)/2., k, theta), 2.*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*ImFolding_Integrand2(Par,-(a+b)/2.,k,theta,Temp));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*w[0];
 
@@ -545,7 +544,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			Answer += Partial;
 			b = a;
 		}while(abs(Partial/Answer) >= .0001);
-	}
+	}*/
 
 	return(Answer/M_PI);
 }
