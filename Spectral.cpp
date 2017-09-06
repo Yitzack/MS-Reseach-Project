@@ -82,13 +82,13 @@ int main(int argc, char* argv[])
 				//cout << "If you come down this way, you have to alter the curvilinar system used to sample. You will want to use lines of constant s, or sqrt(E^2+P^2). You must do this before you do anything in s<0GeV^2 region" << endl;
 				if(i <= 208)
 				{
-					Par[3] = i/10.+j;
-					Par[4] = -i*j/5.-j*j;
+					Par[3] = i/10.+j/10.;
+					Par[4] = -i*j/50.-j*j/100.;
 				}
 				else
 				{
-					Par[3] = i+j-187.2;
-					Par[4] = -2.*j*(i-187.2)-j*j;
+					Par[3] = i+j/10.-187.2;
+					Par[4] = -j/5.*(i-187.2)-j*j/100.;
 				}
 			}
 			else
@@ -132,13 +132,13 @@ int main(int argc, char* argv[])
 			{
 				if(i <= 208)
 				{
-					Par[3] = i/10.+j;
-					Par[4] = -i*j/5.-j*j;
+					Par[3] = i/10.+j/10.;
+					Par[4] = -i*j/50.-j*j/100.;
 				}
 				else
 				{
-					Par[3] = i+j-187.2;
-					Par[4] = -2.*j*(i-187.2)-j*j;
+					Par[3] = i+j/10.-187.2;
+					Par[4] = -j/5.*(i-187.2)-j*j/100.;
 				}
 			}
 			else

@@ -3,7 +3,7 @@ BEGIN{
 }
 {
 	if (length($0) == 0) {}
-	else if($2 <= 150 && $1 >= 208)
+	else if($2 <= 150)
 	{
 		print "   <Function>"
 		print "    <Symbol>List</Symbol>"
@@ -15,8 +15,6 @@ BEGIN{
 		print "    <Function>"
 		print "     <Symbol>List</Symbol>"
 		printf "     <Number>%s</Number>\n", $5
-		printf "     <Number>%s</Number>\n", $6
-		printf "     <Number>%s</Number>\n", $7
 		print "    </Function>"
 		print "   </Function>"
 	}

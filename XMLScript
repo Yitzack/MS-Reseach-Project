@@ -2,6 +2,7 @@ head -n349681 ${1} | tail -n349680 > Table
 mv Table ${1}
 awk -f MS-Reseach-Project/XMLScript1 ${1} > ${1}.xml
 awk -f MS-Reseach-Project/XMLScript2 ${1} >> ${1}.xml
+awk -f MS-Reseach-Project/XMLScript3 ${1} >> ${1}.xml
 echo Starting mathematica Derive
 math -script MS-Reseach-Project/Derive.m ${1}
 echo Completed mathematica Derive
@@ -11,10 +12,12 @@ echo Starting the Dispersion calculation
 ./Dispersion 0 1 ${1}ReGV1 ${1}ImGV1 0
 ./Dispersion 0 1 ${1}ReGV2 ${1}ImGV2 0
 echo Dispersion calculation completed
-awk -f MS-Reseach-Project/XMLScript3 ${1}ReGV1.0 > ${1}ReGV1.xml
-awk -f MS-Reseach-Project/XMLScript4 ${1}ReGV1.0 >> ${1}ReGV1.xml
-awk -f MS-Reseach-Project/XMLScript3 ${1}ReGV2.0 > ${1}ReGV2.xml
-awk -f MS-Reseach-Project/XMLScript4 ${1}ReGV2.0 >> ${1}ReGV2.xml
+awk -f MS-Reseach-Project/XMLScript4 ${1}ReGV1.0 > ${1}ReGV1.xml
+awk -f MS-Reseach-Project/XMLScript5 ${1}ReGV1.0 >> ${1}ReGV1.xml
+awk -f MS-Reseach-Project/XMLScript6 ${1}ReGV1.0 >> ${1}ReGV1.xml
+awk -f MS-Reseach-Project/XMLScript4 ${1}ReGV2.0 > ${1}ReGV2.xml
+awk -f MS-Reseach-Project/XMLScript5 ${1}ReGV2.0 >> ${1}ReGV2.xml
+awk -f MS-Reseach-Project/XMLScript6 ${1}ReGV2.0 >> ${1}ReGV2.xml
 echo Starting mathematica Derive2
 math -script MS-Reseach-Project/Derive2.m ${1}ReGV1 ${1}ReGV2 ${1}
 echo Completed mathematica Derive2
