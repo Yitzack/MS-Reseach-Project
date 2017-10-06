@@ -874,12 +874,12 @@ long double ReD(long double omega, long double k, long double M, int Temp)	//Sin
 	return((pow(omega,2)-pow(k,2)-pow(M,2)-ReSelf_Energy(M, omega, k, Temp))/(pow(pow(omega,2)-pow(k,2)-pow(M,2)-ReSelf_Energy(M, omega, k, Temp),2)+pow(ImSelf_Energy(M, omega, k, Temp),2)));
 }
 
-long double Spin_Sum1(long double Par[5], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
+long double Spin_Sum1(long double Par[5], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
 {
-	return(4.*(Par[4]/4.+pow(k,2)-pow(k0,2)+2.*pow(Par[2],2)));
+	return(2.*(Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2)));
 }
 
-long double Spin_Sum2(long double Par[5], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
+long double Spin_Sum2(long double Par[5], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly vector for now
 {
 	return(4.*(Par[4]/4.+pow(k,2)-pow(k0,2)-2.*pow(Par[2],2)));
 }

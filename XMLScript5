@@ -3,7 +3,7 @@ BEGIN{
 }
 {
 	if (length($0) == 0) {}
-	else if($2 <= 150)
+	else if($2 <= 150 && $1 >= 208)
 	{
 		print "   <Function>"
 		print "    <Symbol>List</Symbol>"
@@ -14,7 +14,26 @@ BEGIN{
 		print "    </Function>"
 		print "    <Function>"
 		print "     <Symbol>List</Symbol>"
-		printf "     <Number>%s</Number>\n", $5
+		if(abs($5) > 2.2250738585072014e-308)
+			printf "     <Number>%s</Number>\n", $5
+		else
+			print "     <Number>0</Number>"
+		if(abs($6) > 2.2250738585072014e-308)
+			printf "     <Number>%s</Number>\n", $6
+		else
+			print "     <Number>0</Number>"
+		if(abs($7) > 2.2250738585072014e-308)
+			printf "     <Number>%s</Number>\n", $7
+		else
+			print "     <Number>0</Number>"
+		if(abs($8) > 2.2250738585072014e-308)
+			printf "     <Number>%s</Number>\n", $8
+		else
+			print "     <Number>0</Number>"
+		if(abs($9) > 2.2250738585072014e-308)
+			printf "     <Number>%s</Number>\n", $9
+		else
+			print "     <Number>0</Number>"
 		print "    </Function>"
 		print "   </Function>"
 	}
@@ -22,3 +41,5 @@ BEGIN{
 END{
 	print "  </Function>"
 }
+
+function abs(v) {return v < 0 ? -v : v}
