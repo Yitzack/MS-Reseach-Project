@@ -8,10 +8,10 @@ MasterIm = Import[StringJoin[Directory[],"/",input[[Dimensions[input]]],".xml"]]
 MasterRe2 = Import[StringJoin[Directory[],"/",input[[Dimensions[input]-1]],".xml"]]; (*Import the table for interpolation extrapolation*)
 MasterRe1 = Import[StringJoin[Directory[],"/",input[[Dimensions[input]-2]],".xml"]]; (*Import the table for interpolation extrapolation*)
 Sub1 = N[Transpose[{MasterIm[[2,All,1]],MasterIm[[2,All,2,1]]}],6]; (*Extract the subtables*)
-Sub2 = N[Transpose[{MasterIm[[2,All,1]],Pi*MasterIm[[2,All,2,2]]}],6];
-Sub3 = N[Transpose[{MasterIm[[2,All,1]],Pi*MasterIm[[2,All,2,3]]}],6];
-Sub4 = N[Transpose[{MasterRe2[[2,All,1]],Pi*MasterRe2[[2,All,2]]}],6];
-Sub5 = N[Transpose[{MasterRe1[[2,All,1]],Pi*MasterRe1[[2,All,2]]}],6];
+Sub2 = N[Transpose[{MasterIm[[2,All,1]],MasterIm[[2,All,2,2]]}],6];
+Sub3 = N[Transpose[{MasterIm[[2,All,1]],MasterIm[[2,All,2,3]]}],6];
+Sub4 = N[Transpose[{MasterRe2[[2,All,1]],MasterRe2[[2,All,2]]}],6];
+Sub5 = N[Transpose[{MasterRe1[[2,All,1]],MasterRe1[[2,All,2]]}],6];
 
 ImG=Interpolation[Sub1, Method -> "Spline", InterpolationOrder -> 2];(*Turn the tables into an interpolation*)
 ReGV1=Interpolation[Sub5, Method -> "Spline", InterpolationOrder -> 2];
