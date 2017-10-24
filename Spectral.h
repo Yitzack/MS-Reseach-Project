@@ -879,9 +879,9 @@ long double Spin_Sum1(long double Par[5], long double k0, long double k , long d
 	return(2.*(Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2)));
 }
 
-long double Spin_Sum2(long double Par[5], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
+long double Spin_Sum2(long double Par[5], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly vector for now
 {
-	return(2.*(Par[4]/4.+pow(k,2)-pow(k0,2)-pow(Par[2],2)));
+	return(4.*(Par[4]/4.+pow(k,2)-pow(k0,2)-2.*pow(Par[2],2)));
 }
 
 long double ReFolding_Integrand1(long double Par[5], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for positive energy
