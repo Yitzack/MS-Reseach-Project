@@ -114,12 +114,7 @@ Elements theta_Int(long double Par[5], int Temp)
 
 	mergeSort(Range, 0, 8);
 
-	if(Range[0] == 0)
-		i = 1;
-	else
-		i = 0;
-
-	for(; i < 8 && Range[i] <= M_PI/2. && Par[3] != 0; i++)
+	for(i = 0; i < 8 && Range[i] <= M_PI/2. && Par[3] != 0; i++)
 	{
 		b = Range[i];
 
@@ -198,7 +193,7 @@ long double D2(long double M, long double P, long double s, long double theta)
 
 long double f(long double M, long double P, long double s, long double theta)
 {
-	return(((-4.*pow(M,2)+s)*pow(pow(P,2)+s,(long double)1.5)*sin(theta))/(8.*abs((sqrt(((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))*(s+pow(P*sin(theta),2)))/(pow(P,2)+s-P*cos(theta)*sqrt(((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))))*(s+pow(P*sin(theta),2))*(pow(P,2)+s-P*cos(theta)*sqrt(((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2))))));
+	return(((-4.*pow(M,2)+s)*(pow(P,2)+s)*sqrt(-4.*pow(M*P,2)+2.*pow(P,2)*s+pow(s,2)+pow(P,2)*(4.*pow(M,2)+pow(P,2))*pow(sin(theta),2)+2.*P*cos(theta)*sqrt((-4.*pow(M,2)+s)*(pow(P,2)+s)*(s+pow(P*sin(theta),2))))*sin(theta))/(8.*abs(sqrt(-4.*pow(M,2)+s)*(pow(P,2)+s)+P*cos(theta)*(sqrt((pow(P,2)+s)*(s+pow(P*sin(theta),2)))-sqrt(s+pow(P*sin(theta),2))*sqrt((pow(s,2)+2.*pow(P,2)*(s-2.*pow(M*cos(theta),2))+pow(P,4)*pow(sin(theta),2)+2.*P*cos(theta)*sqrt((-4.*pow(M,2)+s)*(pow(P,2)+s)*(s+pow(P*sin(theta),2))))/(s+pow(P*sin(theta),2)))))*(s+pow(P*sin(theta),2))*sqrt((pow(s,2)+2.*pow(P,2)*(s-2.*pow(M*cos(theta),2))+pow(P,4)*pow(sin(theta),2)+2.*P*cos(theta)*sqrt((-4.*pow(M,2)+s)*(pow(P,2)+s)*(s+pow(P*sin(theta),2))))/(s+pow(P*sin(theta),2)))));
 }
 
 //long double Par[5] = {g, Lambda, M, P, s}
@@ -248,8 +243,8 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	Stops[l+2] = abs(.5*(Par[3]*cos(theta)-sqrt(4.*(pow(Par[3],2)+Par[4]-pow(Par[2],2))-pow(Par[3]*sin(theta),2))));
 	Stops[l+3] = abs(.5*(Par[3]*cos(theta)+sqrt(-4.*pow(Par[2],2)-pow(Par[3]*sin(theta),2))));
 	Stops[l+4] = abs(.5*(Par[3]*cos(theta)-sqrt(-4.*pow(Par[2],2)-pow(Par[3]*sin(theta),2))));
-	Stops[l+5] = abs((8.*pow(Par[2],2)*Par[3]*cos(theta)+sqrt((pow(Par[3],2)+Par[4])*(pow(2.*Par[2],4)+7.*pow(Par[3],4)+8.*pow(Par[2],2)*(pow(Par[3],2)-Par[4])-8.*pow(Par[3],2)*Par[4]+pow(Par[4],4)+2.*pow(Par[2],2)*(8.*pow(Par[2],2)+7.*pow(Par[3],2)-Par[4])*cos(2.*theta))))/(4.*(pow(Par[3],2)-Par[4]+2.*pow(Par[3],2)*cos(theta))));	//On-shell leaving the range -E/2+k+ to E/2-k-
-	Stops[l+6] = abs(2.*pow(Par[3],3)*cos(theta)+2.*Par[3]*Par[4]*cos(theta)+sqrt((pow(Par[3],2)+Par[4])*(16.*pow(Par[2],4)-5.*pow(Par[3],4)-4.*pow(Par[3],2)*Par[4]+pow(Par[4],2)-8.*pow(Par[2],2)*(pow(Par[3],2)+Par[4])+2.*pow(Par[3],2)*(pow(Par[3],2)+Par[4])*cos(2.*theta))))/(4.*(pow(Par[3],2)+Par[4]));
+	Stops[l+5] = abs((pow(Par[2],2)*Par[3]*cos(theta)+sqrt((Par[4]+pow(Par[3],2))*(pow(Par[2],4)+(Par[4]+pow(Par[3]*sin(theta),2))*(Par[4]-2.*pow(Par[2],2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta),2))));	//On-shell leaving the range k+ to E-k-
+	Stops[l+6] = abs((pow(Par[2],2)*Par[3]*cos(theta)-sqrt((Par[4]+pow(Par[3],2))*(pow(Par[2],4)+(Par[4]+pow(Par[3]*sin(theta),2))*(Par[4]-2.*pow(Par[2],2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta),2))));
 	Stops[l+7] = sqrt(Par[4]+pow(Par[3],2))/2.;	//Potiential peak leaves -E/2 to E/2
 
 	for(i = l; i < l+8; i++)
@@ -327,7 +322,7 @@ void Characterize_k_Int(long double Par[5], int Temp, long double theta, long do
 
 	Poles = 4;
 	zero[0] = .5*Par[3]*abs(cos(theta));	//Near intersection of 2 on-shells
-	gamma[0] = 2.*ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[0], theta), zero[0], Temp);
+	gamma[0] = .05;
 	zero[1] = (pow(Par[2],2)-Par[4]/4.)*(sqrt(Par[4]+pow(Par[3],2))+Par[3]*cos(theta))/(Par[4]-pow(Par[3]*sin(theta),2));	//On-shell momentum intersection with V peak
 	zero[2] = (Par[4]/4.-pow(Par[2],2))*(sqrt(Par[4]+pow(Par[3],2))-Par[3]*cos(theta))/(Par[4]-pow(Par[3]*sin(theta),2));
 	zero[3] = (pow(Par[2],2)-Par[4]/4.)*(sqrt(Par[4]+pow(Par[3],2))-Par[3]*cos(theta))/(Par[4]-pow(Par[3]*sin(theta),2));
@@ -594,23 +589,23 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 
 	if(Temp != 0)	//media estimate
 	{
-		zero[9] = -Newton_Method_omega(-zero[5], Par, k, theta, Temp, ImFolding_Integrand2);	//Negative to counter the fact that I'm doing particle-hole in reverse order to minimize region of interest
-		zero[8] = -Newton_Method_omega(-zero[6], Par, k, theta, Temp, ImFolding_Integrand2);
-		zero[11] = -Newton_Method_omega(-zero[7], Par, k, theta, Temp, ImFolding_Integrand2);
-		zero[12] = -Newton_Method_omega(-zero[8], Par, k, theta, Temp, ImFolding_Integrand2);
-		zero[5] = Newton_Method_omega(zero[5], Par, k, theta, Temp, ImFolding_Integrand1);
-		zero[6] = Newton_Method_omega(zero[6], Par, k, theta, Temp, ImFolding_Integrand1);
-		zero[7] = Newton_Method_omega(zero[7], Par, k, theta, Temp, ImFolding_Integrand1);
-		zero[8] = Newton_Method_omega(zero[8], Par, k, theta, Temp, ImFolding_Integrand1);
+		zero[9] = -Newton_Method_omega(-zero[4], Par, k, theta, Temp, ImFolding_Integrand2);	//Negative to counter the fact that I'm doing particle-hole in reverse order to minimize region of interest
+		zero[8] = -Newton_Method_omega(-zero[5], Par, k, theta, Temp, ImFolding_Integrand2);
+		zero[11] = -Newton_Method_omega(-zero[6], Par, k, theta, Temp, ImFolding_Integrand2);
+		zero[12] = -Newton_Method_omega(-zero[7], Par, k, theta, Temp, ImFolding_Integrand2);
+		zero[5] = Newton_Method_omega(zero[4], Par, k, theta, Temp, ImFolding_Integrand1);
+		zero[6] = Newton_Method_omega(zero[5], Par, k, theta, Temp, ImFolding_Integrand1);
+		zero[7] = Newton_Method_omega(zero[6], Par, k, theta, Temp, ImFolding_Integrand1);
+		zero[8] = Newton_Method_omega(zero[7], Par, k, theta, Temp, ImFolding_Integrand1);
 
-		gamma[5] = omega_Width(zero[5], Par, k, theta, Temp, ImFolding_Integrand1);
-		gamma[6] = omega_Width(zero[6], Par, k, theta, Temp, ImFolding_Integrand1);
-		gamma[7] = omega_Width(zero[7], Par, k, theta, Temp, ImFolding_Integrand1);
-		gamma[8] = omega_Width(zero[8], Par, k, theta, Temp, ImFolding_Integrand1);
-		gamma[9] = omega_Width(-zero[9], Par, k, theta, Temp, ImFolding_Integrand2);
-		gamma[10] = omega_Width(-zero[10], Par, k, theta, Temp, ImFolding_Integrand2);
-		gamma[11] = omega_Width(-zero[11], Par, k, theta, Temp, ImFolding_Integrand2);
-		gamma[12] = omega_Width(-zero[12], Par, k, theta, Temp, ImFolding_Integrand2);
+		gamma[5] = omega_Width(zero[4], Par, k, theta, Temp, ImFolding_Integrand1);
+		gamma[6] = omega_Width(zero[5], Par, k, theta, Temp, ImFolding_Integrand1);
+		gamma[7] = omega_Width(zero[6], Par, k, theta, Temp, ImFolding_Integrand1);
+		gamma[8] = omega_Width(zero[7], Par, k, theta, Temp, ImFolding_Integrand1);
+		gamma[9] = omega_Width(-zero[8], Par, k, theta, Temp, ImFolding_Integrand2);
+		gamma[10] = omega_Width(-zero[9], Par, k, theta, Temp, ImFolding_Integrand2);
+		gamma[11] = omega_Width(-zero[10], Par, k, theta, Temp, ImFolding_Integrand2);
+		gamma[12] = omega_Width(-zero[11], Par, k, theta, Temp, ImFolding_Integrand2);
 	}
 	else	//Finish up exact vacuum calculations
 	{
@@ -912,7 +907,7 @@ long double ReFolding_Integrand1(long double Par[5], long double k0, long double
 	zero[0] = 4.*pow(k0,2)+4.*pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(Par[3],2)-8.*abs(k0)*Energy(Par[2],Par[3]/2.,-k,theta);
 	zero[1] = 4.*pow(k0,2)+4.*pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(Par[3],2)+8.*abs(k0)*Energy(Par[2],Par[3]/2.,-k,theta);
 	gamma[0] = gamma[1] = abs(imag(sqrt(complex<long double>(pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(GAMMA,2)/2.,sqrt(pow(Par[2]*GAMMA,2)-pow(GAMMA,4)/4.)))));
-	for(i = 0; i < 2; i++)
+	//for(i = 0; i < 2; i++)
 		//Poles_Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << k0 << " " << zero[i] << " " << gamma[i] << endl;
 	long double Stops[56];	//Intervals that are required by integrating near poles
 
