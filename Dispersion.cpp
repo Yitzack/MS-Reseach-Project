@@ -47,13 +47,13 @@ int main(int argc, char* argv[])	//Process#, # of Process, output file name, Inp
 			{
 				if(i <= 208)
 				{
-					P = i/10.+j/10.;
-					s = -i*j/50.-pow(j/10.,2);
+					P = i/10.+j;
+					s = -i*j/5.-pow(j,2);
 				}
 				else
 				{
-					P = i+j/10.-187.2;
-					s = -j/5.*(i-187.2)-pow(j/10.,2);
+					P = i+j-187.2;
+					s = -2.*j*(i-187.2)-pow(j,2);
 				}
 			}
 			else
@@ -87,13 +87,13 @@ int main(int argc, char* argv[])	//Process#, # of Process, output file name, Inp
 			{
 				if(i <= 208)
 				{
-					P = i/10.+j/10.;
-					s = -i*j/50.-pow(j/10.,2);
+					P = i/10.+j;
+					s = -i*j/5.-pow(j,2);
 				}
 				else
 				{
-					P = i+j/10.-187.2;
-					s = -j/5.*(i-187.2)-pow(j/10.,2);
+					P = i+j-187.2;
+					s = -2.*j*(i-187.2)-pow(j,2);
 				}
 			}
 			else
@@ -115,8 +115,10 @@ int main(int argc, char* argv[])	//Process#, # of Process, output file name, Inp
 					s = pow((j-451.)/10.+12.,2);
 #endif
 			}
+
 			TPlot << i << " " << j << " " << P << " " << s << " " << holder[j] << endl;
 		}
+		TPlot << endl;
 	}
 
 	TPlot.close();//*/
@@ -137,24 +139,24 @@ long double Real(long double*** Table[], long double s, long double p)
 	long double a, b;
 	int i, j;
 
-	if(p > 600.8 || s > 552.25)	//No meaningful dispersion can be calculuated for P>600.8 as only s < 0 is avalible in this region
+	if(p > 600.8)	//No meaningful dispersion can be calculuated for P>600.8 as only s < 0 is avalible in this region
 		return(0);
 
-	if(p > 15)
+	if(p > 150)
 	{
-		Answer = Imaginary(Table, s, p)*log(abs((552.25-s)/(s+30.*p-225.)));
-		a = -15.*(-15.+2.*p);
+		Answer = Imaginary(Table, s, p)*log((s-552.25)/(s+300.*p-22500.));
+		a = -300.*(-75.+p);
 	}
 	else
 	{
-		Answer = Imaginary(Table, s, p)*log(abs((552.25-s)/(s+pow(p,2))));
-		a = -pow(p,2);
+		Answer = Imaginary(Table, s, p)*log((s-552.25)/(s+pow(p,2)));
+		a = pow(p,2);
 	}
 
-	if(abs(s+pow(p,2)) < pow(.001,2)*.1 && p <= 150)	//Take linear limits to subvert issues with the endpoints of log((552.25-s)/(s-a)) causing issues
-		return(2.*Real(Table, s+.001, p)-Real(Table, s+.002, p));
-	else if(abs(s+30.*p-225.) < pow(.001,2)*.1 && p > 150)
-		return(2.*Real(Table, s+.001, p)-Real(Table, s+.002, p));
+	if(abs(s-pow(p,2)) < pow(.001,2)*.1 && p <= 150)	//Take linear limits to subvert issues with the endpoints of log((552.25-s)/(s-a)) causing issues
+		return(2.*Real(Table, s+pow(.001,2), p)-Real(Table, s+pow(.002,2), p));
+	else if(abs(s+300.*(-75.*p)) < pow(.001,2)*.1 && p > 150)
+		return(2.*Real(Table, s+pow(.001,2), p)-Real(Table, s+pow(.002,2), p));
 	else if(abs(s-552.25) < .00001)
 		return(-Real(Table, pow(23.498,2), p)+2.*Real(Table, pow(23.499,2), p));
 
@@ -170,10 +172,10 @@ long double Real(long double*** Table[], long double s, long double p)
 			x1 = (b+a-Disp[j]*(b-a))/2.; //Actual evaluation points
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F_a += (Imaginary(Table, x1, p)-Imaginary(Table, s, p))/(x1-s)*w[j+1]; //Evaluate function at x1
-			F_b += (Imaginary(Table, x2, p)-Imaginary(Table, s, p))/(x2-s)*w[j+1]; //Evaluate function at x2
+			F_a += (Imaginary(Table, sqrt(x1), p)-Imaginary(Table, sqrt(s), p))/(x1-s)*w[j+1]; //Evaluate function at x1
+			F_b += (Imaginary(Table, sqrt(x2), p)-Imaginary(Table, sqrt(s), p))/(x2-s)*w[j+1]; //Evaluate function at x2
 		}
-		F_ave = (Imaginary(Table, (a+b)/2., p)-Imaginary(Table, s, p))/((a+b)/2.-s)*w[0]; //Evaluate function at (a+b)/2.
+		F_ave = (Imaginary(Table, sqrt((a+b)/2.), p)-Imaginary(Table, sqrt(s), p))/((a+b)/2.-s)*w[0]; //Evaluate function at (a+b)/2.
 		Answer += (F_a+F_ave+F_b)*(b-a)/(2.);
 		a = b;
 	}
@@ -182,7 +184,7 @@ long double Real(long double*** Table[], long double s, long double p)
 	for(j = 0; j < 49; j++)
 	{
 		x1 = 552.25+DispLa[j];
-		F_a += Imaginary(Table, x1, p)/(x1-s)*wLa[j]; //Evaluate function at x1
+		F_a += Imaginary(Table, sqrt(x1), p)/(x1-s)*wLa[j]; //Evaluate function at x1
 	}
 	Answer += F_a;
 
@@ -229,30 +231,19 @@ long double Imaginary(long double*** Table[], long double s, long double p)
 	}
 	else if(s<432.64-pow(p,2))	//Resolve t, u, i, and j for s < 0;
 	{
-		Specify = 0;
-		t = 10.*sqrt(abs(s+pow(p,2)));
-		u = 10.*(p-sqrt(abs(s+pow(p,2))));
+		t = 10.*sqrt(s+pow(p,2));
+		u = p-sqrt(s+pow(p,2));
 		i = t;
 		t -= i;
-		j = u;
-		u -= j;
 	}
 	else
 	{
-		Specify = 1;
 		t = 187.2+sqrt(s+pow(p,2));
-		u = 10.*(p-sqrt(s+pow(p,2)));
+		u = p-sqrt(s+pow(p,2));
 		i = t;
-		if(i < 208)
-			i = 208;
 		t -= i;
 		i -= 208;	//Remove offset from larger table that doesn't care so much about derivatives
-		j = u;
-		u -= j;
 	}
-
-	if(Specify != 2 && j >= 150)	//Probably correct for such a large j
-		return(0);
 
 	long double f[16] = {Table[Specify][j][i][0], Table[Specify][j][i+1][0], Table[Specify][j+1][i][0], Table[Specify][j+1][i+1][0], Table[Specify][j][i][1], Table[Specify][j][i+1][1], Table[Specify][j+1][i][1], Table[Specify][j+1][i+1][1], Table[Specify][j][i][2], Table[Specify][j][i+1][2], Table[Specify][j+1][i][2], Table[Specify][j+1][i+1][2], Table[Specify][j][i][3], Table[Specify][j][i+1][3], Table[Specify][j+1][i][3], Table[Specify][j+1][i+1][3]};	//fetch the data points and store them
 
@@ -296,8 +287,9 @@ bool ReadIn(long double*** Table[], int N[], int M[], char* FileReadIn)
 	{
 		for(k = 0; k < M[m]; k++)	//i/P count
 		{
-			for(j = 0; j < N[m]; j++)	//j/s count
+			for(j = 0; j < N[m]; j++)	//j/sqrt(s) count
 			{
+				File >> Holder >> Holder;
 				for(i = 0; i < 4; i++)	//Value type count
 				{
 					File >> Table[m][j][k][i];
