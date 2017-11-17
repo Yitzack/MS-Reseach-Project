@@ -22,11 +22,11 @@ int main(int argc, char* argv[])
 	strcat(File, argv[3]);
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
-	/*ofstream TPlot;
+	ofstream TPlot;
 	if(argc < 7 || atoi(argv[6]) == 0)	//If starting from the beginning, overwrite
 		TPlot.open(File);
 	else	//If not starting from the beginning, append
-		TPlot.open(File, ios::app);*/
+		TPlot.open(File, ios::app);
 	int i,j;	//counters
 	int Finish, Start;
 	if(argc == 8)
