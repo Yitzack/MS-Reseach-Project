@@ -107,7 +107,7 @@ Elements theta_Int(long double Par[5], int Temp)
 	Elements holder;
 	long double a = 0, b;	//Sub-interval limits of integration
 	int i, j;	//Counters
-	//ofstream Table("theta Table", ios::app);
+	//ofstream //Table("theta //Table", ios::app);
 
 	if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
 		return(k_Int(Par, Temp, M_PI/2.)/pow(2.*M_PI,2)*2.);
@@ -228,7 +228,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
 	//for(i = 0; i < Poles; i++)
-	//	Poles_Table << Par[3] << " " << Par[4] << " "  << theta << " " << zero[i] << " " << gamma[i] << endl;
+		//Poles_Table << Par[3] << " " << Par[4] << " "  << theta << " " << zero[i] << " " << gamma[i] << endl;
 	long double Stops[Poles*11+18];
 
 	l = 0;
@@ -632,7 +632,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	Elements Answer(0,0,0);	//Results to be returned
 	Elements Partial(0,0,0);//Partial Answer
 	Elements holder;
-	//long double x1, x2;	//Abscissa
+	long double x1, x2;	//Abscissa
 	long double zero[12];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[12];	//Imaginary part of poles
 	int Intervals;		//Number of intervals required by poles and discontinuities
@@ -670,7 +670,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 
 	if(Temp != 0)
 	{
-		a = b = Stops[0];
+		a = b = -sqrt(Par[4]+pow(Par[3],2))/2.;
 		Max = sqrt(Par[4]+pow(Par[3],2))/2.;//zero[Poles-1]+Boundary[7]*gamma[Poles-1];
 	}
 	else
@@ -681,7 +681,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 
 	i = 0;
 	j = 0;
-	while(Stops[j] < a)
+	while(Stops[j] < a || Stops[j] == Stops[j]+1.)
 		j++;
 	for(; j < l+4; j++)
 	{
@@ -695,10 +695,13 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	}
 	Intervals = i;
 
+	if(a == a+1.)
+		a = b = Stops[0];
+
 	i = 1;
 	do
 	{
-		if(a > sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta) && a < Energy(0,Par[3]/2.,k,theta))	//This is the epitome of nowhere, especially in vacuum
+		if(a > sqrt(Par[4]+pow(Par[3],2))/2.-Energy(0,Par[3]/2.,-k,theta) && a < Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.)	//This is the epitome of nowhere, especially in vacuum
 			b = Energy(0,Par[3]/2.,k,theta);
 		else if((i < Intervals && b+100 < Stops[i]) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
@@ -713,6 +716,9 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			b = Stops[i];
 			i++;
 		}
+
+		if(b > Max)
+			b = Max;
 
 		F.null();
 		#pragma omp parallel for

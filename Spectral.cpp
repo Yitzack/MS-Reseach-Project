@@ -22,11 +22,11 @@ int main(int argc, char* argv[])
 	strcat(File, argv[3]);
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
-	ofstream TPlot;
+	/*ofstream TPlot;
 	if(argc < 7 || atoi(argv[6]) == 0)	//If starting from the beginning, overwrite
 		TPlot.open(File);
 	else	//If not starting from the beginning, append
-		TPlot.open(File, ios::app);
+		TPlot.open(File, ios::app);*/
 	int i,j;	//counters
 	int Finish, Start;
 	if(argc == 8)
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
 		TPlot << endl;
 	}
 
-	//TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
+	/*TPlot << "#Potiential Cutoff = " << Par[1] << " Mass = " << Par[2] << endl;
 	TPlot.close();//*/
 
 	return(0);
@@ -181,7 +181,7 @@ int Start_Point(int Start, char File[30])
 	int Test;
 
 	TPlot.getline(Line, 200);
-	if(TPlot.eof())
+	if(!TPlot.is_open())
 		return(Start);
 
 	do
