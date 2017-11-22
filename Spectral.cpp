@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 
 			if(j <= 150)
 			{
-				//cout << "If you come down this way, you have to alter the curvilinar system used to sample. You will want to use lines of constant s, or sqrt(E^2+P^2). You must do this before you do anything in s<0GeV^2 region" << endl;
+				//TPlot << "If you come down this way, you have to alter the curvilinar system used to sample. You will want to use lines of constant s, or sqrt(E^2+P^2). You must do this before you do anything in s<0GeV^2 region" << endl;
 				if(i <= 208)
 				{
 					Par[3] = i/10.+j/10.;
