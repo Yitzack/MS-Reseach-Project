@@ -5,31 +5,31 @@ GaussLa={0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.
 input = $CommandLine
 
 Master = Import[StringJoin[Directory[],"/",input[[Dimensions[input]]],".xml"]]; (*Import the table for interpolation extrapolation*)
-ImG1=Interpolation[Transpose[{Transpose[{Master[[1,All,1,1]],Master[[1,All,1,2]]}],Master[[1,All,2,1]]}],Method->"Spline",InterpolationOrder->1]; (*Extract the subtables*)
-ImGv1=Interpolation[Transpose[{Transpose[{Master[[1,All,1,1]],Master[[1,All,1,2]]}],Master[[1,All,2,2]]}],Method->"Spline",InterpolationOrder->1];
-ImGV1=Interpolation[Transpose[{Transpose[{Master[[1,All,1,1]],Master[[1,All,1,2]]}],Master[[1,All,2,3]]}],Method->"Spline",InterpolationOrder->1];
-ReGv1=Interpolation[Transpose[{Transpose[{Master[[1,All,1,1]],Master[[1,All,1,2]]}],Master[[1,All,2,4]]}],Method->"Spline",InterpolationOrder->1];
-ReGV1=Interpolation[Transpose[{Transpose[{Master[[1,All,1,1]],Master[[1,All,1,2]]}],Master[[1,All,2,5]]}],Method->"Spline",InterpolationOrder->1];
-ImG2=Interpolation[Transpose[{Transpose[{Master[[2,All,1,1]],Master[[2,All,1,2]]}],Master[[2,All,2,1]]}],Method->"Spline",InterpolationOrder->1];
-ImGv2=Interpolation[Transpose[{Transpose[{Master[[2,All,1,1]],Master[[2,All,1,2]]}],Master[[2,All,2,2]]}],Method->"Spline",InterpolationOrder->1];
-ImGV2=Interpolation[Transpose[{Transpose[{Master[[2,All,1,1]],Master[[2,All,1,2]]}],Master[[2,All,2,3]]}],Method->"Spline",InterpolationOrder->1];
-ReGv2=Interpolation[Transpose[{Transpose[{Master[[2,All,1,1]],Master[[2,All,1,2]]}],Master[[2,All,2,4]]}],Method->"Spline",InterpolationOrder->1];
-ReGV2=Interpolation[Transpose[{Transpose[{Master[[2,All,1,1]],Master[[2,All,1,2]]}],Master[[2,All,2,5]]}],Method->"Spline",InterpolationOrder->1];
-ImG3=Interpolation[Transpose[{Transpose[{Master[[3,All,1,1]],Master[[3,All,1,2]]}],Master[[3,All,2,1]]}],Method->"Spline"];
-ImGv3=Interpolation[Transpose[{Transpose[{Master[[3,All,1,1]],Master[[3,All,1,2]]}],Master[[3,All,2,2]]}],Method->"Spline"];
-ImGV3=Interpolation[Transpose[{Transpose[{Master[[3,All,1,1]],Master[[3,All,1,2]]}],Master[[3,All,2,3]]}],Method->"Spline"];
-ReGv3=Interpolation[Transpose[{Transpose[{Master[[3,All,1,1]],Master[[3,All,1,2]]}],Master[[3,All,2,4]]}],Method->"Spline"];
-ReGV3=Interpolation[Transpose[{Transpose[{Master[[3,All,1,1]],Master[[3,All,1,2]]}],Master[[3,All,2,5]]}],Method->"Spline"];
+ImG1=Interpolation[Transpose[{Master[[1,All,1]],Master[[1,All,2,1]]}],Method->"Spline",InterpolationOrder->1]; (*Extract the subtables*)
+ImGv1=Interpolation[Transpose[{Master[[1,All,1]],Master[[1,All,2,2]]}],Method->"Spline",InterpolationOrder->1];
+ImGV1=Interpolation[Transpose[{Master[[1,All,1]],Master[[1,All,2,3]]}],Method->"Spline",InterpolationOrder->1];
+ReGv1=Interpolation[Transpose[{Master[[1,All,1]],Master[[1,All,2,4]]}],Method->"Spline",InterpolationOrder->1];
+ReGV1=Interpolation[Transpose[{Master[[1,All,1]],Master[[1,All,2,5]]}],Method->"Spline",InterpolationOrder->1];
+ImG2=Interpolation[Transpose[{Master[[2,All,1]],Master[[2,All,2,1]]}],Method->"Spline",InterpolationOrder->1];
+ImGv2=Interpolation[Transpose[{Master[[2,All,1]],Master[[2,All,2,2]]}],Method->"Spline",InterpolationOrder->1];
+ImGV2=Interpolation[Transpose[{Master[[2,All,1]],Master[[2,All,2,3]]}],Method->"Spline",InterpolationOrder->1];
+ReGv2=Interpolation[Transpose[{Master[[2,All,1]],Master[[2,All,2,4]]}],Method->"Spline",InterpolationOrder->1];
+ReGV2=Interpolation[Transpose[{Master[[2,All,1]],Master[[2,All,2,5]]}],Method->"Spline",InterpolationOrder->1];
+ImG3=Interpolation[Transpose[{Master[[3,All,1]],Master[[3,All,2,1]]}],Method->"Spline"];
+ImGv3=Interpolation[Transpose[{Master[[3,All,1]],Master[[3,All,2,2]]}],Method->"Spline"];
+ImGV3=Interpolation[Transpose[{Master[[3,All,1]],Master[[3,All,2,3]]}],Method->"Spline"];
+ReGv3=Interpolation[Transpose[{Master[[3,All,1]],Master[[3,All,2,4]]}],Method->"Spline"];
+ReGV3=Interpolation[Transpose[{Master[[3,All,1]],Master[[3,All,2,5]]}],Method->"Spline"];
 
-Gv1[i_,j_]:=(ReGv1[i,j]+I*ImGv1[i,j])[[1]];
-GV1[i_,j_]:=(ReGV1[i,j]+I*ImGV1[i,j])[[1]];
-Gv2[i_,j_]:=(ReGv2[i,j]+I*ImGv2[i,j])[[1]];
-GV2[i_,j_]:=(ReGV2[i,j]+I*ImGV2[i,j])[[1]];
-Gv3[P_,s_]:=(ReGv3[P,s]+I*ImGv3[P,s])[[1]];
-GV3[P_,s_]:=(ReGV3[P,s]+I*ImGV3[P,s])[[1]];
+Gv1[i_,j_]:=(ReGv1[i,j]+I*ImGv1[i,j]);
+GV1[i_,j_]:=(ReGV1[i,j]+I*ImGV1[i,j]);
+Gv2[i_,j_]:=(ReGv2[i,j]+I*ImGv2[i,j]);
+GV2[i_,j_]:=(ReGV2[i,j]+I*ImGV2[i,j]);
+Gv3[P_,s_]:=(ReGv3[P,s]+I*ImGv3[P,s]);
+GV3[P_,s_]:=(ReGV3[P,s]+I*ImGV3[P,s]);
 
 s[i_,j_]:=If[j<=150,If[i<=208,-i*j/50.-j^2/100.,-j/5.*(i-187.2)-j^2/100.],If[j<=181,(j-151.)^2/100.,If[j<=381,((j-181.)/100.+3.)^2,If[j<=566,((j-381.)/10.+5.)^2,552.25+GaussLa[[j-566]]]]]]
-V[s_]:=Par[[1]]*(Par[[2]]^4/(Par[[2]]^4+s^2)) (*TMatrix and Spectral function definitions*)
+V[s_]:=Par[[1]]*(Par[[2]]^4/(Par[[2]]^4+s^2)) (*TMatrix definition*)
 
 TMat1[i_,j_]:=V[s[i,j]]/(1-GV1[i,j])
 TMat2[i_,j_]:=V[s[i,j]]/(1-GV2[i,j])
@@ -37,26 +37,68 @@ TMat3[P_,s_]:=V[s]/(1-GV3[P,s])
 Spectral1[i_,j_]:=-18/Pi*(ImG1[i,j]+Im[Par[[1]]*Gv1[i,j]^2/(1-GV1[i,j])])
 Spectral2[i_,j_]:=-18/Pi*(ImG2[i,j]+Im[Par[[1]]*Gv2[i,j]^2/(1-GV2[i,j])])
 Spectral3[P_,s_]:=-18/Pi*(ImG3[P,s]+Im[Par[[1]]*Gv3[P,s]^2/(1-GV3[P,s])])
-SpectralInt1=Interpolation[Flatten[Table[{{i,j},Spectral1[i,j]},{i,150},{j,208}],1]];
-SpectralInt2=Interpolation[Flatten[Table[{{i,j},Spectral2[i,j]},{i,150},{j,208,788}],1]];
+SpectralInt1=Interpolation[Flatten[Table[{{i,j},Spectral1[i,j]},{i,0,208},{j,0,150}],1]];
+SpectralInt2=Interpolation[Flatten[Table[{{i,j},Spectral2[i,j]},{i,208,788},{j,0,150}],1]];
 SpectralInt3=Interpolation[Flatten[Table[{{P,e1[[i]]},Spectral3[P,e1[[i]]]},{P,0,600.8,.8},{i,462}],1]];
 
-List1T = Flatten[Table[{i,j,TMat1[i,j]},{i,208},{j,150}],1]; (*Calculate the derivatives and the function itself*)
-List2T = Flatten[Table[{i,j,TMat2[i,j]},{i,208,788},{j,150}],1]; (*Calculate the derivatives and the function itself*)
-List3T = Flatten[Table[{P,e1[[i]],TMat3[P,e1[[i]]]},{P,0,600.8,.8},{i,1,462}],1]; (*Calculate the derivatives and the function itself*)
-List0 = Flatten[Table[SpectralInt1[i,j], {i,208}, {j,150}]];
-List1 = Flatten[Table[D[SpectralInt1[i,j],i]/.{i->ic,j->jc},{ic,208},{jc,150}]];
-List2 = Flatten[Table[D[SpectralInt1[i,j],j]/.{i->ic,j->jc},{ic,208},{jc,150}]];
-List3 = Flatten[Table[D[SpectralInt1[i,j],i,j]/.{i->ic,j->jc},{ic,208},{jc,150}]];
-List0 = Flatten[Table[SpectralInt2[i,j], {i,208}, {j,150}]];
-List1 = Flatten[Table[D[SpectralInt2[i,j],i]/.{i->ic,j->jc},{ic,208,788},{jc,150}]];
-List2 = Flatten[Table[D[SpectralInt2[i,j],j]/.{i->ic,j->jc},{ic,208,788},{jc,150}]];
-List3 = Flatten[Table[D[SpectralInt2[i,j],i,j]/.{i->ic,j->jc},{ic,208,788},{jc,150}]];
-List8 = Flatten[Table[SpectralInt3[P, e1[[i]]], {P, 0, 600.8, .8}, {i, 1, 462}]];
-List9 = Flatten[Table[D[SpectralInt3[P,e],P]/.{P->i,e->e1[[j]]},{i,0,600.8,.8},{j,1,462}]];
-List10 = Flatten[Table[2*Sqrt[e]*D[SpectralInt3[P,e],e]/.{P->i,e->e1[[j]]},{i,0,600.8,.8},{j,1,462}]]; (*2*Sqrt[e]* is to change the derivative from d/ds to d/d(sqrt(s))*)
-List11 = Flatten[Table[2*Sqrt[e]*D[SpectralInt3[P,e],P,e]/.{P->i,e->e1[[j]]},{i,0,600.8,.8},{j,1,462}]];
+List1T = Flatten[Table[{i,j,TMat1[i,j]},{i,0,208},{j,0,150}],1]; (*Calculate the derivatives and the function itself*)
+List2T = Flatten[Table[{i,j,TMat2[i,j]},{i,208,788},{j,0,150}],1]; (*Calculate the derivatives and the function itself*)
+List3T = Flatten[Table[{P,e1[[i]],TMat3[P,e1[[i]]]},{P,0,600.8,.8},{i,462}],1]; (*Calculate the derivatives and the function itself*)
+List0 = Flatten[Table[SpectralInt1[i,j], {i,0,208}, {j,0,150}]];
+List1 = Flatten[Table[D[SpectralInt1[i,j],i]/.{i->ic,j->jc},{ic,0,208},{jc,0,150}]];
+List2 = Flatten[Table[D[SpectralInt1[i,j],j]/.{i->ic,j->jc},{ic,0,208},{jc,0,150}]];
+List3 = Flatten[Table[D[SpectralInt1[i,j],i,j]/.{i->ic,j->jc},{ic,0,208},{jc,0,150}]];
+List4 = Flatten[Table[SpectralInt2[i,j], {i,208,788}, {j,0,150}]];
+List5 = Flatten[Table[D[SpectralInt2[i,j],i]/.{i->ic,j->jc},{ic,208,788},{jc,0,150}]];
+List6 = Flatten[Table[D[SpectralInt2[i,j],j]/.{i->ic,j->jc},{ic,208,788},{jc,0,150}]];
+List7 = Flatten[Table[D[SpectralInt2[i,j],i,j]/.{i->ic,j->jc},{ic,208,788},{jc,0,150}]];
+List8 = Flatten[Table[SpectralInt3[P, e1[[i]]], {P, 0, 600.8, .8}, {i, 462}]];
+List9 = Flatten[Table[D[SpectralInt3[P,e],P]/.{P->i,e->e1[[j]]},{i,0,600.8,.8},{j,462}]];
+List10 = Flatten[Table[2*Sqrt[e]*D[SpectralInt3[P,e],e]/.{P->i,e->e1[[j]]},{i,0,600.8,.8},{j,462}]]; (*2*Sqrt[e]* is to change the derivative from d/ds to d/d(sqrt(s))*)
+List11 = Flatten[Table[2*Sqrt[e]*D[SpectralInt3[P,e],P,e]/.{P->i,e->e1[[j]]},{i,0,600.8,.8},{j,462}]];
 
-Export[StringJoin[Directory[],"/",input[[Dimensions[input]]],".csv"], Join[Transpose[{List1T[[All, 1]], List1T[[All, 2]], Re[List1T[[All, 3]]], Im[List1T[[All, 3]]], List0, List1, List2, List3}],Transpose[{List2T[[All, 1]], List2T[[All, 2]], Re[List2T[[All, 3]]], Im[List2T[[All, 3]]], List4, List5, List6, List7}],Transpose[{List3T[[All, 1]], List3T[[All, 2]], Re[List3T[[All, 3]]], Im[List3T[[All, 3]]], List8, List9, List10, List11}]] (*Export the table*)
+Export[StringJoin[Directory[],"/",input[[Dimensions[input]]],".csv"], Join[Transpose[{List1T[[All, 1]], List1T[[All, 2]], Re[List1T[[All, 3]]], Im[List1T[[All, 3]]], List0, List1, List2, List3}],Transpose[{List2T[[All, 1]], List2T[[All, 2]], Re[List2T[[All, 3]]], Im[List2T[[All, 3]]], List4, List5, List6, List7}],Transpose[{List3T[[All, 1]], List3T[[All, 2]], Re[List3T[[All, 3]]], Im[List3T[[All, 3]]], List8, List9, List10, List11}]]] (*Export the table*)
+
+Print["Error1"]
+
+ReGv1=Interpolation[Transpose[{Master[[1,All,1]],Master[[1,All,2,4]]}],Method->"Spline"];
+ReGV1=Interpolation[Transpose[{Master[[1,All,1]],Master[[1,All,2,5]]}],Method->"Spline"];
+ReGv2=Interpolation[Transpose[{Master[[2,All,1]],Master[[2,All,2,4]]}],Method->"Spline"];
+ReGV2=Interpolation[Transpose[{Master[[2,All,1]],Master[[2,All,2,5]]}],Method->"Spline"];
+ReGv3=Interpolation[Transpose[{Master[[3,All,1]],Master[[3,All,2,4]]}],Method->"Spline"];
+ReGV3=Interpolation[Transpose[{Master[[3,All,1]],Master[[3,All,2,5]]}],Method->"Spline"];
+Print["Error2"]
+e1=Master[[3,;;465,1,2]];
+Print["Error3"]
+List1=Flatten[ReGv1[i,j]/.i->Range[0,208]/.j->Range[0,150]];
+List2=Flatten[D[ReGv1[i,j],i]/.i->Range[0,208]/.j->Range[0,150]];
+List3=Flatten[D[ReGv1[i,j],j]/.i->Range[0,208]/.j->Range[0,150]];
+List4=Flatten[D[ReGv1[i,j],i,j]/.i->Range[0,208]/.j->Range[0,150]];
+List5=Flatten[ReGV1[i,j]/.i->Range[0,208]/.j->Range[0,150]];
+List6=Flatten[D[ReGV1[i,j],i]/.i->Range[0,208]/.j->Range[0,150]];
+List7=Flatten[D[ReGV1[i,j],j]/.i->Range[0,208]/.j->Range[0,150]];
+List8=Flatten[D[ReGV1[i,j],i,j]/.i->Range[0,208]/.j->Range[0,150]];
+Print["Error4"]
+List9=Flatten[ReGv2[i,j]/.i->Range[208,788]/.j->Range[0,150]];
+List10=Flatten[D[ReGv2[i,j],i]/.i->Range[208,788]/.j->Range[0,150]];
+List11=Flatten[D[ReGv2[i,j],j]/.i->Range[208,788]/.j->Range[0,150]];
+List12=Flatten[D[ReGv2[i,j],i,j]/.i->Range[208,788]/.j->Range[0,150]];
+List13=Flatten[ReGV2[i,j]/.i->Range[208,788]/.j->Range[0,150]];
+List14=Flatten[D[ReGV2[i,j],i]/.i->Range[208,788]/.j->Range[0,150]];
+List15=Flatten[D[ReGV2[i,j],j]/.i->Range[208,788]/.j->Range[0,150]];
+List16=Flatten[D[ReGV2[i,j],i,j]/.i->Range[208,788]/.j->Range[0,150]];
+Print["Error5"]
+List17=Flatten[ReGv3[P,e]/.P->Range[0,600.8,.8]/.e->e1];
+List18=Flatten[D[ReGv3[P,e],P]/.P->Range[0,600.8,.8]/.e->e1];
+List19=Flatten[2*Sqrt[e]*D[ReGv3[P,e],e]/.P->Range[0,600.8,.8]/.e->e1];
+List20=Flatten[2*Sqrt[e]*D[ReGv3[P,e],P,e]/.P->Range[0,600.8,.8]/.e->e1];
+List21=Flatten[ReGV3[P,e]/.P->Range[0,600.8,.8]/.e->e1];
+List22=Flatten[D[ReGV3[P,e],P]/.P->Range[0,600.8,.8]/.e->e1];
+List23=Flatten[2*Sqrt[e]*D[ReGV3[P,e],e]/.P->Range[0,600.8,.8]/.e->e1];
+List24=Flatten[2*Sqrt[e]*D[ReGV3[P,e],P,e]/.P->Range[0,600.8,.8]/.e->e1];
+Print["Error6"]
+
+Export[StringJoin[Directory[],"/",input[[Dimensions[input]]],"ReGV1.csv"], Join[Transpose[{List1,List2,List3,List4}],Transpose[{List9,List10,List11,List12}],Transpose[{List17,List18,List19,List20}]]]
+Export[StringJoin[Directory[],"/",input[[Dimensions[input]]],"ReGV2.csv"], Join[Transpose[{List5,List6,List7,List8}],Transpose[{List13,List14,List15,List16}],Transpose[{List21,List22,List23,List24}]]]
 
 Exit[]

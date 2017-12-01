@@ -5,6 +5,7 @@ awk -f MS-Reseach-Project/XMLScript3 ${1} >> ${1}.xml
 echo Starting mathematica Derive
 math -script MS-Reseach-Project/Derive.m ${1}
 echo Completed mathematica Derive
+sed 's/,/ /g' ${1}ImG.csv > ${1}ImG
 sed 's/,/ /g' ${1}ImGV1.csv > ${1}ImGV1
 sed 's/,/ /g' ${1}ImGV2.csv > ${1}ImGV2
 echo Starting the Dispersion calculation
@@ -16,8 +17,15 @@ mv Table ${1}
 awk -f MS-Reseach-Project/XMLScript4 ${1} > ${1}.xml
 awk -f MS-Reseach-Project/XMLScript5 ${1} >> ${1}.xml
 awk -f MS-Reseach-Project/XMLScript6 ${1} >> ${1}.xml
-#echo Starting mathematica Derive2
-#math -script MS-Reseach-Project/Derive2.m ${1}ReGV1 ${1}ReGV2 ${1}
-#echo Completed mathematica Derive2
-#sed 's/,/ /g' ${1}.csv > ${1}.output
+echo Starting mathematica Derive2
+math -script MS-Reseach-Project/Derive2.m ${1}
+echo Completed mathematica Derive2
+sed 's/,/ /g' ${1}.csv > ${1}.output
+sed 's/,/ /g' ${1}ReGV1.csv > ${1}ReGV1
+sed 's/,/ /g' ${1}ReGV2.csv > ${1}ReGV2
+echo Starting Fourier
+echo ./Fourier 0 1 Fourier${1} ${1} 1 #&
+#./Fourier 0 1 Fourier${1} ${1} 2 &
+#./Fourier 0 1 Fourier${1} ${1} 3
+echo Fourier completed
 echo Script done
