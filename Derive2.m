@@ -59,17 +59,14 @@ List11 = Flatten[Table[2*Sqrt[e]*D[SpectralInt3[P,e],P,e]/.{P->i,e->e1[[j]]},{i,
 
 Export[StringJoin[Directory[],"/",input[[Dimensions[input]]],".csv"], Join[Transpose[{List1T[[All, 1]], List1T[[All, 2]], Re[List1T[[All, 3]]], Im[List1T[[All, 3]]], List0, List1, List2, List3}],Transpose[{List2T[[All, 1]], List2T[[All, 2]], Re[List2T[[All, 3]]], Im[List2T[[All, 3]]], List4, List5, List6, List7}],Transpose[{List3T[[All, 1]], List3T[[All, 2]], Re[List3T[[All, 3]]], Im[List3T[[All, 3]]], List8, List9, List10, List11}]]] (*Export the table*)
 
-Print["Error1"]
-
 ReGv1=Interpolation[Transpose[{Master[[1,All,1]],Master[[1,All,2,4]]}],Method->"Spline"];
 ReGV1=Interpolation[Transpose[{Master[[1,All,1]],Master[[1,All,2,5]]}],Method->"Spline"];
 ReGv2=Interpolation[Transpose[{Master[[2,All,1]],Master[[2,All,2,4]]}],Method->"Spline"];
 ReGV2=Interpolation[Transpose[{Master[[2,All,1]],Master[[2,All,2,5]]}],Method->"Spline"];
 ReGv3=Interpolation[Transpose[{Master[[3,All,1]],Master[[3,All,2,4]]}],Method->"Spline"];
 ReGV3=Interpolation[Transpose[{Master[[3,All,1]],Master[[3,All,2,5]]}],Method->"Spline"];
-Print["Error2"]
+
 e1=Master[[3,;;465,1,2]];
-Print["Error3"]
 List1=Flatten[ReGv1[i,j]/.i->Range[0,208]/.j->Range[0,150]];
 List2=Flatten[D[ReGv1[i,j],i]/.i->Range[0,208]/.j->Range[0,150]];
 List3=Flatten[D[ReGv1[i,j],j]/.i->Range[0,208]/.j->Range[0,150]];
@@ -78,7 +75,6 @@ List5=Flatten[ReGV1[i,j]/.i->Range[0,208]/.j->Range[0,150]];
 List6=Flatten[D[ReGV1[i,j],i]/.i->Range[0,208]/.j->Range[0,150]];
 List7=Flatten[D[ReGV1[i,j],j]/.i->Range[0,208]/.j->Range[0,150]];
 List8=Flatten[D[ReGV1[i,j],i,j]/.i->Range[0,208]/.j->Range[0,150]];
-Print["Error4"]
 List9=Flatten[ReGv2[i,j]/.i->Range[208,788]/.j->Range[0,150]];
 List10=Flatten[D[ReGv2[i,j],i]/.i->Range[208,788]/.j->Range[0,150]];
 List11=Flatten[D[ReGv2[i,j],j]/.i->Range[208,788]/.j->Range[0,150]];
@@ -87,7 +83,6 @@ List13=Flatten[ReGV2[i,j]/.i->Range[208,788]/.j->Range[0,150]];
 List14=Flatten[D[ReGV2[i,j],i]/.i->Range[208,788]/.j->Range[0,150]];
 List15=Flatten[D[ReGV2[i,j],j]/.i->Range[208,788]/.j->Range[0,150]];
 List16=Flatten[D[ReGV2[i,j],i,j]/.i->Range[208,788]/.j->Range[0,150]];
-Print["Error5"]
 List17=Flatten[ReGv3[P,e]/.P->Range[0,600.8,.8]/.e->e1];
 List18=Flatten[D[ReGv3[P,e],P]/.P->Range[0,600.8,.8]/.e->e1];
 List19=Flatten[2*Sqrt[e]*D[ReGv3[P,e],e]/.P->Range[0,600.8,.8]/.e->e1];
@@ -96,7 +91,6 @@ List21=Flatten[ReGV3[P,e]/.P->Range[0,600.8,.8]/.e->e1];
 List22=Flatten[D[ReGV3[P,e],P]/.P->Range[0,600.8,.8]/.e->e1];
 List23=Flatten[2*Sqrt[e]*D[ReGV3[P,e],e]/.P->Range[0,600.8,.8]/.e->e1];
 List24=Flatten[2*Sqrt[e]*D[ReGV3[P,e],P,e]/.P->Range[0,600.8,.8]/.e->e1];
-Print["Error6"]
 
 Export[StringJoin[Directory[],"/",input[[Dimensions[input]]],"ReGV1.csv"], Join[Transpose[{List1,List2,List3,List4}],Transpose[{List9,List10,List11,List12}],Transpose[{List17,List18,List19,List20}]]]
 Export[StringJoin[Directory[],"/",input[[Dimensions[input]]],"ReGV2.csv"], Join[Transpose[{List5,List6,List7,List8}],Transpose[{List13,List14,List15,List16}],Transpose[{List21,List22,List23,List24}]]]

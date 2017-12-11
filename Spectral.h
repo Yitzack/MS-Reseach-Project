@@ -107,7 +107,7 @@ Elements theta_Int(long double Par[5], int Temp)
 	Elements holder;
 	long double a = 0, b;	//Sub-interval limits of integration
 	int i, j;	//Counters
-	//ofstream //Table("theta //Table", ios::app);
+	//ofstream Table("theta Table", ios::app);
 
 	if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
 		return(k_Int(Par, Temp, M_PI/2.)/pow(2.*M_PI,2)*2.);
@@ -229,7 +229,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
 	//for(i = 0; i < Poles; i++)
 		//Poles_Table << Par[3] << " " << Par[4] << " "  << theta << " " << zero[i] << " " << gamma[i] << endl;
-	long double Stops[Poles*11+18];
+	long double Stops[Poles*17+9];
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
@@ -255,23 +255,27 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	Stops[l] = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//This the upper bound that the vacuum calls for, Partial/total will promote higher as needed
 	if(Stops[l] != Stops[l])
 		Stops[l] = .5*sqrt(-Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
-	Stops[l+1] = .5*abs(Par[3]*cos(theta)+sqrt(4.*(Par[4]+pow(Par[3],2)-pow(Par[2],2))-pow(Par[3]*sin(theta),2)));	//On-shells leaving the range 0 to E
-	Stops[l+2] = .5*abs(Par[3]*cos(theta)-sqrt(4.*(Par[4]+pow(Par[3],2)-pow(Par[2],2))-pow(Par[3]*sin(theta),2)));
+	Stops[l+1] = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]-pow(2.*Par[2],2)+pow(Par[3]*cos(theta),2)));	//On-shells leaving the range 0 to E
+	Stops[l+2] = .5*abs(Par[3]*cos(theta)-sqrt(Par[4]-pow(2.*Par[2],2)+pow(Par[3]*cos(theta),2)));
 	Stops[l+3] = sqrt(4.*pow(Par[3],4)+8.*pow(Par[3],2)*Par[4]+4.*pow(Par[4],2)-pow(Par[1],4))/pow(256.*pow(Par[3],4)+512.*pow(Par[3],2)*Par[4]+256.*pow(Par[4],2),(long double).25);	//Potiential leaving the range 0 to E
 	Stops[l+4] = abs((pow(Par[2],2)*Par[3]*cos(theta)+sqrt((Par[4]+pow(Par[3],2))*(pow(Par[2],4)+(Par[4]+pow(Par[3]*sin(theta),2))*(Par[4]-2.*pow(Par[2],2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta),2))));	//On-shell leaving the range k+ to E-k-
 	Stops[l+5] = abs((pow(Par[2],2)*Par[3]*cos(theta)-sqrt((Par[4]+pow(Par[3],2))*(pow(Par[2],4)+(Par[4]+pow(Par[3]*sin(theta),2))*(Par[4]-2.*pow(Par[2],2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta),2))));
+	Stops[l+6] = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]+pow(Par[3]*cos(theta),2)));	//Photon point leaving 0 to E
+	Stops[l+7] = .5*abs(Par[3]*cos(theta)-sqrt(Par[4]+pow(Par[3]*cos(theta),2)));
+	Stops[l+8] = .5*abs(Par[3]*cos(theta)+sqrt(3.*pow(Par[3],2)+4.*Par[4]+pow(Par[3]*cos(theta),2)));
+	Stops[l+9] = .5*abs(Par[3]*cos(theta)-sqrt(3.*pow(Par[3],2)+4.*Par[4]+pow(Par[3]*cos(theta),2)));
 
-	for(i = l; i < l+6; i++)
+	for(i = l; i < l+10; i++)
 		if(Stops[i] != Stops[i])
 			Stops[i] = -1;
 
-	mergeSort(Stops, 0, l+5);
+	mergeSort(Stops, 0, l+9);
 
 	i = 0;
 	j = 0;
 	while(Stops[j] <= 0)
 		j++;
-	for(; j < l+6; j++)
+	for(; j < l+8; j++)
 	{
 		if(((i > 0 && Stops[i-1] != Stops[j]) || i == 0) && Stops[j] == Stops[j])
 		{
@@ -644,7 +648,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	Characterize_Folding(Par, Temp, k, theta, zero, gamma, Poles);	//Get the poles that I have to be concerned about
 	//for(i = 0; i < Poles; i++)
 		//Poles_Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << zero[i] << " " << gamma[i] << endl;
-	long double Stops[Poles*17+4];	//Intervals that are required by integrating near poles
+	long double Stops[Poles*17+6];	//Intervals that are required by integrating near poles
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
@@ -663,10 +667,12 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	}
 	Stops[l] = Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.;
 	Stops[l+1] = sqrt(Par[4]+pow(Par[3],2))/2.-Energy(0,Par[3]/2.,-k,theta);
-	Stops[l+2] = sqrt(Par[4]+pow(Par[3],2))/2.;
-	Stops[l+3] = -sqrt(Par[4]+pow(Par[3],2))/2.;
+	Stops[l+2] = -Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.;
+	Stops[l+3] = sqrt(Par[4]+pow(Par[3],2))/2.+Energy(0,Par[3]/2.,-k,theta);
+	Stops[l+4] = sqrt(Par[4]+pow(Par[3],2))/2.;
+	Stops[l+5] = -sqrt(Par[4]+pow(Par[3],2))/2.;
 
-	mergeSort(Stops, 0, l+3);
+	mergeSort(Stops, 0, l+5);
 
 	if(Temp != 0)
 	{
@@ -683,7 +689,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	j = 0;
 	while(Stops[j] < a || Stops[j] == Stops[j]+1.)
 		j++;
-	for(; j < l+4; j++)
+	for(; j < l+6; j++)
 	{
 		if(((i > 0 && Stops[i-1] != Stops[j]) || i == 0) && Stops[j] <= Max)
 		{
@@ -701,9 +707,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	i = 1;
 	do
 	{
-		if(a > sqrt(Par[4]+pow(Par[3],2))/2.-Energy(0,Par[3]/2.,-k,theta) && a < Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.)	//This is the epitome of nowhere, especially in vacuum
-			b = Energy(0,Par[3]/2.,k,theta);
-		else if((i < Intervals && b+100 < Stops[i]) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
+		if((i < Intervals && b+100 < Stops[i]) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
 		else if((i < Intervals && b+50 < Stops[i]) || Stops[Intervals-1] < a-50)
 			b += 50;
