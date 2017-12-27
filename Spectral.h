@@ -1040,7 +1040,10 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 
 long double Energy(long double M, long double P, long double k, long double theta)	//Single quark energy, can return momentum if M=0
 {
-	return(sqrt(pow(M,2)+pow(P,2)+pow(k,2)+2.*P*k*cos(theta)));
+	if(pow(M,2)+pow(P,2)+pow(k,2)+2.*P*k*cos(theta) < 0)
+		return(0.);
+	else
+		return(sqrt(pow(M,2)+pow(P,2)+pow(k,2)+2.*P*k*cos(theta)));
 }
 
 long double Fermi(long double omega, int T)	//Fermi factor
