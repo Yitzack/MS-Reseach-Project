@@ -51,12 +51,12 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[5]);
 
-	/*for(int i = 0; i < 10; i++)
-		List[i] = atof(argv[i+5]);*/
+	for(int i = 0; i < 7; i++)
+		List[i] = atof(argv[i+5]);
 
-	Init(Table, N, M);
+	/*Init(Table, N, M);
 	if(!ReadIn(Table, N, M, argv[4]))
-		return(0);
+		return(0);*/
 	//Validate(Table, N, M);
 
 //Debugging code, used for checking the contents of the Table to ensure that it was filled correctly
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	}//*/
 
 //The actual program
-	TPlot << "#" << flush;
+	/*TPlot << "#" << flush;
 	for(int i = 0; i < argc; i++)
 		TPlot << argv[i] << " " << flush;
 	TPlot << endl;
@@ -108,10 +108,10 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 		for(long double P = 0; P <= 100.1; P += .8)
 		{
 			for(long double roots = 0; roots <= 23.5; roots += .01)
-				TPlot << P << " " << roots << " " << Spectral(Table, roots, P, .3, 2) << " " << Bicubic(Table,pow(roots,2),P,z,2) << " " << Bicubic(Table,pow(roots,2),P,z,5) << " " << Bicubic(Table,pow(roots,2),P,z,8) << " " << Bicubic(Table,pow(roots,2),P,z,11) << " " << Bicubic(Table,pow(roots,2),P,z,14) << endl;
+				TPlot << roots << " " << P << " " << Spectral_Analytic(roots*roots, P) << endl;
 			TPlot << endl;
 		}
-	}
+	}*/
 
 	#pragma omp parallel for private(tau, z, holder)
 	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i+=1)
@@ -141,7 +141,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	long double distance[] = {5e-2, 2e-2, 1.5e-2, 1e-2, 2.5e-3, 1e-4, 1e-5, 1e-6};	//Stride of the integral
 	long double Answer = 0;
 	long double F_a, F_b, F_ave;
-	long double a = List[9];
+	long double a = 0;
 	long double b = 0;
 	int i, j;
 
@@ -342,7 +342,7 @@ long double SpatialNeg(long double*** Table[], long double j, long double z, int
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/2.;//*/
 	}while(b < 150);
 
-	//Carefulness with high momentum cutoff is hopefully not needed as Spectral(P,s) should become smaller than machin precision out there
+	//Carefulness with high momentum cutoff is hopefully not needed as Spectral(P,s) should become smaller than machine precision out there
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
 
@@ -470,58 +470,56 @@ long double Euclidean(long double*** Table[], long double roots, long double tau
 	return(cosh(roots*(tau-1./(2.*T)))/sinh(roots/(2.*T))*Spectral(Table, roots, 0, 0, 2)/(2.*M_PI));	//return the integral for vacuum from 0 to infinity
 }
 
-long double ImG(long double Par[4], long double s)
-{
-	long double M = Par[2];
-	long double Gamma = Par[3];
-	return(-(2.*pow(M,2)+s)*.5*(sqrt(complex<long double>(s-pow(2.*M,2),4.*Gamma)/complex<long double>(s,4.*Gamma))*atanh(sqrt(complex<long double>(s,4.*Gamma)/complex<long double>(s-pow(2.*M,2),4.*Gamma)))).imag());
-}
-
-
-
 complex<long double> atanh(complex<long double> x)
 {
 	return(complex<long double>(.5,0)*log((complex<long double>(1.,0)+x)/(complex<long double>(1.,0)-x)));
 }
 
-long double Tail_Factor(long double roots)
+long double Spectral_Analytic(long double s, long double p)
 {
-	//return(.25*(2.+pow((long double)10.,List[7])*pow(List[11],List[6])+pow((long double)10.,List[7])*pow(roots,List[6])-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9])+(pow((long double)10.,List[7])*(pow(List[11],List[6])-pow(roots,List[6]))-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9]))*tanh((roots-List[12])/List[13])-(-2.+pow((long double)10.,List[7])*pow(List[11],List[6])+pow((long double)10.,List[7])*pow(roots,List[6])-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9])+(pow((long double)10.,List[7])*(pow(List[11],List[6])-pow(roots,List[6]))-pow((long double)10.,List[8])*pow(abs(List[10]-List[11]),List[9])+pow((long double)10.,List[8])*pow(abs(List[10]-roots),List[9]))*tanh((roots-List[12])/List[13]))*tanh((roots-List[14])/List[15])));
-	return(.5*(1.+pow(roots/List[6],List[7])+(1.-pow(roots/List[6],List[7]))*tanh((roots-List[6])/List[8])));
-}
+	long double a = 0.1+(1.09682*exp(-0.0854832*pow(p,2))+0.553167*exp(-0.00242106*pow(p,2)))*List[0];
+	long double c = -2.6+(-2.09722*exp(-0.0873686*p)-2.08312*exp(-0.0873686*p))*List[1];
+	long double s1 = 3.7249;
+	long double s2 = pow(2.85+(0.163437*exp(-0.00115935*pow(p,2))+0.425939*exp(-0.00115935*pow(p,2)))*List[2],2);
+	long double b = (c-1.)/(s1-s2);
+	long double knee1 = 0.0295;
+	long double knee2 = 0.01466;
 
-long double Spectral_Analytic(long double roots, long double P)
-{
-	if(roots < 1e-6)
-		return(0);
+	long double MJPsi = 3.04031+(0.316713*exp(-0.00197248*pow(p,2))+0.0740995*exp(-0.000182019*pow(p,2)))*List[3];
+	long double f1 = a*pow(MJPsi,2)-a*s1+c;
+	long double f2 = b*pow(MJPsi,2)-b*s1+c;
+	long double f3 = 1.;
+	long double f4 = (f1+f2)/2.-(f1-f2)/2.*tanh((pow(MJPsi,2)-s1)/knee1);
+	long double f5_A1 = exp((f4+f3)/2.-(f4-f3)/2.*tanh((pow(MJPsi,2)-s2)/knee2));
 
-	long double s = pow(roots, 2);
-	long double ImPar[4];
-	long double A1;
-	long double A2;
-	long double M_J_Psi;
-	long double Gamma;
+	f1 = a*s-a*s1+c;
+	f2 = b*s-b*s1+c;
+	f4 = (f1+f2)/2.-(f1-f2)/2.*tanh((s-s1)/knee1);
+	long double f5 = exp((f4+f3)/2.-(f4-f3)/2.*tanh((s-s2)/knee2));
 
-	A1 = List[0];
-	M_J_Psi = List[1];
-	Gamma = List[2]*Tail_Factor(roots);
-	A2 = List[3];
-	ImPar[2] = List[4];
-	ImPar[3] = roots*List[5]*Tail_Factor(roots);
+	long double Mq = 1.8;
+	//long double SigmaRe = 23.744345908864457-1.4154246741829764e6/(2890.3345511938423+pow(244.93882585792915+p,2));
+	long double A1 = (9.17+(-1459.29/(369.206+pow(-33.6271+p,2))-218.311/(56.0751+pow(-3.01972+p,2)))*List[4])*f5_A1*MJPsi;
+	long double G1 = (0.0026+(0.0140119*exp(-38.3527*pow(p,2))+0.0563881*exp(-0.00556731*pow(p,2)))*List[6])*f5;
+	//long double A2 = 0.449881-131.725/(2450.75+pow(18.1846+p,2))+303.749/(2.67973e-10+pow(81.4093+p,2));
+	//long double G2 = (0.00325+0.0145782*exp(-0.119134*pow(p,2))+0.00567183*exp(-0.00744749*pow(p,2)))*f5;
 
-	return(A1*roots*Gamma/(M_PI*(pow(s-pow(M_J_Psi,2),2)+s*pow(Gamma,2)))+A2*ImG(ImPar,s));
+	long double sigmaBound = (A1*sqrt(pow(MJPsi,2)/(pow(MJPsi,2)+pow(p,2))*(s+pow(p,2)))*G1)/(M_PI*(pow(s-pow(MJPsi,2),2)+pow(MJPsi,2)/(pow(MJPsi,2)+pow(p,2))*(s+pow(p,2))*pow(G1,2)));
+	//long double sigmaNonFit = A2*(SigmaRe+s)/2.*imag(sqrt(complex<long double>(s-pow(2.*Mq,2),4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2)/complex<long double>(s,4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2))*atanh(sqrt(complex<long double>(s,4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2)/complex<long double>(s-pow(2.*Mq,2),4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2))));
+
+	return(/*sigmaBound*/-sigmaNonFit);
 }
 
 long double Spectral(long double*** Table[], long double roots, long double p, long double z, int Specify)
 {
-	if(Specify == 2)
+	return(Spectral_Analytic(pow(roots,2),p));
+	/*if(Specify == 2)
 		roots *= roots;
-	return(-18./M_PI*(Bicubic(Table,roots,p,z,Specify)-26.796184939764153*imag(pow(complex<long double>(Bicubic(Table,roots,p,z,Specify+9),Bicubic(Table,roots,p,z,Specify+3)),2)/complex<long double>(1.-Bicubic(Table,roots,p,z,Specify+12),-Bicubic(Table,roots,p,z,Specify+6)))));
+	return(-18./M_PI*(Bicubic(Table,roots,p,z,Specify)-26.796184939764153*imag(pow(complex<long double>(Bicubic(Table,roots,p,z,Specify+9),Bicubic(Table,roots,p,z,Specify+3)),2)/complex<long double>(1.-Bicubic(Table,roots,p,z,Specify+12),-Bicubic(Table,roots,p,z,Specify+6)))));*/
 }
 
 long double Bicubic(long double*** Table[], long double s, long double p, long double z, int Specify)
 {
-	//return(Spectral_Analytic(E,p));
 	long double Interpolation;
 	long double t, u;
 	int i, j;
