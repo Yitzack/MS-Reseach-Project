@@ -51,10 +51,10 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[5]);
 
-	for(int i = 0; i < 7; i++)
-		List[i] = atof(argv[i+5]);
+	/*for(int i = 0; i < 5; i++)
+		List[i] = atof(argv[i+6]);
 
-	/*Init(Table, N, M);
+	Init(Table, N, M);
 	if(!ReadIn(Table, N, M, argv[4]))
 		return(0);*/
 	//Validate(Table, N, M);
@@ -64,36 +64,36 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	for(int i = 1; i < 376; i++)
 	{
 		for(int j = 0; j < 462; j++)
-			cout << (i-1)*.8 << " " << EList[j] << " " << Table[i][j][0] << " " << Table[i][j][1] << " " << Table[i][j][2] << " " << Table[i][j][3] << " " << Table[i][j][4] << endl;
-		cout << endl;
+			//cout << (i-1)*.8 << " " << EList[j] << " " << Table[i][j][0] << " " << Table[i][j][1] << " " << Table[i][j][2] << " " << Table[i][j][3] << " " << Table[i][j][4] << endl;
+		//cout << endl;
 	}//*/
 
 //Debugging code, used to ensure that the interpolations or othe approximations are working correctly
-	/*cout << setprecision(18);
+	/*//cout << setprecision(18);
 	for(long double j = 0; j <= 0; j+=.4)
 	{
 		for(long double i = 0; i <= 23.5; i+=.0002)
-			cout << j << " " << i << " " << Spectral(Table, i, j, -1, 1) << endl;
-		cout << endl;
+			//cout << j << " " << i << " " << Spectral(Table, i, j, -1, 1) << endl;
+		//cout << endl;
 	}//*/
 	/*for(long double j = 0; j <= 25; j+=.4)
 	{
 		for(long double i = 0; i < 400; i+=.25)
 		{
 			if(j < 13)
-				cout << j << " " << i << " " << Spectral(Table, i, j, -1, 0) << endl;
+				//cout << j << " " << i << " " << Spectral(Table, i, j, -1, 0) << endl;
 			if(j >= 13)
-				cout << j << " " << i << " " << Spectral(Table, i, j, -1, 1) << endl;
+				//cout << j << " " << i << " " << Spectral(Table, i, j, -1, 1) << endl;
 		}
-		cout << endl;
+		//cout << endl;
 	}//*/
 
 //Debugging code, examines the difference between interpolations and a finite-width approximation
 	/*for(long double i = 3.02; i <= 3.06; i+=.00005)
 	{
 		for(long double j = 70; j <= 75; j+=.02)
-			cout << i << " " << j << " " << Spectral(Table,i,j) << " " << Analytic(i,Epsilon) << endl;
-		cout << endl;
+			//cout << i << " " << j << " " << Spectral(Table,i,j) << " " << Analytic(i,Epsilon) << endl;
+		//cout << endl;
 	}//*/
 
 //The actual program
@@ -118,14 +118,14 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	{
 		z = .3+i*.02;
 		tau = i*.008;
-		holder[1] = holder[0] = 0;	//Correlator(SpatialNeg, Table, z, Temp);
 		holder[0] = Correlator(SpatialDebug, Table, z, Temp);
-		holder[1] = Correlator(SpatialPos, Table, z, Temp);
-		holder[2] = Correlator(SpatialVac, Table, z, Temp);
-		holder[3] = Correlator(Euclidean, Table, tau, Temp);
+		holder[1] = Correlator(SpatialNeg, Table, z, Temp);
+		holder[2] = Correlator(SpatialPos, Table, z, Temp);
+		holder[3] = Correlator(SpatialVac, Table, z, Temp);
+		holder[4] = Correlator(Euclidean, Table, tau, Temp);
 		#pragma omp critical
 		{
-			TPlot << z << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << tau << " " << holder[3] << endl;
+			TPlot << z << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << tau << " " << holder[4] << endl;
 		}
 	}//*/
 
@@ -144,6 +144,8 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	long double a = 0;
 	long double b = 0;
 	int i, j;
+	long double holder;
+	//ofstream oTable("sTable", ios::app);
 
 	if(Kernal != SpatialNeg)
 	{
@@ -156,10 +158,18 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 				x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
 				x2 = (b+a+Disp[j]*(b-a))/2.;
 
-				F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
-				F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
+				holder = Kernal(Table, x1, z, Temp);
+				F_a += holder*w[j+1];	//Evaluate k integral at x1
+				//if(Kernal == SpatialDebug)
+					//oTable << "1 " << z << " " << x1 << " " << holder << endl;
+				holder = Kernal(Table, x2, z, Temp);
+				F_b += holder*w[j+1];	//Evaluate k integral at x3
+				//if(Kernal == SpatialDebug)
+					//oTable << "1 " << z << " " << x2 << " " << holder << endl;
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 			a = b;
 		}
@@ -171,10 +181,18 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 			x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
-			F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
+			holder = Kernal(Table, x1, z, Temp);
+			F_a += holder*w[j+1];	//Evaluate k integral at x1
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << x1 << " " << holder << endl;
+			holder = Kernal(Table, x2, z, Temp);
+			F_b += holder*w[j+1];	//Evaluate k integral at x3
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << x2 << " " << holder << endl;
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
+		//if(Kernal == SpatialDebug)
+			//oTable << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 
@@ -187,27 +205,69 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 				x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
 				x2 = (b+a+Disp[j]*(b-a))/2.;
 
-				F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
-				F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
+				holder = Kernal(Table, x1, z, Temp);
+				F_a += holder*w[j+1];	//Evaluate k integral at x1
+				//if(Kernal == SpatialDebug)
+					//oTable << "1 " << z << " " << x1 << " " << holder << endl;
+				holder = Kernal(Table, x2, z, Temp);
+				F_b += holder*w[j+1];	//Evaluate k integral at x3
+				//if(Kernal == SpatialDebug)
+					//oTable << "1 " << z << " " << x2 << " " << holder << endl;
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 			a = b;
 		}
 
-		b = 3.6;
-		F_a = F_b = 0;	//Start integration at 0
-		for(j = 0; j < 24; j++)
+		for(b = 3.1; b <= 3.4; b += .05)
 		{
-			x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
-			x2 = (b+a+Disp[j]*(b-a))/2.;
+			F_a = F_b = 0;	//Start integration at 0
+			for(j = 0; j < 24; j++)
+			{
+				x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+				x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
-			F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
+				holder = Kernal(Table, x1, z, Temp);
+				F_a += holder*w[j+1];	//Evaluate k integral at x1
+				//if(Kernal == SpatialDebug)
+					//oTable << "1 " << z << " " << x1 << " " << holder << endl;
+				holder = Kernal(Table, x2, z, Temp);
+				F_b += holder*w[j+1];	//Evaluate k integral at x3
+				//if(Kernal == SpatialDebug)
+					//oTable << "1 " << z << " " << x2 << " " << holder << endl;
+			}
+			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
+			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
+			a = b;
 		}
-		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
-		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
-		a = b;
+
+		for(b = 3.4; b <= 3.45; b += .01)
+		{
+			F_a = F_b = 0;	//Start integration at 0
+			for(j = 0; j < 24; j++)
+			{
+				x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
+				x2 = (b+a+Disp[j]*(b-a))/2.;
+
+				holder = Kernal(Table, x1, z, Temp);
+				F_a += holder*w[j+1];	//Evaluate k integral at x1
+				//if(Kernal == SpatialDebug)
+					//oTable << "1 " << z << " " << x1 << " " << holder << endl;
+				holder = Kernal(Table, x2, z, Temp);
+				F_b += holder*w[j+1];	//Evaluate k integral at x3
+				//if(Kernal == SpatialDebug)
+					//oTable << "1 " << z << " " << x2 << " " << holder << endl;
+			}
+			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
+			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
+			a = b;
+		}
 
 		for(i = 7; i >= 0; i--)
 		{
@@ -218,10 +278,18 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 				x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
 				x2 = (b+a+Disp[j]*(b-a))/2.;
 
-				F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
-				F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
+				holder = Kernal(Table, x1, z, Temp);
+				F_a += holder*w[j+1];	//Evaluate k integral at x1
+				//if(Kernal == SpatialDebug)
+					//oTable << "1 " << z << " " << x1 << " " << holder << endl;
+				holder = Kernal(Table, x2, z, Temp);
+				F_b += holder*w[j+1];	//Evaluate k integral at x3
+				//if(Kernal == SpatialDebug)
+					//oTable << "1 " << z << " " << x2 << " " << holder << endl;
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 			a = b;
 		}
@@ -233,10 +301,18 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 			x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
-			F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
+			holder = Kernal(Table, x1, z, Temp);
+			F_a += holder*w[j+1];	//Evaluate k integral at x1
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << x1 << " " << holder << endl;
+			holder = Kernal(Table, x2, z, Temp);
+			F_b += holder*w[j+1];	//Evaluate k integral at x3
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << x2 << " " << holder << endl;
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
+		//if(Kernal == SpatialDebug)
+			//oTable << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 
@@ -247,10 +323,18 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 			x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
-			F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
+			holder = Kernal(Table, x1, z, Temp);
+			F_a += holder*w[j+1];	//Evaluate k integral at x1
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << x1 << " " << holder << endl;
+			holder = Kernal(Table, x2, z, Temp);
+			F_b += holder*w[j+1];	//Evaluate k integral at x3
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << x2 << " " << holder << endl;
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
+		//if(Kernal == SpatialDebug)
+			//oTable << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 
@@ -261,15 +345,23 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 			x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
-			F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
+			holder = Kernal(Table, x1, z, Temp);
+			F_a += holder*w[j+1];	//Evaluate k integral at x1
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << x1 << " " << holder << endl;
+			holder = Kernal(Table, x2, z, Temp);
+			F_b += holder*w[j+1];	//Evaluate k integral at x3
+			//if(Kernal == SpatialDebug)
+				//oTable << "1 " << z << " " << x2 << " " << holder << endl;
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
+		//if(Kernal == SpatialDebug)
+			//oTable << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 	}
 	else
 	{
-		long double stride = 8.*M_PI/z;	//four cycles in j
+		long double stride = 1.;
 		do
 		{
 			b += stride;
@@ -279,70 +371,68 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 				x1 = (b+a-Disp[j]*(b-a))/2.;	//Actual evaluation points
 				x2 = (b+a+Disp[j]*(b-a))/2.;
 
-				F_a += Kernal(Table, x1, z, Temp)*w[j+1];	//Evaluate k integral at x1
-				F_b += Kernal(Table, x2, z, Temp)*w[j+1];	//Evaluate k integral at x3
+				holder = Kernal(Table, x1, z, Temp);
+				F_a += holder*w[j+1];	//Evaluate k integral at x1
+					//oTable << "2 " << z << " " << x1 << " " << holder << endl;
+				holder = Kernal(Table, x2, z, Temp);
+				F_b += holder*w[j+1];	//Evaluate k integral at x3
+					//oTable << "2 " << z << " " << x2 << " " << holder << endl;
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
+				//oTable << "2 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 			a = b;
-		}while(b < 1000.);
+		}while(b < 15.);
 	}
 
 	return(Answer);
 }
 
-long double SpatialNeg(long double*** Table[], long double j, long double z, int Temp)
+long double SpatialNeg(long double*** Table[], long double x, long double z, int Temp)
 {
 	long double Disp[] = {0.06342068498268678602883,  0.1265859972696720510680, 0.1892415924618135864853,  0.2511351786125772735072, 0.3120175321197487622079,  0.3716435012622848888637, 0.4297729933415765246586,  0.4861719414524920421770, 0.5406132469917260665582,  0.5928776941089007124559, 0.6427548324192376640569,  0.6900438244251321135048, 0.7345542542374026962137,  0.7761068943454466350181, 0.8145344273598554315395,  0.8496821198441657010349, 0.8814084455730089100370,  0.9095856558280732852130, 0.9341002947558101490590,  0.9548536586741372335552, 0.9717622009015553801400,  0.9847578959142130043593, 0.9937886619441677907601,  0.9988201506066353793618};	//Dispacement from center
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of data point
 	long double x1;	//These are the two other points required for 95th order Gaussian quadrature for this interval
 	long double x2;
 	long double Answer = 0;
-	long double stride;	//Stride of the integral
+	long double stride = 2.*M_PI/z;	//Stride of the integral
 	long double F_a, F_b, F_ave;
-	long double a = 0;
-	long double b = 0;	//The location of where the current stride should have ended
+	long double a = x;
+	long double b = x;	//The location of where the current stride should have ended
 	int i;
 
-	F_a = F_b = 0;	//Start integration at 0
 	do
 	{
-		if(b < 150)
-			stride = .8*M_PI/z;	//four cycles in i up to i=150
-		else
-			stride = 8.*M_PI/z;	//four cycles in i after i=150
-
 		b += stride;
 
-		if(a < 150 && b > 150)
-			b = 150;
-		else if(b > 2001.*M_PI/z-j+187.2)
-			b = 2001.*M_PI/z-j+187.2;
-
+		F_a = F_b = 0;	//Start integration at 0
 		for(i = 0; i < 24; i++)
 		{
 			x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x2 = (b+a+Disp[i]*(b-a))/2.;
 
-			if(i <= 208)
-			{
-				F_a += Spectral(Table, j, x1, z, 0)/x1*cos((x1/10.+j/10.)*z)*w[i+1]/5.;	//Evaluate k integral at x1
-				F_b += Spectral(Table, j, x2, z, 0)/x2*cos((x2/10.+j/10.)*z)*w[i+1]/5.;	//Evaluate k integral at x3
-			}
-			else
-			{
-				F_a += Spectral(Table, j, x1, z, 1)*cos((x1-187.2+j/10.)*z)/(936.-5.*x1)*w[i+1];	//Evaluate k integral at x1
-				F_b += Spectral(Table, j, x2, z, 1)*cos((x2-187.2+j/10.)*z)/(936.-5.*x1)*w[i+1];	//Evaluate k integral at x3
-			}
+			F_a += 2.*Spectral(Table, pow(x,2)-2.*x*x1, x1, z, 1)*cos(x1*z)/(x1-x)*w[i+1];	//Evaluate k integral at x1
+			F_b += 2.*Spectral(Table, pow(x,2)-2.*x*x2, x2, z, 1)*cos(x2*z)/(x2-x)*w[i+1];	//Evaluate k integral at x3
 		}
-		if(i <= 208)
-			F_ave = Spectral(Table, j, (a+b)/2., z, 0)*2./(5.*(a+b))*cos((a+b+2.*j)*z/20.);
-		else
-			F_ave = Spectral(Table, j, (a+b)/2., z, 1)*2./(1872.-5.*(a+b))*cos((j+5.*(a+b)-1872.)*z/10.);
+		F_ave = 2.*Spectral(Table, pow(x,2)-2.*x*(a+b)/2., (a+b)/2., z, 1)*cos((a+b)*z/2.)/(a+b-x);
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/2.;//*/
-	}while(b < 150);
+		a = b;
+	}while(b < 2001.*M_PI/z);
 
-	//Carefulness with high momentum cutoff is hopefully not needed as Spectral(P,s) should become smaller than machine precision out there
+	b = 2001.*M_PI/z;
+
+	F_a = F_b = 0;	//Start integration at 0
+	for(i = 0; i < 24; i++)
+	{
+		x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
+		x2 = (b+a+Disp[i]*(b-a))/2.;
+
+		F_a += 2.*Spectral(Table, pow(x,2)-2.*x*x1, x1, z, 1)*cos(x1*z)/(x1-x)*w[i+1];	//Evaluate k integral at x1
+		F_b += 2.*Spectral(Table, pow(x,2)-2.*x*x2, x2, z, 1)*cos(x2*z)/(x2-x)*w[i+1];	//Evaluate k integral at x3
+	}
+	F_ave = 2.*Spectral(Table, pow(x,2)-2.*x*(a+b)/2., (a+b)/2., z, 1)*cos((a+b)*z/2.)/(a+b-x);
+	Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/2.;//*/
+
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
 
@@ -477,15 +567,15 @@ complex<long double> atanh(complex<long double> x)
 
 long double Spectral_Analytic(long double s, long double p)
 {
-	long double a = 0.1+(1.09682*exp(-0.0854832*pow(p,2))+0.553167*exp(-0.00242106*pow(p,2)))*List[0];
-	long double c = -2.6+(-2.09722*exp(-0.0873686*p)-2.08312*exp(-0.0873686*p))*List[1];
+	long double a = 0.1+(1.09682*exp(-0.0854832*pow(p,2))+0.553167*exp(-0.00242106*pow(p,2)))*Par[0];
+	long double c = -2.6+(-2.09722*exp(-0.0873686*p)-2.08312*exp(-0.0873686*p))*Par[1];
 	long double s1 = 3.7249;
-	long double s2 = pow(2.85+(0.163437*exp(-0.00115935*pow(p,2))+0.425939*exp(-0.00115935*pow(p,2)))*List[2],2);
+	long double s2 = pow(2.85+(0.163437*exp(-0.00115935*pow(p,2))+0.425939*exp(-0.00115935*pow(p,2)))*Par[2],2);
 	long double b = (c-1.)/(s1-s2);
 	long double knee1 = 0.0295;
 	long double knee2 = 0.01466;
 
-	long double MJPsi = 3.04031+(0.316713*exp(-0.00197248*pow(p,2))+0.0740995*exp(-0.000182019*pow(p,2)))*List[3];
+	long double MJPsi = 3.04031+(0.316713*exp(-0.00197248*pow(p,2))+0.0740995*exp(-0.000182019*pow(p,2)))*Par[3];
 	long double f1 = a*pow(MJPsi,2)-a*s1+c;
 	long double f2 = b*pow(MJPsi,2)-b*s1+c;
 	long double f3 = 1.;
@@ -498,21 +588,49 @@ long double Spectral_Analytic(long double s, long double p)
 	long double f5 = exp((f4+f3)/2.-(f4-f3)/2.*tanh((s-s2)/knee2));
 
 	long double Mq = 1.8;
-	//long double SigmaRe = 23.744345908864457-1.4154246741829764e6/(2890.3345511938423+pow(244.93882585792915+p,2));
-	long double A1 = (9.17+(-1459.29/(369.206+pow(-33.6271+p,2))-218.311/(56.0751+pow(-3.01972+p,2)))*List[4])*f5_A1*MJPsi;
-	long double G1 = (0.0026+(0.0140119*exp(-38.3527*pow(p,2))+0.0563881*exp(-0.00556731*pow(p,2)))*List[6])*f5;
-	//long double A2 = 0.449881-131.725/(2450.75+pow(18.1846+p,2))+303.749/(2.67973e-10+pow(81.4093+p,2));
-	//long double G2 = (0.00325+0.0145782*exp(-0.119134*pow(p,2))+0.00567183*exp(-0.00744749*pow(p,2)))*f5;
+	long double SigmaRe = 23.744345908864457-1.4154246741829764e6/(2890.3345511938423+pow(244.93882585792915+p,2)*Par[4]);
+	long double A1 = (9.17+(-1459.29/(369.206+pow(-33.6271+p,2))-218.311/(56.0751+pow(-3.01972+p,2)))*Par[5])*f5_A1*MJPsi;
+	long double G1 = (0.0026+(0.0140119*exp(-38.3527*pow(p,2))+0.0563881*exp(-0.00556731*pow(p,2)))*Par[6])*f5;
+	long double A2 = 0.449881+(303.749/(2.67973e-10+pow(81.4093+p,2))-131.725/(2450.75+pow(18.1846+p,2)))*Par[7];
+	long double G2 = (0.00325+(0.0145782*exp(-0.119134*pow(p,2))+0.00567183*exp(-0.00744749*pow(p,2)))*Par[8])*f5;
 
 	long double sigmaBound = (A1*sqrt(pow(MJPsi,2)/(pow(MJPsi,2)+pow(p,2))*(s+pow(p,2)))*G1)/(M_PI*(pow(s-pow(MJPsi,2),2)+pow(MJPsi,2)/(pow(MJPsi,2)+pow(p,2))*(s+pow(p,2))*pow(G1,2)));
-	//long double sigmaNonFit = A2*(SigmaRe+s)/2.*imag(sqrt(complex<long double>(s-pow(2.*Mq,2),4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2)/complex<long double>(s,4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2))*atanh(sqrt(complex<long double>(s,4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2)/complex<long double>(s-pow(2.*Mq,2),4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2))));
+	long double sigmaNonFit = A2*(SigmaRe+s)/2.*imag(sqrt(complex<long double>(s-pow(2.*Mq,2),4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2)/complex<long double>(s,4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2))*atanh(sqrt(complex<long double>(s,4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2)/complex<long double>(s-pow(2.*Mq,2),4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2))));
 
-	return(/*sigmaBound*/-sigmaNonFit);
+	/*long double a = 2.16;
+	long double c = -4.84;
+	long double s1 = 3.7249;
+	long double s2 = 8.1225;
+	long double b = (c-1.)/(s1-s2);
+	long double knee1 = 0.0295;
+	long double knee2 = 0.01466;
+
+	long double f1 = a*s-a*s1+c;
+	long double f2 = b*s-b*s1+c;
+	long double f3 = 1.;
+	long double f4 = (f1+f2)/2.-(f1-f2)/2.*tanh((s-s1)/knee1);
+	long double f5 = exp((f4+f3)/2.-(f4-f3)/2.*tanh((s-s2)/knee2));
+
+	long double Mq = 1.8;
+	long double MJPsi = 3.04031;
+	long double SigmaRe = 0;
+	long double A1 = 67;
+	long double G1 = .0026*f5;
+	long double A2 = .469224;
+	long double G2 = .00325*f5;
+
+	long double sigmaBound = (A1*sqrt(s)*G1)/(M_PI*(pow(s-pow(MJPsi,2),2)+s*pow(G1,2)));
+	long double sigmaNonFit = A2*(SigmaRe+s)/2.*imag(sqrt(complex<long double>(s-pow(2.*Mq,2),4*sqrt(s)*G2)/complex<long double>(s,4*sqrt(s)*G2))*atanh(sqrt(complex<long double>(s,4*sqrt(s)*G2)/complex<long double>(s-pow(2.*Mq,2),4*sqrt(s)*G2))));*/
+
+	return(sigmaBound-sigmaNonFit);
 }
 
 long double Spectral(long double*** Table[], long double roots, long double p, long double z, int Specify)
 {
-	return(Spectral_Analytic(pow(roots,2),p));
+	if(Specify == 2)
+		return(Spectral_Analytic(pow(roots,2),p));
+	else
+		return(Spectral_Analytic(roots,p));
 	/*if(Specify == 2)
 		roots *= roots;
 	return(-18./M_PI*(Bicubic(Table,roots,p,z,Specify)-26.796184939764153*imag(pow(complex<long double>(Bicubic(Table,roots,p,z,Specify+9),Bicubic(Table,roots,p,z,Specify+3)),2)/complex<long double>(1.-Bicubic(Table,roots,p,z,Specify+12),-Bicubic(Table,roots,p,z,Specify+6)))));*/
@@ -724,7 +842,7 @@ bool ReadIn(long double*** Table[], int N[], int M[], char* FileReadIn)
 	ifstream File4(strcat(FileName4,"ReGV1"));
 	ifstream File5(strcat(FileName5,"ReGV2"));
 	int i,j,k,m;	//Counters
-	long double Holder;
+	long double holder;
 
 	if(File1.is_open() == false || File2.is_open() == false || File3.is_open() == false || File4.is_open() == false || File5.is_open() == false)
 		return(false);
