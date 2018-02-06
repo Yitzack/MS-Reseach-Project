@@ -51,10 +51,10 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[5]);
 
-	/*for(int i = 0; i < 5; i++)
+	for(int i = 0; i < 9; i++)
 		List[i] = atof(argv[i+6]);
 
-	Init(Table, N, M);
+	/*Init(Table, N, M);
 	if(!ReadIn(Table, N, M, argv[4]))
 		return(0);*/
 	//Validate(Table, N, M);
