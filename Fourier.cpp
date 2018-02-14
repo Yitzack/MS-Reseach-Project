@@ -40,7 +40,7 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	strcat(File, argv[5]);
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
-	ofstream TPlot(File);
+	ofstream TPlot(File, ios::app);
 	TPlot << setprecision(18);
 	long double*** Table[15];	//The table of values computed by Spectral and Dispersion
 	long double z, tau;	//The position value of the spactial correlator and tau of the euclidean-time correlator
@@ -64,36 +64,36 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	for(int i = 1; i < 376; i++)
 	{
 		for(int j = 0; j < 462; j++)
-			//cout << (i-1)*.8 << " " << EList[j] << " " << Table[i][j][0] << " " << Table[i][j][1] << " " << Table[i][j][2] << " " << Table[i][j][3] << " " << Table[i][j][4] << endl;
-		//cout << endl;
+			////cout << (i-1)*.8 << " " << EList[j] << " " << Table[i][j][0] << " " << Table[i][j][1] << " " << Table[i][j][2] << " " << Table[i][j][3] << " " << Table[i][j][4] << endl;
+		////cout << endl;
 	}//*/
 
 //Debugging code, used to ensure that the interpolations or othe approximations are working correctly
-	/*//cout << setprecision(18);
+	/*////cout << setprecision(18);
 	for(long double j = 0; j <= 0; j+=.4)
 	{
 		for(long double i = 0; i <= 23.5; i+=.0002)
-			//cout << j << " " << i << " " << Spectral(Table, i, j, -1, 1) << endl;
-		//cout << endl;
+			////cout << j << " " << i << " " << Spectral(Table, i, j, -1, 1) << endl;
+		////cout << endl;
 	}//*/
 	/*for(long double j = 0; j <= 25; j+=.4)
 	{
 		for(long double i = 0; i < 400; i+=.25)
 		{
 			if(j < 13)
-				//cout << j << " " << i << " " << Spectral(Table, i, j, -1, 0) << endl;
+				////cout << j << " " << i << " " << Spectral(Table, i, j, -1, 0) << endl;
 			if(j >= 13)
-				//cout << j << " " << i << " " << Spectral(Table, i, j, -1, 1) << endl;
+				////cout << j << " " << i << " " << Spectral(Table, i, j, -1, 1) << endl;
 		}
-		//cout << endl;
+		////cout << endl;
 	}//*/
 
 //Debugging code, examines the difference between interpolations and a finite-width approximation
 	/*for(long double i = 3.02; i <= 3.06; i+=.00005)
 	{
 		for(long double j = 70; j <= 75; j+=.02)
-			//cout << i << " " << j << " " << Spectral(Table,i,j) << " " << Analytic(i,Epsilon) << endl;
-		//cout << endl;
+			////cout << i << " " << j << " " << Spectral(Table,i,j) << " " << Analytic(i,Epsilon) << endl;
+		////cout << endl;
 	}//*/
 
 //The actual program
@@ -146,6 +146,7 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 	int i, j;
 	long double holder;
 	//ofstream oTable("sTable", ios::app);
+	//cout << setprecision(18);
 
 	if(Kernal != SpatialNeg)
 	{
@@ -160,16 +161,16 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 
 				holder = Kernal(Table, x1, z, Temp);
 				F_a += holder*w[j+1];	//Evaluate k integral at x1
-				if(Kernal == SpatialDebug)
-					cout << "1 " << z << " " << x1 << " " << holder << endl;
+				//if(Kernal == Euclidean)
+					//cout << "1 " << z << " " << x1 << " " << holder << endl;
 				holder = Kernal(Table, x2, z, Temp);
 				F_b += holder*w[j+1];	//Evaluate k integral at x3
-				if(Kernal == SpatialDebug)
-					cout << "1 " << z << " " << x2 << " " << holder << endl;
+				//if(Kernal == Euclidean)
+					//cout << "1 " << z << " " << x2 << " " << holder << endl;
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 			a = b;
 		}
@@ -183,16 +184,16 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 
 			holder = Kernal(Table, x1, z, Temp);
 			F_a += holder*w[j+1];	//Evaluate k integral at x1
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << x1 << " " << holder << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << x1 << " " << holder << endl;
 			holder = Kernal(Table, x2, z, Temp);
 			F_b += holder*w[j+1];	//Evaluate k integral at x3
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << x2 << " " << holder << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << x2 << " " << holder << endl;
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
-		if(Kernal == SpatialDebug)
-			cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
+		//if(Kernal == Euclidean)
+			//cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 
@@ -207,16 +208,16 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 
 				holder = Kernal(Table, x1, z, Temp);
 				F_a += holder*w[j+1];	//Evaluate k integral at x1
-				if(Kernal == SpatialDebug)
-					cout << "1 " << z << " " << x1 << " " << holder << endl;
+				//if(Kernal == Euclidean)
+					//cout << "1 " << z << " " << x1 << " " << holder << endl;
 				holder = Kernal(Table, x2, z, Temp);
 				F_b += holder*w[j+1];	//Evaluate k integral at x3
-				if(Kernal == SpatialDebug)
-					cout << "1 " << z << " " << x2 << " " << holder << endl;
+				//if(Kernal == Euclidean)
+					//cout << "1 " << z << " " << x2 << " " << holder << endl;
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 			a = b;
 		}
@@ -231,16 +232,16 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 
 				holder = Kernal(Table, x1, z, Temp);
 				F_a += holder*w[j+1];	//Evaluate k integral at x1
-				if(Kernal == SpatialDebug)
-					cout << "1 " << z << " " << x1 << " " << holder << endl;
+				//if(Kernal == Euclidean)
+					//cout << "1 " << z << " " << x1 << " " << holder << endl;
 				holder = Kernal(Table, x2, z, Temp);
 				F_b += holder*w[j+1];	//Evaluate k integral at x3
-				if(Kernal == SpatialDebug)
-					cout << "1 " << z << " " << x2 << " " << holder << endl;
+				//if(Kernal == Euclidean)
+					//cout << "1 " << z << " " << x2 << " " << holder << endl;
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 			a = b;
 		}
@@ -255,16 +256,16 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 
 				holder = Kernal(Table, x1, z, Temp);
 				F_a += holder*w[j+1];	//Evaluate k integral at x1
-				if(Kernal == SpatialDebug)
-					cout << "1 " << z << " " << x1 << " " << holder << endl;
+				//if(Kernal == Euclidean)
+					//cout << "1 " << z << " " << x1 << " " << holder << endl;
 				holder = Kernal(Table, x2, z, Temp);
 				F_b += holder*w[j+1];	//Evaluate k integral at x3
-				if(Kernal == SpatialDebug)
-					cout << "1 " << z << " " << x2 << " " << holder << endl;
+				//if(Kernal == Euclidean)
+					//cout << "1 " << z << " " << x2 << " " << holder << endl;
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 			a = b;
 		}
@@ -280,16 +281,16 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 
 				holder = Kernal(Table, x1, z, Temp);
 				F_a += holder*w[j+1];	//Evaluate k integral at x1
-				if(Kernal == SpatialDebug)
-					cout << "1 " << z << " " << x1 << " " << holder << endl;
+				//if(Kernal == Euclidean)
+					//cout << "1 " << z << " " << x1 << " " << holder << endl;
 				holder = Kernal(Table, x2, z, Temp);
 				F_b += holder*w[j+1];	//Evaluate k integral at x3
-				if(Kernal == SpatialDebug)
-					cout << "1 " << z << " " << x2 << " " << holder << endl;
+				//if(Kernal == Euclidean)
+					//cout << "1 " << z << " " << x2 << " " << holder << endl;
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 			a = b;
 		}
@@ -303,16 +304,16 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 
 			holder = Kernal(Table, x1, z, Temp);
 			F_a += holder*w[j+1];	//Evaluate k integral at x1
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << x1 << " " << holder << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << x1 << " " << holder << endl;
 			holder = Kernal(Table, x2, z, Temp);
 			F_b += holder*w[j+1];	//Evaluate k integral at x3
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << x2 << " " << holder << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << x2 << " " << holder << endl;
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
-		if(Kernal == SpatialDebug)
-			cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
+		//if(Kernal == Euclidean)
+			//cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 
@@ -325,16 +326,16 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 
 			holder = Kernal(Table, x1, z, Temp);
 			F_a += holder*w[j+1];	//Evaluate k integral at x1
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << x1 << " " << holder << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << x1 << " " << holder << endl;
 			holder = Kernal(Table, x2, z, Temp);
 			F_b += holder*w[j+1];	//Evaluate k integral at x3
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << x2 << " " << holder << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << x2 << " " << holder << endl;
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
-		if(Kernal == SpatialDebug)
-			cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
+		//if(Kernal == Euclidean)
+			//cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 		a = b;
 
@@ -347,16 +348,16 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 
 			holder = Kernal(Table, x1, z, Temp);
 			F_a += holder*w[j+1];	//Evaluate k integral at x1
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << x1 << " " << holder << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << x1 << " " << holder << endl;
 			holder = Kernal(Table, x2, z, Temp);
 			F_b += holder*w[j+1];	//Evaluate k integral at x3
-			if(Kernal == SpatialDebug)
-				cout << "1 " << z << " " << x2 << " " << holder << endl;
+			//if(Kernal == Euclidean)
+				//cout << "1 " << z << " " << x2 << " " << holder << endl;
 		}
 		F_ave = Kernal(Table, a/2.+b/2., z, Temp);
-		if(Kernal == SpatialDebug)
-			cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
+		//if(Kernal == Euclidean)
+			//cout << "1 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 		Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 	}
 	else
@@ -373,13 +374,13 @@ long double Correlator(long double(*Kernal)(long double***[], long double, long 
 
 				holder = Kernal(Table, x1, z, Temp);
 				F_a += holder*w[j+1];	//Evaluate k integral at x1
-					cout << "2 " << z << " " << x1 << " " << holder << endl;
+					//cout << "2 " << z << " " << x1 << " " << holder << endl;
 				holder = Kernal(Table, x2, z, Temp);
 				F_b += holder*w[j+1];	//Evaluate k integral at x3
-					cout << "2 " << z << " " << x2 << " " << holder << endl;
+					//cout << "2 " << z << " " << x2 << " " << holder << endl;
 			}
 			F_ave = Kernal(Table, a/2.+b/2., z, Temp);
-				cout << "2 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
+				//cout << "2 " << z << " " << a/2.+b/2. << " " << F_ave << endl;
 			Answer += (F_a+w[0]*F_ave+F_b)*(b-a)/(2.);
 			a = b;
 		}while(b < 15.);
@@ -588,7 +589,7 @@ long double Spectral_Analytic(long double s, long double p)
 	long double f5 = exp((f4+f3)/2.-(f4-f3)/2.*tanh((s-s2)/knee2));
 
 	long double Mq = 1.8;
-	long double SigmaRe = 23.744345908864457-1.4154246741829764e6/(2890.3345511938423+pow(244.93882585792915+p,2)*List[4]);
+	long double SigmaRe = 23.744345908864457-1.4154246741829764e6/(2890.3345511938423+pow(244.93882585792915+p,2))*List[4];
 	long double A1 = (9.17+(-1459.29/(369.206+pow(-33.6271+p,2))-218.311/(56.0751+pow(-3.01972+p,2)))*List[5])*f5_A1*MJPsi;
 	long double G1 = (0.0026+(0.0140119*exp(-38.3527*pow(p,2))+0.0563881*exp(-0.00556731*pow(p,2)))*List[6])*f5;
 	long double A2 = 0.449881+(303.749/(2.67973e-10+pow(81.4093+p,2))-131.725/(2450.75+pow(18.1846+p,2)))*List[7];
