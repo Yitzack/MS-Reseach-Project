@@ -29,7 +29,7 @@ complex<long double> atanh(complex<long double>);
 long double Tail_Factor(long double);
 
 char* Process;
-long double List[16];
+long double List[28];
 
 int main(int argc, char* argv[])	//Process, # of Process, Output file, Input file, Temp
 {
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[5]);
 
-	for(int i = 0; i < 9; i++)
+	for(int i = 0; i < 28; i++)
 		List[i] = atof(argv[i+6]);
 
 	/*Init(Table, N, M);
@@ -568,7 +568,7 @@ complex<long double> atanh(complex<long double> x)
 
 long double Spectral_Analytic(long double s, long double p)
 {
-	long double a = 0.1+(1.09682*exp(-0.0854832*pow(p,2))+0.553167*exp(-0.00242106*pow(p,2)))*List[0];
+	/*long double a = 0.1+(1.09682*exp(-0.0854832*pow(p,2))+0.553167*exp(-0.00242106*pow(p,2)))*List[0];
 	long double c = -2.6+(-2.09722*exp(-0.0873686*p)-2.08312*exp(-0.0873686*p))*List[1];
 	long double s1 = 3.7249;
 	long double s2 = pow(2.85+(0.163437*exp(-0.00115935*pow(p,2))+0.425939*exp(-0.00115935*pow(p,2)))*List[2],2);
@@ -595,7 +595,7 @@ long double Spectral_Analytic(long double s, long double p)
 	long double A2 = 0.449881+(303.749/(2.67973e-10+pow(81.4093+p,2))-131.725/(2450.75+pow(18.1846+p,2)))*List[7];
 	long double G2 = (0.00325+(0.0145782*exp(-0.119134*pow(p,2))+0.00567183*exp(-0.00744749*pow(p,2)))*List[8])*f5;
 
-	/*long double a = 0.1;
+	long double a = 0.1;
 	long double c = -2.6;
 	long double s1 = 3.7249;
 	long double s2 = 8.1225;
@@ -620,12 +620,12 @@ long double Spectral_Analytic(long double s, long double p)
 	long double A1 = 9.17*f5_A1*MJPsi;
 	long double G1 = 0.0026*f5;
 	long double A2 = 0.449881;
-	long double G2 = 0.00325*f5;*/
+	long double G2 = 0.00325*f5;
 
 	long double sigmaBound = (A1*sqrt(pow(MJPsi,2)/(pow(MJPsi,2)+pow(p,2))*(s+pow(p,2)))*G1)/(M_PI*(pow(s-pow(MJPsi,2),2)+pow(MJPsi,2)/(pow(MJPsi,2)+pow(p,2))*(s+pow(p,2))*pow(G1,2)));
 	long double sigmaNonFit = A2*(SigmaRe+s)/2.*imag(sqrt(complex<long double>(s-pow(2.*Mq,2),4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2)/complex<long double>(s,4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2))*atanh(sqrt(complex<long double>(s,4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2)/complex<long double>(s-pow(2.*Mq,2),4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2))));
 
-	/*long double a = 2.16;
+	long double a = 2.16;
 	long double c = -4.84;
 	long double s1 = 3.7249;
 	long double s2 = 8.1225;
@@ -645,10 +645,18 @@ long double Spectral_Analytic(long double s, long double p)
 	long double A1 = 67;
 	long double G1 = .0026*f5;
 	long double A2 = .469224;
-	long double G2 = .00325*f5;
+	long double G2 = .00325*f5;*/
+
+	long double A1 = (8.21055-List[0]-List[2])+List[0]*exp(-p/List[1])+List[2]*exp(-pow(p/List[3],2));
+	long double G1 = (.0763853-List[4]-List[6])+List[4]*exp(-p/List[5])+List[6]*exp(-pow(p/List[7],2));
+	long double MJPsi = (3.01794-List[8]-List[10])+List[8]*exp(-p/List[9])+List[10]*exp(-pow(p/List[11],2));
+	long double A2 = (.934259-List[12]-List[14])+List[12]*exp(-p/List[13])+List[14]*exp(-pow(p/List[15],2));
+	long double G2 = (.00340139-List[16]-List[18])+List[16]*exp(-p/List[17])+List[18]*exp(-pow(p/List[19],2));
+	long double Mq = (1.78785-List[20]-List[22])+List[20]*exp(-p/List[21])+List[22]*exp(-pow(p/List[23],2));
+	long double SigmaRe = (6.392815245-List[24]-List[26])+List[24]*exp(-p/List[25])+List[26]*exp(-pow(p/List[27],2));
 
 	long double sigmaBound = (A1*sqrt(s)*G1)/(M_PI*(pow(s-pow(MJPsi,2),2)+s*pow(G1,2)));
-	long double sigmaNonFit = A2*(SigmaRe+s)/2.*imag(sqrt(complex<long double>(s-pow(2.*Mq,2),4*sqrt(s)*G2)/complex<long double>(s,4*sqrt(s)*G2))*atanh(sqrt(complex<long double>(s,4*sqrt(s)*G2)/complex<long double>(s-pow(2.*Mq,2),4*sqrt(s)*G2))));*/
+	long double sigmaNonFit = A2*(SigmaRe+s)/2.*imag(sqrt(complex<long double>(s-pow(2.*Mq,2),4*sqrt(s)*G2)/complex<long double>(s,4*sqrt(s)*G2))*atanh(sqrt(complex<long double>(s,4*sqrt(s)*G2)/complex<long double>(s-pow(2.*Mq,2),4*sqrt(s)*G2))));
 
 	return(sigmaBound-sigmaNonFit);
 }
@@ -741,7 +749,7 @@ long double Bicubic(long double*** Table[], long double s, long double p, long d
 	if(sqrt(s) >= 3 && sqrt(s) <= 5)	//resolve the width of the sqrt(s) to keep things more correct over trying to resolve it with the table load
 		for(int k = 8; k < 16; k++)
 			f[k] *= .01;
-	else if(s > 0);
+	else if(s > 0)
 		for(int k = 8; k < 16; k++)
 			f[k] *= .1;
 
