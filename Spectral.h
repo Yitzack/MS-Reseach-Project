@@ -904,11 +904,10 @@ long double omega_Width(long double zero, long double Par[5], long double k, lon
 //long double Par[5] = {g, Lambda, M, P, s}
 long double ImSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
 {
-	long double Par[6];	//Momentum dependance parameterization
-	long double E_0 = Energy(M,k,0,0);	//location of lorentzian
+	long double omega0;	//location of central peak
 	long double Sigma;	//size of energy dependance
-	long double b1, b2;	//slope of exponential decrease to left and right
-	long double Delta;	//concavity or length of transition from left to right
+	long double a, b;	//slope of exponential decrease to left and right
+	long double knee;	//space to change from left to right side of peak
 
 	switch(Temp)
 	{
@@ -918,124 +917,92 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 			else
 				return(0);
 			break;
-		case 1://235.2MeV
-			Sigma = -0.1289680072519721;
-			b1 = 3.322825262881092;
-			b2 = 2.2878310836782014;
-			Delta = 1.228601982782018;
-			Par[0] = .7359389831810698;
-			Par[1] = 7.487501146014314;
-			Par[2] = 1.9490238595657456;
-			Par[3] = .700215754;
-			Par[4] = 10;
-			Par[5] = 3;
+		case 1://194MeV
+			Sigma = 2.97308/(pow(k,2)+pow(3.09014,2));
+			a = 9.97747*exp(-.153928*k);
+			b = 2.1247*exp(.086339*k);
+			omega0 = sqrt(pow(1.80436,2)+pow(k,2));
+			knee = 3.78311*exp(-.16776*k);
 			break;
-		case 2://294MeV
-			Sigma = -0.09606152620146369;
-			b1 = 3.285053276019642;
-			b2 = 1.886285913340202;
-			Delta = 1.1858269101609233;
-			Par[0] = .7409390219065235;
-			Par[1] = 7.450458343071824;
-			Par[2] = 1.8620618988580635;
-			Par[3] = .860810762;
-			Par[4] = 10;
-			Par[5] = 3;
+		case 2://285MeV
+			Sigma = 3.42212/(pow(k,2)+pow(3.16184,2));
+			a = 7.32022*exp(-.190186*k);
+			b = 1.8126*exp(.0200553*k);
+			omega0 = sqrt(pow(1.76924,2)+pow(k,2));
+			knee = 3.21139*exp(-.294503*k);
 			break;
-		case 3://362MeV
-			Sigma = -0.09933548776506283;
-			b1 = 3.2108770392083246;
-			b2 = 1.3694064180118886;
-			Delta = 1.3043774341616825;
-			Par[0] = .7426375963204489;
-			Par[1] = 7.698646415632565;
-			Par[2] = 1.771465704769189;
-			Par[3] = .608717852;
-			Par[4] = 10;
-			Par[5] = 3;
+		case 3://320MeV
+			Sigma = 3.56927/(pow(k,2)+pow(3.25674,2));
+			a = 6.61523*exp(-.232471*k);
+			b = 1.75716*exp(-.0123806*k);
+			omega0 = sqrt(pow(1.7553,2)+pow(k,2));
+			knee = 3.50863*exp(-.37079*k);
+			break;
+		case 4://400MeV
+			Sigma = 3.28943/(pow(k,2)+pow(3.4086,2));
+			a = 5.98676*exp(-.299329*k);
+			b = 1.64953*exp(-.0645459*k);
+			omega0 = sqrt(pow(1.70986,2)+pow(k,2));
+			knee = 3.40856*exp(-.499538*k);
 			break;
 		default:
 			Sigma = 0;
-			b1 = 0;
-			b2 = 0;
-			Delta = 0;
-			Par[0] = 1;
-			Par[1] = 1;
-			Par[2] = 1;
-			Par[3] = 0;
-			Par[4] = 0;
-			Par[5] = 0;
+			a = 1;
+			b = 1;
+			omega0 = 1;
+			knee = 1;
 			break;
 	}
-	Par[3] = 0;
-
 	if(pow(omega,2)>=pow(k,2))
-		return(2.*M*(Par[0]*exp(-pow(k/Par[1],2))+(1-Par[0])*exp(-pow(k/Par[2],2))+Par[3])*(Sigma*exp(Delta+(b1-b2)*(omega-E_0)*E_0/2.-sqrt(b1*b2*pow((omega-E_0)*E_0,2)+pow(Delta+(b1-b2)*(omega-E_0)*E_0/2.,2))))+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+		return(-Sigma*exp(-.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*x/2-sqrt(pow(((a+b)/2.)*(x-x0+((a-b)*knee0)/(sqrt(a*b)*(a+b))),2)+pow(knee0,2)))+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
-		return(2.*M*(Par[0]*exp(-pow(k/Par[1],2))+(1-Par[0])*exp(-pow(k/Par[2],2))+Par[3])*(Sigma*exp(Delta+(b1-b2)*(omega-E_0)*E_0/2.-sqrt(b1*b2*pow((omega-E_0)*E_0,2)+pow(Delta+(b1-b2)*(omega-E_0)*E_0/2.,2)))));
+		return(-Sigma*exp(-.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*x/2-sqrt(pow(((a+b)/2.)*(x-x0+((a-b)*knee0)/(sqrt(a*b)*(a+b))),2)+pow(knee0,2))));
 }
 
 long double ReSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
 {
-	long double Par[6];	//Momentum dependance parameterization
-	long double E_0 = Energy(M,k,0,0);	//location of lorentzian
-	long double a;	//size of energy dependance
-	long double gamma;	//width of lorentzian
-	long double c;	//zero crossing, might be better as the on-shell energy
+	long double Sigma;	//Strength
+	long double x0, x1;	//Centrality markers
+	long double gamma;	//Width
 
 	switch(Temp)
 	{
 		case 0:
 			return(0);
 			break;
-		case 1://235.2MeV
-			a = .0412729;
-			c = 1.68597;
-			gamma = .340028;
-			Par[0] = .7359389831810698;
-			Par[1] = 7.487501146014314;
-			Par[2] = 1.9490238595657456;
-			Par[3] = .700215754;
-			Par[4] = 10;
-			Par[5] = 3;
+		case 1://194MeV
+			Sigma = 1.04271/(pow(p,2)+pow(2.40869,2));
+			x0 = sqrt(pow(p,2)+pow(1.90601,2));
+			x1 = sqrt(pow(p,2)+pow(1.82939,2));
+			gamma = .290138*exp(-.168611*p);
 			break;
-		case 2://294MeV
-			a = .0366063;
-			c = 1.5945;
-			gamma = .39357;
-			Par[0] = .7409390219065235;
-			Par[1] = 7.450458343071824;
-			Par[2] = 1.8620618988580635;
-			Par[3] = .860810762;
-			Par[4] = 10;
-			Par[5] = 3;
+		case 2://258MeV
+			Sigma = 2.07766/(pow(p,2)+pow(2.83964,2));
+			x0 = sqrt(pow(p,2)+pow(1.89211,2));
+			x1 = sqrt(pow(p,2)+pow(1.79273,2));
+			gamma = .4811*exp(-.058744*p);
 			break;
-		case 3://362MeV
-			a = .05127;
-			c = 1.55455;
-			gamma = .518487;
-			Par[0] = .7426375963204489;
-			Par[1] = 7.698646415632565;
-			Par[2] = 1.771465704769189;
-			Par[3] = .608717852;
-			Par[4] = 10;
-			Par[5] = 3;
+		case 3://320MeV
+			Sigma = 3.01758/(pow(p,2)+pow(3.31736,2));
+			x0 = sqrt(pow(p,2)+pow(1.88084,2));
+			x1 = sqrt(pow(p,2)+pow(1.77436,2));
+			gamma = .553192*exp(.0232344*p);
+			break;
+		case 4://400MeV
+			Sigma = 5.26155/(pow(p,2)+pow(4.49537,2));
+			x0 = sqrt(pow(p,2)+pow(1.84608,2));
+			x1 = sqrt(pow(p,2)+pow(1.71886,2));
+			gamma = .675981*exp(.151033*p);
 			break;
 		default:
-			a = 0;
-			c = 0;
+			Sigma = 0;
+			x0 = 1;
+			x1 = 1;
 			gamma = 1;
-			Par[0] = 1;
-			Par[1] = 1;
-			Par[2] = 1;
-			Par[3] = 0;
-			Par[4] = 0;
-			Par[5] = 0;
 			break;
 	}
-	Par[3] = 0;
 
-	return(2.*M*(Par[0]*exp(-pow(k/Par[1],2))+(1-Par[0])*exp(-pow(k/Par[2],2))+Par[3])*(a*(omega-sqrt(pow(c,2)+pow(k,2)))/(pow(omega-sqrt(pow(c,2)+pow(k,2)),2)+pow(gamma,2))));
+	return(a*(omega-x0)/(pow(omega-x1,2)+gamma));
 }
 
 long double Energy(long double M, long double P, long double k, long double theta)	//Single quark energy, can return momentum if M=0
@@ -1059,13 +1026,16 @@ long double Fermi(long double omega, int T)	//Fermi factor
 				return(1.);
 			break;
 		case 1:
-			Temp = .2352;
+			Temp = .194;
 			break;
 		case 2:
-			Temp = .294;
+			Temp = .258;
 			break;
 		case 3:
-			Temp = .392;
+			Temp = .32;
+			break;
+		case 4:
+			Temp = .4;
 			break;
 		default:
 			return(0);
