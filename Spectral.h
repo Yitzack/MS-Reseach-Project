@@ -954,9 +954,9 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 			break;
 	}
 	if(pow(omega,2)>=pow(k,2))
-		return(-Sigma*exp(-.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*x/2-sqrt(pow(((a+b)/2.)*(x-x0+((a-b)*knee0)/(sqrt(a*b)*(a+b))),2)+pow(knee0,2)))+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+		return(-Sigma*exp(-.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))),2)+pow(knee,2)))+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
-		return(-Sigma*exp(-.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*x/2-sqrt(pow(((a+b)/2.)*(x-x0+((a-b)*knee0)/(sqrt(a*b)*(a+b))),2)+pow(knee0,2))));
+		return(-Sigma*exp(-.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))),2)+pow(knee,2))));
 }
 
 long double ReSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
@@ -971,28 +971,28 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 			return(0);
 			break;
 		case 1://194MeV
-			Sigma = 1.04271/(pow(p,2)+pow(2.40869,2));
-			x0 = sqrt(pow(p,2)+pow(1.90601,2));
-			x1 = sqrt(pow(p,2)+pow(1.82939,2));
-			gamma = .290138*exp(-.168611*p);
+			Sigma = 1.04271/(pow(k,2)+pow(2.40869,2));
+			x0 = sqrt(pow(k,2)+pow(1.90601,2));
+			x1 = sqrt(pow(k,2)+pow(1.82939,2));
+			gamma = .290138*exp(-.168611*k);
 			break;
 		case 2://258MeV
-			Sigma = 2.07766/(pow(p,2)+pow(2.83964,2));
-			x0 = sqrt(pow(p,2)+pow(1.89211,2));
-			x1 = sqrt(pow(p,2)+pow(1.79273,2));
-			gamma = .4811*exp(-.058744*p);
+			Sigma = 2.07766/(pow(k,2)+pow(2.83964,2));
+			x0 = sqrt(pow(k,2)+pow(1.89211,2));
+			x1 = sqrt(pow(k,2)+pow(1.79273,2));
+			gamma = .4811*exp(-.058744*k);
 			break;
 		case 3://320MeV
-			Sigma = 3.01758/(pow(p,2)+pow(3.31736,2));
-			x0 = sqrt(pow(p,2)+pow(1.88084,2));
-			x1 = sqrt(pow(p,2)+pow(1.77436,2));
-			gamma = .553192*exp(.0232344*p);
+			Sigma = 3.01758/(pow(k,2)+pow(3.31736,2));
+			x0 = sqrt(pow(k,2)+pow(1.88084,2));
+			x1 = sqrt(pow(k,2)+pow(1.77436,2));
+			gamma = .553192*exp(.0232344*k);
 			break;
 		case 4://400MeV
-			Sigma = 5.26155/(pow(p,2)+pow(4.49537,2));
-			x0 = sqrt(pow(p,2)+pow(1.84608,2));
-			x1 = sqrt(pow(p,2)+pow(1.71886,2));
-			gamma = .675981*exp(.151033*p);
+			Sigma = 5.26155/(pow(k,2)+pow(4.49537,2));
+			x0 = sqrt(pow(k,2)+pow(1.84608,2));
+			x1 = sqrt(pow(k,2)+pow(1.71886,2));
+			gamma = .675981*exp(.151033*k);
 			break;
 		default:
 			Sigma = 0;
@@ -1002,7 +1002,7 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 			break;
 	}
 
-	return(a*(omega-x0)/(pow(omega-x1,2)+gamma));
+	return(Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));
 }
 
 long double Energy(long double M, long double P, long double k, long double theta)	//Single quark energy, can return momentum if M=0
