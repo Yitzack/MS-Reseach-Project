@@ -953,10 +953,19 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 			knee = 1;
 			break;
 	}
-	if(pow(omega,2)>=pow(k,2))
-		return(-Sigma*exp(-.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))),2)+pow(knee,2)))+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+
+	long double ImSigma;	//Calculation of the argument to the exponential, these first 2 are approximations to hopefully avoid catastrophic loss of precision
+	if((omega-omega0)/knee < -4.)
+		ImSigma = a*(omega-omega0+knee/sqrt(a*b));
+	else if((omega-omega0)/knee > 4.)
+		ImSigma = b*(omega0-omega+knee/sqrt(a*b));
 	else
-		return(-Sigma*exp(-.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))),2)+pow(knee,2))));
+		ImSigma = -.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))),2)+pow(knee,2));
+
+	if(pow(omega,2)>=pow(k,2))
+		return(-Sigma*exp(ImSigma)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+	else
+		return(-Sigma*exp(ImSigma));
 }
 
 long double ReSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
