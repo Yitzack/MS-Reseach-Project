@@ -928,7 +928,62 @@ long double omega_Width(long double zero, long double Par[5], long double k, lon
 //long double Par[5] = {g, Lambda, M, P, s}
 long double ImSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
 {
-	long double omega0;	//location of central peak
+	long double Sigma;
+	long double Delta;
+	long double b1, b2;
+	long double M;
+	long double a;
+	long double sigma1, sigma2;
+	long double Floor;
+	
+	switch(Temp)
+	{
+		case 0:
+			if(pow(omega,2)>=pow(k,2))
+				return(sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+			else
+				return(0);
+			break;
+		case 1:
+			Sigma = -1.12031;
+			Delta = -1.11823;
+			b1 = 3.42062;
+			b2 = 2.34212;
+			M = 1.55744;
+			a = 2.2094;
+			sigma1 = 2.574538196654789;
+			sigma2 = 2.5745381961599816;
+			Floor = .928942;
+			break;
+		case 2:
+			Sigma = -.096194;
+			Delta = 1.16782;
+			b1 = 3.27672;
+			b2 = 1.87149;
+			M = 1.54196;
+			a = .760248;
+			sigma1 = 3.41189;
+			sigma2 = 1.38003;
+			Floor = .818425;
+			break;
+		case 3:
+			Sigma = -.0995278
+			Delta = 1.29695;
+			b1 = 3.21382;
+			b2 = 1.35479;
+			M = 1.46014;
+			a = .752122;
+			sigma1 = 3.38156;
+			sigma2 = 1.30001;
+			Floor = .905761;
+			break;
+	}
+	
+	if(pow(omega,2)>=pow(k,2))
+		return(-Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M,2)+pow(k,2)))*sqrt(pow(M,2)+pow(k,2))/2.-sqrt[b1*b2*pow((omega-sqrt(pow(M,2)+pow(k,2)))*sqrt(pow(M,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M,2)+pow(k,2)))*sqrt(pow(M,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+	else
+		return(-Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M,2)+pow(k,2)))*sqrt(pow(M,2)+pow(k,2))/2.-sqrt[b1*b2*pow((omega-sqrt(pow(M,2)+pow(k,2)))*sqrt(pow(M,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M,2)+pow(k,2)))*sqrt(pow(M,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor));	
+	/*long double omega0;	//location of central peak
 	long double Sigma;	//size of energy dependance
 	long double a, b;	//slope of exponential decrease to left and right
 	long double knee;	//space to change from left to right side of peak
@@ -989,12 +1044,60 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	if(pow(omega,2)>=pow(k,2))
 		return(-Sigma*exp(ImSigma)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
-		return(-Sigma*exp(ImSigma));
+		return(-Sigma*exp(ImSigma));*/
 }
 
 long double ReSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
 {
-	long double Sigma;	//Strength
+	long double Sigma;
+	long double M1, M2;
+	long double gamma;
+	long double a;
+	long double sigma1, sigma2;
+	long double Floor;
+	
+	switch(Temp)
+	{
+		case 0:
+			if(pow(omega,2)>=pow(k,2))
+				return(sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+			else
+				return(0);
+			break;
+		case 1:
+			Sigma = .040845;
+			M1 = 1.67925;
+			M2 = 1.65299;
+			gamma = .337277;
+			a = 2.2094;
+			sigma1 = 2.574538196654789;
+			sigma2 = 2.5745381961599816;
+			Floor = .928942;
+			break;
+		case 2:
+			Sigma = .0364537;
+			M1 = 1.58845;
+			M2 = 1.55012;
+			gamma = .394468;
+			a = .760248;
+			sigma1 = 3.41189;
+			sigma2 = 1.38003;
+			Floor = .818425;
+			break;
+		case 3:
+			Sigma = .050848;
+			M1 = 1.54629;
+			M2 = 1.47387;
+			gamma = .517924;
+			a = .752122;
+			sigma1 = 3.38156;
+			sigma2 = 1.30001;
+			Floor = .905761;
+			break;
+	}
+	
+	return(-Sigma*(omega-sqrt(pow(M1,2)+pow(k,2)))/(pow(omega-sqrt(pow(M2,2)+pow(k,2)),2)+pow(gamma,2))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor));	
+	/*long double Sigma;	//Strength
 	long double x0, x1;	//Centrality markers
 	long double gamma;	//Width
 
@@ -1035,7 +1138,7 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 			break;
 	}
 
-	return(Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));
+	return(Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));*/
 }
 
 long double Energy(long double M, long double P, long double k, long double theta)	//Single quark energy, can return momentum if M=0
