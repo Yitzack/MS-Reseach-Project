@@ -931,7 +931,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	long double Sigma;
 	long double Delta;
 	long double b1, b2;
-	long double M;
+	long double M1;
 	long double a;
 	long double sigma1, sigma2;
 	long double Floor;
@@ -949,7 +949,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 			Delta = -1.11823;
 			b1 = 3.42062;
 			b2 = 2.34212;
-			M = 1.55744;
+			M1 = 1.55744;
 			a = 2.2094;
 			sigma1 = 2.574538196654789;
 			sigma2 = 2.5745381961599816;
@@ -960,18 +960,18 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 			Delta = 1.16782;
 			b1 = 3.27672;
 			b2 = 1.87149;
-			M = 1.54196;
+			M1 = 1.54196;
 			a = .760248;
 			sigma1 = 3.41189;
 			sigma2 = 1.38003;
 			Floor = .818425;
 			break;
 		case 3:
-			Sigma = -.0995278
+			Sigma = -.0995278;
 			Delta = 1.29695;
 			b1 = 3.21382;
 			b2 = 1.35479;
-			M = 1.46014;
+			M1 = 1.46014;
 			a = .752122;
 			sigma1 = 3.38156;
 			sigma2 = 1.30001;
@@ -980,9 +980,9 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	}
 	
 	if(pow(omega,2)>=pow(k,2))
-		return(-Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M,2)+pow(k,2)))*sqrt(pow(M,2)+pow(k,2))/2.-sqrt[b1*b2*pow((omega-sqrt(pow(M,2)+pow(k,2)))*sqrt(pow(M,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M,2)+pow(k,2)))*sqrt(pow(M,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+		return(-Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
-		return(-Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M,2)+pow(k,2)))*sqrt(pow(M,2)+pow(k,2))/2.-sqrt[b1*b2*pow((omega-sqrt(pow(M,2)+pow(k,2)))*sqrt(pow(M,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M,2)+pow(k,2)))*sqrt(pow(M,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor));	
+		return(-Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor));	
 	/*long double omega0;	//location of central peak
 	long double Sigma;	//size of energy dependance
 	long double a, b;	//slope of exponential decrease to left and right
