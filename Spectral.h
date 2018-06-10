@@ -211,11 +211,11 @@ long double f(long double M, long double P, long double s, long double theta)	//
 //long double Par[5] = {g, Lambda, M, P, s}
 Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the k momentum results
 {
-	if(4.*M_PI*A_INVERSE < Par[3])	//Prevents work when clearly the only possible answer is 0 as all momentum for aligned quark is greater than UV cutoff
+	/*if(4.*M_PI*A_INVERSE < Par[3])	//Prevents work when clearly the only possible answer is 0 as all momentum for aligned quark is greater than UV cutoff
 	{
 		Elements Zero(0,0,0);
 		return(Zero);
-	}
+	}*/
 
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 35th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp
@@ -274,17 +274,17 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	Stops[l+8] = .5*abs(Par[3]*cos(theta)+sqrt(3.*pow(Par[3],2)+4.*Par[4]+pow(Par[3]*cos(theta),2)));
 	Stops[l+9] = .5*abs(Par[3]*cos(theta)-sqrt(3.*pow(Par[3],2)+4.*Par[4]+pow(Par[3]*cos(theta),2)));
 	UV_End = Stops[l+10] = (-4.*Par[3]*cos(theta)+sqrt(pow(8.*M_PI*A_INVERSE,2)-pow(4.*Par[3]*sin(theta),2)))/8.;
-	if(pow(16.*M_PI*A_INVERSE/LATTICE_N,2)-pow(4.*Par[3]*sin(theta),2) > 0)
+	/*if(pow(16.*M_PI*A_INVERSE/LATTICE_N,2)-pow(4.*Par[3]*sin(theta),2) > 0)
 	{
 		IR_Stop = Stops[l+11] = (4.*Par[3]*cos(theta)-sqrt(pow(16.*M_PI*A_INVERSE/LATTICE_N,2)-pow(4.*Par[3]*sin(theta),2)))/8.;
 		IR_Resume = Stops[l+12] = (4.*Par[3]*cos(theta)+sqrt(pow(16.*M_PI*A_INVERSE/LATTICE_N,2)-pow(4.*Par[3]*sin(theta),2)))/8.;
 		if(IR_Stop < 0)	//If this point is less than 0, then we start at the stop
 			IR_Stop = 0;
 		l += 2;
-	}
+	}*/
 
 	for(i = 0; i < l+11; i++)	//Removes stops in forbiden regions and points that aren't self-equal
-		if(Stops[i] != Stops[i] || Stops[i] > UV_End || (pow(16.*M_PI*A_INVERSE/LATTICE_N,2)-pow(4.*Par[3]*sin(theta),2) > 0 && Stops[i] > IR_Stop && Stops[i] < IR_Resume))
+		if(Stops[i] != Stops[i])// || Stops[i] > UV_End || (pow(16.*M_PI*A_INVERSE/LATTICE_N,2)-pow(4.*Par[3]*sin(theta),2) > 0 && Stops[i] > IR_Stop && Stops[i] < IR_Resume))
 			Stops[i] = -1;
 
 	mergeSort(Stops, 0, l+10);
@@ -311,11 +311,11 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	i = 0;
 	do
 	{
-		if(a == IR_Stop)
+		/*if(a == IR_Stop)
 		{
 			a = b = IR_Resume;
 			i++;
-		}
+		}*/
 
 		if((i < Intervals && b+100 < Stops[i]) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
@@ -352,7 +352,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 		Partial = F*(b-a)/(2.);
 		Answer += Partial;
 		a = b;
-	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a <= UV_End);//20.*sqrt(Par[4]+pow(Par[3],2))); //k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
+	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a <= 20.*sqrt(Par[4]+pow(Par[3],2)));// UV_End); //k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }
