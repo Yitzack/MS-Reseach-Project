@@ -928,7 +928,7 @@ long double omega_Width(long double zero, long double Par[5], long double k, lon
 //long double Par[5] = {g, Lambda, M, P, s}
 long double ImSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
 {
-	/*long double Sigma;
+	long double Sigma;
 	long double Delta;
 	long double b1, b2;
 	long double M1;
@@ -978,12 +978,13 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 			Floor = .905761;
 			break;
 	}
-	
+	Floor = 0;
+
 	if(pow(omega,2)>=pow(k,2))
-		return(-Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+		return(Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
-		return(-Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor));	*/
-	long double omega0;	//location of central peak
+		return(Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor));
+	/*long double omega0;	//location of central peak
 	long double Sigma;	//size of energy dependance
 	long double a, b;	//slope of exponential decrease to left and right
 	long double knee;	//space to change from left to right side of peak
@@ -1044,12 +1045,12 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	if(pow(omega,2)>=pow(k,2))
 		return(-Sigma*exp(ImSigma)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
-		return(-Sigma*exp(ImSigma));
+		return(-Sigma*exp(ImSigma));*/
 }
 
 long double ReSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
 {
-	/*long double Sigma;
+	long double Sigma;
 	long double M1, M2;
 	long double gamma;
 	long double a;
@@ -1096,8 +1097,8 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 			break;
 	}
 	
-	return(-Sigma*(omega-sqrt(pow(M1,2)+pow(k,2)))/(pow(omega-sqrt(pow(M2,2)+pow(k,2)),2)+pow(gamma,2))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor));	*/
-	long double Sigma;	//Strength
+	return(-Sigma*(omega-sqrt(pow(M1,2)+pow(k,2)))/(pow(omega-sqrt(pow(M2,2)+pow(k,2)),2)+pow(gamma,2))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor));
+	/*long double Sigma;	//Strength
 	long double x0, x1;	//Centrality markers
 	long double gamma;	//Width
 
@@ -1138,7 +1139,7 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 			break;
 	}
 
-	return(Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));
+	return(Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));*/
 }
 
 long double Energy(long double M, long double P, long double k, long double theta)	//Single quark energy, can return momentum if M=0
