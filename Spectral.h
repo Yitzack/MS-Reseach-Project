@@ -1060,44 +1060,54 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 	switch(Temp)
 	{
 		case 0:
-			if(pow(omega,2)>=pow(k,2))
-				return(sqrt(pow(omega,2)-pow(k,2))*GAMMA);
-			else
-				return(0);
+			return(0);
 			break;
 		case 1:
-			Sigma = .040845;
+			/*Sigma = .040845;
 			M1 = 1.67925;
 			M2 = 1.65299;
-			gamma = .337277;
+			gamma = .337277;*/
+			Sigma = .135862;
+			M1 = 1.6734;
+			M2 = 1.65605;
+			gamma = .435771/sqrt(pow(k,2)+pow(1.45558,2))+.000075623;
 			a = 2.2094;
 			sigma1 = 2.574538196654789;
 			sigma2 = 2.5745381961599816;
 			Floor = .928942;
 			break;
 		case 2:
-			Sigma = .0364537;
+			/*Sigma = .0364537;
 			M1 = 1.58845;
 			M2 = 1.55012;
-			gamma = .394468;
+			gamma = .394468;*/
+			Sigma = .100932;
+			M1 = 1.58441;
+			M2 = 1.55442;
+			gamma = .508717/sqrt(pow(k,2)+pow(1.42858,2))+.0000832943;
 			a = .760248;
 			sigma1 = 3.41189;
 			sigma2 = 1.38003;
 			Floor = .818425;
 			break;
 		case 3:
-			Sigma = .050848;
+			/*Sigma = .050848;
 			M1 = 1.54629;
 			M2 = 1.47387;
-			gamma = .517924;
+			gamma = .517924;*/
+			Sigma = .104446;
+			M1 = 1.53819;
+			M2 = 1.4777;
+			gamma = .627196/sqrt(pow(k,2)+pow(1.3015,2))+.000261014;
 			a = .752122;
 			sigma1 = 3.38156;
 			sigma2 = 1.30001;
 			Floor = .905761;
 			break;
 	}
+	Floor = 0;
 	
-	return(Sigma*(omega-sqrt(pow(M1,2)+pow(k,2)))/(pow(omega-sqrt(pow(M2,2)+pow(k,2)),2)+pow(gamma,2))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor));
+	return(Sigma*gamma*(omega-sqrt(pow(M1,2)+pow(k,2)))/(pow(omega-sqrt(pow(M2,2)+pow(k,2)),2)+pow(gamma,2))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor));
 	/*long double Sigma;	//Strength
 	long double x0, x1;	//Centrality markers
 	long double gamma;	//Width
