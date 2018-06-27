@@ -986,9 +986,9 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	M1 += Shift;
 
 	if(pow(omega,2)>=pow(k,2))
-		return(Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+		return(Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2)))+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
-		return(Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor));
+		return(Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))));
 	/*long double omega0;	//location of central peak
 	long double Sigma;	//size of energy dependance
 	long double a, b;	//slope of exponential decrease to left and right
@@ -1125,9 +1125,10 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 	}
 	Floor = 0;
 	long double Shift = M-M_T;
-	omega -= Shift;
+	M1 += Shift;
+	M2 += Shift;
 
-	return(Sigma*gamma*(omega-sqrt(pow(M1,2)+pow(k,2)))/(pow(omega-sqrt(pow(M2,2)+pow(k,2)),2)+pow(gamma,2))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))+Floor)/(1.+Floor));
+	return(Sigma*gamma*(omega-sqrt(pow(M1,2)+pow(k,2)))/(pow(omega-sqrt(pow(M2,2)+pow(k,2)),2)+pow(gamma,2))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))));
 	/*long double Sigma;	//Strength
 	long double x0, x1;	//Centrality markers
 	long double gamma;	//Width
@@ -1140,30 +1141,34 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 			break;
 		case 1://194MeV
 			M_T = 1.84184;
+			Shift = M-M_T;
 			Sigma = .244368/sqrt(pow(k,2)+pow(1.32368,2));
-			x0 = sqrt(pow(k,2)+pow(1.5567,2))+.279476;
-			x1 = sqrt(pow(k,2)+pow(1.50202,2))+.259;
+			x0 = sqrt(pow(k,2)+pow(1.5567+Shift,2))+.279476;
+			x1 = sqrt(pow(k,2)+pow(1.50202+Shift,2))+.259;
 			gamma = .320676/sqrt(pow(k,2)+pow(1.56455,2))+.080032;
 			break;
 		case 2://258MeV
 			M_T = 1.69584;
+			Shift = M-M_T;
 			Sigma = .322887/sqrt(pow(k,2)+pow(1.34236,2));
-			x0 = sqrt(pow(k,2)+pow(1.54159,2))+.280535;
-			x1 = sqrt(pow(k,2)+pow(1.46598,2))+.260561;
+			x0 = sqrt(pow(k,2)+pow(1.54159+Shift,2))+.280535;
+			x1 = sqrt(pow(k,2)+pow(1.46598+Shift,2))+.260561;
 			gamma = .694901/sqrt(pow(k,2)+pow(2.13185,2))+.0653795;
 			break;
 		case 3://320MeV
 			M_T = 1.59439;
+			Shift = M-M_T;
 			Sigma = .375163/sqrt(pow(k,2)+pow(1.41612,2));
-			x0 = sqrt(pow(k,2)+pow(1.45507,2))+.337448;
-			x1 = sqrt(pow(k,2)+pow(1.40846,2))+.289292;
+			x0 = sqrt(pow(k,2)+pow(1.45507+Shift,2))+.337448;
+			x1 = sqrt(pow(k,2)+pow(1.40846+Shift,2))+.289292;
 			gamma = .690491/sqrt(pow(k,2)+pow(1.97525,2))+.141465;
 			break;
 		case 4://400MeV
 			M_T = 1.48038;
+			Shift = M-M_T;
 			Sigma = .370623/sqrt(pow(k,2)+pow(1.53585,2));
-			x0 = sqrt(pow(k,2)+pow(1.39619,2))+.35548;
-			x1 = sqrt(pow(k,2)+pow(1.3481,2))+.296587;
+			x0 = sqrt(pow(k,2)+pow(1.39619+Shift,2))+.35548;
+			x1 = sqrt(pow(k,2)+pow(1.3481+Shift,2))+.296587;
 			gamma = .857781/sqrt(pow(k,2)+pow(2.25072,2))+.196022;
 			break;
 		default:
@@ -1173,8 +1178,6 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 			gamma = 1;
 			break;
 	}
-	Shift = M-M_T;
-	omega -= Shift
 
 	return(Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));*/
 }
