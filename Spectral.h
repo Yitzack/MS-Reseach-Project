@@ -1024,7 +1024,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		case 3://320MeV
 			M_T = 1.59439;
 			Shift = M-M_T;
-			Sigma = .670397/(pow(k,2)+pow(1.96561,2));
+			Sigma = .670397/sqrt(pow(k,2)+pow(1.96561,2));
 			a = 2.42808/(pow(k,2)+pow(.840297,2))+3.42835;
 			b = .0167941/(pow(k,2)+pow(.47573,2))+1.70158;
 			omega0 = sqrt(pow(1.42617+Shift,2)+pow(k,2))+.258289;
@@ -1033,7 +1033,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		case 4://400MeV
 			M_T = 1.48038;
 			Shift = M-M_T;
-			Sigma = .592982/(pow(k,2)+pow(2.06656,2));
+			Sigma = .592982/sqrt(pow(k,2)+pow(2.06656,2));
 			a = 2.09377/(pow(k,2)+pow(.763871,2))+2.65712;
 			b = .366499/(pow(k,2)+pow(1.06864,2))+1.35141;
 			omega0 = sqrt(pow(1.38555+Shift,2)+pow(k,2))+.253076;
@@ -1057,9 +1057,9 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		ImSigma = -.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))),2)+pow(knee,2));
 
 	if(pow(omega,2)>=pow(k,2))
-		return(-Sigma*exp(ImSigma)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+		return(-2.*M*Sigma*exp(ImSigma)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
-		return(-Sigma*exp(ImSigma));*/
+		return(-2.*M*Sigma*exp(ImSigma));*/
 }
 
 long double ReSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
