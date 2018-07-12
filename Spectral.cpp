@@ -13,10 +13,17 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-#ifndef BB	//use option -D BB= to activate BB macro
-	char File[30] = "Spectralcc.";  //Name of the file
-#else
-     	char File[30] = "Spectralbb.";  //Name of the file
+#ifdef BB	//use option -D BB= to activate BB macro
+	char File[30] = "Spectralbb.";  //Name of the file
+#endif
+#ifdef CC
+     	char File[30] = "Spectralcc.";  //Name of the file
+#endif
+#ifdef RIEK
+     	char File[30] = "SpectralccRiek.";  //Name of the file
+#endif
+#ifdef SHUAI
+     	char File[30] = "SpectralccShuai.";  //Name of the file
 #endif
 	Process = argv[1];
 	strcat(File, argv[3]);
@@ -53,6 +60,7 @@ int main(int argc, char* argv[])
 		#pragma omp parallel for
 		for(j = iProcess; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process, calculation loop
 		{
+			Par[0] = -26.796184939764153;
 			Par[1] = 8.66343167061543;
 			Par[2] = 1.8;
 			if(argc == 4)

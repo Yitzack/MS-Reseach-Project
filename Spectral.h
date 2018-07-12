@@ -86,7 +86,10 @@ void mergeSort(long double List[], int a, int b)
 	return;
 }
 
+#ifndef GAMMA
 #define GAMMA -.015
+#endif
+
 #define LATTICE_N 24.
 #define A_INVERSE 2.8
 long double Boundary[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
@@ -928,6 +931,7 @@ long double omega_Width(long double zero, long double Par[5], long double k, lon
 //long double Par[5] = {g, Lambda, M, P, s}
 long double ImSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
 {
+#ifdef RIEK
 	long double Sigma;
 	long double Delta;
 	long double b1, b2;
@@ -989,7 +993,9 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		return(2.*M*Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2)))+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
 		return(2.*M*Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))));
-	/*long double omega0;	//location of central peak
+#endif
+#ifdef SHUAI
+	long double omega0;	//location of central peak
 	long double Sigma;	//size of energy dependance
 	long double a, b;	//slope of exponential decrease to left and right
 	long double knee;	//space to change from left to right side of peak
@@ -1059,11 +1065,13 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	if(pow(omega,2)>=pow(k,2))
 		return(-2.*M*Sigma*exp(ImSigma)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
-		return(-2.*M*Sigma*exp(ImSigma));*/
+		return(-2.*M*Sigma*exp(ImSigma));
+#endif
 }
 
 long double ReSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
 {
+#ifdef RIEK
 	long double Sigma;
 	long double M1, M2;
 	long double M_T;
@@ -1129,7 +1137,9 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 	M2 += Shift;
 
 	return(Sigma*gamma*(omega-sqrt(pow(M1,2)+pow(k,2)))/(pow(omega-sqrt(pow(M2,2)+pow(k,2)),2)+pow(gamma,2))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))));
-	/*long double Sigma;	//Strength
+#endif
+#if defined(SHUAI) || defined(CC) || defined(BB)
+	long double Sigma;	//Strength
 	long double x0, x1;	//Centrality markers
 	long double gamma;	//Width
 	long double Shift, M_T;
@@ -1179,7 +1189,8 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 			break;
 	}
 
-	return(Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));*/
+	return(Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));
+#endif
 }
 
 long double Energy(long double M, long double P, long double k, long double theta)	//Single quark energy, can return momentum if M=0
@@ -1243,12 +1254,12 @@ long double ImD(long double omega, long double k, long double M, int Temp)	//Sin
 
 long double Spin_Sum1(long double Par[5], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
 {
-	return(2.*(Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2)));
+	return(2.*(Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2))/pow(2.*Par[2],2));
 }
 
 long double Spin_Sum2(long double Par[5], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly pseudoscalar for now
 {
-	return(2.*(Par[4]/4.+pow(k,2)-pow(k0,2)-pow(Par[2],2)));
+	return(2.*(Par[4]/4.+pow(k,2)-pow(k0,2)-pow(Par[2],2))/pow(2.*Par[2],2));
 }
 
 long double ImFolding_Integrand1(long double Par[5], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for positive energy
