@@ -8,14 +8,14 @@
 using namespace std;
 
 //Integrals that define results and ancillary functions
-Elements theta_Int(long double[5], int);	//Integrates the theta results
-Elements k_Int(long double[5], int, long double);	//Integrates the k momentum results
-Elements Folding(long double[5], int, long double, long double);	//Folding integral, energy integral
+Elements theta_Int(long double[6], int);	//Integrates the theta results
+Elements k_Int(long double[6], int, long double);	//Integrates the k momentum results
+Elements Folding(long double[6], int, long double, long double);	//Folding integral, energy integral
 long double Newtons_theta(long double, long double, long double, long double);	//Executes a Newton's algorithm search for the maximum of f()
 long double D1(long double, long double, long double, long double);	//Finite difference definition, 4th order, 1st derivitive of f
 long double D2(long double, long double, long double, long double);	//Finite difference definition, 4th order, 2nd derivitive of f
 long double f(long double, long double, long double, long double);	//Analytic integrand of finite P, zero-width result for theta integrand
-void Characterize_k_Int(long double[5], int, long double, long double[21], long double[21], int&);	//Returns the poles of the k integral's integrands
+void Characterize_k_Int(long double[6], int, long double, long double[21], long double[21], int&);	//Returns the poles of the k integral's integrands
 bool Newton_Method_k(long double&, long double, long double, long double, long double, long double, long double(*)(long double, long double, long double, long double), long double(*)(long double, long double, long double, long double, long double));	//Returns the k-intesection of a potiential and on-shell peak
 long double V_Plus(long double, long double, long double, long double);	//Potiential peaks
 long double V_Minus(long double, long double, long double, long double);
@@ -27,26 +27,26 @@ long double mEpp(long double, long double, long double, long double, long double
 long double Epp(long double, long double, long double, long double, long double);
 long double Upper_Bound(long double, long double, long double, long double, long double);
 long double Lower_Bound(long double, long double, long double, long double, long double);
-void Characterize_Folding(long double[5], int, long double, long double, long double[6], long double[6], int&);	//Returns the poles of the folding integral's integrands
-long double Newton_Method_k0(long double, long double[5], long double, long double, int, long double (*)(long double[5], long double, long double, long double, int));
-long double omega_Width(long double, long double[5], long double, long double, int, long double (*)(long double[5], long double, long double, long double, int));
+void Characterize_Folding(long double[6], int, long double, long double, long double[6], long double[6], int&);	//Returns the poles of the folding integral's integrands
+long double Newton_Method_k0(long double, long double[6], long double, long double, int, long double (*)(long double[6], long double, long double, long double, int));
+long double omega_Width(long double, long double[6], long double, long double, int, long double (*)(long double[6], long double, long double, long double, int));
 
 //Straight Functions everything is built from
 long double ImSelf_Energy(long double, long double, long double, int);	//Imaginary single quark self energy
 long double ReSelf_Energy(long double, long double, long double, int);	//Real single quark self energy
 long double Energy(long double, long double, long double, long double);	//Single quark energy, can return momentum if M=0
 long double Fermi(long double, int);	//Fermi factor
-long double Potential_on(long double[5]);	//On-shell potential for the on-shell T-Matrix
-long double Potential1(long double[5], long double, long double);	//Potiential for the numerator of the boson spectrum
-long double Potential2(long double[5], long double, long double);	//Potiential for the denominator of the T-Matrix and boson spectrum
+long double Potential_on(long double[6]);	//On-shell potential for the on-shell T-Matrix
+long double Potential1(long double[6], long double, long double);	//Potiential for the numerator of the boson spectrum
+long double Potential2(long double[6], long double, long double);	//Potiential for the denominator of the T-Matrix and boson spectrum
 long double ImD(long double, long double, long double, int);	//Single quark spectral function
 long double ReD(long double, long double, long double, int);	//Single quark spectral function
-long double Spin_Sum1(long double[5], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
-long double Spin_Sum2(long double[5], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
-long double ImFolding_Integrand1(long double[5], long double, long double, long double, int);	//Integrand of the folding integral for positive energy
-long double ImFolding_Integrand2(long double[5], long double, long double, long double, int);	//Integrand of the folding integral for negative energy (anti-particle/particle-hole)
-long double ReFolding_Integrand1(long double[5], long double, long double, long double, int);	//Integrand of the folding integral for positive energy
-long double ReFolding_Integrand2(long double[5], long double, long double, long double, int);	//Integrand of the folding integral for negative energy (anti-particle/particle-hole)
+long double Spin_Sum1(long double[6], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
+long double Spin_Sum2(long double[6], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
+long double ImFolding_Integrand1(long double[6], long double, long double, long double, int);	//Integrand of the folding integral for positive energy
+long double ImFolding_Integrand2(long double[6], long double, long double, long double, int);	//Integrand of the folding integral for negative energy (anti-particle/particle-hole)
+long double ReFolding_Integrand1(long double[6], long double, long double, long double, int);	//Integrand of the folding integral for positive energy
+long double ReFolding_Integrand2(long double[6], long double, long double, long double, int);	//Integrand of the folding integral for negative energy (anti-particle/particle-hole)
 
 void mergeSort(long double List[], int a, int b)
 {
@@ -94,8 +94,8 @@ void mergeSort(long double List[], int a, int b)
 #define A_INVERSE 2.8
 long double Boundary[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
 
-//long double Par[5] = {g, Lambda, M, P, s}
-Elements theta_Int(long double Par[5], int Temp)
+//long double Par[6] = {g, Lambda, M, P, s}
+Elements theta_Int(long double Par[6], int Temp)
 {
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 35th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp
@@ -211,8 +211,8 @@ long double f(long double M, long double P, long double s, long double theta)	//
 	return(((-4.*pow(M,2)+s)*(pow(P,2)+s)*sqrt(-4.*pow(M*P,2)+2.*pow(P,2)*s+pow(s,2)+pow(P,2)*(4.*pow(M,2)+pow(P,2))*pow(sin(theta),2)+2.*P*cos(theta)*sqrt((-4.*pow(M,2)+s)*(pow(P,2)+s)*(s+pow(P*sin(theta),2))))*sin(theta))/(8.*abs(sqrt(-4.*pow(M,2)+s)*(pow(P,2)+s)+P*cos(theta)*(sqrt((pow(P,2)+s)*(s+pow(P*sin(theta),2)))-sqrt(s+pow(P*sin(theta),2))*sqrt((pow(s,2)+2.*pow(P,2)*(s-2.*pow(M*cos(theta),2))+pow(P,4)*pow(sin(theta),2)+2.*P*cos(theta)*sqrt((-4.*pow(M,2)+s)*(pow(P,2)+s)*(s+pow(P*sin(theta),2))))/(s+pow(P*sin(theta),2)))))*(s+pow(P*sin(theta),2))*sqrt((pow(s,2)+2.*pow(P,2)*(s-2.*pow(M*cos(theta),2))+pow(P,4)*pow(sin(theta),2)+2.*P*cos(theta)*sqrt((-4.*pow(M,2)+s)*(pow(P,2)+s)*(s+pow(P*sin(theta),2))))/(s+pow(P*sin(theta),2)))));
 }
 
-//long double Par[5] = {g, Lambda, M, P, s}
-Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the k momentum results
+//long double Par[6] = {g, Lambda, M, P, s}
+Elements k_Int(long double Par[6], int Temp, long double theta)	//Integrates the k momentum results
 {
 	/*if(4.*M_PI*A_INVERSE < Par[3])	//Prevents work when clearly the only possible answer is 0 as all momentum for aligned quark is greater than UV cutoff
 	{
@@ -360,7 +360,7 @@ Elements k_Int(long double Par[5], int Temp, long double theta)	//Integrates the
 	return(Answer);
 }
 
-void Characterize_k_Int(long double Par[5], int Temp, long double theta, long double zero[21], long double gamma[21], int &Poles) //Returns the poles of the k integral's integrands
+void Characterize_k_Int(long double Par[6], int Temp, long double theta, long double zero[21], long double gamma[21], int &Poles) //Returns the poles of the k integral's integrands
 {
 	long double holder;
 	int i, j, l;
@@ -646,8 +646,8 @@ long double Lower_Bound(long double s, long double P, long double k, long double
 	return(Energy(0,P/2.,k,theta)-sqrt(s+pow(P,2))/2.);
 }
 
-//long double Par[5] = {g, Lambda, M, P, s}
-Elements Folding(long double Par[5], int Temp, long double k, long double theta)	//Folding integral, energy integral
+//long double Par[6] = {g, Lambda, M, P, s}
+Elements Folding(long double Par[6], int Temp, long double k, long double theta)	//Folding integral, energy integral
 {
 	if(Temp == 0 && abs(sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta)-Energy(0,Par[3]/2.,k,theta)) < 1e-12)	//Let's save some time and just return 0, because it is
 		return(Elements(0,0,0));
@@ -816,7 +816,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 	return(Answer/M_PI);
 }
 
-void Characterize_Folding(long double Par[5], int Temp, long double k, long double theta, long double zero[10], long double gamma[10], int &Poles)
+void Characterize_Folding(long double Par[6], int Temp, long double k, long double theta, long double zero[10], long double gamma[10], int &Poles)
 {
 	long double Lower, Upper;	//Limits of integration in Folding, vacuum limits are much smaller
 	long double holder;
@@ -905,7 +905,7 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 	return;
 }
 
-long double Newton_Method_k0(long double k0, long double Par[5], long double k, long double theta, int Temp, long double (*Folding)(long double[5], long double, long double, long double, int))
+long double Newton_Method_k0(long double k0, long double Par[6], long double k, long double theta, int Temp, long double (*Folding)(long double[6], long double, long double, long double, int))
 {
 	long double new_k0;
 	const long double h = 1e-4;
@@ -923,12 +923,12 @@ long double Newton_Method_k0(long double k0, long double Par[5], long double k, 
 	return(k0);
 }
 
-long double omega_Width(long double zero, long double Par[5], long double k, long double theta, int Temp, long double (*Folding)(long double[5], long double, long double, long double, int))
+long double omega_Width(long double zero, long double Par[6], long double k, long double theta, int Temp, long double (*Folding)(long double[6], long double, long double, long double, int))
 {
 	return(sqrt(abs(2e-10*Folding(Par, zero, k, theta, Temp)/(Folding(Par, zero-1e-5, k, theta, Temp)-2.*Folding(Par, zero, k, theta, Temp)+Folding(Par, zero+1e-5, k, theta, Temp)))));
 }
 
-//long double Par[5] = {g, Lambda, M, P, s}
+//long double Par[6] = {g, Lambda, M, P, s}
 long double ImSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
 {
 #ifdef RIEK
@@ -1232,19 +1232,19 @@ long double Fermi(long double omega, int T)	//Fermi factor
 	return(1./(1.+exp(omega/Temp)));
 }
 
-long double Potential_on(long double Par[5])	//On-shell potential for the on-shell T-Matrix
+long double Potential_on(long double Par[6])	//On-shell potential for the on-shell T-Matrix
 {
-	return(Par[0]*pow(Par[1],4)/(pow(Par[1],4)+pow(Par[4],2)));
+	return(Par[0]*pow(Par[1],4)/(pow(Par[1],4)+pow(Par[4],2))*exp((4.*pow(Par[2],2)-Par[4])*pow(Par[6],2)));
 }
 
-long double Potential1(long double Par[5], long double k0, long double k)	//Potiential for the numerator of the boson spectrum
+long double Potential1(long double Par[6], long double k0, long double k)	//Potiential for the numerator of the boson spectrum
 {
-	return(sqrt(pow(Par[1],4)/(pow(Par[1],4)+pow(-4.*pow(k0,2)+4.*pow(k,2)+4.*pow(Par[2],2),2))));
+	return(sqrt(pow(Par[1],4)/(pow(Par[1],4)+pow(-4.*pow(k0,2)+4.*pow(k,2)+4.*pow(Par[2],2),2))*exp((4.*pow(k0,2)-4.*pow(k,2))*pow(Par[6],2))));
 }
 
-long double Potential2(long double Par[5], long double k0, long double k)	//Potiential for the denominator of the T-Matrix and boson spectrum
+long double Potential2(long double Par[6], long double k0, long double k)	//Potiential for the denominator of the T-Matrix and boson spectrum
 {
-	return(Par[0]*pow(Par[1],4)/(pow(Par[1],4)+pow(-4.*pow(k0,2)+4.*pow(k,2)+4.*pow(Par[2],2),2)));
+	return(Par[0]*pow(Par[1],4)/(pow(Par[1],4)+pow(-4.*pow(k0,2)+4.*pow(k,2)+4.*pow(Par[2],2),2))*exp((4.*pow(k0,2)-4.*pow(k,2))*pow(Par[6],2)));
 }
 
 long double ImD(long double omega, long double k, long double M, int Temp)	//Single quark spectral function
@@ -1252,22 +1252,22 @@ long double ImD(long double omega, long double k, long double M, int Temp)	//Sin
 	return(ImSelf_Energy(M, omega, k, Temp)/(pow(pow(omega,2)-pow(k,2)-pow(M,2)-2.*M*ReSelf_Energy(M, omega, k, Temp),2)+pow(ImSelf_Energy(M, omega, k, Temp),2)));
 }
 
-long double Spin_Sum1(long double Par[5], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
+long double Spin_Sum1(long double Par[6], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
 {
 	return((Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2))/pow(Par[2],2));
 }
 
-long double Spin_Sum2(long double Par[5], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly pseudoscalar for now
+long double Spin_Sum2(long double Par[6], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly pseudoscalar for now
 {
 	return((Par[4]/4.+pow(k,2)-pow(k0,2)-pow(Par[2],2))/pow(Par[2],2));
 }
 
-long double ImFolding_Integrand1(long double Par[5], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for positive energy
+long double ImFolding_Integrand1(long double Par[6], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for positive energy
 {
 	return(-pow(Par[2],2)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), Par[2], Temp)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), Par[2], Temp)*(1.-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp)));
 }
 
-long double ImFolding_Integrand2(long double Par[5], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for negitive energy (anti-particle/particle-hole)
+long double ImFolding_Integrand2(long double Par[6], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for negitive energy (anti-particle/particle-hole)
 {
 	return(-pow(Par[2],2)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), Par[2], Temp)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), Par[2], Temp)*(Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp)));
 
