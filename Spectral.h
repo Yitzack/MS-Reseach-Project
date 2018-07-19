@@ -718,14 +718,14 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			long double x1 = (b+a-Disp[l]*(b-a))/2.;
 			long double x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			holder = (Elements(Spin_Sum1(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*complex<long double>(ReFolding_Integrand1(Par,x1,k,theta,Temp),ImFolding_Integrand1(Par,x1,k,theta,Temp))/*+Elements(Spin_Sum2(Par, -x1, k, theta), 2.*Potential1(Par,-x1,k), Potential2(Par,-x1,k))*complex<long double>(ReFolding_Integrand2(Par,-x1,k,theta,Temp),ImFolding_Integrand2(Par,-x1,k,theta,Temp))*/);
+			holder = (Elements(Spin_Sum1(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*ImFolding_Integrand1(Par,x1,k,theta,Temp));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 			F += holder*w[l+1];
-			holder = (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*complex<long double>(ReFolding_Integrand1(Par,x2,k,theta,Temp),ImFolding_Integrand1(Par,x2,k,theta,Temp))/*+Elements(Spin_Sum2(Par, -x2, k, theta), 2.*Potential1(Par,-x2,k), Potential2(Par,-x2,k))*complex<long double>(ReFolding_Integrand2(Par,-x2,k,theta,Temp),ImFolding_Integrand2(Par,-x2,k,theta,Temp))*/);
+			holder = (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*,ImFolding_Integrand1(Par,x2,k,theta,Temp));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 			F += holder*w[l+1];
 		}
-		holder = (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*complex<long double>(ReFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp),ImFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp))/*+Elements(Spin_Sum2(Par, -(a+b)/2., k, theta), 2.*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*complex<long double>(ReFolding_Integrand2(Par,-(a+b)/2.,k,theta,Temp),ImFolding_Integrand2(Par,-(a+b)/2.,k,theta,Temp))*/);
+		holder = (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*ImFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp));
 		//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 		F += holder*w[0];
 
@@ -756,14 +756,14 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 				long double x1 = (b+a-Disp[l]*(b-a))/2.;
 				long double x2 = (b+a+Disp[l]*(b-a))/2.;
 
-				holder = (Elements(Spin_Sum1(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*complex<long double>(ReFolding_Integrand1(Par,x1,k,theta,Temp),ImFolding_Integrand1(Par,x1,k,theta,Temp))/*+Elements(Spin_Sum2(Par, -x1, k, theta), 2.*Potential1(Par,-x1,k), Potential2(Par,-x1,k))*complex<long double>(ReFolding_Integrand2(Par,-x1,k,theta,Temp),ImFolding_Integrand2(Par,-x1,k,theta,Temp))*/);
+				holder = (Elements(Spin_Sum1(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*ImFolding_Integrand1(Par,x1,k,theta,Temp));
 				//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 				F += holder*w[l+1];
-				holder = (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*complex<long double>(ReFolding_Integrand1(Par,x2,k,theta,Temp),ImFolding_Integrand1(Par,x2,k,theta,Temp))/*+Elements(Spin_Sum2(Par, -x2, k, theta), 2.*Potential1(Par,-x2,k), Potential2(Par,-x2,k))*complex<long double>(ReFolding_Integrand2(Par,-x2,k,theta,Temp),ImFolding_Integrand2(Par,-x2,k,theta,Temp))*/);
+				holder = (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*ImFolding_Integrand1(Par,x2,k,theta,Temp));
 				//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 				F += holder*w[l+1];
 			}
-			holder = (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*complex<long double>(ReFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp),ImFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp))/*+Elements(Spin_Sum2(Par, -(a+b)/2., k, theta), 2.*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*complex<long double>(ReFolding_Integrand2(Par,-(a+b)/2.,k,theta,Temp),ImFolding_Integrand2(Par,-(a+b)/2.,k,theta,Temp))*/);
+			holder = (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*ImFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 			F += holder*w[0];
 
@@ -1075,19 +1075,16 @@ long double Fermi(long double omega, int T)	//Fermi factor
 
 long double Potential_on(long double Par[5])	//On-shell potential for the on-shell T-Matrix
 {
-//	return(Par[0]*pow(pow(Par[1],4)/(pow(Par[1],4)+pow(Par[4]-4.*pow(Par[2],2),2)),2));
 	return(Par[0]/(2.*M_PI*pow(Par[1],2))*exp(-pow((Par[4]-4.*pow(Par[2],2))/Par[1],2)));
 }
 
 long double Potential1(long double Par[5], long double k0, long double k)	//Potiential for the numerator of the boson spectrum
 {
-//	return(pow(Par[1],4)/(pow(Par[1],4)+pow(pow(4.*pow(k0,2)-4.*pow(k,2),2)));
 	return(1./sqrt(2.*M_PI)/Par[1]*exp(-pow((4.*pow(k0,2)-4.*pow(k,2))/Par[1],2)/2.));
 }
 
 long double Potential2(long double Par[5], long double k0, long double k)	//Potiential for the denominator of the T-Matrix and boson spectrum
 {
-//	return(Par[0]*pow(pow(Par[1],4)/(pow(Par[1],4)+pow(pow(4.*pow(k0,2)-4.*pow(k,2),2)),2));
 	return(Par[0]/(2.*M_PI*pow(Par[1],2))*exp(-pow((4.*pow(k0,2)-4.*pow(k,2))/Par[1],2)));
 }
 
@@ -1096,150 +1093,14 @@ long double ImD(long double omega, long double k, long double M, int Temp)	//Sin
 	return(ImSelf_Energy(M, omega, k, Temp)/(pow(pow(omega,2)-pow(k,2)-pow(M,2)-ReSelf_Energy(M, omega, k, Temp),2)+pow(ImSelf_Energy(M, omega, k, Temp),2)));
 }
 
-long double ReD(long double omega, long double k, long double M, int Temp)	//Single quark spectral function
+long double Spin_Sum1(long double Par[6], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
 {
-	return((pow(omega,2)-pow(k,2)-pow(M,2)-ReSelf_Energy(M, omega, k, Temp))/(pow(pow(omega,2)-pow(k,2)-pow(M,2)-ReSelf_Energy(M, omega, k, Temp),2)+pow(ImSelf_Energy(M, omega, k, Temp),2)));
+	return((Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2))/pow(Par[2],2));
 }
 
-long double Spin_Sum1(long double Par[5], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
+long double Spin_Sum2(long double Par[6], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly pseudoscalar for now
 {
-	return(2.*(Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2)));
-}
-
-long double Spin_Sum2(long double Par[5], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly vector for now
-{
-	return(4.*(Par[4]/4.+pow(k,2)-pow(k0,2)-2.*pow(Par[2],2)));
-}
-
-long double ReFolding_Integrand1(long double Par[5], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for positive energy
-{
-	//return(-pow(Par[2],2)*ReD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), Par[2], Temp)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), Par[2], Temp)*(1.-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp))-pow(Par[2],2)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), Par[2], Temp)*ReD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), Par[2], Temp)*(1.-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp)));
-	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 35th order Gauss-Legendre integration
-	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204}; //Weight of the function at Disp
-	long double Range[] = {-Boundary[7], -Boundary[6], -Boundary[5], -Boundary[4], -Boundary[3], -Boundary[2], -Boundary[1], -Boundary[0], 0, Boundary[0], Boundary[1], Boundary[2], Boundary[3], Boundary[4], Boundary[5], Boundary[6], Boundary[7]};	//Number of gamma from center
-	long double a, b;	//Sub-interval limits of integration
-	long double LocalPar[5] = {Par[0],Par[1],Par[2],Par[3],Par[4]};
-	long double Min, Max;	//need to store these so that I know over what range I completed the integral
-	long double F;	//Sum of ordinates*weights
-	long double Answer = 0;		//Results to be returned
-	long double Partial = 0;	//Partial Answer
-	long double holder;
-	//long double x1, x2;	//Abscissa
-	long double zero[3];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
-	long double gamma[3];	//Imaginary part of poles
-	int Intervals;		//Number of intervals required by poles and discontinuities
-	int i, j, l;		//Counting varibles
-	//ofstream Table("ReG Table", ios::app);
-	//ofstream Poles_Table("ReG Poles", ios::app);
-
-	zero[0] = 4.*pow(k0,2)+4.*pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(Par[3],2)-8.*abs(k0)*Energy(Par[2],Par[3]/2.,-k,theta);
-	zero[1] = 4.*pow(k0,2)+4.*pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(Par[3],2)+8.*abs(k0)*Energy(Par[2],Par[3]/2.,-k,theta);
-	gamma[0] = gamma[1] = abs(imag(sqrt(complex<long double>(pow(Energy(Par[2],Par[3]/2.,-k,theta),2)-pow(GAMMA,2)/2.,sqrt(pow(Par[2]*GAMMA,2)-pow(GAMMA,4)/4.)))));
-	//for(i = 0; i < 2; i++)
-		//Poles_Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << k0 << " " << zero[i] << " " << gamma[i] << endl;
-	long double Stops[56];	//Intervals that are required by integrating near poles
-
-	l = 0;
-	for(i = 0; i < 2; i++)
-	{
-		if(gamma[i] == gamma[i])	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
-			for(j = 0; j < 17; j++)
-			{
-				Stops[l] = zero[i]+gamma[i]*Range[j];	//Stops as required by poles
-				l++;
-			}
-		else	//At lease insert the central point of the pole so that a certain amount of information isn't lost
-		{
-			Stops[l] = zero[i];
-			l++;
-		}
-	}
-	Stops[l] = 4.*pow(k0+Energy(0,Par[3]/2.,-k,theta),2)-pow(Par[3],2);
-	Stops[l+1] = 4.*pow(k0-Energy(0,Par[3]/2.,-k,theta),2)-pow(Par[3],2);
-	Stops[l+2] = -pow(Par[3],2);
-	Stops[l+3] = 4.*pow(k0,2)-pow(Par[3],2);
-	Stops[l+4] = Par[4];	//Inserted here as a cleaver trick to ensure that Par[4] is not an abscissa and cause 0./0.=nan
-
-	mergeSort(Stops, 0, l+4);
-
-	i = 0;
-	j = 0;
-	while(Stops[j] < -pow(Par[3],2))
-		j++;
-	for(; j < l+5; j++)
-	{
-		if((i > 0 && abs(1.-Stops[i-1]/Stops[j])>1e-8) || i == 0)
-		{
-			Stops[i] = Stops[j];
-			i++;
-		}
-	}
-	Intervals = i;
-
-	a = b = Stops[0];
-
-	i = 1;
-	Min = a;
-	do
-	{
-		if((i < Intervals && b+100 < Stops[i]) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
-			b += 100;
-		else if((i < Intervals && b+50 < Stops[i]) || Stops[Intervals-1] < a-50)
-			b += 50;
-		else if((i < Intervals && b+10 < Stops[i]) || Stops[Intervals-1] < a-10)
-			b += 10;
-		else if((i < Intervals && b+3 < Stops[i]) || Stops[Intervals-1] < a-3)
-			b += 3;
-		else if(i < Intervals)
-		{
-			b = Stops[i];
-			i++;
-		}
-
-		F = 0;
-		#pragma omp parallel for
-		for(l = 0; l < 9; l++)	//Integrate the sub-interval
-		{
-			long double x1 = (b+a-Disp[l]*(b-a))/2.;
-			long double x2 = (b+a+Disp[l]*(b-a))/2.;
-
-			LocalPar[4] = x1;
-			holder = (ImFolding_Integrand1(LocalPar, k0, k, theta, Temp)-ImFolding_Integrand1(Par, k0, k, theta, Temp))/(x1-Par[4]);
-			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << k0 << " " << x1 << " " << holder << endl;
-			F += holder*w[l+1];
-			LocalPar[4] = x2;
-			holder = (ImFolding_Integrand1(LocalPar, k0, k, theta, Temp)-ImFolding_Integrand1(Par, k0, k, theta, Temp))/(x2-Par[4]);
-			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << k0 << " " << x2 << " " << holder << endl;
-			F += holder*w[l+1];
-		}
-		LocalPar[4] = (a+b)/2.;
-		holder = (ImFolding_Integrand1(LocalPar, k0, k, theta, Temp)-ImFolding_Integrand1(Par, k0, k, theta, Temp))/((a+b)/2.-Par[4]);
-		//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << k0 << " " << (a+b)/2. << " " << holder << endl;
-		F += holder*w[0];
-
-		Partial = F*(b-a)/(2.);
-		Answer += Partial;
-		a = b;
-	}while(i < Intervals || abs(Partial/Answer) >= .0001);
-	Max = a;
-
-	if(Par[4] != Min)
-		Answer += ImFolding_Integrand1(Par, k0, k, theta, Temp)*log((Max-Par[4])/(Par[4]-Min));
-	else
-	{
-		LocalPar[4] = .0001;
-		Answer += 2.*ImFolding_Integrand1(LocalPar, k0, k, theta, Temp)*log((Max-LocalPar[4])/(LocalPar[4]-Min));
-		LocalPar[4] = .0002;
-		Answer -= ImFolding_Integrand1(LocalPar, k0, k, theta, Temp)*log((Max-LocalPar[4])/(LocalPar[4]-Min));
-	}
-
-	return(Answer);
-
-}
-
-long double ReFolding_Integrand2(long double Par[5], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for negitive energy (anti-particle/particle-hole)
-{
-	return(-pow(Par[2],2)*ReD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), Par[2], Temp)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), Par[2], Temp)*(Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp))-pow(Par[2],2)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), Par[2], Temp)*ReD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), Par[2], Temp)*(Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp)));
+	return((Par[4]/4.+pow(k,2)-pow(k0,2)-pow(Par[2],2))/pow(Par[2],2));
 }
 
 long double ImFolding_Integrand1(long double Par[5], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for positive energy
