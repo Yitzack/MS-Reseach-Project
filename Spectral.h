@@ -721,7 +721,7 @@ Elements Folding(long double Par[5], int Temp, long double k, long double theta)
 			holder = (Elements(Spin_Sum1(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*ImFolding_Integrand1(Par,x1,k,theta,Temp));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 			F += holder*w[l+1];
-			holder = (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*,ImFolding_Integrand1(Par,x2,k,theta,Temp));
+			holder = (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*ImFolding_Integrand1(Par,x2,k,theta,Temp));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0).imag() << " " << holder.store(1).real() << " " << holder.store(1).imag() << " " << holder.store(2).real() << " " << holder.store(2).imag() << endl;
 			F += holder*w[l+1];
 		}
