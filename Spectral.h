@@ -17,7 +17,8 @@ int Newtons_Test_k_Int(long double, long double, long double, long double, long 
 void Characterize_Folding(long double[5], int, long double, long double, long double[4], long double[4], int&); //Returns the poles of the folding integral's integrands
 
 //Straight Functions everything is built from
-long double Self_Energy(long double, long double, long double, int);	//Single quark self energy
+long double ReSelf_Energy(long double, long double, long double, int);	//Single quark self energy
+long double ImSelf_Energy(long double, long double, long double, int);	//Single quark self energy
 long double Energy(long double, long double, long double, long double);	//Single quark energy, can return momentum if M=0
 long double Fermi(long double, int);	//Fermi factor
 long double Potential_on(long double[5]);	//On-shell potential for the on-shell T-Matrix
@@ -504,74 +505,268 @@ void Characterize_Folding(long double Par[5], int Temp, long double k, long doub
 }
 
 //long double Par[5] = {g, Lambda, M, P, s}
-long double Self_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
+long double ImSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
 {
-	long double Par[6];	//Momentum dependance parameterization
-	long double E_0 = Energy(M,k,0,0); //location of lorentzian
-	long double Sigma; //size of energy dependance
-	long double b1, b2; //width of lorentzian
-	long double Delta; //Exponential parameters
+#ifdef RIEK
+	long double Sigma;
+	long double Delta;
+	long double b1, b2;
+	long double M1,M_T;
+	long double a;
+	long double sigma1, sigma2;
+	long double Floor;
+	
+	switch(Temp)
+	{
+		case 0:
+			if(pow(omega,2)>=pow(k,2))
+				return(sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+			else
+				return(0);
+			break;
+		case 1:
+			Sigma = -1.12031;
+			Delta = -1.11823;
+			b1 = 3.42062;
+			b2 = 2.34212;
+			M_T = 1.848;
+			M1 = 1.55744;
+			a = 2.2094;
+			sigma1 = 2.574538196654789;
+			sigma2 = 2.5745381961599816;
+			Floor = .928942;
+			break;
+		case 2:
+			Sigma = -.096194;
+			Delta = 1.16782;
+			b1 = 3.27672;
+			b2 = 1.87149;
+			M_T = 1.719;
+			M1 = 1.54196;
+			a = .760248;
+			sigma1 = 3.41189;
+			sigma2 = 1.38003;
+			Floor = .818425;
+			break;
+		case 3:
+			Sigma = -.0995278;
+			Delta = 1.29695;
+			b1 = 3.21382;
+			b2 = 1.35479;
+			M_T = 1.563;
+			M1 = 1.46014;
+			a = .752122;
+			sigma1 = 3.38156;
+			sigma2 = 1.30001;
+			Floor = .905761;
+			break;
+	}
+	Floor = 0;
+	long double Shift = M-M_T;
+	M1 += Shift;
+
+	if(pow(omega,2)>=pow(k,2))
+		return(2.*M*Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2)))+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+	else
+		return(2.*M*Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))));
+#endif
+#ifdef SHUAI
+	long double omega0;	//location of central peak
+	long double Sigma;	//size of energy dependance
+	long double a, b;	//slope of exponential decrease to left and right
+	long double knee;	//space to change from left to right side of peak
+	long double M_T, Shift;
 
 	switch(Temp)
 	{
 		case 0:
-			if(omega>k)
-				return(GAMMA*sqrt(pow(omega,2)-pow(k,2)));
+			if(pow(omega,2)>=pow(k,2))
+				return(sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 			else
 				return(0);
 			break;
-		case 1://235.2MeV
-			Sigma = -0.1289680072519721;
-			b1 = 3.322825262881092;
-			b2 = 2.2878310836782014;
-			Delta = 1.228601982782018;
-			Par[0] = .7359389831810698;
-			Par[1] = 7.487501146014314;
-			Par[2] = 1.9490238595657456;
-			Par[3] = .700215754;
-			Par[4] = 10;
-			Par[5] = 3;
+		case 1://194MeV
+			M_T = 1.84184;
+			Shift = M-M_T;
+			Sigma = .585335/sqrt(pow(k,2)+pow(1.85515,2));
+			a = 5.05953/(pow(k,2)+pow(1.11686,2))+6.09943;
+			b = -8.08693/(pow(k,2)+pow(2.70494,2))+3.25177;
+			omega0 = sqrt(pow(1.49006+Shift,2)+pow(k,2))+.248573;
+			knee = 3.84788*pow(k+1.,(long double)-.335162);
 			break;
-		case 2://294MeV
-			Sigma = -0.09606152620146369;
-			b1 = 3.285053276019642;
-			b2 = 1.886285913340202;
-			Delta = 1.1858269101609233;
-			Par[0] = .7409390219065235;
-			Par[1] = 7.450458343071824;
-			Par[2] = 1.8620618988580635;
-			Par[3] = .860810762;
-			Par[4] = 10;
-			Par[5] = 3;
+		case 2://285MeV
+			M_T = 1.69584;
+			Shift = M-M_T;
+			Sigma = .660137/sqrt(pow(k,2)+pow(1.90299,2));
+			a = 2.82635/(pow(k,2)+pow(.916643,2))+4.19118;
+			b = -83.3834/(pow(k,2)+pow(8.8641,2))+2.93508;
+			omega0 = sqrt(pow(1.45524+Shift,2)+pow(k,2))+.247213;
+			knee = 3.29189*pow(k+1.,(long double)-.575497);
 			break;
-		case 3://362MeV
-			Sigma = -0.09933548776506283;
-			b1 = 3.2108770392083246;
-			b2 = 1.3694064180118886;
-			Delta = 1.3043774341616825;
-			Par[0] = .7426375963204489;
-			Par[1] = 7.698646415632565;
-			Par[2] = 1.771465704769189;
-			Par[3] = .608717852;
-			Par[4] = 10;
-			Par[5] = 3;
+		case 3://320MeV
+			M_T = 1.59439;
+			Shift = M-M_T;
+			Sigma = .670397/sqrt(pow(k,2)+pow(1.96561,2));
+			a = 2.42808/(pow(k,2)+pow(.840297,2))+3.42835;
+			b = .0167941/(pow(k,2)+pow(.47573,2))+1.70158;
+			omega0 = sqrt(pow(1.42617+Shift,2)+pow(k,2))+.258289;
+			knee = 3.59947*pow(k+1.,(long double)-.710425);
+			break;
+		case 4://400MeV
+			M_T = 1.48038;
+			Shift = M-M_T;
+			Sigma = .592982/sqrt(pow(k,2)+pow(2.06656,2));
+			a = 2.09377/(pow(k,2)+pow(.763871,2))+2.65712;
+			b = .366499/(pow(k,2)+pow(1.06864,2))+1.35141;
+			omega0 = sqrt(pow(1.38555+Shift,2)+pow(k,2))+.253076;
+			knee = 3.49204*pow(k+1.,(long double)-.925502);
 			break;
 		default:
 			Sigma = 0;
-			b1 = 0;
-			b2 = 0;
-			Delta = 0;
-			Par[0] = 1;
-			Par[1] = 1;
-			Par[2] = 1;
-			Par[3] = 0;
-			Par[4] = 0;
-			Par[5] = 0;
+			a = 1;
+			b = 1;
+			omega0 = 1;
+			knee = 1;
 			break;
 	}
 
-	return((Par[0]*exp(-pow(k/Par[1],2))+(1-Par[0])*exp(-pow(k/Par[2],2))+Par[3])*(Sigma*exp(Delta+(b1-b2)*(omega-E_0)*E_0/2.-sqrt(b1*b2*pow((omega-E_0)*E_0,2)+pow(Delta+(b1-b2)*(omega-E_0)*E_0/2.,2))))*M/E_0);
+	long double ImSigma;	//Calculation of the argument to the exponential, these first 2 are approximations to hopefully avoid catastrophic loss of precision
+	if((omega-omega0+knee*(b-a)/(sqrt(a*b)*(a+b)))/knee < -4.)
+		ImSigma = a*(omega-omega0+knee/sqrt(a*b));
+	else if((omega-omega0+knee*(b-a)/(sqrt(a*b)*(a+b)))/knee > 4.)
+		ImSigma = b*(omega0-omega+knee/sqrt(a*b));
+	else
+		ImSigma = -.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))),2)+pow(knee,2));
 
+	if(pow(omega,2)>=pow(k,2))
+		return(-2.*M*Sigma*exp(ImSigma)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+	else
+		return(-2.*M*Sigma*exp(ImSigma));
+#endif
+}
+
+long double ReSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
+{
+#ifdef RIEK
+	long double Sigma;
+	long double M1, M2;
+	long double M_T;
+	long double gamma;
+	long double a;
+	long double sigma1, sigma2;
+	long double Floor;
+	
+	switch(Temp)
+	{
+		case 0:
+			return(0);
+			break;
+		case 1:
+			/*Sigma = .040845;
+			M1 = 1.67925;
+			M2 = 1.65299;
+			gamma = .337277;*/
+			Sigma = .135862;
+			M1 = 1.6734;
+			M2 = 1.65605;
+			gamma = .435771/sqrt(pow(k,2)+pow(1.45558,2))+.000075623;
+			M_T = 1.848;
+			a = 2.2094;
+			sigma1 = 2.574538196654789;
+			sigma2 = 2.5745381961599816;
+			Floor = .928942;
+			break;
+		case 2:
+			/*Sigma = .0364537;
+			M1 = 1.58845;
+			M2 = 1.55012;
+			gamma = .394468;*/
+			Sigma = .100932;
+			M1 = 1.58441;
+			M2 = 1.55442;
+			M_T = 1.719;
+			gamma = .508717/sqrt(pow(k,2)+pow(1.42858,2))+.0000832943;
+			a = .760248;
+			sigma1 = 3.41189;
+			sigma2 = 1.38003;
+			Floor = .818425;
+			break;
+		case 3:
+			/*Sigma = .050848;
+			M1 = 1.54629;
+			M2 = 1.47387;
+			gamma = .517924;*/
+			Sigma = .104446;
+			M1 = 1.53819;
+			M2 = 1.4777;
+			M_T = 1.563;
+			gamma = .627196/sqrt(pow(k,2)+pow(1.3015,2))+.000261014;
+			a = .752122;
+			sigma1 = 3.38156;
+			sigma2 = 1.30001;
+			Floor = .905761;
+			break;
+	}
+	Floor = 0;
+	long double Shift = M-M_T;
+	M1 += Shift;
+	M2 += Shift;
+
+	return(Sigma*gamma*(omega-sqrt(pow(M1,2)+pow(k,2)))/(pow(omega-sqrt(pow(M2,2)+pow(k,2)),2)+pow(gamma,2))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))));
+#endif
+#if defined(SHUAI) || defined(CC) || defined(BB)
+	long double Sigma;	//Strength
+	long double x0, x1;	//Centrality markers
+	long double gamma;	//Width
+	long double Shift, M_T;
+
+	switch(Temp)
+	{
+		case 0:
+			return(0);
+			break;
+		case 1://194MeV
+			M_T = 1.84184;
+			Shift = M-M_T;
+			Sigma = .244368/sqrt(pow(k,2)+pow(1.32368,2));
+			x0 = sqrt(pow(k,2)+pow(1.5567+Shift,2))+.279476;
+			x1 = sqrt(pow(k,2)+pow(1.50202+Shift,2))+.259;
+			gamma = .320676/sqrt(pow(k,2)+pow(1.56455,2))+.080032;
+			break;
+		case 2://258MeV
+			M_T = 1.69584;
+			Shift = M-M_T;
+			Sigma = .322887/sqrt(pow(k,2)+pow(1.34236,2));
+			x0 = sqrt(pow(k,2)+pow(1.54159+Shift,2))+.280535;
+			x1 = sqrt(pow(k,2)+pow(1.46598+Shift,2))+.260561;
+			gamma = .694901/sqrt(pow(k,2)+pow(2.13185,2))+.0653795;
+			break;
+		case 3://320MeV
+			M_T = 1.59439;
+			Shift = M-M_T;
+			Sigma = .375163/sqrt(pow(k,2)+pow(1.41612,2));
+			x0 = sqrt(pow(k,2)+pow(1.45507+Shift,2))+.337448;
+			x1 = sqrt(pow(k,2)+pow(1.40846+Shift,2))+.289292;
+			gamma = .690491/sqrt(pow(k,2)+pow(1.97525,2))+.141465;
+			break;
+		case 4://400MeV
+			M_T = 1.48038;
+			Shift = M-M_T;
+			Sigma = .370623/sqrt(pow(k,2)+pow(1.53585,2));
+			x0 = sqrt(pow(k,2)+pow(1.39619+Shift,2))+.35548;
+			x1 = sqrt(pow(k,2)+pow(1.3481+Shift,2))+.296587;
+			gamma = .857781/sqrt(pow(k,2)+pow(2.25072,2))+.196022;
+			break;
+		default:
+			Sigma = 0;
+			x0 = 1;
+			x1 = 1;
+			gamma = 1;
+			break;
+	}
+
+	return(Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));
+#endif
 }
 
 long double Energy(long double M, long double P, long double k, long double theta)	//Single quark energy, can return momentum if M=0
@@ -621,12 +816,12 @@ long double Potential2(long double Par[5], long double omega, long double k)	//P
 
 long double Quark_Spectrum(long double omega, long double k, long double M, int Temp)	//Single quark spectral function
 {
-	return(Self_Energy(M, omega, k, Temp)/(pow(pow(omega,2)-pow(k,2)-pow(M,2),2)+pow(Self_Energy(M, omega, k, Temp),2)));
+	return(ImSelf_Energy(M, omega, k, Temp)/(pow(pow(omega,2)-pow(k,2)-pow(M,2)-2.*M*ReSelf_Energy(M, omega, k, Temp),2)+pow(ImSelf_Energy(M, omega, k, Temp),2)));
 }
 
 long double Spin_Sum(long double Par[5], long double omega, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
 {
-	return(4.*(-pow(Par[3],2)/4.+pow(k,2)+Par[3]*k*cos(theta)+2.*pow(Par[2],2)+omega*(sqrt(Par[4]+pow(Par[3],2))-omega)));
+	return((-pow(Par[3],2)/4.+pow(k,2)+Par[3]*k*cos(theta)+2.*pow(Par[2],2)+omega*(sqrt(Par[4]+pow(Par[3],2))-omega))/pow(Par[2],2));
 }
 
 long double Folding_Integrand(long double Par[5], long double omega, long double k, long double theta, int Temp)	//Integrand of the folding integral
