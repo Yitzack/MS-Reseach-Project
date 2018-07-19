@@ -13,7 +13,18 @@ char* Process;
 
 int main(int argc, char* argv[])
 {
-	char File[25] = "Spectral.";	//Name of the file
+#ifdef BB	//use option -D BB= to activate BB macro
+	char File[50] = "Spectralbb.";  //Name of the file
+#endif
+#ifdef CC
+     	char File[50] = "SpectralccLambda2.1.";  //Name of the file
+#endif
+#ifdef RIEK
+     	char File[50] = "SpectralccRiek.";  //Name of the file
+#endif
+#ifdef SHUAI
+     	char File[50] = "SpectralccShuai.";  //Name of the file
+#endif
 	Process = argv[1];
 	strcat(File, argv[3]);
 	strcat(File, ".");
