@@ -17,7 +17,8 @@ int Newtons_Test_k_Int(long double, long double, long double, long double, long 
 void Characterize_Folding(long double[5], int, long double, long double, long double[4], long double[4], int&); //Returns the poles of the folding integral's integrands
 
 //Straight Functions everything is built from
-long double Self_Energy(long double, long double, long double, int);	//Single quark self energy
+long double ImSelf_Energy(long double, long double, long double, int);	//Single quark self energy
+long double ReSelf_Energy(long double, long double, long double, int);	//Single quark self energy
 long double Energy(long double, long double, long double, long double);	//Single quark energy, can return momentum if M=0
 long double Fermi(long double, int);	//Fermi factor
 long double Potential_on(long double[5]);	//On-shell potential for the on-shell T-Matrix
