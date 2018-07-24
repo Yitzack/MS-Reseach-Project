@@ -1,18 +1,22 @@
+#include<cstdlib>
+using namespace std;
+
 class Elements
 {
 	public:
 		Elements operator+(Elements);
 		void operator+=(const Elements &);
 		bool operator>=(long double);
+		bool operator==(long double);
 		bool operator>(long double);
 		Elements operator-(Elements);
-		Elements operator/(Elements);
+		Elements operator/(Elements);	//This is about accuracy, not the correct definition of division
 		Elements operator*(long double);
 		Elements operator/(long double);
 		Elements operator+(long double);
 		Elements operator-(long double);
 		Elements abs();
-		long double abs(long double&);
+		//long double abs(long double&);
 		void operator=(const Elements&);
 		Elements();
 		Elements(long double, long double, long double);
@@ -20,24 +24,14 @@ class Elements
 		Elements(const Elements&);
 		void null();
 		long double store(int);
-		long double Min();
 	private:
 		long double Array[3];
 };
 
-long double Elements::abs(long double& A)
+/*long double Elements::abs(long double& A)
 {
 	return(A<0?-A:A);
-}
-
-long double Elements::Min()
-{
-	long double Result = abs(Array[0]);
-	for(int i = 1; i < 3; i++)
-		if(Result > abs(Array[i]))
-			Result = abs(Array[i]);
-	return(Result);
-}
+}*/
 
 long double Elements::store(int i)
 {
@@ -65,7 +59,7 @@ Elements::Elements(const Elements &A)
 	Array[2] = A.Array[2];
 }
 
-Elements::Elements(long double A[5])
+Elements::Elements(long double A[3])
 {
 	Array[0] = A[0];
 	Array[1] = A[1];
@@ -88,18 +82,25 @@ Elements Elements::abs()
 	return(B);
 }
 
+bool Elements::operator==(long double A)
+{
+	return(Array[0] == A &&
+		Array[1] == A &&
+		Array[2] == A);
+}
+
 bool Elements::operator>=(long double A)
 {
-	return(Array[0] >= A &&
-		Array[1] >= A &&
-		Array[2] >= A);
+	return(std::abs(Array[0]) >= A ||
+		std::abs(Array[1]) >= A ||
+		std::abs(Array[2]) >= A);
 }
 
 bool Elements::operator>(long double A)
 {
-	return(Array[0] > A &&
-		Array[1] > A &&
-		Array[2] > A);
+	return(std::abs(Array[0]) > A ||
+		std::abs(Array[1]) > A ||
+		std::abs(Array[2]) > A);
 }
 
 void Elements::operator=(const Elements &A)
