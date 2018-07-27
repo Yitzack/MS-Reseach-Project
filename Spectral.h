@@ -1242,17 +1242,17 @@ long double Fermi(long double omega, int T)	//Fermi factor
 
 long double Potential_on(long double Par[5])	//On-shell potential for the on-shell T-Matrix
 {
-	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+abs(Par[4]-4.*pow(Par[2],2))),2));
+	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1]+Par[5]*.194,2)+abs(Par[4]-4.*pow(Par[2],2))),2));
 }
 
 long double Potential1(long double Par[5], long double k0, long double k)	//Potiential for the numerator of the boson spectrum
 {
-	return(pow(Par[1],2)/(pow(Par[1],2)+abs(-4.*pow(k0,2)+4.*pow(k,2))));
+	return(pow(Par[1],2)/(pow(Par[1]+Par[5]*.194,2)+abs(-4.*pow(k0,2)+4.*pow(k,2))));
 }
 
 long double Potential2(long double Par[5], long double k0, long double k)	//Potiential for the denominator of the T-Matrix and boson spectrum
 {
-	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+abs(-4.*pow(k0,2)+4.*pow(k,2))),2));
+	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1]+Par[5]*.194,2)+abs(-4.*pow(k0,2)+4.*pow(k,2))),2));
 }
 
 long double ImD(long double omega, long double k, long double M, int Temp)	//Single quark spectral function
