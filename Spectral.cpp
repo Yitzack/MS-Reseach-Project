@@ -3,7 +3,9 @@
 #include<iomanip>
 #include<fstream>
 #include<cstring>
+#ifdef _OPENMP
 #include<omp.h>
+#endif
 #include"Spectral.h"
 using namespace std;
 
