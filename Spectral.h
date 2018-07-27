@@ -117,9 +117,9 @@ Elements theta_Int(long double Par[], int Temp)
 	if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
 		return(k_Int(Par, Temp, M_PI/2.)/pow(2.*M_PI,2)*2.);
 
-	Range[7] = sqrt(4.*pow(Par[3],4)+8.*pow(Par[3],2)*Par[4]+4.*pow(Par[4],2)-pow(sqrt(Par[1]+Par[5]*.194),4))/pow(256.*pow(Par[3],4)+512.*pow(Par[3],2)*Par[4]+256.*pow(Par[4],2),(long double).25);
+	Range[7] = sqrt(4.*pow(Par[3],4)+8.*pow(Par[3],2)*Par[4]+4.*pow(Par[4],2)-pow(Par[1],4))/pow(256.*pow(Par[3],4)+512.*pow(Par[3],2)*Par[4]+256.*pow(Par[4],2),(long double).25);
 	Range[7] = acos((pow(Range[7],2)+pow(Par[2],2)-Par[4]-(long double).75*pow(Par[3],2))/(Range[7]*Par[3]));
-	Range[8] = sqrt(4.*pow(Par[3],4)+8.*pow(Par[3],2)*Par[4]+4.*pow(Par[4],2)-pow(sqrt(Par[1]+Par[5]*.194),4))/pow(256.*pow(Par[3],4)+512.*pow(Par[3],2)*Par[4]+256.*pow(Par[4],2),(long double).25);
+	Range[8] = sqrt(4.*pow(Par[3],4)+8.*pow(Par[3],2)*Par[4]+4.*pow(Par[4],2)-pow(Par[1],4))/pow(256.*pow(Par[3],4)+512.*pow(Par[3],2)*Par[4]+256.*pow(Par[4],2),(long double).25);
 	Range[8] = acos((pow(Range[8],2)+pow(Par[2],2)-Par[4]-(long double).75*pow(Par[3],2))/(-Range[8]*Par[3]));
 
 	if(Range[6] != Range[6] || Range[6] < 0)
@@ -369,7 +369,7 @@ void Characterize_k_Int(long double Par[], int Temp, long double theta, long dou
 	zero[0] = .5*Par[3]*abs(cos(theta));	//Near intersection of 2 on-shells
 	gamma[0] = .05;
 	zero[1] = Par[2];
-	gamma[1] = sqrt(Par[1]+Par[5]*.194);
+	gamma[1] = Par[1];
 
 	if((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3]*sin(theta),2)) > 0.)
 	{
@@ -379,156 +379,156 @@ void Characterize_k_Int(long double Par[], int Temp, long double theta, long dou
 	}
 
 	zero[Poles] = Par[2];
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Plus, Emm))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emm))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Plus, Emm))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emm))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Plus, Epm))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epm))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Plus, Epm))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epm))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Plus, mEmp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEmp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Plus, mEmp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEmp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Plus, Emp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Plus, Emp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Plus, mEpp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEpp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Plus, mEpp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEpp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Plus, Epp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Plus, Epp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Minus, Emm))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emm))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Minus, Emm))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emm))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Minus, Epm))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epm))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Minus, Epm))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epm))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Minus, mEmp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEmp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Minus, mEmp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEmp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Minus, Emp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Minus, Emp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Minus, mEpp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEpp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Minus, mEpp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEpp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Minus, Epp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
-	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], sqrt(Par[1]+Par[5]*.194), V_Minus, Epp))
+	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epp))
 	{
 		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
@@ -835,15 +835,15 @@ void Characterize_Folding(long double Par[], int Temp, long double k, long doubl
 
 	zero[0] = -k;	//Potential poles, I know exactly where these are at.
 	zero[1] = k;
-	if(k < sqrt(Par[1]+Par[5]*.194)/2.)
+	if(k < Par[1]/2.)
 	{
-		gamma[0] = sqrt(Par[1]+Par[5]*.194)/2.;
-		gamma[1] = sqrt(Par[1]+Par[5]*.194)/2.;
+		gamma[0] = Par[1]/2.;
+		gamma[1] = Par[1]/2.;
 	}
 	else
 	{
-		gamma[0] = k-sqrt(pow(k,2)-pow(sqrt(Par[1]+Par[5]*.194)/2.,2));
-		gamma[1] = k-sqrt(pow(k,2)-pow(sqrt(Par[1]+Par[5]*.194)/2.,2));
+		gamma[0] = k-sqrt(pow(k,2)-pow(Par[1]/2.,2));
+		gamma[1] = k-sqrt(pow(k,2)-pow(Par[1]/2.,2));
 	}
 
 	zero[2] = .5*(sqrt(Par[4]+pow(Par[3],2))-real(sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)-k*Par[3]*cos(theta))+pow(Par[3],2)-2.*pow(GAMMA,2),2.*sqrt(4.*pow(Par[2]*GAMMA,2)-pow(GAMMA,4))))));	//Exact vacuum
@@ -1242,17 +1242,17 @@ long double Fermi(long double omega, int T)	//Fermi factor
 
 long double Potential_on(long double Par[])	//On-shell potential for the on-shell T-Matrix
 {
-	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1]+Par[5]*.194,2)+abs(Par[4]-4.*pow(Par[2],2))),2));
+	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+abs(Par[4]-4.*pow(Par[2],2))),2));
 }
 
 long double Potential1(long double Par[], long double k0, long double k)	//Potiential for the numerator of the boson spectrum
 {
-	return(pow(Par[1],2)/(pow(Par[1]+Par[5]*.194,2)+abs(-4.*pow(k0,2)+4.*pow(k,2))));
+	return(pow(Par[1],2)/(pow(Par[1],2)+abs(-4.*pow(k0,2)+4.*pow(k,2))));
 }
 
 long double Potential2(long double Par[], long double k0, long double k)	//Potiential for the denominator of the T-Matrix and boson spectrum
 {
-	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1]+Par[5]*.194,2)+abs(-4.*pow(k0,2)+4.*pow(k,2))),2));
+	return(Par[0]*pow(pow(Par[1],2)/(pow(Par[1],2)+abs(-4.*pow(k0,2)+4.*pow(k,2))),2));
 }
 
 long double ImD(long double omega, long double k, long double M, int Temp)	//Single quark spectral function

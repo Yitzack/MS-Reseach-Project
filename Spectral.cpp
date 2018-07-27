@@ -62,8 +62,8 @@ int main(int argc, char* argv[])
 		#pragma omp parallel for
 		for(j = iProcess; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process, calculation loop
 		{
-			Par[0] = -509.651744718067;
-			Par[1] = 1.405759573790926;
+			Par[0] = -509.651744718067*pow(1.405759573790926/(1.405759573790926+Par[5]*.194),2);
+			Par[1] = 1.405759573790926+Par[5]*.194;
 			Par[2] = 1.8;
 			if(argc == 4)
 				switch(Temp)
