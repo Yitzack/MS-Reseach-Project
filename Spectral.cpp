@@ -74,12 +74,12 @@ int main(int argc, char* argv[])
 		}
 	else
 	{
-		/*Par[0] = -509.651744718067*pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(atof(argv[4])*.194,2));
-		Par[1] = sqrt(pow(1.405759573790926,2)+pow(atof(argv[4])*.194,2));
-		Par[2] = atof(argv[5]);*/
-		Par[0] = -500;
-		Par[1] = atof(argv[4]);
+		Par[0] = -509.651744718067;
+		Par[1] = 1.405759573790926*atof(argv[4]);
 		Par[2] = atof(argv[5]);
+		/*Par[0] = -500;
+		Par[1] = atof(argv[4]);
+		Par[2] = atof(argv[5]);*/
 	}
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
