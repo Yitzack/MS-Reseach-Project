@@ -566,99 +566,65 @@ complex<long double> atanh(complex<long double> x)
 	return(complex<long double>(.5,0)*log((complex<long double>(1.,0)+x)/(complex<long double>(1.,0)-x)));
 }
 
+long double ImSelf(long double x, long double a, long double b, long double Mq, long double knee)
+{
+	long double f1 = -exp(-.5*((a-b)*Mq-(a+b)*knee/sqrt(a*b)))*exp((a-b)*x/2.-sqrt(pow((a+b)/2.,2)*pow(x-Mq+(a-b)*knee/(sqrt(a*b)*(a+b)),2)+pow(knee,2)));
+	long double f2 = exp(-.5*((a-b)*Mq-(a+b)*knee/sqrt(a*b)))*exp((b-a)*x/2.-sqrt(pow((a+b)/2.,2)*pow(-x-Mq+(a-b)*knee/(sqrt(a*b)*(a+b)),2)+pow(knee,2)));
+	return((f1+f2)/2.);
+}
+
+long double ReSelf(long double x, long double A, long double B, long double Mq, long double knee)
+{
+	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 35th order Gauss-Legendre integration
+	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204}; //Weight of the function at Disp
+	long double DispLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre quadrature
+	long double wLa[] = {0.07496328305102102808055, 0.1745735743605928864303, 0.2745074833881225250022, 0.3747323102655645620060, 0.4753412526072084401161, 0.5764380939967183636147, 0.6781307242364945406823, 0.7805307978511547593175, 0.8837542316062452388883, 0.9879219194279636096671, 1.0931605619330277996916, 1.1996035979670979427973, 1.3073922479469277349326, 1.416676687469297701993, 1.5276173754408796787012, 1.640386566702889623924, 1.7551700457872174635214, 1.8721691266543402861779, 1.9916029736088098866132, 2.1137113117669909276048, 2.2387576123844772725684, 2.3670328602831611098048, 2.4988600392644108123394, 2.6345995091430390709, 2.7746554982525006307172, 2.9194840027576204632431, 3.0696024758091833914472, 3.2256018156600758204608, 3.3881613374746331979827, 3.5580676615951707296054, 3.7362388067183244743069, 3.9237552950635210172968, 4.1219008467729629867363, 4.3322164077399479741288, 4.5565730632309056055423, 4.7972722621195591678357, 5.057186469320242487569, 5.3399612774797865633198, 5.6503138450512931300331, 5.9944877492232503537552, 6.3809726096501927329094, 6.8216946862388774056326, 7.3340972531892936469048, 7.9450326451948326187906, 8.6987143462393085933469, 9.6750102652900375180015, 11.039313738067347840094, 13.220456867750092021034, 17.982575250664959108273};	//Weights for 95th order Gauss-Laguerre quadrature
+	long double a = 0, b;
+	long double abscissa;
+	long double ImSelf_0 = ImSelf(x, A, B, Mq, knee);
+	long double Answer = ImSelf_0*log(552.25/pow(x,2)-1.);
+
+	if(x > 6)
+		return(0);
+
+	for(b = 4.7; b <= 23.5; b += 4.7)
+	{
+		for(int j = 0; j < 9; j++)
+		{
+			abscissa = (b+a+Disp[j]*(b-a))/2.;
+			Answer += -2.*abscissa*(ImSelf(abscissa, A, B, Mq, knee)-ImSelf_0)/(pow(x,2)-pow(abscissa,2))*w[j+1]*(b-a)/2.;
+			abscissa = (b+a-Disp[j]*(b-a))/2.;
+			Answer += -2.*abscissa*(ImSelf(abscissa, A, B, Mq, knee)-ImSelf_0)/(pow(x,2)-pow(abscissa,2))*w[j+1]*(b-a)/2.;
+		}
+		abscissa = (b+a)/2.;
+		Answer += -2.*abscissa*(ImSelf(abscissa, A, B, Mq, knee)-ImSelf_0)/(pow(x,2)-pow(abscissa,2))*w[0]*(b-a)/2.;
+	}
+	for(int i = 0; i < 49; i++)
+	{
+		abscissa = 23.5+DispLa[i];
+		Answer += -2.*abscissa*(ImSelf(abscissa, A, B, Mq, knee))/(pow(x,2)-pow(abscissa,2))*wLa[i]*(b-a)/2.;
+	}
+
+	return(Answer/M_PI);
+}
+
 long double Spectral_Analytic(long double s, long double p)
 {
-	/*long double a = 0.1+(1.09682*exp(-0.0854832*pow(p,2))+0.553167*exp(-0.00242106*pow(p,2)))*List[0];
-	long double c = -2.6+(-2.09722*exp(-0.0873686*p)-2.08312*exp(-0.0873686*p))*List[1];
-	long double s1 = 3.7249;
-	long double s2 = pow(2.85+(0.163437*exp(-0.00115935*pow(p,2))+0.425939*exp(-0.00115935*pow(p,2)))*List[2],2);
-	long double b = (c-1.)/(s1-s2);
-	long double knee1 = 0.0295;
-	long double knee2 = 0.01466;
+	long double x = sqrt(s);
+	long double A1 = 0.14720714743977134+0.04740762840847116*(List[0]*tanh(0.24417467048686878*(-11.203373730870796+p))+1.-List[0]);
+	long double Gamma1 = 0.19511325174653998+19.22047456015073*List[1]/(95.83151763174831+pow(-16.796182717724875+p,2));
+	long double MJPsi = 3.21885709636678-71.96416658921534*List[2]/(246.41751173744586+pow(p,2));
+	long double A2 = .071;
+	long double Gamma2 = 0.4050664370391587+3.517379350978687*(List[3]*exp(-0.011435192674186861*pow(-0.9776022924712385+p,2))+1.-List[3]);
+	long double Mq = 1.84184-39.03591140148402*List[4]/(760.7106721103999+pow(-10.227164918592624+p,2));
+	long double ReSigma = 0.7479742526955432+0.2363648542015573*(List[5]*tanh(0.16779701347848142*(-27.767126024507615+p))+1.-List[5]);
+	long double A = 0.29060730309366034+8.192587950797307*(List[6]*exp(-0.13247375401607567*p)+1.-List[6]);
+	long double B = 1.1693080321895744+0.28439976470188827*(List[7]*tanh((-31.884728678320194+p)/3.)+1.-List[7]);
+	long double x0 = -0.10983741501821709-0.09914816891995126*(List[8]*tanh(0.4221001028102466*(-11.557417772288904+p))+1.-List[8]);
+	long double knee = 0.4477178543651213-0.2562272167111267*(List[9]*tanh((-14.8176666233802+p)/3.)+1.-List[9]);
+	long double ImSelf_Val = ImSelf(x,A,B,Mq+x0,knee);
 
-	long double MJPsi = 3.04031+(0.316713*exp(-0.00197248*pow(p,2))+0.0740995*exp(-0.000182019*pow(p,2)))*List[3];
-	long double f1 = a*pow(MJPsi,2)-a*s1+c;
-	long double f2 = b*pow(MJPsi,2)-b*s1+c;
-	long double f3 = 1.;
-	long double f4 = (f1+f2)/2.-(f1-f2)/2.*tanh((pow(MJPsi,2)-s1)/knee1);
-	long double f5_A1 = exp((f4+f3)/2.-(f4-f3)/2.*tanh((pow(MJPsi,2)-s2)/knee2));
-
-	f1 = a*s-a*s1+c;
-	f2 = b*s-b*s1+c;
-	f4 = (f1+f2)/2.-(f1-f2)/2.*tanh((s-s1)/knee1);
-	long double f5 = exp((f4+f3)/2.-(f4-f3)/2.*tanh((s-s2)/knee2));
-
-	long double Mq = 1.8;
-	long double SigmaRe = 23.744345908864457-1.4154246741829764e6/(2890.3345511938423+pow(244.93882585792915+p,2))*List[4];
-	long double A1 = (9.17+(-1459.29/(369.206+pow(-33.6271+p,2))-218.311/(56.0751+pow(-3.01972+p,2)))*List[5])*f5_A1*MJPsi;
-	long double G1 = (0.0026+(0.0140119*exp(-38.3527*pow(p,2))+0.0563881*exp(-0.00556731*pow(p,2)))*List[6])*f5;
-	long double A2 = 0.449881+(303.749/(2.67973e-10+pow(81.4093+p,2))-131.725/(2450.75+pow(18.1846+p,2)))*List[7];
-	long double G2 = (0.00325+(0.0145782*exp(-0.119134*pow(p,2))+0.00567183*exp(-0.00744749*pow(p,2)))*List[8])*f5;
-
-	long double a = 0.1;
-	long double c = -2.6;
-	long double s1 = 3.7249;
-	long double s2 = 8.1225;
-	long double b = .818628343;
-	long double knee1 = 0.0295;
-	long double knee2 = 0.01466;
-
-	long double MJPsi = 3.04031+0.316713*exp(-0.00197248*pow(p,2));
-	long double f1 = a*pow(MJPsi,2)-a*s1+c;
-	long double f2 = b*pow(MJPsi,2)-b*s1+c;
-	long double f3 = 1.;
-	long double f4 = (f1+f2)/2.-(f1-f2)/2.*tanh((pow(MJPsi,2)-s1)/knee1);
-	long double f5_A1 = exp((f4+f3)/2.-(f4-f3)/2.*tanh((pow(MJPsi,2)-s2)/knee2));
-
-	f1 = a*s-a*s1+c;
-	f2 = b*s-b*s1+c;
-	f4 = (f1+f2)/2.-(f1-f2)/2.*tanh((s-s1)/knee1);
-	long double f5 = exp((f4+f3)/2.-(f4-f3)/2.*tanh((s-s2)/knee2));
-
-	long double Mq = 1.8;
-	long double SigmaRe = 23.744345908864457;
-	long double A1 = 9.17*f5_A1*MJPsi;
-	long double G1 = 0.0026*f5;
-	long double A2 = 0.449881;
-	long double G2 = 0.00325*f5;
-
-	long double sigmaBound = (A1*sqrt(pow(MJPsi,2)/(pow(MJPsi,2)+pow(p,2))*(s+pow(p,2)))*G1)/(M_PI*(pow(s-pow(MJPsi,2),2)+pow(MJPsi,2)/(pow(MJPsi,2)+pow(p,2))*(s+pow(p,2))*pow(G1,2)));
-	long double sigmaNonFit = A2*(SigmaRe+s)/2.*imag(sqrt(complex<long double>(s-pow(2.*Mq,2),4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2)/complex<long double>(s,4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2))*atanh(sqrt(complex<long double>(s,4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2)/complex<long double>(s-pow(2.*Mq,2),4*sqrt(pow(2.*Mq,2)/(pow(2.*Mq,2)+pow(p,2))*(s+pow(p,2)))*G2))));
-
-	long double a = 2.16;
-	long double c = -4.84;
-	long double s1 = 3.7249;
-	long double s2 = 8.1225;
-	long double b = (c-1.)/(s1-s2);
-	long double knee1 = 0.0295;
-	long double knee2 = 0.01466;
-
-	long double f1 = a*s-a*s1+c;
-	long double f2 = b*s-b*s1+c;
-	long double f3 = 1.;
-	long double f4 = (f1+f2)/2.-(f1-f2)/2.*tanh((s-s1)/knee1);
-	long double f5 = exp((f4+f3)/2.-(f4-f3)/2.*tanh((s-s2)/knee2));
-
-	long double Mq = 1.8;
-	long double MJPsi = 3.04031;
-	long double SigmaRe = 0;
-	long double A1 = 67;
-	long double G1 = .0026*f5;
-	long double A2 = .469224;
-	long double G2 = .00325*f5;*/
-
-	long double A1 = (8.21055-List[0]-List[2])+List[0]*exp(-p/List[1])+List[2]*exp(-pow(p/List[3],2));
-	long double G1 = (.0763853-List[4]-List[6])+List[4]*exp(-p/List[5])+List[6]*exp(-pow(p/List[7],2));
-	long double MJPsi = (3.01794-List[8]-List[10])+List[8]*exp(-p/List[9])+List[10]*exp(-pow(p/List[11],2));
-	long double A2 = (.934259-List[12]-List[14])+List[12]*exp(-p/List[13])+List[14]*exp(-pow(p/List[15],2));
-	long double G2 = (.00340139-List[16]-List[18])+List[16]*exp(-p/List[17])+List[18]*exp(-pow(p/List[19],2));
-	long double Mq = (1.78785-List[20]-List[22])+List[20]*exp(-p/List[21])+List[22]*exp(-pow(p/List[23],2));
-	long double SigmaRe = (6.392815245-List[24]-List[26])+List[24]*exp(-p/List[25])+List[26]*exp(-pow(p/List[27],2));
-
-	long double sigmaBound = (A1*sqrt(s)*G1)/(M_PI*(pow(s-pow(MJPsi,2),2)+s*pow(G1,2)));
-	long double sigmaNonFit = A2*(SigmaRe+s)/2.*imag(sqrt(complex<long double>(s-pow(2.*Mq,2),4*sqrt(s)*G2)/complex<long double>(s,4*sqrt(s)*G2))*atanh(sqrt(complex<long double>(s,4*sqrt(s)*G2)/complex<long double>(s-pow(2.*Mq,2),4*sqrt(s)*G2))));
-
-	return(sigmaBound-sigmaNonFit);
+	return(A1*Gamma1*ImSelf_Val/(M_PI*(pow(x-MJPsi-Gamma1*ReSelf(x,A,B,Mq+x0,knee),2)+pow(Gamma1*ImSelf_Val,2)))-A2*(pow(ReSigma,2)+s)/2.*(sqrt(complex<long double>(s-pow(2.*Mq,2),Gamma2*ImSelf_Val)/complex<long double>(s,Gamma2*ImSelf_Val))*atanh(sqrt(complex<long double>(s,Gamma2*ImSelf_Val)/complex<long double>(x-pow(2.*Mq,2),Gamma2*ImSelf_Val)))).imag());
 }
 
 long double Spectral(long double*** Table[], long double roots, long double p, long double z, int Specify)
