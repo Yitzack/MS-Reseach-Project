@@ -51,7 +51,7 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[5]);
 
-	for(int i = 0; i < 28; i++)
+	for(int i = 0; i < 10; i++)
 		List[i] = atof(argv[i+6]);
 
 	/*Init(Table, N, M);
@@ -598,6 +598,7 @@ long double ReSelf(long double x, long double A, long double B, long double Mq, 
 		}
 		abscissa = (b+a)/2.;
 		Answer += -2.*abscissa*(ImSelf(abscissa, A, B, Mq, knee)-ImSelf_0)/(pow(x,2)-pow(abscissa,2))*w[0]*(b-a)/2.;
+		a = b;
 	}
 	for(int i = 0; i < 49; i++)
 	{
@@ -622,9 +623,12 @@ long double Spectral_Analytic(long double s, long double p)
 	long double B = 1.1693080321895744+0.28439976470188827*(List[7]*tanh((-31.884728678320194+p)/3.)+1.-List[7]);
 	long double x0 = -0.10983741501821709-0.09914816891995126*(List[8]*tanh(0.4221001028102466*(-11.557417772288904+p))+1.-List[8]);
 	long double knee = 0.4477178543651213-0.2562272167111267*(List[9]*tanh((-14.8176666233802+p)/3.)+1.-List[9]);
-	long double ImSelf_Val = ImSelf(x,A,B,Mq+x0,knee);
+	long double ImSelf_Val = ImSelf(x,A,B,MJPsi+x0,knee);
 
-	return(A1*Gamma1*ImSelf_Val/(M_PI*(pow(x-MJPsi-Gamma1*ReSelf(x,A,B,Mq+x0,knee),2)+pow(Gamma1*ImSelf_Val,2)))-A2*(pow(ReSigma,2)+s)/2.*(sqrt(complex<long double>(s-pow(2.*Mq,2),Gamma2*ImSelf_Val)/complex<long double>(s,Gamma2*ImSelf_Val))*atanh(sqrt(complex<long double>(s,Gamma2*ImSelf_Val)/complex<long double>(x-pow(2.*Mq,2),Gamma2*ImSelf_Val)))).imag());
+	complex<long double>Comp1(s-pow(2.*Mq,2),4.*Gamma2*ImSelf_Val);
+	complex<long double>Comp2(s,4.*Gamma2*ImSelf_Val);
+
+	return(-A1*Gamma1*ImSelf_Val/(M_PI*(pow(x-MJPsi-Gamma1*ReSelf(x,A,B,MJPsi+x0,knee),2)+pow(Gamma1*ImSelf_Val,2)))+A2*(ReSigma+s)/2.*abs(imag(sqrt(Comp1/Comp2)*atanh(sqrt(Comp2/Comp1)))));
 }
 
 long double Spectral(long double*** Table[], long double roots, long double p, long double z, int Specify)
