@@ -89,11 +89,11 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	}//*/
 
 //Debugging code, examines the difference between interpolations and a finite-width approximation
-	/*for(long double i = 3.02; i <= 3.06; i+=.00005)
+	for(long double i = 0; i <= 23.5; i+=.05)
 	{
-		for(long double j = 70; j <= 75; j+=.02)
-			////cout << i << " " << j << " " << Spectral(Table,i,j) << " " << Analytic(i,Epsilon) << endl;
-		////cout << endl;
+		for(long double j = 0; j <= 50; j+=.05)
+			TPlot << i << " " << j << " " << Spectral_Analytic(pow(i,2),j) << endl;
+		TPlot << endl;
 	}//*/
 
 //The actual program
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 		}
 	}*/
 
-	#pragma omp parallel for private(tau, z, holder)
+	/*#pragma omp parallel for private(tau, z, holder)
 	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i+=1)
 	{
 		z = .3+i*.02;
@@ -616,10 +616,10 @@ long double Spectral_Analytic(long double s, long double p)
 	long double Gamma1 = 0.19511325174653998+19.22047456015073*List[1]/(95.83151763174831+pow(-16.796182717724875+p,2));
 	long double MJPsi = 3.21885709636678-71.96416658921534*List[2]/(246.41751173744586+pow(p,2));
 	long double A2 = .071;
-	long double Gamma2 = 0.4050664370391587+3.517379350978687*(List[3]*exp(-0.011435192674186861*pow(-0.9776022924712385+p,2))+1.-List[3]);
+	long double Gamma2 = 0.4050664370391587+3.517379350978687*(List[3]*exp(-0.011435192674186861*pow(-0.9776022924712385+p,2));
 	long double Mq = 1.84184-39.03591140148402*List[4]/(760.7106721103999+pow(-10.227164918592624+p,2));
 	long double ReSigma = 0.7479742526955432+0.2363648542015573*(List[5]*tanh(0.16779701347848142*(-27.767126024507615+p))+1.-List[5]);
-	long double A = 0.29060730309366034+8.192587950797307*(List[6]*exp(-0.13247375401607567*p)+1.-List[6]);
+	long double A = 0.29060730309366034+8.192587950797307*List[6]*exp(-0.13247375401607567*p);
 	long double B = 1.1693080321895744+0.28439976470188827*(List[7]*tanh((-31.884728678320194+p)/3.)+1.-List[7]);
 	long double x0 = -0.10983741501821709-0.09914816891995126*(List[8]*tanh(0.4221001028102466*(-11.557417772288904+p))+1.-List[8]);
 	long double knee = 0.4477178543651213-0.2562272167111267*(List[9]*tanh((-14.8176666233802+p)/3.)+1.-List[9]);
