@@ -4,7 +4,9 @@
 #include<complex>
 #include<cstring>
 #include<cstdlib>
+#ifdef _OPENMP
 #include<omp.h>
+#endif
 #include<iomanip>
 using namespace std;
 
@@ -89,7 +91,7 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	}//*/
 
 //Debugging code, examines the difference between interpolations and a finite-width approximation
-	for(long double i = 0; i <= 23.5; i+=.05)
+	/*for(long double i = 0; i <= 23.5; i+=.05)
 	{
 		for(long double j = 0; j <= 50; j+=.05)
 			TPlot << i << " " << j << " " << Spectral_Analytic(pow(i,2),j) << endl;
@@ -113,7 +115,7 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 		}
 	}*/
 
-	/*#pragma omp parallel for private(tau, z, holder)
+	#pragma omp parallel for private(tau, z, holder)
 	for(int i = 290*iProcess/Total; i <= 290*(iProcess+1)/Total; i+=1)
 	{
 		z = .3+i*.02;
