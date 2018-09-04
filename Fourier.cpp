@@ -120,9 +120,9 @@ int main(int argc, char* argv[])	//Process, # of Process, Output file, Input fil
 	{
 		z = .3+i*.02;
 		tau = i*.008;
-		holder[0] = Correlator(SpatialDebug, Table, z, Temp);
+		holder[0] = 0;//Correlator(SpatialDebug, Table, z, Temp);
 		holder[1] = 0;//Correlator(SpatialNeg, Table, z, Temp);
-		holder[2] = Correlator(SpatialPos, Table, z, Temp);
+		holder[2] = 0;//Correlator(SpatialPos, Table, z, Temp);
 		holder[3] = Correlator(SpatialVac, Table, z, Temp);
 		holder[4] = Correlator(Euclidean, Table, tau, Temp);
 		#pragma omp critical
@@ -618,7 +618,7 @@ long double Spectral_Analytic(long double s, long double p)
 	long double Gamma1 = 0.19511325174653998+19.22047456015073*List[1]/(95.83151763174831+pow(-16.796182717724875+p,2));
 	long double MJPsi = 3.21885709636678-71.96416658921534*List[2]/(246.41751173744586+pow(p,2));
 	long double A2 = .071;
-	long double Gamma2 = 0.4050664370391587+3.517379350978687*(List[3]*exp(-0.011435192674186861*pow(-0.9776022924712385+p,2));
+	long double Gamma2 = 0.4050664370391587+3.517379350978687*(List[3]*exp(-0.011435192674186861*pow(-0.9776022924712385+p,2)));
 	long double Mq = 1.84184-39.03591140148402*List[4]/(760.7106721103999+pow(-10.227164918592624+p,2));
 	long double ReSigma = 0.7479742526955432+0.2363648542015573*(List[5]*tanh(0.16779701347848142*(-27.767126024507615+p))+1.-List[5]);
 	long double A = 0.29060730309366034+8.192587950797307*List[6]*exp(-0.13247375401607567*p);
