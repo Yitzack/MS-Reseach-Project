@@ -1038,7 +1038,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		case 3://320MeV
 			M_T = 1.59439;
 			Shift = M-M_T;
-			Sigma = .597033/sqrt(pow(k,2)+pow(1.1.86708,2))+.0231058;
+			Sigma = .597033/sqrt(pow(k,2)+pow(1.86708,2))+.0231058;
 			a = .562692/(pow(k,2)+pow(.461509,2))+3.3446;
 			b = -113751/(pow(k,2)+pow(105.447,2))+11.8128;
 			omega0 = sqrt(pow(1.48036+Shift,2)+pow(k,2))+.218139;
