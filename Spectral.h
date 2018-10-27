@@ -1020,38 +1020,38 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		case 1://194MeV
 			M_T = 1.84184;
 			Shift = M-M_T;
-			Sigma = .585335/sqrt(pow(k,2)+pow(1.85515,2));
-			a = 5.05953/(pow(k,2)+pow(1.11686,2))+6.09943;
-			b = -8.08693/(pow(k,2)+pow(2.70494,2))+3.25177;
-			omega0 = sqrt(pow(1.49006+Shift,2)+pow(k,2))+.248573;
-			knee = 3.84788*pow(k+1.,(long double)-.335162);
+			Sigma = .566034/sqrt(pow(k,2)+pow(1.67993,2))+4.52396e-6;
+			a = 9.10174/(pow(k,2)+pow(1.45877,2))+5.0362;
+			b = -35.4474/(pow(k,2)+pow(5.418,2))+3.23474;
+			omega0 = sqrt(pow(1.52216+Shift,2)+pow(k,2))+.231884;
+			knee = 3.3037*pow(k+1.,(long double)-.512);
 			break;
 		case 2://285MeV
 			M_T = 1.69584;
 			Shift = M-M_T;
-			Sigma = .660137/sqrt(pow(k,2)+pow(1.90299,2));
-			a = 2.82635/(pow(k,2)+pow(.916643,2))+4.19118;
-			b = -83.3834/(pow(k,2)+pow(8.8641,2))+2.93508;
-			omega0 = sqrt(pow(1.45524+Shift,2)+pow(k,2))+.247213;
-			knee = 3.29189*pow(k+1.,(long double)-.575497);
+			Sigma = .624978/sqrt(pow(k,2)+pow(1.83454,2))+.00860317;
+			a = 2.00782/(pow(k,2)+pow(.820374,2))+4.0028;
+			b = -71304.1/(pow(k,2)+pow(101.005,2))+8.87262;
+			omega0 = sqrt(pow(1.51229+Shift,2)+pow(k,2))+.207906;
+			knee = 2.76344*pow(k+1.,(long double)-.507334);
 			break;
 		case 3://320MeV
 			M_T = 1.59439;
 			Shift = M-M_T;
-			Sigma = .670397/sqrt(pow(k,2)+pow(1.96561,2));
-			a = 2.42808/(pow(k,2)+pow(.840297,2))+3.42835;
-			b = .0167941/(pow(k,2)+pow(.47573,2))+1.70158;
-			omega0 = sqrt(pow(1.42617+Shift,2)+pow(k,2))+.258289;
-			knee = 3.59947*pow(k+1.,(long double)-.710425);
+			Sigma = .597033/sqrt(pow(k,2)+pow(1.1.86708,2))+.0231058;
+			a = .562692/(pow(k,2)+pow(.461509,2))+3.3446;
+			b = -113751/(pow(k,2)+pow(105.447,2))+11.8128;
+			omega0 = sqrt(pow(1.48036+Shift,2)+pow(k,2))+.218139;
+			knee = 2.5435*pow(k+1.,(long double)-.443737);
 			break;
 		case 4://400MeV
 			M_T = 1.48038;
 			Shift = M-M_T;
-			Sigma = .592982/sqrt(pow(k,2)+pow(2.06656,2));
-			a = 2.09377/(pow(k,2)+pow(.763871,2))+2.65712;
-			b = .366499/(pow(k,2)+pow(1.06864,2))+1.35141;
-			omega0 = sqrt(pow(1.38555+Shift,2)+pow(k,2))+.253076;
-			knee = 3.49204*pow(k+1.,(long double)-.925502);
+			Sigma = .48041/sqrt(pow(k,2)+pow(1.91802,2))+.0375278;
+			a = .0250125/(pow(k,2)+pow(.100021,2))+2.68158;
+			b = -108066/(pow(k,2)+pow(97.0475,2))+12.7323;
+			omega0 = sqrt(pow(1.45192+Shift,2)+pow(k,2))+.196535;
+			knee = 2.11611*pow(k+1.,(long double)-.409035);
 			break;
 		default:
 			Sigma = 0;
@@ -1160,34 +1160,34 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 		case 1://194MeV
 			M_T = 1.84184;
 			Shift = M-M_T;
-			Sigma = .244368/sqrt(pow(k,2)+pow(1.32368,2));
-			x0 = sqrt(pow(k,2)+pow(1.5567+Shift,2))+.279476;
-			x1 = sqrt(pow(k,2)+pow(1.50202+Shift,2))+.259;
-			gamma = .320676/sqrt(pow(k,2)+pow(1.56455,2))+.080032;
+			Sigma = .214702/sqrt(pow(k,2)+pow(1.16474,2))+2.13223e-6;
+			x0 = sqrt(pow(k,2)+pow(1.58815+Shift,2))+.257835;
+			x1 = sqrt(pow(k,2)+pow(1.53109+Shift,2))+.239928;
+			gamma = .659285/sqrt(pow(k,2)+pow(2.57088,2))+.242975;
 			break;
 		case 2://258MeV
 			M_T = 1.69584;
 			Shift = M-M_T;
-			Sigma = .322887/sqrt(pow(k,2)+pow(1.34236,2));
-			x0 = sqrt(pow(k,2)+pow(1.54159+Shift,2))+.280535;
-			x1 = sqrt(pow(k,2)+pow(1.46598+Shift,2))+.260561;
-			gamma = .694901/sqrt(pow(k,2)+pow(2.13185,2))+.0653795;
+			Sigma = .318102/sqrt(pow(k,2)+pow(1.52732,2))+.0000145462;
+			x0 = sqrt(pow(k,2)+pow(1.56745+Shift,2))+.250036;
+			x1 = sqrt(pow(k,2)+pow(1.51453+Shift,2))+.220499;
+			gamma = 1.73175/sqrt(pow(k,2)+pow(6.3899,2))+.265738;
 			break;
 		case 3://320MeV
 			M_T = 1.59439;
 			Shift = M-M_T;
-			Sigma = .375163/sqrt(pow(k,2)+pow(1.41612,2));
-			x0 = sqrt(pow(k,2)+pow(1.45507+Shift,2))+.337448;
-			x1 = sqrt(pow(k,2)+pow(1.40846+Shift,2))+.289292;
-			gamma = .690491/sqrt(pow(k,2)+pow(1.97525,2))+.141465;
+			Sigma = .419987/sqrt(pow(k,2)+pow(1.76829,2))+.00186383;
+			x0 = sqrt(pow(k,2)+pow(1.56114+Shift,2))+.255084;
+			x1 = sqrt(pow(k,2)+pow(1.48539+Shift,2))+.228879;
+			gamma = 3.25644/sqrt(pow(k,2)+pow(8.93453,2))+.263267;
 			break;
 		case 4://400MeV
 			M_T = 1.48038;
 			Shift = M-M_T;
-			Sigma = .370623/sqrt(pow(k,2)+pow(1.53585,2));
-			x0 = sqrt(pow(k,2)+pow(1.39619+Shift,2))+.35548;
-			x1 = sqrt(pow(k,2)+pow(1.3481+Shift,2))+.296587;
-			gamma = .857781/sqrt(pow(k,2)+pow(2.25072,2))+.196022;
+			Sigma = .466452/sqrt(pow(k,2)+pow(2.04495,2))+.00693812;
+			x0 = sqrt(pow(k,2)+pow(1.58433+Shift,2))+.223741;
+			x1 = sqrt(pow(k,2)+pow(1.46003+Shift,2))+.204415;
+			gamma = 5.15887/sqrt(pow(k,2)+pow(10.2939,2))+.249557;
 			break;
 		default:
 			Sigma = 0;
@@ -1197,7 +1197,7 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 			break;
 	}
 
-	return(Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));
+	return(Sigma*(omega-x0)/(pow(omega-x1,2)+pow(gamma,2)));
 #endif
 }
 
