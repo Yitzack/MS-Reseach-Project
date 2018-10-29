@@ -1160,7 +1160,7 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 		case 1://194MeV
 			M_T = 1.84184;
 			Shift = M-M_T;
-			Sigma = .214702/sqrt(pow(k,2)+pow(1.16474,2))+2.13223e-6;
+			Sigma = .212272/sqrt(pow(k,2)+pow(1.14814,2))+3.46643e-6;
 			x0 = sqrt(pow(k,2)+pow(1.58815+Shift,2))+.257835;
 			x1 = sqrt(pow(k,2)+pow(1.53109+Shift,2))+.239928;
 			gamma = .659285/sqrt(pow(k,2)+pow(2.57088,2))+.242975;
