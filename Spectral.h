@@ -1024,7 +1024,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 			a = 12.5349/(pow(k,2)+pow(1.63711,2))+5.026;
 			b = -291.579/(pow(k+15.2519,2)+pow(.0614821,2))+3.36681;
 			omega0 = sqrt(pow(1.51443+Shift,2)+pow(k,2))+.232841;
-			knee = 3.78956*pow(k+1.,(long double)-.530289)+4.54998e-12*(tanh((p-2.98316)/11.1111)+1);
+			knee = 3.78956*pow(k+1.,(long double)-.530289)+4.54998e-12*(tanh((k-2.98316)/11.1111)+1);
 			break;
 		case 2://285MeV
 			M_T = 1.69584;
@@ -1033,7 +1033,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 			a = 3.3971/(pow(k,2)+pow(1.01744,2))+3.99561;
 			b = -65187.5/(pow(k+3.11711,2)+pow(101.697,2))+8.15532;
 			omega0 = sqrt(pow(1.5065+Shift,2)+pow(k,2))+.209135;
-			knee = 3.1568*pow(k+1.,(long double)-.624827)+.197004*(tanh((p-27.1743)/10.0192)+1);
+			knee = 3.1568*pow(k+1.,(long double)-.624827)+.197004*(tanh((k-27.1743)/10.0192)+1);
 			break;
 		case 3://320MeV
 			M_T = 1.59439;
@@ -1042,7 +1042,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 			a = 2.44943/(pow(k,2)+pow(.887313,2))+3.32859;
 			b = -4439.38/(pow(k-7.23198,2)+pow(38.9387,2))+4.55531;
 			omega0 = sqrt(pow(1.47725+Shift,2)+pow(k,2))+.219181;
-			knee = 3.28564*pow(k+1.,(long double)-.721321)+.330483*(tanh((p-22.9096)/10.7139)+1);
+			knee = 3.28564*pow(k+1.,(long double)-.721321)+.330483*(tanh((k-22.9096)/10.7139)+1);
 			break;
 		case 4://400MeV
 			M_T = 1.48038;
@@ -1051,7 +1051,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 			a = 1.79149/(pow(k,2)+pow(.764836,2))+2.66209;
 			b = -1856.16/(pow(k-8.69519,2)+pow(26.3551,2))+3.94631;
 			omega0 = sqrt(pow(1.45428+Shift,2)+pow(k,2))+.197493;
-			knee = 3.06296*pow(k+1.,(long double)-.917081)+.394833*(tanh((p-19.5932)/12.0494)+1);
+			knee = 3.06296*pow(k+1.,(long double)-.917081)+.394833*(tanh((k-19.5932)/12.0494)+1);
 			break;
 		default:
 			Sigma = 0;
