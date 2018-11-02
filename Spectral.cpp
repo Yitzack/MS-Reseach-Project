@@ -88,44 +88,40 @@ int main(int argc, char* argv[])
 		#pragma omp parallel for
 		for(j = iProcess; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process, calculation loop
 		{
-			long double ParPrivate[5];
-			ParPrivate[0] = Par[0];
-			ParPrivate[1] = Par[1];
-			ParPrivate[2] = Par[2];
 			if(j <= 150)
 			{
 				//TPlot << "If you come down this way, you have to alter the curvilinar system used to sample. You will want to use lines of constant s, or sqrt(E^2+P^2). You must do this before you do anything in s<0GeV^2 region" << endl;
 				if(i <= 208)
 				{
-					ParPrivate[3] = i/10.+j/10.;
-					ParPrivate[4] = -i*j/50.-j*j/100.;
+					Par[3] = i/10.+j/10.;
+					Par[4] = -i*j/50.-j*j/100.;
 				}
 				else
 				{
-					ParPrivate[3] = i+j/10.-187.2;
-					ParPrivate[4] = -j/5.*(i-187.2)-j*j/100.;
+					Par[3] = i+j/10.-187.2;
+					Par[4] = -j/5.*(i-187.2)-j*j/100.;
 				}
 			}
 			else
 			{
-				ParPrivate[3] = i*.8;
+				Par[3] = i*.8;
 #ifndef BB
 				if(j <= 181)
-					ParPrivate[4] = pow((j-151.)/10.,2);
+					Par[4] = pow((j-151.)/10.,2);
 				else if(j <= 381)
-					ParPrivate[4] = pow((j-181.)/100.+3.,2);
+					Par[4] = pow((j-181.)/100.+3.,2);
 				else if(j <= 566)
-					ParPrivate[4] = pow((j-381.)/10.+5.,2);
+					Par[4] = pow((j-381.)/10.+5.,2);
 #else
 				if(j <= 251)
-					ParPrivate[4] = pow((j-151.)/10.,2);
+					Par[4] = pow((j-151.)/10.,2);
 				else if(j <= 451)
-					ParPrivate[4] = pow((j-251.)/100.+10.,2);
+					Par[4] = pow((j-251.)/100.+10.,2);
 				else if(j <= 566)
-					ParPrivate[4] = pow((j-451.)/10.+12.,2);
+					Par[4] = pow((j-451.)/10.+12.,2);
 #endif
 				else
-					ParPrivate[4] = 552.25+GaussLa[j-567];
+					Par[4] = 552.25+GaussLa[j-567];
 			}
 
 			if(j > 150 && i > 751)
@@ -134,7 +130,7 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
-				holder = theta_Int(ParPrivate, Temp);
+				holder = theta_Int(Par, Temp);
 				Table[j][0] = holder.store(0);
 				Table[j][1] = holder.store(1);
 				Table[j][2] = holder.store(2);
