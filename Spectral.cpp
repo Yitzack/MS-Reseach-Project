@@ -10,6 +10,7 @@
 using namespace std;
 
 int Start_Point(int, char[30]);
+bool Restart_Check(char[30], char*, char*);
 
 char* Process;
 
@@ -19,7 +20,7 @@ int main(int argc, char* argv[])
 	char File[30] = "Spectralbb.";  //Name of the file
 #endif
 #ifdef CC
-     	char File[30] = "SpectralccLambda2.0.";  //Name of the file
+     	char File[30] = "SpectralccgT";  //Name of the file
 #endif
 #ifdef RIEK
      	char File[30] = "SpectralccRiek.";  //Name of the file
@@ -31,9 +32,15 @@ int main(int argc, char* argv[])
 	strcat(File, argv[3]);
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
+
+	bool Restart = Start_Check(File, argv[4], argv[5]);	//True if restarting
+
 	ofstream TPlot;
-	if(argc < 7 || atoi(argv[6]) == 0)	//If starting from the beginning, overwrite
+	if(Restart)	//If starting from the beginning, overwrite
+	{
 		TPlot.open(File);
+		TPlot << argv[4] << " " << argv[5] << endl;
+	}
 	else	//If not starting from the beginning, append
 		TPlot.open(File, ios::app);
 	int i,j;	//counters
@@ -74,8 +81,8 @@ int main(int argc, char* argv[])
 		}
 	else
 	{
-		Par[0] = -509.651744718067;
-		Par[1] = 1.405759573790926*atof(argv[4]);
+		Par[0] = -509.651744718067*pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(atof(argv[4])*.194,2));
+		Par[1] = sqrt(pow(1.405759573790926,2)+pow(atof(argv[4])*.194,2));
 		Par[2] = atof(argv[5]);
 		/*Par[0] = -500;
 		Par[1] = atof(argv[4]);
@@ -88,7 +95,7 @@ int main(int argc, char* argv[])
 		#pragma omp parallel for
 		for(j = iProcess; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process, calculation loop
 		{
-			long double ParPrivate;
+			long double ParPrivate[5];
 			ParPrivate[0] = Par[0];
 			ParPrivate[1] = Par[1];
 			ParPrivate[2] = Par[2];
@@ -208,4 +215,24 @@ int Start_Point(int Start, char File[30])
 	}while(!TPlot.eof());
 
 	return(Start);
+}
+
+bool Restart_Check(char File[30], char* g, char* Mq)
+{
+	ifstream InFile(File);
+
+	if(InFile.is_open() == false)
+		return(true);
+
+	double g_File;
+	double Mq_File;
+	InFile >> g_File;
+	InFile >> Mq_File;
+	InFile.close();
+
+	if(abs(g_File/atof(g)-1.) < .0001 && abs(Mq_File/atof(Mq)-1.) < .0001)
+		return(false);
+
+	InFile.close();
+	return(true);
 }
