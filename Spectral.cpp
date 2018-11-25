@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
 
-	bool Restart = Start_Check(File, argv[4], argv[5]);	//True if restarting
+	bool Restart = Restart_Check(File, argv[4], argv[5]);	//True if restarting
 
 	ofstream TPlot;
 	if(Restart)	//If starting from the beginning, overwrite
@@ -71,13 +71,13 @@ int main(int argc, char* argv[])
 		case 1:
 			T = .194;
 			break;
-		case 1:
+		case 2:
 			T = .258;
 			break;
-		case 1:
+		case 3:
 			T = .32;
 			break;
-		case 1:
+		case 4:
 			T = .4;
 			break;
 	}
