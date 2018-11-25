@@ -289,12 +289,12 @@ long double Set_g(long double P, int Temp)
 		break;
 	}
 
-	long double new_g = Delta_g*(2*pow(g*T,2)+(pow(P,2)+pow(g*T,2))*log((pow(P,2)+pow(g*T,2))/pow(.2,2)))/(2*g*Delta_g*pow(T,2)+(pow(P,2)+pow(g*T,2))*pow(log((pow(P,2)+pow(g*T,2))/pow(.2,2)),2);
+	long double new_g = Delta_g*(2*pow(g*T,2)+(pow(P,2)+pow(g*T,2))*log((pow(P,2)+pow(g*T,2))/pow(.2,2)))/(2*g*Delta_g*pow(T,2)+(pow(P,2)+pow(g*T,2))*pow(log((pow(P,2)+pow(g*T,2))/pow(.2,2)),2));
 													       
 	while(abs(new_g/g-1.) > 1e-4)
 	{
 		g = new_g;
-		new_g = Delta_g*(2*pow(g*T,2)+(pow(P,2)+pow(g*T,2))*log((pow(P,2)+pow(g*T,2))/pow(.2,2)))/(2*g*Delta_g*pow(T,2)+(pow(P,2)+pow(g*T,2))*pow(log((pow(P,2)+pow(g*T,2))/pow(.2,2)),2);
+		new_g = Delta_g*(2*pow(g*T,2)+(pow(P,2)+pow(g*T,2))*log((pow(P,2)+pow(g*T,2))/pow(.2,2)))/(2*g*Delta_g*pow(T,2)+(pow(P,2)+pow(g*T,2))*pow(log((pow(P,2)+pow(g*T,2))/pow(.2,2)),2));
 	}
 
 	return(new_g);
@@ -325,12 +325,12 @@ long double Set_Mq(long double g, long double P, int Temp)
 		break;
 	case 3:
 		Delta_Mq = -.832342;
-		Mq = 1.59439
+		Mq = 1.59439;
 		T = .320;
 		break;
 	case 4:
 		Delta_Mq = -1.43651;
-		Mq = 1.48038
+		Mq = 1.48038;
 		T = .400;
 		break;
 	}
