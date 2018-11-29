@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 			break;
 	}
 
-	/*if(argc == 4)
+	if(argc == 4)
 		switch(Temp)
 		{
 			case 1:
@@ -100,10 +100,10 @@ int main(int argc, char* argv[])
 		}
 	else
 	{
-		Par[0] = -509.651744718067*pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(atof(argv[4])*T,2));
+		Par[0] = -509.651744718067*pow(pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(atof(argv[4])*T,2)),2);
 		Par[1] = sqrt(pow(1.405759573790926,2)+pow(atof(argv[4])*T,2));
 		Par[2] = atof(argv[5]);
-	}*/
+	}
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = Start; i <= Finish; i++)	//Argv[6] allows to restart where ever
@@ -151,11 +151,11 @@ int main(int argc, char* argv[])
 					ParPrivate[4] = 552.25+GaussLa[j-567];
 			}
 
-			long double g = Set_g(ParPrivate[3], Temp);
+			/*long double g = Set_g(ParPrivate[3], Temp);
 			long double Mq = Set_Mq(g, ParPrivate[3], Temp);
-			Par[0] = -509.651744718067*pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(g*T,2));
+			Par[0] = -509.651744718067*pow(pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(g*T,2)),2);
 			Par[1] = sqrt(pow(1.405759573790926,2)+pow(g*T,2));
-			Par[2] = Mq;
+			Par[2] = Mq;*/
 
 			if(j > 150 && i > 751)
 			{
