@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
 
 			/*long double g = Set_g(ParPrivate[3], Temp);
 			long double Mq = Set_Mq(g, ParPrivate[3], Temp);
-			Par[0] = -509.651744718067*pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(g*T,2));
+			Par[0] = -509.651744718067*pow(pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(g*T,2)),2);
 			Par[1] = sqrt(pow(1.405759573790926,2)+pow(g*T,2));
 			Par[2] = Mq;*/
 
