@@ -10,7 +10,7 @@
 using namespace std;
 
 int Start_Point(int, char[30]);
-bool Restart_Check(char[30], char*, char*);
+bool Restart_Check(char[30], char*, char*, char*);
 long double Set_g(long double, int);
 long double Set_Mq(long double, long double, int);
 
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 	char File[30] = "Spectralbb.";  //Name of the file
 #endif
 #ifdef CC
-     	char File[30] = "Spectralcc.";  //Name of the file
+     	char File[30] = "SpectralccLambda.";  //Name of the file
 #endif
 #ifdef RIEK
      	char File[30] = "SpectralccRiek.";  //Name of the file
@@ -35,27 +35,27 @@ int main(int argc, char* argv[])
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
 
-	bool Restart = Restart_Check(File, argv[4], argv[5]);	//True if restarting
+	bool Restart = Restart_Check(File, argv[4], argv[5], argv[6]);	//True if restarting
 
 	ofstream TPlot;
 	if(Restart)	//If starting from the beginning, overwrite
 	{
 		TPlot.open(File);
-		TPlot << argv[4] << " " << argv[5] << endl;
+		TPlot << argv[4] << " " << argv[5] << " " << argv[6] << endl;
 	}
 	else	//If not starting from the beginning, append
 		TPlot.open(File, ios::app);
 	int i,j;	//counters
 	int Finish, Start;
-	if(argc == 8)
-		Finish = atoi(argv[7]);
+	if(argc == 9)
+		Finish = atoi(argv[8]);
 	else
 		Finish = 788;
-	if(argc >= 7)
-		Start = atoi(argv[6]);
+	if(argc >= 8)
+		Start = atoi(argv[7]);
 	Start = Start_Point(Start, File);
-	if(Finish < Start && Finish >= atoi(argv[6]))	//Go back and get the missed point(s)
-		Start = atoi(argv[6]);
+	if(Finish < Start && Finish >= atoi(argv[7]))	//Go back and get the missed point(s)
+		Start = atoi(argv[7]);
 	const int iProcess = atoi(argv[1]) % atoi(argv[2]);
 	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[3]);
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 			break;
 	}
 
-	/*if(argc == 4)
+	if(argc == 4)
 		switch(Temp)
 		{
 			case 1:
@@ -100,10 +100,25 @@ int main(int argc, char* argv[])
 		}
 	else
 	{
-		Par[0] = -509.651744718067*pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(atof(argv[4])*T,2));
-		Par[1] = sqrt(pow(1.405759573790926,2)+pow(atof(argv[4])*T,2));
-		Par[2] = atof(argv[5]);
-	}*/
+		Par[0] *= atof(argv[4]);
+		Par[1] *= atof(argv[5]);
+		Par[2] = atof(argv[6]);
+		/*switch(Temp)
+		{
+			case 1:
+				Par[2] = 1.84184;
+				break;
+			case 2:
+				Par[2] = 1.69584;
+				break;
+			case 3:
+				Par[2] = 1.59439;
+				break;
+			case 4:
+				Par[2] = 1.48038;
+				break;
+		}*/
+	}
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = Start; i <= Finish; i++)	//Argv[6] allows to restart where ever
@@ -151,11 +166,11 @@ int main(int argc, char* argv[])
 					ParPrivate[4] = 552.25+GaussLa[j-567];
 			}
 
-			long double g = Set_g(ParPrivate[3], Temp);
+			/*long double g = Set_g(ParPrivate[3], Temp);
 			long double Mq = Set_Mq(g, ParPrivate[3], Temp);
 			Par[0] = -509.651744718067*pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(g*T,2));
 			Par[1] = sqrt(pow(1.405759573790926,2)+pow(g*T,2));
-			Par[2] = Mq;
+			Par[2] = Mq;*/
 
 			if(j > 150 && i > 751)
 			{
@@ -239,7 +254,7 @@ int Start_Point(int Start, char File[30])
 	return(Start);
 }
 
-bool Restart_Check(char File[30], char* g, char* Mq)
+bool Restart_Check(char File[30], char* g, char* Lambda, char* Mq)
 {
 	ifstream InFile(File);
 
@@ -247,12 +262,14 @@ bool Restart_Check(char File[30], char* g, char* Mq)
 		return(true);
 
 	double g_File;
+	double Lambda_File;
 	double Mq_File;
 	InFile >> g_File;
+	InFile >> Lambda_File;
 	InFile >> Mq_File;
 	InFile.close();
 
-	if(abs(g_File/atof(g)-1.) < .0001 && abs(Mq_File/atof(Mq)-1.) < .0001)
+	if(abs(g_File/atof(g)-1.) < .0001 && abs(Mq_File/atof(Mq)-1.) < .0001 && abs(Lambda_File/atof(Lambda)-1.) < .0001)
 		return(false);
 
 	InFile.close();
