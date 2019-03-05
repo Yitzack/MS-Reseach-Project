@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 	char File[30] = "Spectralbb.";  //Name of the file
 #endif
 #ifdef CC
-     	char File[30] = "SpectralccLambda.";  //Name of the file
+     	char File[30] = "Spectralcc_gT_Vac.";  //Name of the file
 #endif
 #ifdef RIEK
      	char File[30] = "SpectralccRiek.";  //Name of the file
@@ -100,8 +100,8 @@ int main(int argc, char* argv[])
 		}
 	else
 	{
-		Par[0] *= atof(argv[4]);
-		Par[1] *= atof(argv[5]);
+		Par[0] = -509.651744718067*pow(pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(atof(argv[5])*T,2)),2)*atof(argv[4]);
+		Par[1] = sqrt(pow(1.405759573790926,2)+pow(atof(argv[5])*T,2));
 		Par[2] = atof(argv[6]);
 		/*switch(Temp)
 		{
