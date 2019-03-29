@@ -12,7 +12,7 @@ using namespace std;
 int Start_Point(int, char[30]);
 bool Restart_Check(char[30], char*, char*, char*);
 long double Set_g(long double, long double, int);
-long double Set_g(long double, long double, long double, int);
+long double Set_G(long double, long double, long double, int);
 long double Set_Mq(long double, long double, long double, int);
 
 char* Process;
@@ -260,7 +260,8 @@ long double Set_g(long double g0, long double P, int Temp)
 	}
 	
 	long double gf = 0.;
-	long double Deltag = 2.*g0*log(5*g0*T);
+	long double g = g0;
+	long double Delta_g = 2.*g0*log(5*g0*T);
 
 	long double new_g = Delta_g*(2*pow(g*T,2)+(pow(P,2)+pow(g*T,2))*log((pow(P,2)+pow(g*T,2))/pow(.2,2)))/(2*g*Delta_g*pow(T,2)+(pow(P,2)+pow(g*T,2))*pow(log((pow(P,2)+pow(g*T,2))/pow(.2,2)),2));
 													       
