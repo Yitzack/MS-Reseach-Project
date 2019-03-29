@@ -11,8 +11,9 @@ using namespace std;
 
 int Start_Point(int, char[30]);
 bool Restart_Check(char[30], char*, char*, char*);
-long double Set_g(long double, int);
-long double Set_Mq(long double, long double, int);
+long double Set_g(long double, long double, int);
+long double Set_g(long double, long double, long double, int);
+long double Set_Mq(long double, long double, long double, int);
 
 char* Process;
 
@@ -82,44 +83,6 @@ int main(int argc, char* argv[])
 			break;
 	}
 
-	if(argc == 4)
-		switch(Temp)
-		{
-			case 1:
-				Par[1] *= exp(-4./35.);
-				Par[2] = 1.848;//1.902;
-				break;
-			case 2:
-				Par[1] *= exp(-2./7.);
-				Par[2] = 1.719;//1.777;
-				break;
-			case 3:
-				Par[1] *= exp(-4./7.);
-				Par[2] = 1.563;//1.652;
-				break;
-		}
-	else
-	{
-		Par[0] = -509.651744718067*pow(pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(atof(argv[5])*T,2)),2)*atof(argv[4]);
-		Par[1] = sqrt(pow(1.405759573790926,2)+pow(atof(argv[5])*T,2));
-		Par[2] = atof(argv[6]);
-		/*switch(Temp)
-		{
-			case 1:
-				Par[2] = 1.84184;
-				break;
-			case 2:
-				Par[2] = 1.69584;
-				break;
-			case 3:
-				Par[2] = 1.59439;
-				break;
-			case 4:
-				Par[2] = 1.48038;
-				break;
-		}*/
-	}
-
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = Start; i <= Finish; i++)	//Argv[6] allows to restart where ever
 	{
@@ -127,9 +90,6 @@ int main(int argc, char* argv[])
 		for(j = iProcess; j < 616; j+=Total)	//Does the subset of E that has been assigned to this process, calculation loop
 		{
 			long double ParPrivate[5];
-			ParPrivate[0] = Par[0];
-			ParPrivate[1] = Par[1];
-			ParPrivate[2] = Par[2];
 			if(j <= 150)
 			{
 				//TPlot << "If you come down this way, you have to alter the curvilinar system used to sample. You will want to use lines of constant s, or sqrt(E^2+P^2). You must do this before you do anything in s<0GeV^2 region" << endl;
@@ -166,11 +126,12 @@ int main(int argc, char* argv[])
 					ParPrivate[4] = 552.25+GaussLa[j-567];
 			}
 
-			/*long double g = Set_g(ParPrivate[3], Temp);
-			long double Mq = Set_Mq(g, ParPrivate[3], Temp);
-			Par[0] = -509.651744718067*pow(pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(g*T,2)),2);
-			Par[1] = sqrt(pow(1.405759573790926,2)+pow(g*T,2));
-			Par[2] = Mq;*/
+			long double g = Set_g(atof(argv[5]), ParPrivate[3], Temp);
+			long double G = Set_G(atof(argv[4]), g, ParPrivate[3], Temp);
+			long double Mq = Set_Mq(atof(argv[6]), g, ParPrivate[3], Temp);
+			ParPrivate[0] = -509.651744718067*G*pow(pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(g*T,2)),2);
+			ParPrivate[1] = sqrt(pow(1.405759573790926,2)+pow(g*T,2));
+			ParPrivate[2] = Mq;
 
 			if(j > 150 && i > 751)
 			{
@@ -276,35 +237,30 @@ bool Restart_Check(char File[30], char* g, char* Lambda, char* Mq)
 	return(true);
 }
 
-long double Set_g(long double P, int Temp)
+long double Set_g(long double g0, long double P, int Temp)
 {
-	long double g = 4.73071;
-	long double Delta_g;
 	long double T;
-
 	switch(Temp)
 	{
-	case 0:
-		Delta_g = 0;
-		T = 0;
-		break;
-	case 1:
-		Delta_g = 14.4156;
-		T = .194;
-		break;
-	case 2:
-		Delta_g = 17.113;
-		T = .258;
-		break;
-	case 3:
-		Delta_g = 19.1507;
-		T = .320;
-		break;
-	case 4:
-		Delta_g = 21.2619;
-		T = .400;
-		break;
+		case 0:
+			T = 0;
+			break;
+		case 1:
+			T = .194;
+			break;
+		case 2:
+			T = .258;
+			break;
+		case 3:
+			T = .32;
+			break;
+		case 4:
+			T = .4;
+			break;
 	}
+	
+	long double gf = 0.;
+	long double Deltag = 2.*g0*log(5*g0*T);
 
 	long double new_g = Delta_g*(2*pow(g*T,2)+(pow(P,2)+pow(g*T,2))*log((pow(P,2)+pow(g*T,2))/pow(.2,2)))/(2*g*Delta_g*pow(T,2)+(pow(P,2)+pow(g*T,2))*pow(log((pow(P,2)+pow(g*T,2))/pow(.2,2)),2));
 													       
@@ -317,40 +273,58 @@ long double Set_g(long double P, int Temp)
 	return(new_g);
 }
 
-long double Set_Mq(long double g, long double P, int Temp)
+long double Set_Mq(long double Mq0, long double g, long double P, int Temp)
 {
 	long double T;
-	long double Mq;
-	long double Delta_Mq;
-
 	switch(Temp)
 	{
-	case 0:
-		Delta_Mq = 0;
-		Mq = 1.8;
-		T = 0;
-		break;
-	case 1:
-		Delta_Mq = .127496;
-		Mq = 1.84184;
-		T = .194;
-		break;
-	case 2:
-		Delta_Mq = -.376792;
-		Mq = 1.69584;
-		T = .258;
-		break;
-	case 3:
-		Delta_Mq = -.832342;
-		Mq = 1.59439;
-		T = .320;
-		break;
-	case 4:
-		Delta_Mq = -1.43651;
-		Mq = 1.48038;
-		T = .400;
-		break;
+		case 0:
+			T = 0;
+			break;
+		case 1:
+			T = .194;
+			break;
+		case 2:
+			T = .258;
+			break;
+		case 3:
+			T = .32;
+			break;
+		case 4:
+			T = .4;
+			break;
 	}
+	
+	long double Mqf = 1.8;
+	long double Delta_Mq = 2.*(Mq0-Mqf)*log(5.*2.1*T);
 
-	return(1.8+Delta_Mq/log((pow(P,2)+pow(g*T,2))/pow(.2,2)));
+	return(Mqf+Delta_Mq/log((pow(P,2)+pow(g*T,2))/pow(.2,2)));
+}
+
+long double Set_G(long double G0, long double g, long double P, int Temp)
+{
+	long double T;
+	switch(Temp)
+	{
+		case 0:
+			T = 0;
+			break;
+		case 1:
+			T = .194;
+			break;
+		case 2:
+			T = .258;
+			break;
+		case 3:
+			T = .32;
+			break;
+		case 4:
+			T = .4;
+			break;
+	}
+	
+	long double Gf = 1.;
+	long double Delta_G = 2.*(G0-Gf)*log(5.*2.1*T);
+
+	return(Gf+Delta_G/log((pow(P,2)+pow(g*T,2))/pow(.2,2)));
 }
