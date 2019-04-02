@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 	char File[30] = "Spectralbb.";  //Name of the file
 #endif
 #ifdef CC
-     	char File[30] = "Spectralcc_gT_Vac.";  //Name of the file
+     	char File[30] = "Spectralcc_gT_MP.";  //Name of the file
 #endif
 #ifdef RIEK
      	char File[30] = "SpectralccRiek.";  //Name of the file
