@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 	char File[30] = "Spectralbb.";  //Name of the file
 #endif
 #ifdef CC
-     	char File[30] = "Spectralcc_gT_MP.";  //Name of the file
+     	char File[30] = "Spectralcc_gT_MD.";  //Name of the file
 #endif
 #ifdef RIEK
      	char File[30] = "SpectralccRiek.";  //Name of the file
@@ -262,13 +262,13 @@ long double Set_g(long double g0, long double P, int Temp)
 			T = .4;
 			break;
 	}
-	
+
 	long double gf = 0.;
 	long double g = g0;
 	long double Delta_g = 2.*g0*log(5*g0*T);
 
 	long double new_g = Delta_g*(2*pow(g*T,2)+(pow(P,2)+pow(g*T,2))*log((pow(P,2)+pow(g*T,2))/pow(.2,2)))/(2*g*Delta_g*pow(T,2)+(pow(P,2)+pow(g*T,2))*pow(log((pow(P,2)+pow(g*T,2))/pow(.2,2)),2));
-													       
+
 	while(abs(new_g/g-1.) > 1e-4)
 	{
 		g = new_g;
@@ -303,7 +303,7 @@ long double Set_Mq(long double Mq0, long double g, long double P, int Temp)
 			T = .4;
 			break;
 	}
-	
+
 	long double Mqf = 1.8;
 	long double Delta_Mq = 2.*(Mq0-Mqf)*log(5.*2.1*T);
 
@@ -335,7 +335,7 @@ long double Set_G(long double G0, long double g, long double P, int Temp)
 			T = .4;
 			break;
 	}
-	
+
 	long double Gf = 1.;
 	long double Delta_G = 2.*(G0-Gf)*log(5.*2.1*T);
 
