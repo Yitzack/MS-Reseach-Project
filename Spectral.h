@@ -947,7 +947,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	long double a;
 	long double sigma1, sigma2;
 	long double Floor;
-	
+
 	switch(Temp)
 	{
 		case 0:
@@ -1091,7 +1091,7 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 	long double a;
 	long double sigma1, sigma2;
 	long double Floor;
-	
+
 	switch(Temp)
 	{
 		case 0:
