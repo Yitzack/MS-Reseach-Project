@@ -1075,9 +1075,9 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		ImSigma = -.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))),2)+pow(knee,2));
 
 	if(pow(omega,2)>=pow(k,2))
-		return(-2.*M*Sigma*exp(ImSigma)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+		return(-2.*.8*M*Sigma*exp(ImSigma)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
-		return(-2.*M*Sigma*exp(ImSigma));
+		return(-2.*.8*M*Sigma*exp(ImSigma));
 #endif
 }
 
@@ -1201,7 +1201,7 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 			break;
 	}
 
-	return(Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));
+	return(.8*Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));
 #endif
 }
 
