@@ -240,6 +240,10 @@ bool Restart_Check(char File[30], char* g, char* Lambda, char* Mq)
 long double Set_g(long double g0, long double P, int Temp)
 {
 	long double T;
+
+	if(g0 == 0)
+		return(0);
+
 	switch(Temp)
 	{
 		case 0:
@@ -277,6 +281,10 @@ long double Set_g(long double g0, long double P, int Temp)
 long double Set_Mq(long double Mq0, long double g, long double P, int Temp)
 {
 	long double T;
+
+	if(g == 0)
+		return(1.8);
+
 	switch(Temp)
 	{
 		case 0:
@@ -305,6 +313,10 @@ long double Set_Mq(long double Mq0, long double g, long double P, int Temp)
 long double Set_G(long double G0, long double g, long double P, int Temp)
 {
 	long double T;
+
+	if(g == 0)
+		return(1.);
+
 	switch(Temp)
 	{
 		case 0:
