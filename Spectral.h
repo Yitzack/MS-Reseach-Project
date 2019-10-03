@@ -758,14 +758,14 @@ Elements Folding(long double Par[], int Temp, long double k, long double theta)	
 			long double x1 = (b+a-Disp[l]*(b-a))/2.;
 			long double x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			holder = (Elements(Spin_Sum1(Par, x1, k, theta), 2.*Potential1(Par,x1,k), Potential2(Par,x1,k))*ImFolding_Integrand1(Par,x1,k,theta,Temp)/*+Elements(Spin_Sum2(Par, -x1, k, theta), 2.*Potential1(Par,-x1,k), Potential2(Par,-x1,k))*ImFolding_Integrand2(Par,-x1,k,theta,Temp)*/);
+			holder = (Elements(Spin_Sum1(Par, x1, k, theta)/2., sqrt(.75+Par[4]/pow(2.*Par[2],2))*Potential1(Par,x1,k), (Par[4]/4.-pow(x1,2)+pow(k,2))/(4.*pow(Par[2],4))*Potential1(Par,x1,k), 2.*M_PI*Potential2(Par,x1,k))*ImFolding_Integrand1(Par,x1,k,theta,Temp)/*+Elements(Spin_Sum2(Par, -x1, k, theta), 2.*Potential1(Par,-x1,k), Potential2(Par,-x1,k))*ImFolding_Integrand2(Par,-x1,k,theta,Temp)*/);
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*w[l+1];
-			holder = (Elements(Spin_Sum1(Par, x2, k, theta), 2.*Potential1(Par,x2,k), Potential2(Par,x2,k))*ImFolding_Integrand1(Par,x2,k,theta,Temp)/*+Elements(Spin_Sum2(Par, -x2, k, theta), 2.*Potential1(Par,-x2,k), Potential2(Par,-x2,k))*ImFolding_Integrand2(Par,-x2,k,theta,Temp)*/);
+			holder = (Elements(Spin_Sum1(Par, x2, k, theta)/2., sqrt(.75+Par[4]/pow(2.*Par[2],2))*Potential1(Par,x2,k), (Par[4]/4.-pow(x2,2)+pow(k,2))/(4.*pow(Par[2],4))*Potential1(Par,x2,k), 2.*M_PI*Potential2(Par,x2,k))*ImFolding_Integrand1(Par,x2,k,theta,Temp)/*+Elements(Spin_Sum2(Par, -x2, k, theta), 2.*Potential1(Par,-x2,k), Potential2(Par,-x2,k))*ImFolding_Integrand2(Par,-x2,k,theta,Temp)*/);
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*w[l+1];
 		}
-		holder = (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), 2.*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*ImFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp)/*+Elements(Spin_Sum2(Par, -(a+b)/2., k, theta), 2.*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*ImFolding_Integrand2(Par,-(a+b)/2.,k,theta,Temp)*/);
+		holder = (Elements(Spin_Sum1(Par, (a+b)/2., k, theta)/2., sqrt(.75+Par[4]/pow(2.*Par[2],2))*Potential1(Par,(a+b)/2.,k), (Par[4]/4.-pow((a+b)/2.,2)+pow(k,2))/(4.*pow(Par[2],4))*Potential1(Par,(a+b)/2.,k), 2.*M_PI*Potential2(Par,(a+b)/2.,k))*ImFolding_Integrand1(Par,(a+b)/2.,k,theta,Temp)/*+Elements(Spin_Sum2(Par, -(a+b)/2., k, theta), 2.*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*ImFolding_Integrand2(Par,-(a+b)/2.,k,theta,Temp)*/);
 		//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		F += holder*w[0];
 
@@ -1261,7 +1261,7 @@ long double Potential2(long double Par[], long double k0, long double k)	//Potie
 
 long double ImD(long double omega, long double k, long double M, int Temp)	//Single quark spectral function
 {
-	return(ImSelf_Energy(M, omega, k, Temp)/(pow(pow(omega,2)-pow(k,2)-pow(M,2)-2.*M*ReSelf_Energy(M, omega, k, Temp),2)+pow(ImSelf_Energy(M, omega, k, Temp),2)));
+	return(2.*ImSelf_Energy(M, omega, k, Temp)/(pow(pow(omega,2)-pow(k,2)-pow(M,2)-2.*M*ReSelf_Energy(M, omega, k, Temp),2)+pow(ImSelf_Energy(M, omega, k, Temp),2)));
 }
 
 long double Spin_Sum1(long double Par[], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
@@ -1276,11 +1276,11 @@ long double Spin_Sum2(long double Par[], long double k0, long double k , long do
 
 long double ImFolding_Integrand1(long double Par[], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for positive energy
 {
-	return(-pow(Par[2],2)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), Par[2], Temp)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), Par[2], Temp)*(1.-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp)));
+	return(-2.*pow(Par[2],2)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), Par[2], Temp)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), Par[2], Temp)*(1.-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp)));
 }
 
 long double ImFolding_Integrand2(long double Par[], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for negitive energy (anti-particle/particle-hole)
 {
-	return(-pow(Par[2],2)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), Par[2], Temp)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), Par[2], Temp)*(Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp)));
+	return(-2.*pow(Par[2],2)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), Par[2], Temp)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), Par[2], Temp)*(Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp)));
 
 }

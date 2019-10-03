@@ -61,8 +61,8 @@ int main(int argc, char* argv[])
 	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[3]);
 	long double T;
-	long double Table[616][3];
-	long double Par[5] = {-509.651744718067, 1.405759573790926, 1.8, 0, 0};
+	long double Table[616][4];
+	long double Par[5] = {-10.139199303411141, 1.405759573790926, 1.8, 0, 0};
 	Elements holder;
 
 	long double GaussLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integration
@@ -92,7 +92,6 @@ int main(int argc, char* argv[])
 			long double ParPrivate[5];
 			if(j <= 150)
 			{
-				//TPlot << "If you come down this way, you have to alter the curvilinar system used to sample. You will want to use lines of constant s, or sqrt(E^2+P^2). You must do this before you do anything in s<0GeV^2 region" << endl;
 				if(i <= 208)
 				{
 					ParPrivate[3] = i/10.+j/10.;
@@ -129,13 +128,13 @@ int main(int argc, char* argv[])
 			long double g = Set_g(atof(argv[5]), ParPrivate[3], Temp);
 			long double G = Set_G(atof(argv[4]), g, ParPrivate[3], Temp);
 			long double Mq = Set_Mq(atof(argv[6]), g, ParPrivate[3], Temp);
-			ParPrivate[0] = -509.651744718067*G*pow(pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(g*T,2)),2);
+			ParPrivate[0] = -10.139199303411141*G*pow(pow(1.405759573790926,2)/(pow(1.405759573790926,2)+pow(g*T,2)),2);
 			ParPrivate[1] = sqrt(pow(1.405759573790926,2)+pow(g*T,2));
 			ParPrivate[2] = Mq;
 
 			if(j > 150 && i > 751)
 			{
-				Table[j][0] = Table[j][1] = Table[j][2] = 0;
+				Table[j][0] = Table[j][1] = Table[j][2] = Table[j][3] = 0;
 			}
 			else
 			{
@@ -143,6 +142,7 @@ int main(int argc, char* argv[])
 				Table[j][0] = holder.store(0);
 				Table[j][1] = holder.store(1);
 				Table[j][2] = holder.store(2);
+				Table[j][3] = holder.store(3);
 			}
 		}
 
@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
 					Par[4] = 552.25+GaussLa[j-567];
 			}
 
-			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << endl;
+			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << " " << Table[j][3] << endl;
 		}
 		TPlot << endl;
 	}

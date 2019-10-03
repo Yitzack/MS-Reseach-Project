@@ -19,13 +19,13 @@ class Elements
 		//long double abs(long double&);
 		void operator=(const Elements&);
 		Elements();
-		Elements(long double, long double, long double);
-		Elements(long double[3]);
+		Elements(long double, long double, long double, long double);
+		Elements(long double[4]);
 		Elements(const Elements&);
 		void null();
 		long double store(int);
 	private:
-		long double Array[3];
+		long double Array[4];
 };
 
 /*long double Elements::abs(long double& A)
@@ -43,13 +43,15 @@ void Elements::null()
 	Array[0] = 0;
 	Array[1] = 0;
 	Array[2] = 0;
+	Array[3] = 0;
 }
 
-Elements::Elements(long double A, long double B, long double C)
+Elements::Elements(long double A, long double B, long double C, long double D)
 {
 	Array[0] = A;
 	Array[1] = B;
 	Array[2] = C;
+	Array[3] = D;
 }
 
 Elements::Elements(const Elements &A)
@@ -57,6 +59,7 @@ Elements::Elements(const Elements &A)
 	Array[0] = A.Array[0];
 	Array[1] = A.Array[1];
 	Array[2] = A.Array[2];
+	Array[3] = A.Array[3];
 }
 
 Elements::Elements(long double A[3])
@@ -64,6 +67,7 @@ Elements::Elements(long double A[3])
 	Array[0] = A[0];
 	Array[1] = A[1];
 	Array[2] = A[2];
+	Array[3] = A[3];
 }
 
 Elements::Elements()
@@ -71,6 +75,7 @@ Elements::Elements()
 	Array[0] = 0;
 	Array[1] = 0;
 	Array[2] = 0;
+	Array[3] = 0;
 }
 
 Elements Elements::abs()
@@ -79,6 +84,7 @@ Elements Elements::abs()
 	B.Array[0] = std::abs(Array[0]);
 	B.Array[1] = std::abs(Array[1]);
 	B.Array[2] = std::abs(Array[2]);
+	B.Array[3] = std::abs(Array[3]);
 	return(B);
 }
 
@@ -86,21 +92,24 @@ bool Elements::operator==(long double A)
 {
 	return(Array[0] == A &&
 		Array[1] == A &&
-		Array[2] == A);
+		Array[2] == A &&
+		Array[3] == A);
 }
 
 bool Elements::operator>=(long double A)
 {
 	return(std::abs(Array[0]) >= A ||
 		std::abs(Array[1]) >= A ||
-		std::abs(Array[2]) >= A);
+		std::abs(Array[2]) >= A ||
+		std::abs(Array[3]) >= A);
 }
 
 bool Elements::operator>(long double A)
 {
 	return(std::abs(Array[0]) > A ||
 		std::abs(Array[1]) > A ||
-		std::abs(Array[2]) > A);
+		std::abs(Array[2]) > A ||
+		std::abs(Array[3]) > A);
 }
 
 void Elements::operator=(const Elements &A)
@@ -108,6 +117,7 @@ void Elements::operator=(const Elements &A)
 	Array[0] = A.Array[0];
 	Array[1] = A.Array[1];
 	Array[2] = A.Array[2];
+	Array[3] = A.Array[3];
 }
 
 void Elements::operator+=(const Elements &A)
@@ -118,6 +128,8 @@ void Elements::operator+=(const Elements &A)
 	Array[1] += A.Array[1];
 	#pragma omp atomic
 	Array[2] += A.Array[2];
+	#pragma omp atomic
+	Array[3] += A.Array[3];
 }
 
 Elements Elements::operator+(Elements A)
@@ -126,6 +138,7 @@ Elements Elements::operator+(Elements A)
 	B.Array[0] = Array[0] + A.Array[0];
 	B.Array[1] = Array[1] + A.Array[1];
 	B.Array[2] = Array[2] + A.Array[2];
+	B.Array[3] = Array[3] + A.Array[3];
 	return(B);
 }
 
@@ -135,6 +148,7 @@ Elements Elements::operator/(Elements A)
 	B.Array[0] = Array[0] / A.Array[0];
 	B.Array[1] = Array[1] / A.Array[1];
 	B.Array[2] = Array[2] / A.Array[2];
+	B.Array[3] = Array[3] / A.Array[3];
 	return(B);
 }
 
@@ -144,6 +158,7 @@ Elements Elements::operator-(Elements A)
 	B.Array[0] = Array[0] - A.Array[0];
 	B.Array[1] = Array[1] - A.Array[1];
 	B.Array[2] = Array[2] - A.Array[2];
+	B.Array[3] = Array[3] - A.Array[3];
 	return(B);
 }
 
@@ -153,6 +168,7 @@ Elements Elements::operator+(long double A)
 	B.Array[0] = Array[0] + A;
 	B.Array[1] = Array[1] + A;
 	B.Array[2] = Array[2] + A;
+	B.Array[3] = Array[3] + A;
 	return(B);
 }
 
@@ -162,6 +178,7 @@ Elements Elements::operator-(long double A)
 	B.Array[0] = Array[0] - A;
 	B.Array[1] = Array[1] - A;
 	B.Array[2] = Array[2] - A;
+	B.Array[3] = Array[3] - A;
 	return(B);
 }
 
@@ -171,6 +188,7 @@ Elements Elements::operator*(long double A)
 	B.Array[0] = Array[0] * A;
 	B.Array[1] = Array[1] * A;
 	B.Array[2] = Array[2] * A;
+	B.Array[3] = Array[3] * A;
 	return(B);
 }
 
@@ -180,6 +198,7 @@ Elements Elements::operator/(long double A)
 	B.Array[0] = Array[0] / A;
 	B.Array[1] = Array[1] / A;
 	B.Array[2] = Array[2] / A;
+	B.Array[3] = Array[3] / A;
 	return(B);
 }
 
