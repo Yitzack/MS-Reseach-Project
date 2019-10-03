@@ -108,7 +108,7 @@ Elements theta_Int(long double Par[], int Temp)
 		x1 = M_PI/10.;
 	long double Range[] = {x1*Boundary[14], x1*Boundary[15], x1, x1*(2.-Boundary[15]), x1*(2.-Boundary[15])*(1.-Boundary[16])+M_PI/2.*Boundary[16], M_PI/2., asin(sqrt(-Par[4])/Par[3]),0,0};
 	Elements F;	//Sum of ordinate*weights
-	Elements Answer = Elements(0,0,0);	//Answer to be returned
+	Elements Answer = Elements(0,0,0,0);	//Answer to be returned
 	Elements holder;
 	long double a = 0, b;	//Sub-interval limits of integration
 	int i, j;	//Counters
@@ -224,7 +224,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp
 	long double Range[] = {-Boundary[7], -Boundary[6], -Boundary[5], -Boundary[4], -Boundary[3], -Boundary[2], -Boundary[1], -Boundary[0], 0, Boundary[0], Boundary[1], Boundary[2], Boundary[3], Boundary[4], Boundary[5], Boundary[6], Boundary[7]};	//Number of gamma from center
 	Elements F;	//Sum of ordinates*weights
-	Elements Answer(0,0,0);	//Answer to be returned
+	Elements Answer(0,0,0,0);	//Answer to be returned
 	Elements Partial;	//Answer for sub-interval for determining completeness
 	Elements holder;
 	long double x1, x2;	//Abscissa
@@ -650,9 +650,9 @@ long double Lower_Bound(long double s, long double P, long double k, long double
 Elements Folding(long double Par[], int Temp, long double k, long double theta)	//Folding integral, energy integral
 {
 	if(Temp == 0 && abs(sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta)-Energy(0,Par[3]/2.,k,theta)) < 1e-12)	//Let's save some time and just return 0, because it is
-		return(Elements(0,0,0));
+		return(Elements(0,0,0,0));
 	else if(Par[4]+pow(Par[3],2) < 0)
-		return(Elements(0,0,0));	//Bad data trap and time saver
+		return(Elements(0,0,0,0));	//Bad data trap and time saver
 
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177}; //Displacement from center for 35th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204}; //Weight of the function at Disp
@@ -660,8 +660,8 @@ Elements Folding(long double Par[], int Temp, long double k, long double theta)	
 	long double a, b;	//Sub-interval limits of integration
 	long double Max;	//Upper limit of integration
 	Elements F;	//Sum of ordinates*weights
-	Elements Answer(0,0,0);	//Results to be returned
-	Elements Partial(0,0,0);//Partial Answer
+	Elements Answer(0,0,0,0);	//Results to be returned
+	Elements Partial(0,0,0,0);//Partial Answer
 	Elements holder;
 	long double x1, x2;	//Abscissa
 	long double zero[12];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
