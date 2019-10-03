@@ -283,7 +283,11 @@ long double Set_Mq(long double Mq0, long double g, long double P, int Temp)
 	long double T;
 
 	if(g == 0)
+#ifndef BB
 		return(1.8);
+#else
+		return(5.25);
+#endif
 
 	switch(Temp)
 	{
@@ -304,7 +308,11 @@ long double Set_Mq(long double Mq0, long double g, long double P, int Temp)
 			break;
 	}
 
+#ifndef BB
 	long double Mqf = 1.8;
+#else
+	long double MqF = 5.25;
+#endif
 	long double Delta_Mq = 2.*(Mq0-Mqf)*log(5.*2.1*T);
 
 	return(Mqf+Delta_Mq/log((pow(P,2)+pow(g*T,2))/pow(.2,2)));
