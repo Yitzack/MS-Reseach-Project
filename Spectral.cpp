@@ -20,10 +20,10 @@ char* Process;
 int main(int argc, char* argv[])
 {
 #ifdef BB	//use option -D BB= to activate BB macro
-	char File[30] = "Spectralbb.";  //Name of the file
+	char File[30] = "Spectralbb_Tr.";  //Name of the file
 #endif
 #ifdef CC
-     	char File[30] = "Spectralcc_gT_MD.";  //Name of the file
+     	char File[30] = "Spectralcc_Tr.";  //Name of the file
 #endif
 #ifdef RIEK
      	char File[30] = "SpectralccRiek.";  //Name of the file
@@ -282,7 +282,7 @@ long double Set_Mq(long double Mq0, long double g, long double P, int Temp)
 {
 	long double T;
 
-	if(g == 0)
+	if(Temp == 0)
 #ifndef BB
 		return(1.8);
 #else
@@ -311,7 +311,7 @@ long double Set_Mq(long double Mq0, long double g, long double P, int Temp)
 #ifndef BB
 	long double Mqf = 1.8;
 #else
-	long double MqF = 5.25;
+	long double Mqf = 5.25;
 #endif
 	long double Delta_Mq = 2.*(Mq0-Mqf)*log(5.*2.1*T);
 
