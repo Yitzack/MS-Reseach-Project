@@ -990,9 +990,9 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	M1 += Shift;
 
 	if(pow(omega,2)>=pow(k,2))
-		return(2.*.8*M*Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2)))+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+		return(2.*M*Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2)))+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
-		return(2.*.8*M*Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))));
+		return(2.*M*Sigma*exp(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.-sqrt(b1*b2*pow((omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2)),2)+pow(Delta+(b1-b2)*(omega-sqrt(pow(M1,2)+pow(k,2)))*sqrt(pow(M1,2)+pow(k,2))/2.,2)))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))));
 #endif
 #if defined(SHUAI) || defined(CC) || defined(BB)
 	long double omega0;	//location of central peak
@@ -1063,9 +1063,9 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		ImSigma = -.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))),2)+pow(knee,2));
 
 	if(pow(omega,2)>=pow(k,2))
-		return(-2.*.8*M*Sigma*exp(ImSigma)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
+		return(-2.*M*Sigma*exp(ImSigma)+sqrt(pow(omega,2)-pow(k,2))*GAMMA);
 	else
-		return(-2.*.8*M*Sigma*exp(ImSigma));
+		return(-2.*M*Sigma*exp(ImSigma));
 #endif
 }
 
@@ -1136,7 +1136,7 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 	M1 += Shift;
 	M2 += Shift;
 
-	return(.8*Sigma*gamma*(omega-sqrt(pow(M1,2)+pow(k,2)))/(pow(omega-sqrt(pow(M2,2)+pow(k,2)),2)+pow(gamma,2))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))));
+	return(Sigma*gamma*(omega-sqrt(pow(M1,2)+pow(k,2)))/(pow(omega-sqrt(pow(M2,2)+pow(k,2)),2)+pow(gamma,2))*(a*exp(-pow(k/sigma1,2))+(1.-a)*exp(-pow(k/sigma2,2))));
 #endif
 #if defined(SHUAI) || defined(CC) || defined(BB)
 	long double Sigma;	//Strength
@@ -1189,7 +1189,7 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 			break;
 	}
 
-	return(.8*Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));
+	return(Sigma*(omega-x0)/(pow(omega-x1,2)+gamma));
 #endif
 }
 
@@ -1239,12 +1239,12 @@ long double Potential_on(long double Par[])	//On-shell potential for the on-shel
 
 long double Potential1(long double Par[], long double k0, long double k)	//Potiential for the numerator of the boson spectrum
 {
-	return(sqrt(pow(Par[1],4)/(pow(Par[1],4)+pow(-4.*pow(k0,2)+4.*pow(k,2)+4.*pow(Par[2],2),2))*exp((4.*pow(k0,2)-4.*pow(k,2))*pow(Par[6],2))));
+	return(sqrt(pow(Par[1],4)/(pow(Par[1],4)+pow(-4.*pow(k0,2)+4.*pow(k,2)+4.*pow(Par[2],2),2))));
 }
 
 long double Potential2(long double Par[], long double k0, long double k)	//Potiential for the denominator of the T-Matrix and boson spectrum
 {
-	return(Par[0]*pow(Par[1],4)/(pow(Par[1],4)+pow(-4.*pow(k0,2)+4.*pow(k,2)+4.*pow(Par[2],2),2))*exp((4.*pow(k0,2)-4.*pow(k,2))*pow(Par[6],2)));
+	return(Par[0]*pow(Par[1],4)/(pow(Par[1],4)+pow(-4.*pow(k0,2)+4.*pow(k,2)+4.*pow(Par[2],2),2)));
 }
 
 long double ImD(long double omega, long double k, long double M, int Temp)	//Single quark spectral function
