@@ -11,19 +11,18 @@ using namespace std;
 
 int Start_Point(int, char[30]);
 bool Restart_Check(char[30], char*, char*, char*);
-long double Set_g(long double, long double, int);
-long double Set_G(long double, long double, long double, int);
-long double Set_Mq(long double, long double, long double, int);
+long double Set_G(long double, long double, int);
+long double Set_Mq(long double, long double, int);
 
 char* Process;
 
 int main(int argc, char* argv[])
 {
 #ifdef BB	//use option -D BB= to activate BB macro
-	char File[70] = "data/Spectralbb_Tr.";  //Name of the file
+	char File[70] = "data/Spectralbb_Tr_P0.";  //Name of the file
 #endif
 #ifdef CC
-     	char File[70] = "data/Spectralcc_Tr.";  //Name of the file
+     	char File[70] = "data/Spectralcc_Tr_P0.";  //Name of the file
 #endif
 #ifdef RIEK
      	char File[30] = "SpectralccRiek.";  //Name of the file
@@ -125,13 +124,9 @@ int main(int argc, char* argv[])
 					ParPrivate[4] = 552.25+GaussLa[j-567];
 			}
 
-			long double g = Set_g(atof(argv[5]), ParPrivate[3], Temp);
-			long double G = Set_G(atof(argv[4]), g, ParPrivate[3], Temp);
-			long double Mq = Set_Mq(atof(argv[6]), g, ParPrivate[3], Temp);
-			g = 0;
-			ParPrivate[0] = -.5306436016791014*G*pow(8.699892671305086,4)/(pow(8.699892671305086,4)+pow(g*T,4));
-			ParPrivate[1] = pow(pow(8.699892671305086,4)+pow(g*T,4),.25);
-			ParPrivate[2] = Mq;
+			ParPrivate[0] = -.5306436016791014;//*Set_G(atof(argv[4]), ParPrivate[3], Temp);
+			ParPrivate[1] = 8.699892671305086;
+			ParPrivate[2] = atof(argv[6]);//Set_Mq(atof(argv[6]), ParPrivate[3], Temp);
 
 			if(j > 150 && i > 751)
 			{
@@ -238,57 +233,9 @@ bool Restart_Check(char File[30], char* g, char* Lambda, char* Mq)
 	return(true);
 }
 
-long double Set_g(long double g0, long double P, int Temp)
+long double Set_Mq(long double Mq0, long double P, int Temp)
 {
 	long double T;
-
-	if(g0 == 0)
-		return(0);
-
-	switch(Temp)
-	{
-		case 0:
-			T = 0;
-			break;
-		case 1:
-			T = .194;
-			break;
-		case 2:
-			T = .258;
-			break;
-		case 3:
-			T = .32;
-			break;
-		case 4:
-			T = .4;
-			break;
-	}
-
-	long double gf = 0.;
-	long double g = g0;
-	long double Delta_g = 2.*g0*log(5*g0*T);
-
-	long double new_g = Delta_g*(2*pow(g*T,2)+(pow(P,2)+pow(g*T,2))*log((pow(P,2)+pow(g*T,2))/pow(.2,2)))/(2*g*Delta_g*pow(T,2)+(pow(P,2)+pow(g*T,2))*pow(log((pow(P,2)+pow(g*T,2))/pow(.2,2)),2));
-
-	while(abs(new_g/g-1.) > 1e-4)
-	{
-		g = new_g;
-		new_g = Delta_g*(2*pow(g*T,2)+(pow(P,2)+pow(g*T,2))*log((pow(P,2)+pow(g*T,2))/pow(.2,2)))/(2*g*Delta_g*pow(T,2)+(pow(P,2)+pow(g*T,2))*pow(log((pow(P,2)+pow(g*T,2))/pow(.2,2)),2));
-	}
-
-	return(new_g);
-}
-
-long double Set_Mq(long double Mq0, long double g, long double P, int Temp)
-{
-	long double T;
-
-	if(g == 0)
-#ifndef BB
-		return(1.8);
-#else
-		return(5.25);
-#endif
 
 	switch(Temp)
 	{
@@ -314,17 +261,14 @@ long double Set_Mq(long double Mq0, long double g, long double P, int Temp)
 #else
 	long double Mqf = 5.25;
 #endif
-	long double Delta_Mq = 2.*(Mq0-Mqf)*log(5.*g*T);
+	long double Delta_Mq = Mqf-Mq0;
 
-	return(Mqf+Delta_Mq/log((pow(P,2)+pow(g*T,2))/pow(.2,2)));
+	return(Mqf-Delta_Mq/(1+log(1.+pow(P,2)/.04)));
 }
 
-long double Set_G(long double G0, long double g, long double P, int Temp)
+long double Set_G(long double G0, long double P, int Temp)
 {
 	long double T;
-
-	if(g == 0)
-		return(1.);
 
 	switch(Temp)
 	{
@@ -346,7 +290,7 @@ long double Set_G(long double G0, long double g, long double P, int Temp)
 	}
 
 	long double Gf = 1.;
-	long double Delta_G = 2.*(G0-Gf)*log(5.*g*T);
+	long double Delta_G = Gf-G0;
 
-	return(Gf+Delta_G/log((pow(P,2)+pow(g*T,2))/pow(.2,2)));
+	return(Gf-Delta_G/(1+log(1.+pow(P,2)/.04)));
 }
