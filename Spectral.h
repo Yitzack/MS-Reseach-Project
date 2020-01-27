@@ -11,10 +11,6 @@ using namespace std;
 Elements theta_Int(long double[], int);	//Integrates the theta results
 Elements k_Int(long double[], int, long double);	//Integrates the k momentum results
 Elements Folding(long double[], int, long double, long double);	//Folding integral, energy integral
-long double Newtons_theta(long double, long double, long double, long double);	//Executes a Newton's algorithm search for the maximum of f()
-long double D1(long double, long double, long double, long double);	//Finite difference definition, 4th order, 1st derivitive of f
-long double D2(long double, long double, long double, long double);	//Finite difference definition, 4th order, 2nd derivitive of f
-long double f(long double, long double, long double, long double);	//Analytic integrand of finite P, zero-width result for theta integrand
 void Characterize_k_Int(long double[], int, long double, long double[], long double[], int&);	//Returns the poles of the k integral's integrands
 bool Newton_Method_k(long double&, long double, long double, long double, long double, long double, long double(*)(long double, long double, long double, long double), long double(*)(long double, long double, long double, long double, long double));	//Returns the k-intesection of a potiential and on-shell peak
 long double V_Plus(long double, long double, long double, long double);	//Potiential peaks
