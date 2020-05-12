@@ -11,10 +11,6 @@ using namespace std;
 Elements theta_Int(long double[], int);	//Integrates the theta results
 Elements k_Int(long double[], int, long double);	//Integrates the k momentum results
 Elements Folding(long double[], int, long double, long double);	//Folding integral, energy integral
-long double Newtons_theta(long double, long double, long double, long double);	//Executes a Newton's algorithm search for the maximum of f()
-long double D1(long double, long double, long double, long double);	//Finite difference definition, 4th order, 1st derivitive of f
-long double D2(long double, long double, long double, long double);	//Finite difference definition, 4th order, 2nd derivitive of f
-long double f(long double, long double, long double, long double);	//Analytic integrand of finite P, zero-width result for theta integrand
 void Characterize_k_Int(long double[], int, long double, long double[], long double[], int&);	//Returns the poles of the k integral's integrands
 bool Newton_Method_k(long double&, long double, long double, long double, long double, long double, long double(*)(long double, long double, long double, long double), long double(*)(long double, long double, long double, long double, long double));	//Returns the k-intesection of a potiential and on-shell peak
 long double V_Plus(long double, long double, long double, long double);	//Potiential peaks
@@ -100,10 +96,10 @@ Elements theta_Int(long double Par[], int Temp)
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 35th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp
 	long double x1, x2;	//Abscissa
-	if(Par[4] > pow(2.*Par[2],2))
-		x1 = Newtons_theta(Par[2], Par[3], Par[4], M_PI/25.);
+	if(Par[4] > 0 && Par[3] > sqrt(Par[4]/2.)) //The maximum of the theta integral, valid for all s>0, arcsin(sqrt(s/(2P^2))) or pi/2
+		x1 = asin(sqrt(Par[4]/2.)/Par[3]);
 	else
-		x1 = Newtons_theta(Par[2], Par[3], pow(2.*Par[2],2)*1.0001, M_PI/25.);
+		x1 = M_PI/10.;
 	if(x1>M_PI/10.)
 		x1 = M_PI/10.;
 	long double Range[] = {x1*Boundary[14], x1*Boundary[15], x1, x1*(2.-Boundary[15]), x1*(2.-Boundary[15])*(1.-Boundary[16])+M_PI/2.*Boundary[16], M_PI/2., asin(sqrt(-Par[4])/Par[3]),0,0};
@@ -155,60 +151,6 @@ Elements theta_Int(long double Par[], int Temp)
 	}
 
 	return(Answer/pow(2.*M_PI,2)*2.);
-}
-
-long double Newtons_theta(long double M, long double P, long double s, long double Window)
-{
-	long double theta = 0;
-	long double next;
-	long double holder;
-	int i = 0;
-
-	holder = f(M, P, s, 0);
-	next = 0;
-	do	//Find the max on mesh
-	{
-		next += Window;
-		if(holder < f(M, P, s, next))
-		{
-			holder = f(M, P, s, next);
-			theta = next;
-		}
-		else
-			break;	//Found an early exit
-	}while(next < M_PI/2.);
-
-	holder = theta;
-	next = theta-D1(M,P,s,theta)/D2(M,P,s,theta);
-
-	while(abs(theta/next-1.) > .0001 && i < 10)	//Run the actual Newton's algorithm
-	{
-		theta = next;
-		next = theta-D1(M,P,s,theta)/D2(M,P,s,theta);
-		i++;
-	}
-
-	if(next > holder+Window || next < holder-Window)	//The result is outside the window incated by the search on mesh, try again on tighter mesh
-		return(Newtons_theta(M, P, s, Window/10.));
-
-	return(next);
-}
-
-long double D1(long double M, long double P, long double s, long double theta)
-{
-	long double h = .0001;
-	return((f(M,P,s,theta-2.*h)/12.-2./3.*f(M,P,s,theta-h)+2./3.*f(M,P,s,theta+h)-f(M,P,s,theta+2.*h)/12.)/h);	//4th order, 1st derivitive
-}
-
-long double D2(long double M, long double P, long double s, long double theta)
-{
-	long double h = .0001;
-	return((-f(M,P,s,theta-2.*h)/12.+4./3.*f(M,P,s,theta-h)-2.5*f(M,P,s,theta)+4./3.*f(M,P,s,theta+h)-f(M,P,s,theta+2.*h)/12.)/pow(h,2));	//4th order, 2nd derivitive
-}
-
-long double f(long double M, long double P, long double s, long double theta)	//Should work as this works on the primis that all three are proportional for choice of s,P
-{
-	return(((-4.*pow(M,2)+s)*(pow(P,2)+s)*sqrt(-4.*pow(M*P,2)+2.*pow(P,2)*s+pow(s,2)+pow(P,2)*(4.*pow(M,2)+pow(P,2))*pow(sin(theta),2)+2.*P*cos(theta)*sqrt((-4.*pow(M,2)+s)*(pow(P,2)+s)*(s+pow(P*sin(theta),2))))*sin(theta))/(8.*abs(sqrt(-4.*pow(M,2)+s)*(pow(P,2)+s)+P*cos(theta)*(sqrt((pow(P,2)+s)*(s+pow(P*sin(theta),2)))-sqrt(s+pow(P*sin(theta),2))*sqrt((pow(s,2)+2.*pow(P,2)*(s-2.*pow(M*cos(theta),2))+pow(P,4)*pow(sin(theta),2)+2.*P*cos(theta)*sqrt((-4.*pow(M,2)+s)*(pow(P,2)+s)*(s+pow(P*sin(theta),2))))/(s+pow(P*sin(theta),2)))))*(s+pow(P*sin(theta),2))*sqrt((pow(s,2)+2.*pow(P,2)*(s-2.*pow(M*cos(theta),2))+pow(P,4)*pow(sin(theta),2)+2.*P*cos(theta)*sqrt((-4.*pow(M,2)+s)*(pow(P,2)+s)*(s+pow(P*sin(theta),2))))/(s+pow(P*sin(theta),2)))));
 }
 
 //long double Par[] = {g, Lambda, M, P, s}
@@ -1012,7 +954,8 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		case 1://194MeV
 			M_T = 1.84184;
 			Shift = M-M_T;
-			Sigma = .585335/sqrt(pow(k,2)+pow(1.85515,2));
+			//Sigma = .585335/sqrt(pow(k,2)+pow(1.85515,2));
+			Sigma = .585335/sqrt(pow(k,2)+pow(1.85515*2,2));
 			a = 5.05953/(pow(k,2)+pow(1.11686,2))+6.09943;
 			b = -8.08693/(pow(k,2)+pow(2.70494,2))+3.25177;
 			omega0 = sqrt(pow(1.49006+Shift,2)+pow(k,2))+.248573;
@@ -1021,7 +964,8 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		case 2://285MeV
 			M_T = 1.69584;
 			Shift = M-M_T;
-			Sigma = .660137/sqrt(pow(k,2)+pow(1.90299,2));
+			//Sigma = .660137/sqrt(pow(k,2)+pow(1.90299,2));
+			Sigma = .660137/sqrt(pow(k,2)+pow(1.90299*2,2));
 			a = 2.82635/(pow(k,2)+pow(.916643,2))+4.19118;
 			b = -83.3834/(pow(k,2)+pow(8.8641,2))+2.93508;
 			omega0 = sqrt(pow(1.45524+Shift,2)+pow(k,2))+.247213;
@@ -1030,7 +974,8 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		case 3://320MeV
 			M_T = 1.59439;
 			Shift = M-M_T;
-			Sigma = .670397/sqrt(pow(k,2)+pow(1.96561,2));
+			//Sigma = .670397/sqrt(pow(k,2)+pow(1.96561,2));
+			Sigma = .670397/sqrt(pow(k,2)+pow(1.96561*2,2));
 			a = 2.42808/(pow(k,2)+pow(.840297,2))+3.42835;
 			b = .0167941/(pow(k,2)+pow(.47573,2))+1.70158;
 			omega0 = sqrt(pow(1.42617+Shift,2)+pow(k,2))+.258289;
@@ -1039,7 +984,8 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		case 4://400MeV
 			M_T = 1.48038;
 			Shift = M-M_T;
-			Sigma = .592982/sqrt(pow(k,2)+pow(2.06656,2));
+			//Sigma = .592982/sqrt(pow(k,2)+pow(2.06656,2));
+			Sigma = .592982/sqrt(pow(k,2)+pow(2.06656*2,2));
 			a = 2.09377/(pow(k,2)+pow(.763871,2))+2.65712;
 			b = .366499/(pow(k,2)+pow(1.06864,2))+1.35141;
 			omega0 = sqrt(pow(1.38555+Shift,2)+pow(k,2))+.253076;
@@ -1152,7 +1098,8 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 		case 1://194MeV
 			M_T = 1.84184;
 			Shift = M-M_T;
-			Sigma = .244368/sqrt(pow(k,2)+pow(1.32368,2));
+			//Sigma = .244368/sqrt(pow(k,2)+pow(1.32368,2));
+			Sigma = .244368/sqrt(pow(k,2)+pow(1.32368*2,2));
 			x0 = sqrt(pow(k,2)+pow(1.5567+Shift,2))+.279476;
 			x1 = sqrt(pow(k,2)+pow(1.50202+Shift,2))+.259;
 			gamma = .320676/sqrt(pow(k,2)+pow(1.56455,2))+.080032;
@@ -1160,7 +1107,8 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 		case 2://258MeV
 			M_T = 1.69584;
 			Shift = M-M_T;
-			Sigma = .322887/sqrt(pow(k,2)+pow(1.34236,2));
+			//Sigma = .322887/sqrt(pow(k,2)+pow(1.34236,2));
+			Sigma = .322887/sqrt(pow(k,2)+pow(1.34236*2,2));
 			x0 = sqrt(pow(k,2)+pow(1.54159+Shift,2))+.280535;
 			x1 = sqrt(pow(k,2)+pow(1.46598+Shift,2))+.260561;
 			gamma = .694901/sqrt(pow(k,2)+pow(2.13185,2))+.0653795;
@@ -1168,7 +1116,8 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 		case 3://320MeV
 			M_T = 1.59439;
 			Shift = M-M_T;
-			Sigma = .375163/sqrt(pow(k,2)+pow(1.41612,2));
+			Sigma = .375163/sqrt(pow(k,2)+pow(1.41612*2,2));
+			//Sigma = .375163/sqrt(pow(k,2)+pow(1.41612,2));
 			x0 = sqrt(pow(k,2)+pow(1.45507+Shift,2))+.337448;
 			x1 = sqrt(pow(k,2)+pow(1.40846+Shift,2))+.289292;
 			gamma = .690491/sqrt(pow(k,2)+pow(1.97525,2))+.141465;
@@ -1176,7 +1125,8 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 		case 4://400MeV
 			M_T = 1.48038;
 			Shift = M-M_T;
-			Sigma = .370623/sqrt(pow(k,2)+pow(1.53585,2));
+			//Sigma = .370623/sqrt(pow(k,2)+pow(1.53585,2));
+			Sigma = .370623/sqrt(pow(k,2)+pow(1.53585*2,2));
 			x0 = sqrt(pow(k,2)+pow(1.39619+Shift,2))+.35548;
 			x1 = sqrt(pow(k,2)+pow(1.3481+Shift,2))+.296587;
 			gamma = .857781/sqrt(pow(k,2)+pow(2.25072,2))+.196022;
@@ -1237,14 +1187,14 @@ long double Potential_on(long double Par[])	//On-shell potential for the on-shel
 	return(Par[0]*pow(Par[1],4)/(pow(Par[1],4)+pow(Par[4],2))*exp((4.*pow(Par[2],2)-Par[4])*pow(Par[6],2)));
 }
 
-long double Potential1(long double Par[], long double k0, long double k)	//Potiential for the numerator of the boson spectrum
+long double Potential1(long double Par[], long double k0, long double k)        //Potiential for the numerator of the boson spectrum
 {
-	return(sqrt(pow(Par[1],4)/(pow(Par[1],4)+pow(-4.*pow(k0,2)+4.*pow(k,2)+4.*pow(Par[2],2),2))));
+        return(sqrt(pow(Par[1],4)/(pow(Par[1],4)+pow(-4.*pow(k0,2)+4.*pow(k,2)+4.*pow(Par[2],2),2)))*exp(-pow(((4.*pow(k0,2)-4.*pow(k,2))/75.68813249222795),2)));
 }
 
-long double Potential2(long double Par[], long double k0, long double k)	//Potiential for the denominator of the T-Matrix and boson spectrum
+long double Potential2(long double Par[], long double k0, long double k)        //Potiential for the denominator of the T-Matrix and boson spectrum
 {
-	return(Par[0]*pow(Par[1],4)/(pow(Par[1],4)+pow(-4.*pow(k0,2)+4.*pow(k,2)+4.*pow(Par[2],2),2)));
+        return(Par[0]*pow(Par[1],4)/(pow(Par[1],4)+pow(-4.*pow(k0,2)+4.*pow(k,2)+4.*pow(Par[2],2),2))*pow(exp(-pow(((4.*pow(k0,2)-4.*pow(k,2))/75.68813249222795),2)),2));
 }
 
 long double ImD(long double omega, long double k, long double M, int Temp)	//Single quark spectral function

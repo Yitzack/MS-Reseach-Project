@@ -19,10 +19,10 @@ char* Process;
 int main(int argc, char* argv[])
 {
 #ifdef BB	//use option -D BB= to activate BB macro
-	char File[70] = "data/Spectralbb_Tr_P0.";  //Name of the file
+	char File[70] = "data/Spectralbb_Exp0.";  //Name of the file
 #endif
 #ifdef CC
-     	char File[70] = "data/Spectralcc_Tr_P0.";  //Name of the file
+     	char File[70] = "data/Spectralcc_Extend.";  //Name of the file
 #endif
 #ifdef RIEK
      	char File[30] = "SpectralccRiek.";  //Name of the file
@@ -235,6 +235,7 @@ bool Restart_Check(char File[30], char* g, char* Lambda, char* Mq)
 
 long double Set_Mq(long double Mq0, long double P, int Temp)
 {
+	long double Lambda = 8.699892671305086;
 	long double T;
 
 	switch(Temp)
@@ -263,11 +264,12 @@ long double Set_Mq(long double Mq0, long double P, int Temp)
 #endif
 	long double Delta_Mq = Mqf-Mq0;
 
-	return(Mqf-Delta_Mq/(1+log(1.+pow(P,2)/.04)));
+	return(Mqf-Delta_Mq/(1+log(1.+pow(P/Lambda,2))));
 }
 
 long double Set_G(long double G0, long double P, int Temp)
 {
+	long double Lambda = 8.699892671305086;
 	long double T;
 
 	switch(Temp)
@@ -292,5 +294,5 @@ long double Set_G(long double G0, long double P, int Temp)
 	long double Gf = 1.;
 	long double Delta_G = Gf-G0;
 
-	return(Gf-Delta_G/(1+log(1.+pow(P,2)/.04)));
+	return(Gf-Delta_G/(1+log(1.+pow(P/Lambda,2))));
 }
