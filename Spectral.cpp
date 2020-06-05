@@ -203,13 +203,14 @@ int Start_Point(int Start, char File[30])
 	if(!TPlot.is_open())
 		return(Start);
 
-	do
+	TPlot.getline(Line, 200);
+	while(!TPlot.eof())
 	{
 		Test = atoi(Line);
 		if(Test > Start)
 			Start = Test;
 		TPlot.getline(Line,200);
-	}while(!TPlot.eof());
+	}
 
 	return(Start);
 }
