@@ -41,21 +41,21 @@ int main(int argc, char* argv[])
 	if(Restart)	//If starting from the beginning, overwrite
 	{
 		TPlot.open(File);
-		TPlot << argv[4] << " " << argv[5] << " " << argv[6] << " " << argv[7] << " " << argv[8] << " " << argv[9] << endl;
+		TPlot << argv[4] << " " << argv[5] << " " << argv[6] << endl;
 	}
 	else	//If not starting from the beginning, append
 		TPlot.open(File, ios::app);
 	int i,j;	//counters
 	int Finish, Start;
-	if(argc == 12)
-		Finish = atoi(argv[11]);
+	if(argc == 9)
+		Finish = atoi(argv[8]);
 	else
 		Finish = 788;
-	if(argc >= 11)
-		Start = atoi(argv[10]);
+	if(argc >= 8)
+		Start = atoi(argv[7]);
 	Start = Start_Point(Start, File);
-	if(Finish < Start && Finish >= atoi(argv[10]))	//Go back and get the missed point(s)
-		Start = atoi(argv[10]);
+	if(Finish < Start && Finish >= atoi(argv[7]))	//Go back and get the missed point(s)
+		Start = atoi(argv[7]);
 	const int iProcess = atoi(argv[1]) % atoi(argv[2]);
 	const int Total = atoi(argv[2]);
 	const int Temp = atoi(argv[3]);
@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
 	return(0);
 }
 
-int Start_Point(int Start, char File[30])
+int Start_Point(int Start, char File[70])
 {
 	ifstream TPlot(File);
 	char Line[200];
