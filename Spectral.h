@@ -35,6 +35,8 @@ long double Fermi(long double, int);	//Fermi factor
 long double Potential_on(long double[]);	//On-shell potential for the on-shell T-Matrix
 long double Potential1(long double[], long double, long double);	//Potiential for the numerator of the boson spectrum
 long double Potential2(long double[], long double, long double);	//Potiential for the denominator of the T-Matrix and boson spectrum
+long double WidthFraction(long double, long double[]);	//Energy dependance of the self-energy width to go to vacuum as quark energy goes high
+long double MassFraction(long double, long double[]);	//Energy dependance of the quark mass to go to vacuum as quark energy goes high
 long double ImD(long double, long double, long double, int, long double[]);	//Single quark spectral function
 long double Spin_Sum1(long double[], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
 long double Spin_Linear(long double[], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
@@ -704,7 +706,7 @@ Elements Folding(long double Par[], int Temp, long double k, long double theta)	
 			holder = (Elements(Spin_Sum1(Par, x1, k, theta), Potential1(Par,x1,k), Spin_Linear(Par, x1, k, theta)*Potential1(Par,x1,k), Spin_Quad(Par, x1, k, theta)*Potential1(Par,x1,k), Potential2(Par,x1,k))*ImFolding_Integrand1(Par,x1,k,theta,Temp));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*w[l+1];
-			holder = (Elements(Spin_Sum1(Par, x2, k, theta), Potential1(Par,x2,k), Spin_Linear(Par, x2, k, theta)*Potential1(Par,x2,k), Spin_Quad(Par, x2, k, theta)*Potential1(Par,x2,k), Potential2(Par,x2,k))*ImFolding_Integrand1(Par,x2,k,theta,Temp)/);
+			holder = (Elements(Spin_Sum1(Par, x2, k, theta), Potential1(Par,x2,k), Spin_Linear(Par, x2, k, theta)*Potential1(Par,x2,k), Spin_Quad(Par, x2, k, theta)*Potential1(Par,x2,k), Potential2(Par,x2,k))*ImFolding_Integrand1(Par,x2,k,theta,Temp));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*w[l+1];
 		}
@@ -1089,8 +1091,8 @@ long double MassFraction(long double omega, long double Par[])
 
 long double ImD(long double omega, long double k, long double M, int Temp, long double Par[])	//Single quark spectral function
 {
-	long double WidthFraction = WidthFraction(omega, Par);
-	return(2.*ImSelf_Energy(M, omega, k, Temp, WidthFraction, Par)/(pow(pow(omega,2)-pow(k,2)-pow(local_M,2)-2.*M*ReSelf_Energy(local_M, omega, k, Temp, WidthFraction, Par),2)+pow(ImSelf_Energy(M, omega, k, Temp, WidthFraction, Par),2)));
+	long double Width = WidthFraction(omega, Par);
+	return(2.*ImSelf_Energy(M, omega, k, Temp, Width, Par)/(pow(pow(omega,2)-pow(k,2)-pow(local_M,2)-2.*M*ReSelf_Energy(M, omega, k, Temp, Width, Par),2)+pow(ImSelf_Energy(M, omega, k, Temp, Width, Par),2)));
 }
 
 long double Spin_Sum1(long double Par[], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
