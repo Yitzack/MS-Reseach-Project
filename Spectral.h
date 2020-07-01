@@ -1092,7 +1092,7 @@ long double MassFraction(long double omega, long double Par[])
 long double ImD(long double omega, long double k, long double M, int Temp, long double Par[])	//Single quark spectral function
 {
 	long double Width = WidthFraction(omega, Par);
-	return(2.*ImSelf_Energy(M, omega, k, Temp, Width, Par)/(pow(pow(omega,2)-pow(k,2)-pow(local_M,2)-2.*M*ReSelf_Energy(M, omega, k, Temp, Width, Par),2)+pow(ImSelf_Energy(M, omega, k, Temp, Width, Par),2)));
+	return(2.*ImSelf_Energy(M, omega, k, Temp, Width, Par)/(pow(pow(omega,2)-pow(k,2)-pow(M,2)-2.*M*ReSelf_Energy(M, omega, k, Temp, Width, Par),2)+pow(ImSelf_Energy(M, omega, k, Temp, Width, Par),2)));
 }
 
 long double Spin_Sum1(long double Par[], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
