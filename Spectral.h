@@ -1211,7 +1211,7 @@ long double ImD(long double omega, long double k, long double M, int Temp, long 
 
 long double Spin_Sum1(long double Par[], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
 {
-	static long double omega_max = 5.;
+	/*static long double omega_max = 5.;
 	static long double max;
 	if(omega_max == 5.)
 	{
@@ -1227,14 +1227,14 @@ long double Spin_Sum1(long double Par[], long double k0, long double k , long do
 	if(omega1 <= omega_max)
 		M1 = Par[2];
 	if(omega2 <= omega_max)
-		M2 = Par[2];
+		M2 = Par[2];*/
 
-	return((Par[4]/4.+pow(k,2)-pow(k0,2)+M1*M2)/(M1*M2));
+	return((Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2))/(pow(Par[2],2)));
 }
 
 long double Spin_Linear(long double Par[], long double k0, long double k , long double theta)
 {
-	static long double omega_max = 5.;
+	/*static long double omega_max = 5.;
 	static long double max;
 	if(omega_max == 5.)
 	{
@@ -1250,17 +1250,17 @@ long double Spin_Linear(long double Par[], long double k0, long double k , long 
         if(omega1 <= omega_max)
                 M1 = Par[2];
         if(omega2 <= omega_max)
-                M2 = Par[2];
+                M2 = Par[2];*/
 
 	if(Par[4] >= 0.)
-		return(sqrt(3.*Par[4]/(8.*M1*M2)));
+		return(sqrt(3.*Par[4]/(8.*pow(Par[2],2))));
 	else
 		return(0.);
 }
 
 long double Spin_Quad(long double Par[], long double k0, long double k , long double theta)
 {
-	static long double omega_max = 5.;
+	/*static long double omega_max = 5.;
 	static long double max;
 	if(omega_max == 5.)
 	{
@@ -1276,9 +1276,9 @@ long double Spin_Quad(long double Par[], long double k0, long double k , long do
         if(omega1 <= omega_max)
                 M1 = Par[2];
         if(omega2 <= omega_max)
-                M2 = Par[2];
+                M2 = Par[2];*/
 
-	return(Par[4]/4.-pow(k0,2)+pow(k,2))/(2.*M1*M2);
+	return(Par[4]/4.-pow(k0,2)+pow(k,2))/(2.*pow(Par[2],2));
 }
 
 long double Spin_Sum2(long double Par[], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly pseudoscalar for now
