@@ -1042,86 +1042,47 @@ long double Fermi(long double omega, int T)	//Fermi factor
 
 long double Potential1(long double Par[], long double k0, long double k)        //Potiential for the numerator of the boson spectrum
 {
-	//return(pow(Par[1],2.)/(pow(Par[1],2.)+abs(-4.*pow(k0,2)+4.*pow(k,2))));
+#if VERSION == 22
+	return(pow(Par[1],2.)/(pow(Par[1],2.)+abs(-4.*pow(k0,2)+4.*pow(k,2))));
+#elif VERSION == 42
 	return(pow(Par[1],4.)/(pow(Par[1],4.)+pow(-4.*pow(k0,2)+4.*pow(k,2),2)));
-	//return(pow(2.*pow(Par[1],2.)/(2.*pow(Par[1],2.)+abs(-4.*pow(k0,2)+4.*pow(k,2))),2));
+#elif VERSION == 24
+	return(pow(2.*pow(Par[1],2.)/(2.*pow(Par[1],2.)+abs(-4.*pow(k0,2)+4.*pow(k,2))),2));
+#endif
 }
 
 long double Potential2(long double Par[], long double k0, long double k)        //Potiential for the denominator of the T-Matrix and boson spectrum
 {
-	//return(Par[0]*pow(pow(Par[1],2.)/(pow(Par[1],2.)+abs(-4.*pow(k0,2)+4.*pow(k,2))),2));
+#if VERSION == 22
+	return(Par[0]*pow(pow(Par[1],2.)/(pow(Par[1],2.)+abs(-4.*pow(k0,2)+4.*pow(k,2))),2));
+#elif VERSION == 42
 	return(Par[0]*pow(pow(Par[1],4.)/(pow(Par[1],4.)+pow(-4.*pow(k0,2)+4.*pow(k,2),2)),2));
-	//return(Par[0]*pow(2.*pow(Par[1],2.)/(2.*pow(Par[1],2.)+abs(-4.*pow(k0,2)+4.*pow(k,2))),4));
-}
-
-long double WidthFraction(long double omega, long double Par[])
-{
-	static long double omega_max = 5.;
-	static long double max;
-	if(omega_max == 5.)
-	{
-		for(int i = 0; i < 5; i++)
-			omega_max -= (9.*(-((-exp(5./3.)+exp(omega_max/3.))*3.*pow(cosh((5.7-omega_max)/3.),-2))+exp(5./3.)*3.*(-1+tanh((5.7-omega_max)/3.))))/(-(exp(5./3.)*9.*(-1+tanh((5.7-omega_max)/3.)))+2*3.*pow(cosh((5.7-omega_max)/3.),-2)*(-(exp(5./3.)*3.)-(-exp(5./3.)+exp(omega_max/3.))*3.*tanh((5.7-omega_max)/3.)));
-		max = (1+exp((5.-omega_max)/3.)-(1-exp((5.-omega_max)/3.))*tanh((-5.7+omega_max)/3.))/2.;
-	}
-
-	long double WidthFraction = (1+exp((5.-omega)/3.)-(1-exp((5.-omega)/3.))*tanh((omega-5.7)/3.))/2./max;
-	if(omega <= omega_max)
-		WidthFraction = 1;
-	return(WidthFraction);
-}
-
-long double MassFraction(long double omega, long double Par[])
-{
-	static long double omega_max = 5.;
-	static long double max;
-	if(omega_max == 5.)
-	{
-		for(int i = 0; i < 5; i++)
-			omega_max -= (9.*(-((-exp(5./3.)+exp(omega_max/3.))*3.*pow(cosh((5.7-omega_max)/3.),-2))+exp(5./3.)*3.*(-1+tanh((5.7-omega_max)/3.))))/(-(exp(5./3.)*9.*(-1+tanh((5.7-omega_max)/3.)))+2*3.*pow(cosh((5.7-omega_max)/3.),-2)*(-(exp(5./3.)*3.)-(-exp(5./3.)+exp(omega_max/3.))*3.*tanh((5.7-omega_max)/3.)));
-		max = (1+exp((5.-omega_max)/3.)-(1-exp((5.-omega_max)/3.))*tanh((-5.7+omega_max)/3.))/2.;
-	}
-
-	long double local_M = 1.8+(-1.8+Par[2])*(1+exp((5.-omega)/3.)-(1-exp((5.-omega)/3.))*tanh((omega-5.7)/3.))/2./max;
-	if(omega <= omega_max)
-		local_M = Par[2];
-	return(local_M);
+#elif VERSION == 24
+	return(Par[0]*pow(2.*pow(Par[1],2.)/(2.*pow(Par[1],2.)+abs(-4.*pow(k0,2)+4.*pow(k,2))),4));
+#endif
 }
 
 long double ImD(long double omega, long double k, long double M, int Temp, long double Par[])	//Single quark spectral function
 {
-	long double Width = WidthFraction(omega, Par);
-	return(2.*ImSelf_Energy(M, omega, k, Temp, Width, Par)/(pow(pow(omega,2)-pow(k,2)-pow(M,2)-2.*M*ReSelf_Energy(M, omega, k, Temp, Width, Par),2)+pow(ImSelf_Energy(M, omega, k, Temp, Width, Par),2)));
+	return(2.*ImSelf_Energy(M, omega, k, Temp, 1, Par)/(pow(pow(omega,2)-pow(k,2)-pow(M,2)-2.*M*ReSelf_Energy(M, omega, k, Temp, 1, Par),2)+pow(ImSelf_Energy(M, omega, k, Temp, 1, Par),2)));
 }
 
 long double Spin_Sum1(long double Par[], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
 {
-	//return((Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2))/(pow(Par[2],2)));
-	long double M1 = MassFraction(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Par);
-	long double M2 = MassFraction(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Par);
-	return((Par[4]/4.+pow(k,2)-pow(k0,2)+M1*M2)/(M1*M2));
+	return((Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2))/(pow(Par[2],2)));
 }
 
 long double Spin_Linear(long double Par[], long double k0, long double k , long double theta)
 {
-	/*if(Par[4] >= 0.)
-		return(sqrt(3.*Par[4]/(8.*pow(Par[2],2))));
-	else
-		return(0.);*/
-	long double M1 = MassFraction(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Par);
-	long double M2 = MassFraction(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Par);
 	if(Par[4] >= 0.)
-		return(sqrt(3.*Par[4]/(8.*M1*M2)));
+		return(sqrt(3.*Par[4]/(8.*pow(Par[2],2))));
 	else
 		return(0.);
 }
 
 long double Spin_Quad(long double Par[], long double k0, long double k , long double theta)
 {
-	//return(Par[4]/4.-pow(k0,2)+pow(k,2))/(2.*pow(Par[2],2));
-	long double M1 = MassFraction(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Par);
-	long double M2 = MassFraction(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Par);
-	return(Par[4]/4.-pow(k0,2)+pow(k,2))/(2.*M1*M2);
+	return(Par[4]/4.-pow(k0,2)+pow(k,2))/(2.*pow(Par[2],2));
 }
 
 long double Spin_Sum2(long double Par[], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly pseudoscalar for now
@@ -1131,10 +1092,7 @@ long double Spin_Sum2(long double Par[], long double k0, long double k , long do
 
 long double ImFolding_Integrand1(long double Par[], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for positive energy
 {
-	long double M1 = MassFraction(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Par);
-	long double M2 = MassFraction(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Par);
-	//return(-pow(Par[2],2)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), M1, Temp, Par)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), M2, Temp, Par)*(1.-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp)));
-	return(-M1*M2*ImD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), M2, Temp, Par)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), M1, Temp, Par)*(1.-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp)));
+	return(-pow(Par[2],2)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Energy(0, Par[3]/2., k, theta), Par[2], Temp, Par)*ImD(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Energy(0, Par[3]/2., -k, theta), Par[2], Temp, Par)*(1.-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.+k0, Temp)-Fermi(sqrt(Par[4]+pow(Par[3],2))/2.-k0, Temp)));
 }
 
 long double ImFolding_Integrand2(long double Par[], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for negitive energy (anti-particle/particle-hole)

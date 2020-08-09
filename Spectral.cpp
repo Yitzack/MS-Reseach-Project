@@ -22,7 +22,13 @@ int main(int argc, char* argv[])
 	char File[70] = "data/Spectralbb.";  //Name of the file
 #endif
 #ifdef CC
+#if VERSION == 22
+     	char File[70] = "data/Spectralcc22.";  //Name of the file
+#elif VERSION == 24
+     	char File[70] = "data/Spectralcc24.";  //Name of the file
+#elif VERSION == 42
      	char File[70] = "data/Spectralcc42.";  //Name of the file
+#endif
 #endif
 #ifdef RIEK
      	char File[70] = "SpectralccRiek.";  //Name of the file
