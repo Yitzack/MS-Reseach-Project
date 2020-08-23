@@ -19,7 +19,13 @@ char* Process;
 int main(int argc, char* argv[])
 {
 #ifdef BB	//use option -D BB= to activate BB macro
-	char File[70] = "data/Spectralbb.";  //Name of the file
+#if VERSION == 22
+	char File[70] = "data/Spectralbb22.";  //Name of the file
+#elif VERSION == 24
+	char File[70] = "data/Spectralbb24.";  //Name of the file
+#elif VERSION == 42
+	char File[70] = "data/Spectralbb42.";  //Name of the file
+#endif
 #endif
 #ifdef CC
 #if VERSION == 22
