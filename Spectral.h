@@ -957,8 +957,8 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	else
 		ImSigma[1] = -.5*((a[1]-b[1])*omega0[1]-((a[1]+b[1])*knee[1])/sqrt(a[1]*b[1]))+(a[1]-b[1])*omega[1]/2-sqrt(pow(((a[1]+b[1])/2.)*(omega[1]-omega0[1]+((a[1]-b[1])*knee[1])/(sqrt(a[1]*b[1])*(a[1]+b[1]))),2)+pow(knee[1],2));
 
-	Results[0] += -M*Sigma[0]*exp(ImSigma[0]);
-	Results[1] += -M*Sigma[1]*exp(ImSigma[1]);
+	Results[0] += -2.*M*Sigma[0]*exp(ImSigma[0]);
+	Results[1] += -2.*M*Sigma[1]*exp(ImSigma[1]);
 
 	return;
 }
@@ -1037,7 +1037,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	else
 		ImSigma = -.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))),2)+pow(knee,2));
 
-	answer += -M*Sigma*exp(ImSigma);
+	answer += -2.*M*Sigma*exp(ImSigma);
 
 	return(answer);
 }
@@ -1114,8 +1114,8 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 		}
 	}
 
-	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0],2)+gamma[0])/2.;
-	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1],2)+gamma[1])/2.;
+	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0],2)+gamma[0]);
+	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1],2)+gamma[1]);
 	return;
 }
 
