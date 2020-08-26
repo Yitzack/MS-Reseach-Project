@@ -759,10 +759,10 @@ void Characterize_Folding(long double Par[], int Temp, long double k, long doubl
 		Upper = sqrt(Par[4]+pow(Par[3],2))/2.-Energy(0,Par[3]/2.,-k,theta);
 	}
 
-	zero[0] = .5*sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)),pow(Par[1],2))).real();	//Potential poles, I know exactly where these are at.
-	zero[1] = -.5*sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)),pow(Par[1],2))).real();
-	gamma[0] = abs(.5*sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)),pow(Par[1],2))).imag());
-	gamma[1] = abs(-.5*sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)),pow(Par[1],2))).imag());
+	zero[0] = .5*sqrt(complex<long double>(4.*pow(k,2),pow(Par[1],2))).real();	//Potential poles, I know exactly where these are at.
+	zero[1] = -.5*sqrt(complex<long double>(4.*pow(k,2),pow(Par[1],2))).real();
+	gamma[0] = abs(.5*sqrt(complex<long double>(4.*pow(k,2),pow(Par[1],2))).imag());
+	gamma[1] = abs(-.5*sqrt(complex<long double>(4.*pow(k,2),pow(Par[1],2))).imag());
 
 	zero[2] = .5*(sqrt(Par[4]+pow(Par[3],2))-real(sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)-k*Par[3]*cos(theta))+pow(Par[3],2)-2.*pow(GAMMA,2),2.*sqrt(4.*pow(Par[2]*GAMMA,2)-pow(GAMMA,4))))));	//Exact vacuum
 	zero[3] = .5*(sqrt(Par[4]+pow(Par[3],2))+real(sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)-k*Par[3]*cos(theta))+pow(Par[3],2)-2.*pow(GAMMA,2),2.*sqrt(4.*pow(Par[2]*GAMMA,2)-pow(GAMMA,4))))));
@@ -957,8 +957,8 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	else
 		ImSigma[1] = -.5*((a[1]-b[1])*omega0[1]-((a[1]+b[1])*knee[1])/sqrt(a[1]*b[1]))+(a[1]-b[1])*omega[1]/2-sqrt(pow(((a[1]+b[1])/2.)*(omega[1]-omega0[1]+((a[1]-b[1])*knee[1])/(sqrt(a[1]*b[1])*(a[1]+b[1]))),2)+pow(knee[1],2));
 
-	Results[0] += -2.*M*Sigma[0]*exp(ImSigma[0]);
-	Results[1] += -2.*M*Sigma[1]*exp(ImSigma[1]);
+	Results[0] += -M*Sigma[0]*exp(ImSigma[0]);
+	Results[1] += -M*Sigma[1]*exp(ImSigma[1]);
 
 	return;
 }
@@ -1037,7 +1037,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	else
 		ImSigma = -.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))),2)+pow(knee,2));
 
-	answer += -2.*M*Sigma*exp(ImSigma);
+	answer += -M*Sigma*exp(ImSigma);
 
 	return(answer);
 }
@@ -1114,8 +1114,8 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 		}
 	}
 
-	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0],2)+gamma[0]);
-	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1],2)+gamma[1]);
+	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0],2)+gamma[0])/2.;
+	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1],2)+gamma[1])/2.;
 	return;
 }
 
@@ -1131,7 +1131,7 @@ long double Fermi(long double omega, int T)	//Fermi factor
 {
 	static long double Temp = 1;
 
-	if(T == 1)
+	if(Temp == 1)
 	{
 		switch(T)
 		{

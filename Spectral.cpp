@@ -29,11 +29,11 @@ int main(int argc, char* argv[])
 #endif
 #ifdef CC
 #if VERSION == 22
-     	char File[70] = "data/Spectralcc22.";  //Name of the file
+     	char File[70] = "data/Spectralcc22.37";  //Name of the file
 #elif VERSION == 24
-     	char File[70] = "data/Spectralcc24.";  //Name of the file
+     	char File[70] = "data/Spectralcc24.37.";  //Name of the file
 #elif VERSION == 42
-     	char File[70] = "data/Spectralcc42.";  //Name of the file
+     	char File[70] = "data/Spectralcc42.37.";  //Name of the file
 #endif
 #endif
 #ifdef RIEK
