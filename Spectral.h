@@ -163,7 +163,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 	int Num_Poles;
 	long double interval_holder;
 	//ofstream Table("k Table.csv", ios::app);
-	//ofstream Poles_Table("k Poles.csv", ios::app);
+	//ofstream Poles_Table("New k Poles.csv", ios::app);
 
 	Characterize_k_Int(Par, Temp, theta, Poles);
 
@@ -213,7 +213,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 	}*/
 //Notes to a possible future self to deal with in the event we want to take care of lQCD's UV_cutoff: drop stops with these conditions (Stops[i] > UV_End || (pow(16.*M_PI*A_INVERSE/LATTICE_N,2)-pow(4.*Par[3]*sin(theta),2) > 0 && Stops[i] > IR_Stop && Stops[i] < IR_Resume))
 
-	while(Stops.top() <= 0)
+	while(Stops.top() <= 0 || isnan(Stops.top()))
 		Stops.pop();
 
 	do
@@ -402,12 +402,12 @@ bool Newton_Method_k(long double& k, long double s, long double P, long double t
 
 long double V_Plus(long double s, long double M, long double k, long double Lambda)
 {
-	return(.5*sqrt(complex<long double>(4.*(pow(k,2)),pow(Lambda,2))).real());
+	return(.5*sqrt(complex<long double>(4.*(pow(k,2)+pow(M,2)),pow(Lambda,2))).real());
 }
 
 long double V_Minus(long double s, long double M, long double k, long double Lambda)
 {
-	return(-.5*sqrt(complex<long double>(4.*(pow(k,2)),pow(Lambda,2))).real());
+	return(-.5*sqrt(complex<long double>(4.*(pow(k,2)+pow(M,2)),pow(Lambda,2))).real());
 }
 
 long double Emm(long double s, long double P, long double k, long double theta, long double M)
@@ -481,7 +481,7 @@ Elements Folding(long double Par[], int Temp, long double k, long double theta)	
 	int Num_Poles;
 	priority_queue<long double,vector<long double>,greater<long double>> Stops;
 	//ofstream Table("omega Table.csv", ios::app);
-	//ofstream Poles_Table("omega Poles.csv", ios::app);
+	//ofstream Poles_Table("New omega Poles.csv", ios::app);
 
 	Characterize_Folding(Par, Temp, k, theta, Poles);	//Get the poles that I have to be concerned about
 
@@ -538,7 +538,7 @@ Elements Folding(long double Par[], int Temp, long double k, long double theta)	
 
 	i = 0;
 	j = 0;
-	while(Stops.top() < a)
+	while(Stops.top() < a || isnan(Stops.top()))
 		Stops.pop();
 
 	do
