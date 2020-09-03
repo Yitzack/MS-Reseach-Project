@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 #endif
 #ifdef CC
 #if VERSION == 22
-     	char File[70] = "data/Spectralcc22.37";  //Name of the file
+     	char File[70] = "Spectralcc22.97.";  //Name of the file
 #elif VERSION == 24
      	char File[70] = "data/Spectralcc24.37.";  //Name of the file
 #elif VERSION == 42
