@@ -52,7 +52,6 @@ long double ImFolding_Integrand(long double[], long double, long double, long do
 #define A_INVERSE 2.8
 long double Boundary[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
 
-//long double Par[] = {g, Lambda, M, P, s}
 Elements theta_Int(long double Par[], int Temp)
 {
 #if ORDER == 37
