@@ -33,6 +33,7 @@ long double ImSelf_Energy(long double, long double, long double, int); //Imagina
 void ReSelf_Energy(long double, long double, long double[], int, long double[]);	//Real single quark self energy
 long double Energy(long double, long double, long double, long double);	//Single quark energy, can return momentum if M=0
 long double Fermi(long double, int);	//Fermi factor
+long double Set_Temp(int);
 long double Potential1(long double[], long double, long double);	//Potiential for the numerator of the boson spectrum
 long double Potential2(long double[], long double, long double);	//Potiential for the denominator of the T-Matrix and boson spectrum
 long double Spin_Sum1(long double[], long double, long double, long double);	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly scalar for now
@@ -1127,35 +1128,15 @@ long double Energy(long double M, long double P, long double k, long double thet
 		return(sqrt(pow(M,2)+pow(P,2)+pow(k,2)+2.*P*k*cos(theta)));
 }
 
+long double Set_Temp(int T)
+{
+	const long double Temps[] = {0,.194,.258,.32,.4,.04,.04};
+	return(Temps[T]);
+}
+
 long double Fermi(long double omega, int T)	//Fermi factor
 {
-	static long double Temp = 1;
-
-	if(Temp == 1)
-	{
-		switch(T)
-		{
-			case 0:
-				Temp = 0;
-				break;
-			case 1:
-				Temp = .194;
-				break;
-			case 2:
-				Temp = .258;
-				break;
-			case 3:
-				Temp = .32;
-				break;
-			case 4:
-				Temp = .4;
-				break;
-			case 5:
-			case 6:
-				Temp = .04;
-				break;
-		}
-	}
+	static long double Temp = Set_Temp(T);
 
 	if(Temp == 0)
 	{
