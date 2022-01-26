@@ -4,6 +4,8 @@
 #include<complex>
 #include<fstream>
 #include<cfloat>
+#include<fstream>
+#include<iostream>
 #include"Elements.h"
 using namespace std;
 
@@ -28,8 +30,9 @@ long double Newton_Method_k0(long double, long double[], long double, long doubl
 long double omega_Width(long double, long double[], long double, long double, int, long double (*)(long double[], long double, long double, long double, int));
 
 //Straight Functions everything is built from
-void ImSelf_Energy(long double, long double, long double[], int, long double[]);	//Both imaginary single quark self energies
-long double ImSelf_Energy(long double, long double, long double, int); //Imaginary single quark self energy
+void ImSelf_Energy(long double, long double, long double[], long double[],int, long double[]);	//Both imaginary single quark self energies
+void Self_Energy(long double, long double, long double[], long double[],int, long double[], long double[]);	//Both single quark self energies
+long double ImSelf_Energy(long double, long double, long double, long double[], int); //Imaginary single quark self energy
 void ReSelf_Energy(long double, long double, long double[], int, long double[]);	//Real single quark self energy
 long double Energy(long double, long double, long double, long double);	//Single quark energy, can return momentum if M=0
 long double Fermi(long double, int);	//Fermi factor
@@ -87,6 +90,7 @@ void mergeSort(long double List[], int a, int b)
 #define LATTICE_N 24.
 #define A_INVERSE 2.8
 long double Boundary[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85, 1.5, 2.5, 3, 4, 5.5, 7.7, 1./17., 0.3, 0.08};
+char* Process;
 
 //long double Par[] = {g, Lambda, M, P, s}
 Elements theta_Int(long double Par[], int Temp)
@@ -194,7 +198,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
 	//for(i = 0; i < Poles; i++)
-		//Poles_Table << Par[3] << " " << Par[4] << " "  << theta << " " << zero[i] << " " << gamma[i] << endl;
+		//Poles_Table << Par[3] << " " << Par[4] << " " << theta << " " << zero[i] << " " << gamma[i] << endl;
 	long double Stops[Poles*17+12];
 
 	l = 0;
@@ -332,163 +336,163 @@ void Characterize_k_Int(long double Par[], int Temp, long double theta, long dou
 	if((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3]*sin(theta),2)) > 0.)
 	{
 		zero[Poles] = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//on-shell momentum, it's almost like every on-shell peak crosses every other one at this point
-		gamma[Poles] = 2.*ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp);
+		gamma[Poles] = 2.*ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp);
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEmp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEmp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEpp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEpp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEmp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEmp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEpp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEpp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles],2),pow(Par[2],2))).imag();
 		Poles++;
 	}
 
@@ -843,7 +847,7 @@ long double omega_Width(long double zero, long double Par[], long double k, long
 }
 
 //long double Par[] = {g, Lambda, M, P, s}
-void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp, long double Results[])	//Single quark self energy
+void ImSelf_Energy(long double M, long double omega[], long double k[], long double Par[], int Temp, long double Results[])	//Single quark self energy
 {
 	static long double omega0[2];	//location of central peak
 	static long double Sigma[2];	//size of energy dependance
@@ -852,12 +856,29 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	static long double M_T, Shift;
 	static long double k_old[2];
 
+	/*static bool Been_Here = false;
+	static char File_Name[70] = "Self_E_Modifier.";
+	static long double Mod[26];
+	if(!Been_Here)
+	{
+		char TempChar[1] = {Temp+48};
+		strncat(File_Name,TempChar,1);
+		strncat(File_Name,".",1);
+		strcat(File_Name,Process);
+		static ifstream File(File_Name);
+		for(int i = 0; i < 26; i++)
+			File >> Mod[i];
+		Been_Here = true;
+	}*/
+
 	if(pow(omega[0],2)>=pow(k[0],2))
 		Results[0] = sqrt(pow(omega[0],2)-pow(k[0],2))*GAMMA;
+		//Results[0] = GAMMA*sqrt(Par[4])/3.0404;
 	else
 		Results[0] = 0;
 	if(pow(omega[1],2)>=pow(k[1],2))
 		Results[1] = sqrt(pow(omega[1],2)-pow(k[1],2))*GAMMA;
+		//Results[1] = GAMMA*sqrt(Par[4])/3.0404;
 	else
 		Results[1] = 0;
 
@@ -870,6 +891,20 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 		k_old[1] = k[1];
 		switch(Temp)
 		{
+			/*case 1://194MeV
+				M_T = 1.84184;
+				Shift = M-M_T;
+				Sigma[0] = .569969/sqrt(pow(k[0],2)+pow(1.75236,2))+.0187484;
+				Sigma[1] = .569969/sqrt(pow(k[1],2)+pow(1.75236,2))+.0187484;
+				a[0] = 4.689/(pow(k[0],2)+pow(1.18,2))+4.59495;
+				a[1] = 4.689/(pow(k[1],2)+pow(1.18,2))+4.59495;
+				b[0] = -70400/(pow(k[0]+20,2)+pow(130,2))+6.24;
+				b[1] = -70400/(pow(k[1]+20,2)+pow(130,2))+6.24;
+				omega0[0] = sqrt(pow(1.51443+Shift,2)+pow(k[0],2))+.232841;
+				omega0[1] = sqrt(pow(1.51443+Shift,2)+pow(k[1],2))+.232841;
+				knee[0] = 3.78956*pow(k[0]+1.,(long double)-.530289)+.305*(tanh((k[0]-48.4)/11.1111)+1);
+				knee[1] = 3.78956*pow(k[1]+1.,(long double)-.530289)+.305*(tanh((k[1]-48.4)/11.1111)+1);
+				break;*/
 			case 1://194MeV
 				M_T = 1.84184;
 				Shift = M-M_T;
@@ -926,6 +961,62 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 				knee[0] = 3.06296*pow(k[0]+1.,(long double)-.917081)+.394833*(tanh((k[0]-19.5932)/12.0494)+1);
 				knee[1] = 3.06296*pow(k[1]+1.,(long double)-.917081)+.394833*(tanh((k[1]-19.5932)/12.0494)+1);
 				break;
+			/*case 1://194MeV
+				M_T = 1.84184;
+				Shift = M-M_T;
+				Sigma[0] = .569969*Mod[0]/sqrt(pow(k[0],2)+pow(1.75236*Mod[1],2))+.0187484*Mod[2];
+				Sigma[1] = .569969*Mod[0]/sqrt(pow(k[1],2)+pow(1.75236*Mod[1],2))+.0187484*Mod[2];
+				a[0] = 12.5349*Mod[3]/(pow(k[0],2)+pow(1.63711*Mod[4],2))+5.026*Mod[5];
+				a[1] = 12.5349*Mod[3]/(pow(k[1],2)+pow(1.63711*Mod[4],2))+5.026*Mod[5];
+				b[0] = -291.579*Mod[6]/(pow(k[0]+15.2519*Mod[7],2)+pow(.0614821*Mod[8],2))+3.36681*Mod[9];
+				b[1] = -291.579*Mod[6]/(pow(k[1]+15.2519*Mod[7],2)+pow(.0614821*Mod[8],2))+3.36681*Mod[9];
+				omega0[0] = sqrt(pow(1.51443*Mod[10]+Shift,2)+pow(k[0],2))+.232841*Mod[11];
+				omega0[1] = sqrt(pow(1.51443*Mod[10]+Shift,2)+pow(k[1],2))+.232841*Mod[11];
+				knee[0] = 3.78956*Mod[12]*pow(k[0]+1.,(long double)-.530289*Mod[13])+.305*Mod[14]*(tanh((k[0]-48.4*Mod[15])/11.1111/Mod[16])+1);
+				knee[1] = 3.78956*Mod[12]*pow(k[1]+1.,(long double)-.530289*Mod[13])+.305*Mod[14]*(tanh((k[1]-48.4*Mod[15])/11.1111/Mod[16])+1);
+				break;
+			case 2://285MeV
+				M_T = 1.69584;
+				Shift = M-M_T;
+				Sigma[0] = .625855*Mod[0]/sqrt(pow(k[0],2)+pow(1.8429*Mod[1],2))+.0249334*Mod[2];
+				Sigma[1] = .625855*Mod[0]/sqrt(pow(k[1],2)+pow(1.8429*Mod[1],2))+.0249334*Mod[2];
+				a[0] = 3.3971*Mod[3]/(pow(k[0],2)+pow(1.01744*Mod[4],2))+3.99561*Mod[5];
+				a[1] = 3.3971*Mod[3]/(pow(k[1],2)+pow(1.01744*Mod[4],2))+3.99561*Mod[5];
+				b[0] = -65187.5*Mod[6]/(pow(k[0]+3.11711*Mod[7],2)+pow(101.697*Mod[8],2))+8.15532*Mod[9];
+				b[1] = -65187.5*Mod[6]/(pow(k[1]+3.11711*Mod[7],2)+pow(101.697*Mod[8],2))+8.15532*Mod[9];
+				omega0[0] = sqrt(pow(1.5065*Mod[10]+Shift,2)+pow(k[0],2))+.209135*Mod[11];
+				omega0[1] = sqrt(pow(1.5065*Mod[10]+Shift,2)+pow(k[1],2))+.209135*Mod[11];
+				knee[0] = 3.1568*Mod[12]*pow(k[0]+1.,(long double)-.624827*Mod[13])+.197004*Mod[14]*(tanh((k[0]-27.1743*Mod[15])/10.0192/Mod[16])+1);
+				knee[1] = 3.1568*Mod[12]*pow(k[1]+1.,(long double)-.624827*Mod[13])+.197004*Mod[14]*(tanh((k[1]-27.1743*Mod[15])/10.0192/Mod[16])+1);
+				break;
+			case 3://320MeV
+				M_T = 1.59439;
+				Shift = M-M_T;
+				Sigma[0] = .587509*Mod[0]/sqrt(pow(k[0],2)+pow(1.84447*Mod[1],2))+.0309251*Mod[2];
+				Sigma[1] = .587509*Mod[0]/sqrt(pow(k[1],2)+pow(1.84447*Mod[1],2))+.0309251*Mod[2];
+				a[0] = 2.44943*Mod[3]/(pow(k[0],2)+pow(.887313*Mod[4],2))+3.32859*Mod[5];
+				a[1] = 2.44943*Mod[3]/(pow(k[1],2)+pow(.887313*Mod[4],2))+3.32859*Mod[5];
+				b[0] = -4439.38*Mod[6]/(pow(k[0]-7.23198*Mod[7],2)+pow(38.9387*Mod[8],2))+4.55531*Mod[9];
+				b[1] = -4439.38*Mod[6]/(pow(k[1]-7.23198*Mod[7],2)+pow(38.9387*Mod[8],2))+4.55531*Mod[9];
+				omega0[0] = sqrt(pow(1.47725*Mod[10]+Shift,2)+pow(k[0],2))+.219181*Mod[11];
+				omega0[1] = sqrt(pow(1.47725*Mod[10]+Shift,2)+pow(k[1],2))+.219181*Mod[11];
+				knee[0] = 3.28564*Mod[12]*pow(k[0]+1.,(long double)-.721321*Mod[13])+.330483*Mod[14]*(tanh((k[0]-22.9096*Mod[15])/10.7139/Mod[16])+1);
+				knee[1] = 3.28564*Mod[12]*pow(k[1]+1.,(long double)-.721321*Mod[13])+.330483*Mod[14]*(tanh((k[1]-22.9096*Mod[15])/10.7139/Mod[16])+1);
+				break;
+			case 4://400MeV
+				M_T = 1.48038;
+				Shift = M-M_T;
+				Sigma[0] = .459303*Mod[0]/sqrt(pow(k[0],2)+pow(1.84321*Mod[1],2))+.0386564*Mod[2];
+				Sigma[1] = .459303*Mod[0]/sqrt(pow(k[1],2)+pow(1.84321*Mod[1],2))+.0386564*Mod[2];
+				a[0] = 1.79149*Mod[3]/(pow(k[0],2)+pow(.764836*Mod[4],2))+2.66209*Mod[5];
+				a[1] = 1.79149*Mod[3]/(pow(k[1],2)+pow(.764836*Mod[4],2))+2.66209*Mod[5];
+				b[0] = -1856.16*Mod[6]/(pow(k[0]-8.69519*Mod[7],2)+pow(26.3551*Mod[8],2))+3.94631*Mod[9];
+				b[1] = -1856.16*Mod[6]/(pow(k[1]-8.69519*Mod[7],2)+pow(26.3551*Mod[8],2))+3.94631*Mod[9];
+				omega0[0] = sqrt(pow(1.45428*Mod[10]+Shift,2)+pow(k[0],2))+.197493*Mod[11];
+				omega0[1] = sqrt(pow(1.45428*Mod[10]+Shift,2)+pow(k[1],2))+.197493*Mod[11];
+				knee[0] = 3.06296*Mod[12]*pow(k[0]+1.,(long double)-.917081*Mod[13])+.394833*Mod[14]*(tanh((k[0]-19.5932*Mod[15])/12.0494/Mod[16])+1);
+				knee[1] = 3.06296*Mod[12]*pow(k[1]+1.,(long double)-.917081*Mod[13])+.394833*Mod[14]*(tanh((k[1]-19.5932*Mod[15])/12.0494/Mod[16])+1);
+				break;*/
 			case 5:
 				M_T = 1.8;
 				Shift = M-M_T;
@@ -964,8 +1055,129 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	return;
 }
 
-long double ImSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
+void Self_Energy(long double M, long double omega[], long double k[], long double Par[], int Temp, long double ImSelf[], long double ReSelf[])	//Single quark self energy
 {
+	static long double omega0[2];	//location of central peak
+	static long double Sigma[2];	//size of energy dependance
+	static long double gamma[2];	//space to change from left to right side of peak
+	static long double k_old[2];
+
+	if(pow(omega[0],2)>=pow(k[0],2))
+		ImSelf[0] = sqrt(pow(omega[0],2)-pow(k[0],2))*GAMMA;
+	else
+		ImSelf[0] = 0;
+	if(pow(omega[1],2)>=pow(k[1],2))
+		ImSelf[1] = sqrt(pow(omega[1],2)-pow(k[1],2))*GAMMA;
+	else
+		ImSelf[1] = 0;
+	ReSelf[0] = ReSelf[1] = 0;
+
+	if(Temp == 0)
+		return;
+
+	if(k[0] != k_old[0] || k[1] != k_old[1])
+	{
+		k_old[0] = k[0];
+		k_old[1] = k[1];
+		switch(Temp)
+		{
+			case 1://194MeV
+				Sigma[0] = .840172/sqrt(pow(k[0],2)+pow(1.45603,2))+.021257;
+				Sigma[1] = .840172/sqrt(pow(k[1],2)+pow(1.45603,2))+.021257;
+				//omega0[0] = sqrt(pow(M,2)+pow(k[0],2));
+				//omega0[1] = sqrt(pow(M,2)+pow(k[1],2));
+				omega0[0] = sqrt(pow(1.99829,2)+pow(k[0],2));
+				omega0[1] = sqrt(pow(1.99829,2)+pow(k[1],2));
+				gamma[0] = 1.05035*pow(k[0]+1.3891,(long double)-1.3891)+.01;
+				gamma[1] = 1.05035*pow(k[1]+1.3891,(long double)-1.3891)+.01;
+				break;
+			case 2://285MeV
+				Sigma[0] = 1.05337/sqrt(pow(k[0],2)+pow(1.50861,2))+.0282696;
+				Sigma[1] = 1.05337/sqrt(pow(k[1],2)+pow(1.50861,2))+.0282696;
+				//omega0[0] = sqrt(pow(M,2)+pow(k[0],2));
+				//omega0[1] = sqrt(pow(M,2)+pow(k[1],2));
+				omega0[0] = sqrt(pow(1.97732,2)+pow(k[0],2));
+				omega0[1] = sqrt(pow(1.97732,2)+pow(k[1],2));
+				gamma[0] = 1.4624*pow(k[0]+2.64,(long double)-1.41048)+.01;
+				gamma[1] = 1.4624*pow(k[1]+2.64,(long double)-1.41048)+.01;
+				break;
+			case 3://320MeV
+				Sigma[0] = 1.14064/sqrt(pow(k[0],2)+pow(1.54999,2))+.0350631;
+				Sigma[1] = 1.14064/sqrt(pow(k[1],2)+pow(1.54999,2))+.0350631;
+				//omega0[0] = sqrt(pow(M,2)+pow(k[0],2));
+				//omega0[1] = sqrt(pow(M,2)+pow(k[1],2));
+				omega0[0] = sqrt(pow(1.96823,2)+pow(k[0],2));
+				omega0[1] = sqrt(pow(1.96823,2)+pow(k[1],2));
+				gamma[0] = 2.07102*pow(k[0]+3.037,(long double)-1.46076)+.01;
+				gamma[1] = 2.07102*pow(k[1]+3.037,(long double)-1.46076)+.01;
+				break;
+			case 4://400MeV
+				Sigma[0] = 1.06073/sqrt(pow(k[0],2)+pow(1.64912,2))+.0438288;
+				Sigma[1] = 1.06073/sqrt(pow(k[1],2)+pow(1.64912,2))+.0438288;
+				//omega0[0] = sqrt(pow(M,2)+pow(k[0],2));
+				//omega0[1] = sqrt(pow(M,2)+pow(k[1],2));
+				omega0[0] = sqrt(pow(1.93309,2)+pow(k[0],2));
+				omega0[1] = sqrt(pow(1.93309,2)+pow(k[1],2));
+				gamma[0] = 3.42222*pow(k[0]+3.663,(long double)-1.56165)+.01;
+				gamma[1] = 3.42222*pow(k[1]+3.663,(long double)-1.56165)+.01;
+				break;
+		}
+	}
+
+	ImSelf[0] += -2.*M*Sigma[0]*omega[0]*gamma[0]/(M_PI*(pow(omega[0]-omega0[0],2)+pow(omega[0]*gamma[0],2)));
+	ImSelf[1] += -2.*M*Sigma[1]*omega[1]*gamma[1]/(M_PI*(pow(omega[1]-omega0[1],2)+pow(omega[1]*gamma[1],2)));
+	ReSelf[0] += Sigma[0]*(omega[0]-omega0[0])/(M_PI*(pow(omega[0]-omega0[0],2)+pow(omega[0]*gamma[0],2)));
+	ReSelf[1] += Sigma[1]*(omega[1]-omega0[1])/(M_PI*(pow(omega[1]-omega0[1],2)+pow(omega[1]*gamma[1],2)));
+
+	return;
+}
+
+long double ImSelf_Energy(long double M, long double omega, long double k, long double Par[], int Temp)	//Single quark self energy
+{
+	/*long double omega0;	//location of central peak
+	long double Sigma;	//size of energy dependance
+	long double gamma;	//space to change from left to right side of peak
+	long double ImSelf;
+
+	if(pow(omega,2)>=pow(k,2))
+		ImSelf = sqrt(pow(omega,2)-pow(k,2))*GAMMA;
+	else
+		ImSelf = 0;
+
+	if(Temp == 0)
+		return(ImSelf);
+
+	switch(Temp)
+	{
+		case 1://194MeV
+			Sigma = .840172/sqrt(pow(k,2)+pow(1.45603,2))+.021257;
+			//omega0 = sqrt(pow(M,2)+pow(k,2));
+			omega0 = sqrt(pow(1.99829,2)+pow(k,2));
+			gamma = 1.05035*pow(k+2.343,(long double)-1.3891)+.01;
+			break;
+		case 2://285MeV
+			Sigma = 1.05337/sqrt(pow(k,2)+pow(1.50861,2))+.0282696;
+			//omega0 = sqrt(pow(M,2)+pow(k,2));
+			omega0 = sqrt(pow(1.97732,2)+pow(k,2));
+			gamma = 1.4624*pow(k+2.64,(long double)-1.41048)+.01;
+			break;
+		case 3://320MeV
+			Sigma = 1.14064/sqrt(pow(k,2)+pow(1.54999,2))+.0350631;
+			//omega0 = sqrt(pow(M,2)+pow(k,2));
+			omega0 = sqrt(pow(1.96823,2)+pow(k,2));
+			gamma = 2.07102*pow(k+3.037,(long double)-1.46076)+.01;
+			break;
+		case 4://400MeV
+			Sigma = 1.06073/sqrt(pow(k,2)+pow(1.64912,2))+.0438288;
+			//omega0 = sqrt(pow(M,2)+pow(k,2));
+			omega0 = sqrt(pow(1.93309,2)+pow(k,2));
+			gamma = 3.42222*pow(k+3.663,(long double)-1.56165)+.01;
+			break;
+	}
+
+	ImSelf += -M*Sigma*omega*gamma/(M_PI*(pow(omega-omega0,2)+pow(omega*gamma,2)));
+	return(ImSelf);*/
+
 	long double omega0;	//location of central peak
 	long double Sigma;	//size of energy dependance
 	long double a, b;	//slope of exponential decrease to left and right
@@ -973,8 +1185,24 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	long double M_T, Shift;
 	long double answer;
 
+	/*static bool Been_Here = false;
+	static char File_Name[70] = "Self_E_Modifier.";
+	static long double Mod[26];
+	if(!Been_Here)
+	{
+		char TempChar[1] = {Temp+48};
+		strncat(File_Name,TempChar,1);
+		strncat(File_Name,".",1);
+		strcat(File_Name,Process);
+		static ifstream File(File_Name);
+		for(int i = 0; i < 26; i++)
+			File >> Mod[i];
+		Been_Here = true;
+	}*/
+
 	if(pow(omega,2)>=pow(k,2))
 		answer = sqrt(pow(omega,2)-pow(k,2))*GAMMA;
+		//answer = GAMMA*sqrt(Par[4])/3.0404;
 	else
 		answer = 0;
 
@@ -983,6 +1211,15 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 
 	switch(Temp)
 	{
+		/*case 1://194MeV
+			M_T = 1.84184;
+			Shift = M-M_T;
+			Sigma = .569969/sqrt(pow(k,2)+pow(1.75236,2))+.0187484;
+			a = 4.689/(pow(k,2)+pow(1.18,2))+4.59495;
+			b = -70400/(pow(k+20,2)+pow(130,2))+6.24;
+			omega0 = sqrt(pow(1.51443+Shift,2)+pow(k,2))+.232841;
+			knee = 3.78956*pow(k+1.,(long double)-.530289)+.305*(tanh((k-48.4)/11.1111)+1);
+			break;*/
 		case 1://194MeV
 			M_T = 1.84184;
 			Shift = M-M_T;
@@ -1019,6 +1256,42 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 			omega0 = sqrt(pow(1.45428+Shift,2)+pow(k,2))+.197493;
 			knee = 3.06296*pow(k+1.,(long double)-.917081)+.394833*(tanh((k-19.5932)/12.0494)+1);
 			break;
+		/*case 1://194MeV
+			M_T = 1.84184;
+			Shift = M-M_T;
+			Sigma = .569969*Mod[0]/sqrt(pow(k,2)+pow(1.75236*Mod[1],2))+.0187484*Mod[2];
+			a = 12.5349*Mod[3]/(pow(k,2)+pow(1.63711*Mod[4],2))+5.026*Mod[5];
+			b = -291.579*Mod[6]/(pow(k+15.2519*Mod[7],2)+pow(.0614821*Mod[8],2))+3.36681*Mod[9];
+			omega0 = sqrt(pow(1.51443*Mod[10]+Shift,2)+pow(k,2))+.232841*Mod[11];
+			knee = 3.78956*Mod[12]*pow(k+1.,(long double)-.530289*Mod[13])+.305*Mod[14]*(tanh((k-48.4*Mod[15])/11.1111/Mod[16])+1);
+			break;
+		case 2://285MeV
+			M_T = 1.69584;
+			Shift = M-M_T;
+			Sigma = .625855*Mod[0]/sqrt(pow(k,2)+pow(1.8429*Mod[1],2))+.0249334*Mod[2];
+			a = 3.3971*Mod[3]/(pow(k,2)+pow(1.01744*Mod[4],2))+3.99561*Mod[5];
+			b = -65187.5*Mod[6]/(pow(k+3.11711*Mod[7],2)+pow(101.697*Mod[8],2))+8.15532*Mod[9];
+			omega0 = sqrt(pow(1.5065*Mod[10]+Shift,2)+pow(k,2))+.209135*Mod[11];
+			knee = 3.1568*Mod[12]*pow(k+1.,(long double)-.624827*Mod[13])+.197004*Mod[14]*(tanh((k-27.1743*Mod[15])/10.0192/Mod[16])+1);
+			break;
+		case 3://320MeV
+			M_T = 1.59439;
+			Shift = M-M_T;
+			Sigma = .587509*Mod[0]/sqrt(pow(k,2)+pow(1.84447*Mod[1],2))+.0309251*Mod[2];
+			a = 2.44943*Mod[3]/(pow(k,2)+pow(.887313*Mod[4],2))+3.32859*Mod[5];
+			b = -4439.38*Mod[6]/(pow(k-7.23198*Mod[7],2)+pow(38.9387*Mod[8],2))+4.55531*Mod[9];
+			omega0 = sqrt(pow(1.47725*Mod[10]+Shift,2)+pow(k,2))+.219181*Mod[11];
+			knee = 3.28564*Mod[12]*pow(k+1.,(long double)-.721321*Mod[13])+.330483*Mod[14]*(tanh((k-22.9096*Mod[15])/10.7139/Mod[16])+1);
+			break;
+		case 4://400MeV
+			M_T = 1.48038;
+			Shift = M-M_T;
+			Sigma = .459303*Mod[0]/sqrt(pow(k,2)+pow(1.84321*Mod[1],2))+.0386564*Mod[2];
+			a = 1.79149*Mod[3]/(pow(k,2)+pow(.764836*Mod[4],2))+2.66209*Mod[5];
+			b = -1856.16*Mod[6]/(pow(k-8.69519*Mod[7],2)+pow(26.3551*Mod[8],2))+3.94631*Mod[9];
+			omega0 = sqrt(pow(1.45428*Mod[10]+Shift,2)+pow(k,2))+.197493*Mod[11];
+			knee = 3.06296*Mod[12]*pow(k+1.,(long double)-.917081*Mod[13])+.394833*Mod[14]*(tanh((k-19.5932*Mod[15])/12.0494/Mod[16])+1);
+			break;*/
 		case 5://40MeV
 			M_T = 1.8;
 			Shift = M-M_T;
@@ -1051,6 +1324,21 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	static long double Shift, M_T;
 	static long double k_old[2];		//Note on validity of k
 
+	/*static bool Been_Here = false;
+	static char File_Name[70] = "Self_E_Modifier.";
+	static long double Mod[27];
+	if(!Been_Here)
+	{
+		char TempChar[1] = {Temp+48};
+		strncat(File_Name,TempChar,1);
+		strncat(File_Name,".",1);
+		strcat(File_Name,Process);
+		static ifstream File(File_Name);
+		for(int i = 0; i < 27; i++)
+			File >> Mod[i];
+		Been_Here = true;
+	}*/
+
 	if(Temp == 0 || Temp == 5)
 	{
 		Results[0] = 0;
@@ -1064,6 +1352,18 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 		k_old[1] = k[1];
 		switch(Temp)
 		{
+			/*case 1://194MeV
+				M_T = 1.84184;
+				Shift = M-M_T;
+				Sigma[0] = .257498/sqrt(pow(k[0],2)+pow(1.33201,2))+.00762638;
+				Sigma[1] = .257498/sqrt(pow(k[1],2)+pow(1.33201,2))+.00762638;
+				x0[0] = sqrt(pow(k[0],2)+pow(1.54778+Shift,2))+.276509;
+				x0[1] = sqrt(pow(k[1],2)+pow(1.54778+Shift,2))+.276509;
+				x1[0] = sqrt(pow(k[0],2)+pow(1.49799+Shift,2))+.246719;
+				x1[1] = sqrt(pow(k[1],2)+pow(1.49799+Shift,2))+.246719;
+				gamma[0] = .658734/sqrt(pow(k[0],2)+pow(3.35217,2))+.0815109;
+				gamma[1] = .658734/sqrt(pow(k[1],2)+pow(3.35217,2))+.0815109;
+				break;*/
 			case 1://194MeV
 				M_T = 1.84184;
 				Shift = M-M_T;
@@ -1112,6 +1412,54 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 				gamma[0] = .862629/sqrt(pow(k[0],2)+pow(2.67193,2))+.189598;
 				gamma[1] = .862629/sqrt(pow(k[1],2)+pow(2.67193,2))+.189598;
 				break;
+			/*case 1://194MeV
+				M_T = 1.84184;
+				Shift = M-M_T;
+				Sigma[0] = .212571*Mod[17]/sqrt(pow(k[0],2)+pow(1.17821*Mod[18],2))+.00762638*Mod[19];
+				Sigma[1] = .212571*Mod[17]/sqrt(pow(k[1],2)+pow(1.17821*Mod[18],2))+.00762638*Mod[19];
+				x0[0] = sqrt(pow(k[0],2)+pow(1.57536*Mod[20]+Shift,2))+.259147*Mod[21];
+				x0[1] = sqrt(pow(k[1],2)+pow(1.57536*Mod[20]+Shift,2))+.259147*Mod[21];
+				x1[0] = sqrt(pow(k[0],2)+pow(1.50194*Mod[22]+Shift,2))+.222526*Mod[23];
+				x1[1] = sqrt(pow(k[1],2)+pow(1.50194*Mod[22]+Shift,2))+.222526*Mod[23];
+				gamma[0] = .336699*Mod[24]/sqrt(pow(k[0],2)+pow(1.87956*Mod[25],2))+.0651449*Mod[26];
+				gamma[1] = .336699*Mod[24]/sqrt(pow(k[1],2)+pow(1.87956*Mod[25],2))+.0651449*Mod[26];
+				break;
+			case 2://258MeV
+				M_T = 1.69584;
+				Shift = M-M_T;
+				Sigma[0] = .307972*Mod[17]/sqrt(pow(k[0],2)+pow(1.41483*Mod[18],2))+.0101423*Mod[19];
+				Sigma[1] = .307972*Mod[17]/sqrt(pow(k[1],2)+pow(1.41483*Mod[18],2))+.0101423*Mod[19];
+				x0[0] = sqrt(pow(k[0],2)+pow(1.56476*Mod[20]+Shift,2))+.251031*Mod[21];
+				x0[1] = sqrt(pow(k[1],2)+pow(1.56476*Mod[20]+Shift,2))+.251031*Mod[21];
+				x1[0] = sqrt(pow(k[0],2)+pow(1.50194*Mod[22]+Shift,2))+.222526*Mod[23];
+				x1[1] = sqrt(pow(k[1],2)+pow(1.50194*Mod[22]+Shift,2))+.222526*Mod[23];
+				gamma[0] = .550628*Mod[24]/sqrt(pow(k[0],2)+pow(2.43968*Mod[25],2))+.0981269*Mod[26];
+				gamma[1] = .550628*Mod[24]/sqrt(pow(k[1],2)+pow(2.43968*Mod[25],2))+.0981269*Mod[26];
+				break;
+			case 3://320MeV
+				M_T = 1.59439;
+				Shift = M-M_T;
+				Sigma[0] = .339131*Mod[17]/sqrt(pow(k[0],2)+pow(1.43308*Mod[18],2))+.0125796*Mod[19];
+				Sigma[1] = .339131*Mod[17]/sqrt(pow(k[1],2)+pow(1.43308*Mod[18],2))+.0125796*Mod[19];
+				x0[0] = sqrt(pow(k[0],2)+pow(1.55034*Mod[20]+Shift,2))+.257788*Mod[21];
+				x0[1] = sqrt(pow(k[1],2)+pow(1.55034*Mod[20]+Shift,2))+.257788*Mod[21];
+				x1[0] = sqrt(pow(k[0],2)+pow(1.46999*Mod[22]+Shift,2))+.231821*Mod[23];
+				x1[1] = sqrt(pow(k[1],2)+pow(1.46999*Mod[22]+Shift,2))+.231821*Mod[23];
+				gamma[0] = .615278*Mod[24]/sqrt(pow(k[0],2)+pow(2.22298*Mod[25],2))+.143376*Mod[26];
+				gamma[1] = .615278*Mod[24]/sqrt(pow(k[1],2)+pow(2.22298*Mod[25],2))+.143376*Mod[26];
+				break;
+			case 4://400MeV
+				M_T = 1.48038;
+				Shift = M-M_T;
+				Sigma[0] = .304841*Mod[17]/sqrt(pow(k[0],2)+pow(1.42911*Mod[18],2))+.0157245*Mod[19];
+				Sigma[1] = .304841*Mod[17]/sqrt(pow(k[1],2)+pow(1.42911*Mod[18],2))+.0157245*Mod[19];
+				x0[0] = sqrt(pow(k[0],2)+pow(1.55511*Mod[20]+Shift,2))+.231105*Mod[21];
+				x0[1] = sqrt(pow(k[1],2)+pow(1.55511*Mod[20]+Shift,2))+.231105*Mod[21];
+				x1[0] = sqrt(pow(k[0],2)+pow(1.44714*Mod[22]+Shift,2))+.20956*Mod[23];
+				x1[1] = sqrt(pow(k[1],2)+pow(1.44714*Mod[22]+Shift,2))+.20956*Mod[23];
+				gamma[0] = .862629*Mod[24]/sqrt(pow(k[0],2)+pow(2.67193*Mod[25],2))+.189598*Mod[26];
+				gamma[1] = .862629*Mod[24]/sqrt(pow(k[1],2)+pow(2.67193*Mod[25],2))+.189598*Mod[26];
+				break;*/
 		}
 	}
 
@@ -1148,9 +1496,11 @@ long double Fermi(long double omega, int T)	//Fermi factor
 	return(1./(1.+exp(omega/Temp)));
 }
 
-long double Potential1(long double Par[], long double k0, long double k)        //Potiential for the numerator of the boson spectrum
+long double Potential1(long double Par[], long double k0, long double k)	//Potiential for the numerator of the boson spectrum
 {
-#if VERSION == 22
+#if VERSION == Exp
+	return(exp(-abs(-4.*pow(k0,2)+4.*pow(k,2))/pow(Par[1],2)));
+#elif VERSION == 22
 	return(pow(Par[1],2.)/(pow(Par[1],2.)+abs(-4.*pow(k0,2)+4.*pow(k,2))));
 #elif VERSION == 42
 	return(pow(Par[1],4.)/(pow(Par[1],4.)+pow(-4.*pow(k0,2)+4.*pow(k,2),2)));
@@ -1159,9 +1509,11 @@ long double Potential1(long double Par[], long double k0, long double k)        
 #endif
 }
 
-long double Potential2(long double Par[], long double k0, long double k)        //Potiential for the denominator of the T-Matrix and boson spectrum
+long double Potential2(long double Par[], long double k0, long double k)	//Potiential for the denominator of the T-Matrix and boson spectrum
 {
-#if VERSION == 22
+#if VERSION == Exp
+	return(Par[0]*exp(-2.*abs(-4.*pow(k0,2)+4.*pow(k,2))/pow(Par[1],2)));
+#elif VERSION == 22
 	return(Par[0]*pow(pow(Par[1],2.)/(pow(Par[1],2.)+abs(-4.*pow(k0,2)+4.*pow(k,2))),2));
 #elif VERSION == 42
 	return(Par[0]*pow(pow(Par[1],4.)/(pow(Par[1],4.)+pow(-4.*pow(k0,2)+4.*pow(k,2),2)),2));
@@ -1209,7 +1561,8 @@ long double ImFolding_Integrand(long double Par[], long double k0, long double k
 		q[1] = Energy(0, Par[3]/2., -k, theta);
 	}
 
-	ImSelf_Energy(Par[2], omega, q, Temp, ImSelf);
+	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
+	//Self_Energy(Par[2], omega, q, Par, Temp, ImSelf, ReSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
 	return(-((4.*ImSelf[0]*ImSelf[1]*pow(Par[2],2)*(1.-fermi[0]-fermi[1]))/((pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2))*(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2)+pow(ImSelf[1],2)))));

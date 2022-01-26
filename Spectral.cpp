@@ -10,30 +10,33 @@
 using namespace std;
 
 int Start_Point(int, char[70]);
-bool Restart_Check(char[70], char*, char*, char*);
-long double Set_G(long double, long double, int);
-long double Set_Mq(long double, long double, int);
-
-char* Process;
+bool Restart_Check(char[70], char*, char*, char*, char*, char*);
+long double Set_Lambda(long double, long double, long double, long double, int);
+long double Set_C(long double, long double, long double, long double, long double, int);
+long double Set_Mq(long double, long double, long double);
 
 int main(int argc, char* argv[])
 {
 #ifdef BB	//use option -D BB= to activate BB macro
-#if VERSION == 22
+#if VERSION == EXP
+	char File[70] = "data/SpectralbbExp.";  //Name of the file
+#elif VERSION == 22
 	char File[70] = "data/Spectralbb22.";  //Name of the file
 #elif VERSION == 24
-	char File[70] = "data/Spectralbb24.";  //Name of the file
+	char File[70] = "data/Spectralbb24.MJPsi_Peak.";  //Name of the file
 #elif VERSION == 42
 	char File[70] = "data/Spectralbb42.";  //Name of the file
 #endif
 #endif
 #ifdef CC
-#if VERSION == 22
-     	char File[70] = "data/Spectralcc22.37";  //Name of the file
+#if VERSION == EXP
+     	char File[70] = "data/SpectralccExp.37.P_Dep4.";  //Name of the file
+#elif VERSION == 22
+     	char File[70] = "data/Spectralcc22.37.P_Dep4.";  //Name of the file
 #elif VERSION == 24
-     	char File[70] = "data/Spectralcc24.37.";  //Name of the file
+     	char File[70] = "data/Spectralcc24.37.P_Dep4.";  //Name of the file
 #elif VERSION == 42
-     	char File[70] = "data/Spectralcc42.37.";  //Name of the file
+     	char File[70] = "data/Spectralcc42.37.P_Dep4.";  //Name of the file
 #endif
 #endif
 #ifdef RIEK
@@ -47,22 +50,22 @@ int main(int argc, char* argv[])
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
 
-	bool Restart = Restart_Check(File, argv[4], argv[5], argv[6]);	//True if restarting
+	bool Restart = Restart_Check(File, argv[4], argv[5], argv[6], argv[9], argv[10]);	//True if restarting
 
 	ofstream TPlot;
 	if(Restart)	//If starting from the beginning, overwrite
 	{
 		TPlot.open(File);
-		TPlot << argv[4] << " " << argv[5] << " " << argv[6] << endl;
+		TPlot << argv[4] << " " << argv[5] << " " << argv[6] << " " << argv[9] << " " << argv[10] << endl;
 	}
 	else	//If not starting from the beginning, append
 		TPlot.open(File, ios::app);
 	int i,j;	//counters
 	int Finish, Start;
-	if(argc == 9)
+	if(argc == 11)
 		Finish = atoi(argv[8]);
 	else
-		Finish = 788;
+		Finish = 12;//288;
 	if(argc >= 8)
 		Start = atoi(argv[7]);
 	Start = Start_Point(Start, File);
@@ -100,6 +103,8 @@ int main(int argc, char* argv[])
 			else
 			{
 				ParPrivate[3] = i*.8;
+				if(i < 0)
+					ParPrivate[3] = ((long double)(i%7)/8.-.125-floor((long double)(i)/7.))*.8;
 #ifndef BB
 				if(j <= 181)
 					ParPrivate[4] = pow((j-151.)/10.,2);
@@ -119,13 +124,14 @@ int main(int argc, char* argv[])
 					ParPrivate[4] = 552.25+GaussLa[j-567];
 			}
 
-			ParPrivate[0] = -atof(argv[4]);//-.5306436016791014;//*Set_G(atof(argv[4]), ParPrivate[3], Temp);
-			ParPrivate[1] = atof(argv[5]);//8.699892671305086;
-			ParPrivate[2] = atof(argv[6]);//1.8+(-1.8+atof(argv[6]))*(exp((10.-sqrt(ParPrivate[4]))/3.)+1.-(1.-exp((10.-sqrt(ParPrivate[4]))/3.))*tanh(-21.738049344917638+2.*sqrt(ParPrivate[4])))/2.;//Set_Mq(atof(argv[6]), ParPrivate[3], Temp);
-			if(Temp != 0)
-				ParPrivate[5] = (exp((10.-sqrt(ParPrivate[4]))/3.)+1.-(1.-exp((10.-sqrt(ParPrivate[4]))/3.))*tanh(-21.738049344917638+2.*sqrt(ParPrivate[4])))/2.;
-			else
-				ParPrivate[5] = 1;
+			ParPrivate[1] = Set_Lambda(atof(argv[5]), ParPrivate[3], atof(argv[9]), atof(argv[10]), Temp);
+			ParPrivate[0] = -Set_C(atof(argv[4]), ParPrivate[3], atof(argv[9]), ParPrivate[1], atof(argv[10]), Temp);
+			//ParPrivate[2] = Set_Mq(atof(argv[6]), ParPrivate[3], atof(argv[9]));
+
+			/*ParPrivate[0] = -atof(argv[4]);
+			ParPrivate[1] = atof(argv[5]);*/
+			ParPrivate[2] = atof(argv[6]);
+			//ParPrivate[5] = atof(argv[9]);
 
 			if(j > 150 && i > 751)
 			{
@@ -160,6 +166,8 @@ int main(int argc, char* argv[])
 			else
 			{
 				Par[3] = i*.8;
+				if(i < 0)
+					Par[3] = ((long double)(i%7)/8.-.125-floor((long double)(i)/7.))*.8;
 #ifndef BB
 				if(j <= 181)
 					Par[4] = pow((j-151.)/10.,2);
@@ -209,7 +217,7 @@ int Start_Point(int Start, char File[70])
 	return(Start);
 }
 
-bool Restart_Check(char File[70], char* g, char* Lambda, char* Mq)
+bool Restart_Check(char File[70], char* g, char* Lambda, char* Mq, char* P0, char* fraction)
 {
 	ifstream InFile(File);
 
@@ -219,78 +227,70 @@ bool Restart_Check(char File[70], char* g, char* Lambda, char* Mq)
 	double g_File;
 	double Lambda_File;
 	double Mq_File;
+	double P0_File;
+	double fraction_File;
 	InFile >> g_File;
 	InFile >> Lambda_File;
 	InFile >> Mq_File;
+	InFile >> P0_File;
+	InFile >> fraction_File;
 	InFile.close();
 
-	if(abs(g_File/atof(g)-1.) < .0001 && abs(Mq_File/atof(Mq)-1.) < .0001 && abs(Lambda_File/atof(Lambda)-1.) < .0001)
+	if(abs(g_File/atof(g)-1.) < .0001 &&
+	   abs(Mq_File/atof(Mq)-1.) < .0001 &&
+	   (abs(Lambda_File/atof(Lambda)-1.) < .0001 || Lambda_File-atof(Lambda) < .0001) &&
+	   abs(P0_File/atof(P0)-1.) < .0001 &&
+	   (abs(fraction_File/atof(fraction)-1.) < .0001 || fraction_File-atof(fraction) < .0001))
 		return(false);
 
 	InFile.close();
 	return(true);
 }
 
-long double Set_Mq(long double Mq0, long double P, int Temp)
+long double Set_Mq(long double Mq0, long double P, long double P0)
 {
-	long double Lambda = 8.699892671305086;
-	long double T;
-
-	switch(Temp)
-	{
-		case 0:
-			T = 0;
-			break;
-		case 1:
-			T = .194;
-			break;
-		case 2:
-			T = .258;
-			break;
-		case 3:
-			T = .32;
-			break;
-		case 4:
-			T = .4;
-			break;
-	}
-
 #ifndef BB
 	long double Mqf = 1.8;
 #else
 	long double Mqf = 5.25;
 #endif
-	long double Delta_Mq = Mqf-Mq0;
 
-	return(Mqf-Delta_Mq/(1+log(1.+pow(P/Lambda,2))));
+	return((Mq0*pow(P0,2)+Mqf*pow(P,2))/(pow(P0,2)+pow(P,2)));
 }
 
-long double Set_G(long double G0, long double P, int Temp)
+long double Set_Lambda(long double G0, long double P, long double P0, long double fraction, int T)
 {
-	long double Lambda = 8.699892671305086;
-	long double T;
+	long double G = G0*(pow(P0,2)+(1-fraction)*pow(P,2))/(pow(P0,2)+pow(P,2));
+	//long double G = G0;
+	long double TempList[] = {0,.194,.258,.32,.4};
+	long double Temp = TempList[T];
 
-	switch(Temp)
-	{
-		case 0:
-			T = 0;
-			break;
-		case 1:
-			T = .194;
-			break;
-		case 2:
-			T = .258;
-			break;
-		case 3:
-			T = .32;
-			break;
-		case 4:
-			T = .4;
-			break;
-	}
+#if VERSION == Exp
+	return(sqrt(pow(2.979,2)+pow(G*Temp,2)));
+#elif VERSION == 22
+	return(sqrt(pow(1.47132,2)+pow(G*Temp,2)));
+#elif VERSION == 24
+	return(sqrt(pow(2.29444,2)+pow(G*Temp,2)/2));
+	//return(sqrt(pow(5.95491,2)+pow(G*Temp,2)/2));
+#elif VERSION == 42
+	return(pow(pow(2.7,4)+pow(G*Temp,4),.25));
+#endif
+}
 
-	long double Gf = 1.;
-	long double Delta_G = Gf-G0;
+long double Set_C(long double f0, long double P, long double P0, long double Lambda, long double fraction, int T)
+{
+	long double f = (f0*pow(P0,2)+(fraction*(1-f0)+f0)*pow(P,2))/(pow(P0,2)+pow(P,2));
+	long double TempList[] = {0,.194,.258,.32,.4};
+	long double Temp = TempList[T];
 
-	return(Gf-Delta_G/(1+log(1.+pow(P/Lambda,2))));
+#if VERSION == Exp
+	return(50.3627*f);
+#elif VERSION == 22
+	return(116.253*f*pow(1.47132/Lambda,4));
+#elif VERSION == 24
+	return(65.8549*f*pow(2.29444/Lambda,8));
+	//return(17.4623*f*pow(5.95491/Lambda,8));
+#elif VERSION == 42
+	return(38.4541*f*pow(2.7/Lambda,8));
+#endif
 }
