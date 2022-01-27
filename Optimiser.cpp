@@ -171,12 +171,12 @@ int main(int argc, char* argv[])
 		long double Parameter_List[Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]][6];
 
 		i = 0;
-		for(long double A = start[0]; A <= finish[0]; A += step[0])
-			for(long double PA = start[1]; PA <= finish[1]; PA += step[1])
-				for(long double M = start[2]; M <= finish[2]; M += step[2])
-					for(long double PM = start[3]; PM <= finish[3]; PM += step[3])
-						for(long double Gamma = start[4]; Gamma <= finish[4]; Gamma += step[4])
-							for(long double PGamma = start[5]; PGamma <= finish[5]; PGamma += step[5])
+		for(long double A = start[0]; A <= finish[0]*1.0000000000001; A += step[0])
+			for(long double PA = start[1]; PA <= finish[1]*1.0000000000001; PA += step[1])
+				for(long double M = start[2]; M <= finish[2]*1.0000000000001; M += step[2])
+					for(long double PM = start[3]; PM <= finish[3]*1.0000000000001; PM += step[3])
+						for(long double Gamma = start[4]; Gamma <= finish[4]*1.0000000000001; Gamma += step[4])
+							for(long double PGamma = start[5]; PGamma <= finish[5]*1.0000000000001; PGamma += step[5])
 							{
 								Parameter_List[i][0] = A;
 								Parameter_List[i][1] = PA;
