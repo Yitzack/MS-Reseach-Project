@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 			T = .400;
 			break;
 		default:
-			return(0);
+			return(2);
 	}
 
 	char File[70] = "Optimiser_Output";
@@ -111,9 +111,9 @@ int main(int argc, char* argv[])
 		strcat(File,".csv");
 		OutputFile.open(File);
 		if(!OutputFile.is_open())
-			return(0);
+			return(1);
 	}
-	else
+	else if(argc == 16)
 	{
 		JPsi_Parameters[Temp][0][1] = atof(argv[2]);
 		JPsi_Parameters[Temp][0][2] = atof(argv[3]);
@@ -135,6 +135,73 @@ int main(int argc, char* argv[])
 		for(int j = 0; j < 6; j++)
 			Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 		cout << setprecision(18) << Chi_Square(Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]) << endl;
+		return(0);
+	}
+	else
+	{
+		strcat(File,argv[2]);
+		strcat(File,".");
+		strcat(File,argv[1]);
+		strcat(File,".csv");
+		OutputFile.open(File);
+		if(!OutputFile.is_open())
+			return(1);
+
+		long double start[6];
+		long double finish[6];
+		long double step[6];
+		int Num_Threads = atoi(argv[3]);
+		int Thread_Num = atoi(argv[4]);
+		int Dims[6];
+		int i;
+
+		for(i = 0; i < 6; i++)
+		{
+			start[i] = atof(argv[5+3*i]);
+			finish[i] = atof(argv[6+3*i]);
+			step[i] = atof(argv[7+3*i]);
+			Dims[i] = int((finish[i]-start[i])/step[i]+1.0000000000001);
+			if(Dims[i] < 1)
+				return(2);
+			cout << "From " << start[i] << " to " << finish[i] << " in steps of " << step[i] << " gives " << Dims[i] << " steps." << endl;
+		}
+
+		cout << "That's " << Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5] << " points." << endl;
+
+		long double Parameter_List[Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]][6];
+
+		i = 0;
+		for(long double A = start[0]; A <= finish[0]; A += step[0])
+			for(long double PA = start[1]; PA <= finish[1]; PA += step[1])
+				for(long double M = start[2]; M <= finish[2]; M += step[2])
+					for(long double PM = start[3]; PM <= finish[3]; PM += step[3])
+						for(long double Gamma = start[4]; Gamma <= finish[4]; Gamma += step[4])
+							for(long double PGamma = start[5]; PGamma <= finish[5]; PGamma += step[5])
+							{
+								Parameter_List[i][0] = A;
+								Parameter_List[i][1] = PA;
+								Parameter_List[i][2] = M;
+								Parameter_List[i][3] = PM;
+								Parameter_List[i][4] = Gamma;
+								Parameter_List[i][5] = PGamma;
+								i++;
+							}
+
+		for(i = Thread_Num; i < Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]; i += Num_Threads)
+		{
+			JPsi_Parameters[Temp][0][1] = Parameter_List[i][0];
+			JPsi_Parameters[Temp][0][2] = Parameter_List[i][1];
+			JPsi_Parameters[Temp][1][1] = Parameter_List[i][2];
+			JPsi_Parameters[Temp][1][2] = Parameter_List[i][3];
+			JPsi_Parameters[Temp][2][1] = Parameter_List[i][4];
+			JPsi_Parameters[Temp][2][2] = Parameter_List[i][5];
+
+			Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
+			Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
+			for(int j = 0; j < 6; j++)
+				Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
+			Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]);
+		}
 		return(0);
 	}
 
