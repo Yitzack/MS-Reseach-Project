@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 		strcat(File,".");
 		strcat(File,argv[1]);
 		strcat(File,".csv");
-		OutputFile.open(File);
+		OutputFile.open(File,ios::app);
 		if(!OutputFile.is_open())
 			return(1);
 	}
@@ -163,10 +163,7 @@ int main(int argc, char* argv[])
 			Dims[i] = int((finish[i]-start[i])/step[i]+1.0000000000001);
 			if(Dims[i] < 1)
 				return(2);
-			cout << "From " << start[i] << " to " << finish[i] << " in steps of " << step[i] << " gives " << Dims[i] << " steps." << endl;
 		}
-
-		cout << "That's " << Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5] << " points." << endl;
 
 		long double Parameter_List[Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]][6];
 
