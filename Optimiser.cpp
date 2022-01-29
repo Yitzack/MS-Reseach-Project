@@ -40,7 +40,10 @@ long double Print(long double[5][3], long double[5][3], long double[2][3], long 
 
 long double Boundary[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85};
 ofstream OutputFile;
-
+/*{0.381905, 5.67612, 2.80054, 4.18969, 0.175255, 3.226, 10.0313, 3.98761, 2.93239, 3.58459, 1.66367, 3.25552, 2.06784, 4.45895, 0.165222, 0.997411, 0.93765, 0.952806, 0.989706, 0.962973, 0.919522, 0.0129831} T=194 Min*/
+/*{0.3, 3, 2.55, 5.5, 0.16, 3.5, 10.58, 4.57122, 3, 5.25, 1.655, 3.09, 2.45, 5.5, 0.155431, 0.991584, 0.948345, 0.955795, 0.983641, 0.975926, 1.00399, 0.0161552} T=194 Grid*/
+/*{0.33729, 3.92964, 2.62562, 4.05461, 0.11714, 5.27443, 14.3297, 3.53248, 3.28106, 5.43784, 1.59513, 5.71738, 1.84899, 5.45489, 0.137133, 1.01195, 0.9315, 0.813736, 0.737843, 0.734627, 0.654341, 0.0301706} T=258 Min*/
+/*{0.3, 3, 2.85, 3.5, 0.04, 5, 8.97, 1, 3, 1, 1.59, 3.09, 2.7, 5.5, 0.100996, 0.921911, 0.936966, 0.869235, 0.810326, 0.716585, 0.598793, 0.0586666} T=258 MeV Grid*/
 int main(int argc, char* argv[])
 {
 	long double JPsi_Parameters[5][5][3] = {{{.314831,.314831,1.},{3.0969,3.0969,1},{.032,.032,1},{9.34,9.34,1},{1,1,1}},
@@ -102,7 +105,7 @@ int main(int argc, char* argv[])
 			return(2);
 	}
 
-	char File[70] = "Optimiser_Output";
+	char File[70] = "data/Optimiser_Output";
 	if(argc == 3)
 	{
 		strcat(File,argv[2]);
@@ -115,6 +118,11 @@ int main(int argc, char* argv[])
 	}
 	else if(argc == 16)
 	{
+                strcat(File,"API.");
+                strcat(File,argv[1]);
+                strcat(File,".csv");
+                OutputFile.open(File,ios::app);
+
 		JPsi_Parameters[Temp][0][1] = atof(argv[2]);
 		JPsi_Parameters[Temp][0][2] = atof(argv[3]);
 		JPsi_Parameters[Temp][1][1] = atof(argv[4]);
@@ -134,7 +142,7 @@ int main(int argc, char* argv[])
 		Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 		for(int j = 0; j < 6; j++)
 			Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
-		cout << setprecision(18) << Chi_Square(Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]) << endl;
+		cout << setprecision(18) << Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]) << endl;
 		return(0);
 	}
 	else
@@ -165,7 +173,7 @@ int main(int argc, char* argv[])
 				return(2);
 		}
 
-		long double Parameter_List[Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]][6];
+		long double** Parameter_List = new long double*[Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]];
 
 		i = 0;
 		for(long double A = start[0]; A <= finish[0]*1.0000000000001; A += step[0])
@@ -175,6 +183,7 @@ int main(int argc, char* argv[])
 						for(long double Gamma = start[4]; Gamma <= finish[4]*1.0000000000001; Gamma += step[4])
 							for(long double PGamma = start[5]; PGamma <= finish[5]*1.0000000000001; PGamma += step[5])
 							{
+								Parameter_List[i] = new long double[6];
 								Parameter_List[i][0] = A;
 								Parameter_List[i][1] = PA;
 								Parameter_List[i][2] = M;
