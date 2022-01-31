@@ -41,7 +41,7 @@ long double Print(long double[5][3], long double[5][3], long double[2][3], long 
 long double Boundary[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85};
 ofstream OutputFile;
 /*{0.381905, 5.67612, 2.80054, 4.18969, 0.175255, 3.226, 10.0313, 3.98761, 2.93239, 3.58459, 1.66367, 3.25552, 2.06784, 4.45895, 0.165222, 0.997411, 0.93765, 0.952806, 0.989706, 0.962973, 0.919522, 0.0129831} T=194 Min*/
-/*{0.3, 3, 2.55, 5.5, 0.16, 3.5, 10.58, 4.57122, 3, 5.25, 1.655, 3.09, 2.45, 5.5, 0.155431, 0.991584, 0.948345, 0.955795, 0.983641, 0.975926, 1.00399, 0.0161552} T=194 Grid*/
+/*{0.3, 3, 2.5, 5.5, 0.176, 3.6, 10.58, 4.57122, 3, 5.25, 1.655, 3.09, 2.45, 5.5, 0.165909, 1.00145, 0.973704, 0.983587, 0.999133, 0.962439, 0.948636, 0.0069526} T=194 Grid*/
 /*{0.33729, 3.92964, 2.62562, 4.05461, 0.11714, 5.27443, 14.3297, 3.53248, 3.28106, 5.43784, 1.59513, 5.71738, 1.84899, 5.45489, 0.137133, 1.01195, 0.9315, 0.813736, 0.737843, 0.734627, 0.654341, 0.0301706} T=258 Min*/
 /*{0.3, 3, 2.85, 3.5, 0.04, 5, 8.97, 1, 3, 1, 1.59, 3.09, 2.7, 5.5, 0.100996, 0.921911, 0.936966, 0.869235, 0.810326, 0.716585, 0.598793, 0.0586666} T=258 MeV Grid*/
 /*{0.30626, 2.2706, 2.50082, 3.56841, 0.136461, 3.56011, 7.93198, 4.11694, 3.05149, 4.4995, 1.66565, 4.09551, 2.8846, 2.4588, 0.0935383, 0.911683, 0.854309, 0.599931, 0.498286, 0.519157, 0.36636, 0.0969059} T=320 MeV Min
@@ -51,7 +51,7 @@ ofstream OutputFile;
 int main(int argc, char* argv[])
 {
 	long double JPsi_Parameters[5][5][3] = {{{.314831,.314831,1.},{3.0969,3.0969,1},{.032,.032,1},{9.34,9.34,1},{1,1,1}},
-						{{1.97/(2.*3.09946),1.97/(2.*3.09946),3.1},{3.09946,3.09946,3.6},{.106597,.106597,3.5},{10.58,10.58,4.57122},{3,3,5.25}},
+						{{1.97/(2.*3.09946),.3,3.},{3.09946,2.5,5.5},{.106597,.176,3.6},{10.58,10.58,4.57122},{3,3,5.25}},
 						{{.4024,.4024,1.},{3.125,3.125,1},{.372,.372,1},{8.97,8.97,1},{3,3,1}},
 						{{.403047,.403047,1.},{3.151,3.151,1},{.68,.68,1},{9.07,9.07,1},{3,3,1}},
 						{{.266834,.266834,1.},{3.1855,3.1855,1},{.98,.98,1},{9.52,9.52,1},{1,1,1}}};
@@ -164,10 +164,10 @@ int main(int argc, char* argv[])
 		long double step[6];
 		int Num_Threads = atoi(argv[3]);
 		int Thread_Num = atoi(argv[4]);
-		int Dims[6];
+		int Dims[10];
 		int i;
 
-		for(i = 0; i < 6; i++)
+		for(i = 0; i < 10; i++)
 		{
 			start[i] = atof(argv[5+3*i]);
 			finish[i] = atof(argv[6+3*i]);
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
 				return(2);
 		}
 
-		long double** Parameter_List = new long double*[Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]];
+		long double** Parameter_List = new long double*[Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]*Dims[6]*Dims[7]*Dims[8]*Dims[9]];
 
 		i = 0;
 		for(long double A = start[0]; A <= finish[0]*1.0000000000001; A += step[0])
@@ -186,18 +186,26 @@ int main(int argc, char* argv[])
 					for(long double PM = start[3]; PM <= finish[3]*1.0000000000001; PM += step[3])
 						for(long double Gamma = start[4]; Gamma <= finish[4]*1.0000000000001; Gamma += step[4])
 							for(long double PGamma = start[5]; PGamma <= finish[5]*1.0000000000001; PGamma += step[5])
+				for(long double MQ = start[6]; MQ <= finish[6]*1.0000000000001; MQ += step[6])
+					for(long double PMQ = start[7]; PMQ <= finish[7]*1.0000000000001; PMQ += step[7])
+						for(long double n = start[8]; n <= finish[8]*1.0000000000001; n += step[8])
+							for(long double Pn = start[9]; Pn <= finish[9]*1.0000000000001; Pn += step[9])
 							{
-								Parameter_List[i] = new long double[6];
+								Parameter_List[i] = new long double[10];
 								Parameter_List[i][0] = A;
 								Parameter_List[i][1] = PA;
 								Parameter_List[i][2] = M;
 								Parameter_List[i][3] = PM;
 								Parameter_List[i][4] = Gamma;
 								Parameter_List[i][5] = PGamma;
+								Parameter_List[i][6] = MQ;
+								Parameter_List[i][7] = PMQ;
+								Parameter_List[i][8] = n;
+								Parameter_List[i][9] = Pn;
 								i++;
 							}
 
-		for(i = Thread_Num; i < Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]; i += Num_Threads)
+		for(i = Thread_Num; i < Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]*Dims[6]*Dims[7]*Dims[8]*Dims[9]; i += Num_Threads)
 		{
 			JPsi_Parameters[Temp][0][1] = Parameter_List[i][0];
 			JPsi_Parameters[Temp][0][2] = Parameter_List[i][1];
@@ -205,6 +213,10 @@ int main(int argc, char* argv[])
 			JPsi_Parameters[Temp][1][2] = Parameter_List[i][3];
 			JPsi_Parameters[Temp][2][1] = Parameter_List[i][4];
 			JPsi_Parameters[Temp][2][2] = Parameter_List[i][5];
+			Non_Parameters[Temp][0][1] = Parameter_List[i][6];
+			Non_Parameters[Temp][0][2] = Parameter_List[i][7];
+			Non_Parameters[Temp][1][1] = Parameter_List[i][8];
+			Non_Parameters[Temp][1][2] = Parameter_List[i][9];
 
 			Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 			Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
@@ -403,7 +415,7 @@ void Minimize(long double sn[14], long double JPsi_Parameters[5][3], long double
 	length[1][0] = (sn[9]>0)?(6.-JPsi_Local[4][2])/sn[9]:(1.-JPsi_Local[4][2])/sn[9];
 	length[1][1] = (sn[9]>0)?(1.-JPsi_Local[4][2])/sn[9]:(6.-JPsi_Local[4][2])/sn[9];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
+	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];*/
 	length[1][0] = (sn[10]>0)?(1.79-Non_Local[0][1])/sn[10]:(1.59-Non_Local[0][1])/sn[10];
 	length[1][1] = (sn[10]>0)?(1.59-Non_Local[0][1])/sn[10]:(1.79-Non_Local[0][1])/sn[10];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
@@ -417,7 +429,7 @@ void Minimize(long double sn[14], long double JPsi_Parameters[5][3], long double
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[13]>0)?(6.-Non_Local[1][2])/sn[13]:(1.-Non_Local[1][2])/sn[13];
-	length[1][1] = (sn[13]>0)?(1.-Non_Local[1][2])/sn[13]:(6.-Non_Local[1][2])/sn[13];*/
+	length[1][1] = (sn[13]>0)?(1.-Non_Local[1][2])/sn[13]:(6.-Non_Local[1][2])/sn[13];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
 
@@ -439,11 +451,11 @@ void Minimize(long double sn[14], long double JPsi_Parameters[5][3], long double
 		/*JPsi_Local[3][1] = JPsi_Parameters[3][1]+length[0][0]*fz[i][0]*sn[6];
 		JPsi_Local[3][2] = JPsi_Parameters[3][2]+length[0][0]*fz[i][0]*sn[7];
 		JPsi_Local[4][1] = JPsi_Parameters[4][1]+length[0][0]*fz[i][0]*sn[8];
-		JPsi_Local[4][2] = JPsi_Parameters[4][2]+length[0][0]*fz[i][0]*sn[9];
+		JPsi_Local[4][2] = JPsi_Parameters[4][2]+length[0][0]*fz[i][0]*sn[9];*/
 		Non_Local[0][1] = Non_Parameters[0][1]+length[0][0]*fz[i][0]*sn[10];
 		Non_Local[0][2] = Non_Parameters[0][2]+length[0][0]*fz[i][0]*sn[11];
 		Non_Local[1][1] = Non_Parameters[1][1]+length[0][0]*fz[i][0]*sn[12];
-		Non_Local[1][2] = Non_Parameters[1][2]+length[0][0]*fz[i][0]*sn[13];*/
+		Non_Local[1][2] = Non_Parameters[1][2]+length[0][0]*fz[i][0]*sn[13];
 		Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Local, PsiPrime_Local, Non_Local, false);
 		Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Local, PsiPrime_Local, Non_Local, false);
 		for(int j = 0; j < 6; j++)
@@ -489,11 +501,11 @@ void Minimize(long double sn[14], long double JPsi_Parameters[5][3], long double
 			/*JPsi_Parameters[3][1] += length[0][0]*x*sn[6];
 			JPsi_Parameters[3][2] += length[0][0]*x*sn[7];
 			JPsi_Parameters[4][1] += length[0][0]*x*sn[8];
-			JPsi_Parameters[4][2] += length[0][0]*x*sn[9];
+			JPsi_Parameters[4][2] += length[0][0]*x*sn[9];*/
 			Non_Parameters[0][1] += length[0][0]*x*sn[10];
 			Non_Parameters[0][2] += length[0][0]*x*sn[11];
 			Non_Parameters[1][1] += length[0][0]*x*sn[12];
-			Non_Parameters[1][2] += length[0][0]*x*sn[13];*/
+			Non_Parameters[1][2] += length[0][0]*x*sn[13];
 			return;
 		}
 
@@ -530,11 +542,11 @@ void Minimize(long double sn[14], long double JPsi_Parameters[5][3], long double
 		/*JPsi_Local[3][1] = JPsi_Parameters[3][1]+length[0][0]*u*sn[6];
 		JPsi_Local[3][2] = JPsi_Parameters[3][2]+length[0][0]*u*sn[7];
 		JPsi_Local[4][1] = JPsi_Parameters[4][1]+length[0][0]*u*sn[8];
-		JPsi_Local[4][2] = JPsi_Parameters[4][2]+length[0][0]*u*sn[9];
+		JPsi_Local[4][2] = JPsi_Parameters[4][2]+length[0][0]*u*sn[9];*/
 		Non_Local[0][1] = Non_Parameters[0][1]+length[0][0]*u*sn[10];
 		Non_Local[0][2] = Non_Parameters[0][2]+length[0][0]*u*sn[11];
 		Non_Local[1][1] = Non_Parameters[1][1]+length[0][0]*u*sn[12];
-		Non_Local[1][2] = Non_Parameters[1][2]+length[0][0]*u*sn[13];*/
+		Non_Local[1][2] = Non_Parameters[1][2]+length[0][0]*u*sn[13];
 		Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Local, PsiPrime_Local, Non_Local, false);
 		Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Local, PsiPrime_Local, Non_Local, false);
 		for(int j = 0; j < 6; j++)
@@ -702,47 +714,47 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[4][2] -= h;
 	grad[9] = (f0-f1)/h;
-	//cout << "Gradient " << f1 << " " << grad[9] << endl;
+	//cout << "Gradient " << f1 << " " << grad[9] << endl;*/
 
 	Non_Parameters[0][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, Non_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	Non_Parameters[0][1] -= h;
 	grad[10] = (f0-f1)/h;
-	//cout << "Gradient " << f1 << " " << grad[10] << endl;
+	//cerr << "Gradient " << f1 << " " << grad[10] << endl;
 
 	Non_Parameters[0][2] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, Non_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	Non_Parameters[0][2] -= h;
 	grad[11] = (f0-f1)/h;
-	//cout << "Gradient " << f1 << " " << grad[11] << endl;
+	//cerr << "Gradient " << f1 << " " << grad[11] << endl;
 
 	Non_Parameters[1][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, Non_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	Non_Parameters[1][1] -= h;
 	grad[12] = (f0-f1)/h;
-	//cout << "Gradient " << f1 << " " << grad[12] << endl;
+	//cerr << "Gradient " << f1 << " " << grad[12] << endl;
 
 	Non_Parameters[1][2] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, Non_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	Non_Parameters[1][2] -= h;
 	grad[13] = (f0-f1)/h;
-	//cout << "Gradient " << f1 << " " << grad[13] << endl;*/
+	//cerr << "Gradient " << f1 << " " << grad[13] << endl;
 }
 
 long double Print(long double JPsi_Parameters[5][3], long double PsiPrime_Parameters[5][3], long double Non_Parameters[2][3], long double Medium_Euclidean[2], long double Vacuum_Euclidean[2], long double Medium_Spatial[6], long double Vacuum_Spatial[6], long double Spatial_Ratio[6])
@@ -789,6 +801,7 @@ long double Spatial(long double z, long double JPsi_Parameters[5][3], long doubl
 
 	a = 0;
 	b = M_PI/(2.*z);
+
 	do
 	{
 		if(b > Max)
@@ -802,7 +815,6 @@ long double Spatial(long double z, long double JPsi_Parameters[5][3], long doubl
 			x2 = (b+a+Disp[l]*(b-a))/2.;
 			F += w[l+1]*Spatial_sInt(z, x1, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Vacuum);
 			F += w[l+1]*Spatial_sInt(z, x2, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Vacuum);
-
 		}
 		F += w[0]*Spatial_sInt(z, a/2.+b/2., JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Vacuum);
 
