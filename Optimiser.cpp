@@ -27,16 +27,16 @@ long double SpatialCutoffKernel(long double, long double, long double);
 long double Euclidean(long double, long double, long double, long double[5][3], long double[5][3], long double[2][3], bool);
 long double EuclideanKernel(long double, long double, long double, long double);
 
-void Gradient(long double[14], long double[5][3], long double[5][3], long double[2][3], long double[2], long double[6], long double[6], long double);
+void Gradient(long double[14], long double[5][3], long double[5][3], long double[2][3], long double[2], long double[7], long double[7], long double);
 long double PolakRibiere(long double[14], long double[14]);
-void Minimize(long double[14], long double[5][3], long double[5][3], long double[2][3], long double[2], long double[6], long double[6], long double);
+void Minimize(long double[14], long double[5][3], long double[5][3], long double[2][3], long double[2], long double[7], long double[7], long double);
 
 void mergeSort(long double[], int, int);
 long double Uniform(long double, long double);
 void Characterize_PsiPrime(long double[5][3], long double, pair<long double, long double>&, bool);
 void Characterize_JPsi(long double[5][3], long double, pair<long double, long double>&, bool);
-long double Chi_Square(long double[2], long double[2], long double[6], long double[6], long double[6]);
-long double Print(long double[5][3], long double[5][3], long double[2][3], long double[2], long double[2], long double[6], long double[6], long double[6]); //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
+long double Chi_Square(long double[2], long double[2], long double[7], long double[7], long double[7]);
+long double Print(long double[5][3], long double[5][3], long double[2][3], long double[2], long double[2], long double[7], long double[7], long double[7]); //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
 
 long double Boundary[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85};
 ofstream OutputFile;
@@ -66,20 +66,20 @@ int main(int argc, char* argv[])
 					       {{1.51,1.66565,4.09551},{2.4,2.8846,2.4588}},
 					       {{1.36,1.59186,4.70663},{1.98,2.29624,2.3616}}};
 
-	long double Spatial_Ratio[4][6] = {{1.00006,0.99883,0.992039,0.982366,0.970341,0.95766},
-					   {0.988286,0.945063,0.879461,0.798659,0.7259,0.654381},
-					   {0.954875,0.856416,0.720447,0.573465,0.45867,0.376707},
-					   {0.908029,0.715435,0.524036,0.372788,0.246218,0.18}};
-	long double Vacuum_Spatial[6] = {0.0415680222792943527448, 0.00120126774580634698112, 4.65000126560610055077e-05, 1.96861980208214073368e-06,
-					  8.66667213197805982178e-08, 3.94190650826746653845e-09};
+	long double Spatial_Ratio[4][7] = {{1.,1.00006,0.99883,0.992039,0.982366,0.970341,0.95766},
+					   {1.,0.988286,0.945063,0.879461,0.798659,0.7259,0.654381},
+					   {1.,0.954875,0.856416,0.720447,0.573465,0.45867,0.376707},
+					   {1.,0.908029,0.715435,0.524036,0.372788,0.246218,0.18}};
+	long double Vacuum_Spatial[7] = {13.5965519695970589115, 0.0415680222792943527448, 0.00120126774580634698112, 4.65000126560610055077e-05, 
+					  1.96861980208214073368e-06, 8.66667213197805982178e-08, 3.94190650826746653845e-09};
 	long double Vacuum_Euclidean[4][2] = {{0.000259568923526295945662, 9.64220418032793835491e-06},
 					       {0.00219476484784199273204, 0.000188143003166908006425},
 					       {0.00821024781558290065043, 0.00116410367128954708042},
 					       {0.0264690797013430510705, 0.00575549843590767333436}};
-	long double Medium_Spatial[6];
+	long double Medium_Spatial[7];
 	long double Medium_Euclidean[2];
 	/*for(int i = 0; i < 6; i++)	//Superceeded by precalculated values, standing by if services required
-		Vacuum_Spatial[i] = Spatial((long double)(i)+1.25, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
+		Vacuum_Spatial[i] = Spatial((long double)(i)+.25, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
 	Vacuum_Euclidean[0][0] = Euclidean(1./.388, .194, 0, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
 	Vacuum_Euclidean[1][0] = Euclidean(1./.516, .258, 0, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
 	Vacuum_Euclidean[2][0] = Euclidean(1./.640, .320, 0, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
@@ -144,8 +144,8 @@ int main(int argc, char* argv[])
 
 		Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 		Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
-		for(int j = 0; j < 6; j++)
-			Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
+		for(int j = 0; j < 7; j++)
+			Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 		cout << setprecision(18) << Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]) << endl;
 		return(0);
 	}
@@ -220,8 +220,8 @@ int main(int argc, char* argv[])
 
 			Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 			Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
-			for(int j = 0; j < 6; j++)
-				Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
+			for(int j = 0; j < 7; j++)
+				Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 			Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]);
 		}
 		return(0);
@@ -267,8 +267,8 @@ int main(int argc, char* argv[])
 	}
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 	Best[14] = Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]);
 
 	while(difftime(time(NULL), start_time) < 9000)
@@ -289,8 +289,8 @@ int main(int argc, char* argv[])
 		Non_Parameters[Temp][1][2] = Uniform(1.,6.);
 		Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 		Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
-		for(int j = 0; j < 6; j++)
-			Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
+		for(int j = 0; j < 7; j++)
+			Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 
 		Chi = Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]);
 
@@ -360,13 +360,13 @@ int main(int argc, char* argv[])
 	return(0);
 }
 
-void Minimize(long double sn[14], long double JPsi_Parameters[5][3], long double PsiPrime_Parameters[5][3], long double Non_Parameters[2][3], long double Vacuum_Euclidean[2], long double Vacuum_Spatial[6], long double Spatial_Ratio[6], long double T)
+void Minimize(long double sn[14], long double JPsi_Parameters[5][3], long double PsiPrime_Parameters[5][3], long double Non_Parameters[2][3], long double Vacuum_Euclidean[2], long double Vacuum_Spatial[7], long double Spatial_Ratio[7], long double T)
 {
 	long double JPsi_Local[5][3];
 	long double PsiPrime_Local[5][3];
 	long double Non_Local[2][3];
 	long double Medium_Euclidean[2];
-	long double Medium_Spatial[6];
+	long double Medium_Spatial[7];
 	long double length[2][2];
 
 	for(int i = 0; i < 5; i++)
@@ -458,8 +458,8 @@ void Minimize(long double sn[14], long double JPsi_Parameters[5][3], long double
 		Non_Local[1][2] = Non_Parameters[1][2]+length[0][0]*fz[i][0]*sn[13];
 		Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Local, PsiPrime_Local, Non_Local, false);
 		Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Local, PsiPrime_Local, Non_Local, false);
-		for(int j = 0; j < 6; j++)
-			Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Local, PsiPrime_Local, Non_Local, false);
+		for(int j = 0; j < 7; j++)
+			Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Local, PsiPrime_Local, Non_Local, false);
 		fz[i][1] = Print(JPsi_Local, PsiPrime_Local, Non_Local, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 		//cout << "Line Search " << fz[i][0] << " " << fz[i][1] << endl;
 	}
@@ -549,8 +549,8 @@ void Minimize(long double sn[14], long double JPsi_Parameters[5][3], long double
 		Non_Local[1][2] = Non_Parameters[1][2]+length[0][0]*u*sn[13];
 		Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Local, PsiPrime_Local, Non_Local, false);
 		Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Local, PsiPrime_Local, Non_Local, false);
-		for(int j = 0; j < 6; j++)
-			Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Local, PsiPrime_Local, Non_Local, false);
+		for(int j = 0; j < 7; j++)
+			Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Local, PsiPrime_Local, Non_Local, false);
 		fu = Print(JPsi_Local, PsiPrime_Local, Non_Local, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 
 		if(fu <= fx)
@@ -602,25 +602,25 @@ long double PolakRibiere(long double gradn_1[14], long double gradn[14])
 	return(num/den);
 }
 
-void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long double PsiPrime_Parameters[5][3], long double Non_Parameters[2][3], long double Vacuum_Euclidean[2], long double Vacuum_Spatial[6], long double Spatial_Ratio[6], long double T)
+void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long double PsiPrime_Parameters[5][3], long double Non_Parameters[2][3], long double Vacuum_Euclidean[2], long double Vacuum_Spatial[7], long double Spatial_Ratio[7], long double T)
 {
 	long double f0, f1, h = 1e-5;
 	long double Medium_Euclidean[2];
-	long double Medium_Spatial[6];
+	long double Medium_Spatial[7];
 
 	OutputFile << "Gradient" << endl;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f0 = Chi_Square(Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	//cout << "Gradient " << f0 << endl;
 
 	JPsi_Parameters[0][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[0][1] -= h;
 	grad[0] = (f0-f1)/h;
@@ -629,8 +629,8 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	JPsi_Parameters[0][2] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[0][2] -= h;
 	grad[1] = (f0-f1)/h;
@@ -639,8 +639,8 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	JPsi_Parameters[1][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[1][1] -= h;
 	grad[2] = (f0-f1)/h;
@@ -649,8 +649,8 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	JPsi_Parameters[1][2] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[1][2] -= h;
 	grad[3] = (f0-f1)/h;
@@ -659,8 +659,8 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	JPsi_Parameters[2][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[2][1] -= h;
 	grad[4] = (f0-f1)/h;
@@ -669,8 +669,8 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	JPsi_Parameters[2][2] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[2][2] -= h;
 	grad[5] = (f0-f1)/h;
@@ -679,8 +679,8 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	/*JPsi_Parameters[3][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[3][1] -= h;
 	grad[6] = (f0-f1)/h;
@@ -689,8 +689,8 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	JPsi_Parameters[3][2] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[3][2] -= h;
 	grad[7] = (f0-f1)/h;
@@ -699,8 +699,8 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	JPsi_Parameters[4][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[4][1] -= h;
 	grad[8] = (f0-f1)/h;
@@ -709,8 +709,8 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	JPsi_Parameters[4][2] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[4][2] -= h;
 	grad[9] = (f0-f1)/h;
@@ -719,8 +719,8 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	Non_Parameters[0][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	Non_Parameters[0][1] -= h;
 	grad[10] = (f0-f1)/h;
@@ -729,8 +729,8 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	Non_Parameters[0][2] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	Non_Parameters[0][2] -= h;
 	grad[11] = (f0-f1)/h;
@@ -739,8 +739,8 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	Non_Parameters[1][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	Non_Parameters[1][1] -= h;
 	grad[12] = (f0-f1)/h;
@@ -749,15 +749,15 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	Non_Parameters[1][2] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
-	for(int j = 0; j < 6; j++)
-		Medium_Spatial[j] = Spatial((long double)(j)+1.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
+	for(int j = 0; j < 7; j++)
+		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	Non_Parameters[1][2] -= h;
 	grad[13] = (f0-f1)/h;
 	//cerr << "Gradient " << f1 << " " << grad[13] << endl;
 }
 
-long double Print(long double JPsi_Parameters[5][3], long double PsiPrime_Parameters[5][3], long double Non_Parameters[2][3], long double Medium_Euclidean[2], long double Vacuum_Euclidean[2], long double Medium_Spatial[6], long double Vacuum_Spatial[6], long double Spatial_Ratio[6])
+long double Print(long double JPsi_Parameters[5][3], long double PsiPrime_Parameters[5][3], long double Non_Parameters[2][3], long double Medium_Euclidean[2], long double Vacuum_Euclidean[2], long double Medium_Spatial[7], long double Vacuum_Spatial[7], long double Spatial_Ratio[7])
 {
 	for(int j = 0; j < 5; j++)
 		OutputFile << JPsi_Parameters[j][1] << "," << JPsi_Parameters[j][2] << "," << flush;
@@ -773,7 +773,7 @@ long double Print(long double JPsi_Parameters[5][3], long double PsiPrime_Parame
 	return(Chi);
 }
 
-long double Chi_Square(long double Medium_Euclidean[2], long double Vacuum_Euclidean[2], long double Medium_Spatial[6], long double Vacuum_Spatial[6], long double Spatial_Ratio[6])
+long double Chi_Square(long double Medium_Euclidean[2], long double Vacuum_Euclidean[2], long double Medium_Spatial[7], long double Vacuum_Spatial[7], long double Spatial_Ratio[7])
 {
 	long double answer;
 	answer = pow(Medium_Euclidean[1]/Vacuum_Euclidean[1]-Medium_Euclidean[0]/Vacuum_Euclidean[0]-.2,2)/.2;
