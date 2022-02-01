@@ -159,9 +159,9 @@ int main(int argc, char* argv[])
 		if(!OutputFile.is_open())
 			return(1);
 
-		long double start[6];
-		long double finish[6];
-		long double step[6];
+		long double start[10];
+		long double finish[10];
+		long double step[10];
 		int Num_Threads = atoi(argv[3]);
 		int Thread_Num = atoi(argv[4]);
 		int Dims[10];
