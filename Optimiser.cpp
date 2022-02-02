@@ -39,6 +39,7 @@ long double Chi_Square(long double[2], long double[2], long double[7], long doub
 long double Print(long double[5][3], long double[5][3], long double[2][3], long double[2], long double[2], long double[7], long double[7], long double[7]); //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
 
 long double Boundary[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85};
+long double Random_Range[14][2] = {{.1,.5},{1.,6.},{1.,3.5},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{1.59,1.79},{1.,6.},{1.5,5.},{1.,6.}};
 ofstream OutputFile;
 /*{0.381905, 5.67612, 2.80054, 4.18969, 0.175255, 3.226, 10.0313, 3.98761, 2.93239, 3.58459, 1.66367, 3.25552, 2.06784, 4.45895, 0.165222, 1.00714, 0.997408, 0.937645, 0.952802, 0.989703, 0.962968, 0.0115162} T=194 Min*/
 /*{0.3, 3, 2.45, 5.5, 0.173, 3.6, 10.58, 4.57122, 3, 5.25, 1.7, 4, 3, 5.5, 0.172075, 1.00332, 1.01235, 1.00562, 0.998399, 0.98805, 0.98223, 0.00432651} T=194 Grid*/
@@ -78,7 +79,6 @@ int main(int argc, char* argv[])
 					       {0.0264690797013430510705, 0.00575549843590767333436}};
 	long double Medium_Spatial[7];
 	long double Medium_Euclidean[2];
-	long double Random_Range[14][2] = {{.1,.5},{1.,6.},{1.,3.5},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{1.59,1.79},{1.,6.},{1.5,5.},{1.,6.}};
 	/*for(int i = 0; i < 6; i++)	//Superceeded by precalculated values, standing by if services required
 		Vacuum_Spatial[i] = Spatial((long double)(i)+.25, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
 	Vacuum_Euclidean[0][0] = Euclidean(1./.388, .194, 0, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
@@ -418,58 +418,58 @@ void Minimize(long double sn[14], long double JPsi_Parameters[5][3], long double
 				Non_Local[i][j] = Non_Parameters[i][j];
 		}
 
-	length[0][0] = (sn[0]>0)?(.5-JPsi_Local[0][1])/sn[0]:(.1-JPsi_Local[0][1])/sn[0];
-	length[0][1] = (sn[0]>0)?(.1-JPsi_Local[0][1])/sn[0]:(.5-JPsi_Local[0][1])/sn[0];
-	length[1][0] = (sn[1]>0)?(6.-JPsi_Local[0][2])/sn[1]:(1.-JPsi_Local[0][2])/sn[1];
-	length[1][1] = (sn[1]>0)?(1.-JPsi_Local[0][2])/sn[1]:(6.-JPsi_Local[0][2])/sn[1];
+	length[0][0] = (sn[0]>0)?(Random_Range[0][1]-JPsi_Local[0][1])/sn[0]:(Random_Range[0][0]-JPsi_Local[0][1])/sn[0];
+	length[0][1] = (sn[0]>0)?(Random_Range[0][0]-JPsi_Local[0][1])/sn[0]:(Random_Range[0][1]-JPsi_Local[0][1])/sn[0];
+	length[1][0] = (sn[1]>0)?(Random_Range[1][1]-JPsi_Local[0][2])/sn[1]:(Random_Range[1][0]-JPsi_Local[0][2])/sn[1];
+	length[1][1] = (sn[1]>0)?(Random_Range[1][0]-JPsi_Local[0][2])/sn[1]:(Random_Range[1][1]-JPsi_Local[0][2])/sn[1];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[2]>0)?(3.5-JPsi_Local[1][1])/sn[2]:(2.5-JPsi_Local[1][1])/sn[2];
-	length[1][1] = (sn[2]>0)?(2.5-JPsi_Local[1][1])/sn[2]:(3.5-JPsi_Local[1][1])/sn[2];
+	length[1][0] = (sn[2]>0)?(Random_Range[2][1]-JPsi_Local[1][1])/sn[2]:(Random_Range[2][0]-JPsi_Local[1][1])/sn[2];
+	length[1][1] = (sn[2]>0)?(Random_Range[2][0]-JPsi_Local[1][1])/sn[2]:(Random_Range[2][1]-JPsi_Local[1][1])/sn[2];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[3]>0)?(6.-JPsi_Local[1][2])/sn[3]:(1.-JPsi_Local[1][2])/sn[3];
-	length[1][1] = (sn[3]>0)?(1.-JPsi_Local[1][2])/sn[3]:(6.-JPsi_Local[1][2])/sn[3];
+	length[1][0] = (sn[3]>0)?(Random_Range[3][1]-JPsi_Local[1][2])/sn[3]:(Random_Range[3][0]-JPsi_Local[1][2])/sn[3];
+	length[1][1] = (sn[3]>0)?(Random_Range[3][0]-JPsi_Local[1][2])/sn[3]:(Random_Range[3][1]-JPsi_Local[1][2])/sn[3];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[4]>0)?(.18-JPsi_Local[2][1])/sn[4]:(.02-JPsi_Local[2][1])/sn[4];
-	length[1][1] = (sn[4]>0)?(.02-JPsi_Local[2][1])/sn[4]:(.18-JPsi_Local[2][1])/sn[4];
+	length[1][0] = (sn[4]>0)?(Random_Range[4][1]-JPsi_Local[2][1])/sn[4]:(Random_Range[4][0]-JPsi_Local[2][1])/sn[4];
+	length[1][1] = (sn[4]>0)?(Random_Range[4][0]-JPsi_Local[2][1])/sn[4]:(Random_Range[4][1]-JPsi_Local[2][1])/sn[4];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[5]>0)?(6.-JPsi_Local[2][2])/sn[5]:(1.-JPsi_Local[2][2])/sn[5];
-	length[1][1] = (sn[5]>0)?(1.-JPsi_Local[2][2])/sn[5]:(6.-JPsi_Local[2][2])/sn[5];
+	length[1][0] = (sn[5]>0)?(Random_Range[5][1]-JPsi_Local[2][2])/sn[5]:(Random_Range[5][0]-JPsi_Local[2][2])/sn[5];
+	length[1][1] = (sn[5]>0)?(Random_Range[5][0]-JPsi_Local[2][2])/sn[5]:(Random_Range[5][1]-JPsi_Local[2][2])/sn[5];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	/*length[1][0] = (sn[6]>0)?(15.-JPsi_Local[3][1])/sn[6]:(5.-JPsi_Local[3][1])/sn[6];
-	length[1][1] = (sn[6]>0)?(5.-JPsi_Local[3][1])/sn[6]:(15.-JPsi_Local[3][1])/sn[6];
+	/*length[1][0] = (sn[6]>0)?(Random_Range[6][1]-JPsi_Local[3][1])/sn[6]:(Random_Range[6][0]-JPsi_Local[3][1])/sn[6];
+	length[1][1] = (sn[6]>0)?(Random_Range[6][0]-JPsi_Local[3][1])/sn[6]:(Random_Range[6][1]-JPsi_Local[3][1])/sn[6];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[7]>0)?(6.-JPsi_Local[3][2])/sn[7]:(1.-JPsi_Local[3][2])/sn[7];
-	length[1][1] = (sn[7]>0)?(1.-JPsi_Local[3][2])/sn[7]:(6.-JPsi_Local[3][2])/sn[7];
+	length[1][0] = (sn[7]>0)?(Random_Range[7][1]-JPsi_Local[3][2])/sn[7]:(Random_Range[7][0]-JPsi_Local[3][2])/sn[7];
+	length[1][1] = (sn[7]>0)?(Random_Range[7][0]-JPsi_Local[3][2])/sn[7]:(Random_Range[7][1]-JPsi_Local[3][2])/sn[7];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[8]>0)?(3.5-JPsi_Local[4][1])/sn[8]:(1.5-JPsi_Local[4][1])/sn[8];
-	length[1][1] = (sn[8]>0)?(1.5-JPsi_Local[4][1])/sn[8]:(3.5-JPsi_Local[4][1])/sn[8];
+	length[1][0] = (sn[8]>0)?(Random_Range[8][1]-JPsi_Local[4][1])/sn[8]:(Random_Range[8][0]-JPsi_Local[4][1])/sn[8];
+	length[1][1] = (sn[8]>0)?(Random_Range[8][0]-JPsi_Local[4][1])/sn[8]:(Random_Range[8][1]-JPsi_Local[4][1])/sn[8];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[9]>0)?(6.-JPsi_Local[4][2])/sn[9]:(1.-JPsi_Local[4][2])/sn[9];
-	length[1][1] = (sn[9]>0)?(1.-JPsi_Local[4][2])/sn[9]:(6.-JPsi_Local[4][2])/sn[9];
+	length[1][0] = (sn[9]>0)?(Random_Range[9][1]-JPsi_Local[4][2])/sn[9]:(Random_Range[9][0]-JPsi_Local[4][2])/sn[9];
+	length[1][1] = (sn[9]>0)?(Random_Range[9][0]-JPsi_Local[4][2])/sn[9]:(Random_Range[9][1]-JPsi_Local[4][2])/sn[9];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];*/
-	length[1][0] = (sn[10]>0)?(1.79-Non_Local[0][1])/sn[10]:(1.59-Non_Local[0][1])/sn[10];
-	length[1][1] = (sn[10]>0)?(1.59-Non_Local[0][1])/sn[10]:(1.79-Non_Local[0][1])/sn[10];
+	length[1][0] = (sn[10]>0)?(Random_Range[10][1]-Non_Local[0][1])/sn[10]:(Random_Range[10][0]-Non_Local[0][1])/sn[10];
+	length[1][1] = (sn[10]>0)?(Random_Range[10][0]-Non_Local[0][1])/sn[10]:(Random_Range[10][1]-Non_Local[0][1])/sn[10];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[11]>0)?(6.-Non_Local[0][2])/sn[11]:(1.-Non_Local[0][2])/sn[11];
-	length[1][1] = (sn[11]>0)?(1.-Non_Local[0][2])/sn[11]:(6.-Non_Local[0][2])/sn[11];
+	length[1][0] = (sn[11]>0)?(Random_Range[11][1]-Non_Local[0][2])/sn[11]:(Random_Range[11][0]-Non_Local[0][2])/sn[11];
+	length[1][1] = (sn[11]>0)?(Random_Range[11][0]-Non_Local[0][2])/sn[11]:(Random_Range[11][1]-Non_Local[0][2])/sn[11];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[12]>0)?(5.-Non_Local[1][1])/sn[12]:(1.5-Non_Local[1][1])/sn[12];
-	length[1][1] = (sn[12]>0)?(1.5-Non_Local[1][1])/sn[12]:(5.-Non_Local[1][1])/sn[12];
+	length[1][0] = (sn[12]>0)?(Random_Range[12][1]-Non_Local[1][1])/sn[12]:(Random_Range[12][0]-Non_Local[1][1])/sn[12];
+	length[1][1] = (sn[12]>0)?(Random_Range[12][0]-Non_Local[1][1])/sn[12]:(Random_Range[12][1]-Non_Local[1][1])/sn[12];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[13]>0)?(6.-Non_Local[1][2])/sn[13]:(1.-Non_Local[1][2])/sn[13];
-	length[1][1] = (sn[13]>0)?(1.-Non_Local[1][2])/sn[13]:(6.-Non_Local[1][2])/sn[13];
+	length[1][0] = (sn[13]>0)?(Random_Range[13][1]-Non_Local[1][2])/sn[13]:(Random_Range[13][0]-Non_Local[1][2])/sn[13];
+	length[1][1] = (sn[13]>0)?(Random_Range[13][0]-Non_Local[1][2])/sn[13]:(Random_Range[13][1]-Non_Local[1][2])/sn[13];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
 
