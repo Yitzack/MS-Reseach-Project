@@ -777,7 +777,7 @@ long double Chi_Square(long double Medium_Euclidean[2], long double Vacuum_Eucli
 {
 	long double answer;
 	answer = pow(Medium_Euclidean[1]/Vacuum_Euclidean[1]-Medium_Euclidean[0]/Vacuum_Euclidean[0]-.2,2)/.2;
-	for(int i = 0; i < 6; i++)
+	for(int i = 0; i < 7; i++)
 		answer += pow(Medium_Spatial[i]/Vacuum_Spatial[i]-Spatial_Ratio[i],2)/Spatial_Ratio[i];
 	return(answer);
 }
