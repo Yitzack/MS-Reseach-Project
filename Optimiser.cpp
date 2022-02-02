@@ -78,6 +78,7 @@ int main(int argc, char* argv[])
 					       {0.0264690797013430510705, 0.00575549843590767333436}};
 	long double Medium_Spatial[7];
 	long double Medium_Euclidean[2];
+	long double Random_Range[14][2] = {{.1,.5},{1.,6.},{2.5,3.5},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{1.59,1.79},{1.,6.},{1.5,5.},{1.,6.}};
 	/*for(int i = 0; i < 6; i++)	//Superceeded by precalculated values, standing by if services required
 		Vacuum_Spatial[i] = Spatial((long double)(i)+.25, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
 	Vacuum_Euclidean[0][0] = Euclidean(1./.388, .194, 0, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
@@ -148,6 +149,45 @@ int main(int argc, char* argv[])
 			Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 		cout << setprecision(18) << Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]) << endl;
 		return(0);
+	}
+	else if(argc == 30)
+	{
+		strcat(File,argv[2]);
+		strcat(File,".");
+		strcat(File,argv[1]);
+		strcat(File,".csv");
+		OutputFile.open(File,ios::app);
+		if(!OutputFile.is_open())
+			return(1);
+
+		Random_Range[0][0] = atof(argv[3]);
+		Random_Range[0][1] = atof(argv[4]);
+		Random_Range[1][0] = atof(argv[5]);
+		Random_Range[1][1] = atof(argv[6]);
+		Random_Range[2][0] = atof(argv[7]);
+		Random_Range[2][1] = atof(argv[8]);
+		Random_Range[3][0] = atof(argv[9]);
+		Random_Range[3][1] = atof(argv[10]);
+		Random_Range[4][0] = atof(argv[11]);
+		Random_Range[4][1] = atof(argv[12]);
+		Random_Range[5][0] = atof(argv[13]);
+		Random_Range[5][1] = atof(argv[14]);
+		Random_Range[6][0] = atof(argv[15]);
+		Random_Range[6][1] = atof(argv[16]);
+		Random_Range[7][0] = atof(argv[17]);
+		Random_Range[7][1] = atof(argv[18]);
+		Random_Range[8][0] = atof(argv[19]);
+		Random_Range[8][1] = atof(argv[20]);
+		Random_Range[9][0] = atof(argv[21]);
+		Random_Range[9][1] = atof(argv[22]);
+		Random_Range[10][0] = atof(argv[23]);
+		Random_Range[10][1] = atof(argv[24]);
+		Random_Range[11][0] = atof(argv[25]);
+		Random_Range[11][1] = atof(argv[26]);
+		Random_Range[12][0] = atof(argv[27]);
+		Random_Range[12][1] = atof(argv[28]);
+		Random_Range[13][0] = atof(argv[29]);
+		Random_Range[13][1] = atof(argv[30]);
 	}
 	else
 	{
@@ -233,20 +273,20 @@ int main(int argc, char* argv[])
 	time_t start_time = time(NULL);
 	if(atoi(argv[2])!=0)
 	{
-		Best[0] = JPsi_Parameters[Temp][0][1] = Uniform(.1,.5);
-		Best[1] = JPsi_Parameters[Temp][0][2] = Uniform(1.,6.);
-		Best[2] = JPsi_Parameters[Temp][1][1] = Uniform(2.5,3.5);
-		Best[3] = JPsi_Parameters[Temp][1][2] = Uniform(1.,6.);
-		Best[4] = JPsi_Parameters[Temp][2][1] = Uniform(.02,.18);
-		Best[5] = JPsi_Parameters[Temp][2][2] = Uniform(1.,6.);
-		Best[6] = JPsi_Parameters[Temp][3][1] = Uniform(5.,15.);
-		Best[7] = JPsi_Parameters[Temp][3][2] = Uniform(1.,6.);
-		Best[8] = JPsi_Parameters[Temp][4][1] = Uniform(1.5,3.5);
-		Best[9] = JPsi_Parameters[Temp][4][2] = Uniform(1.,6.);
-		Best[10] = Non_Parameters[Temp][0][1] = Uniform(1.59,1.79);
-		Best[11] = Non_Parameters[Temp][0][2] = Uniform(1.,6.);
-		Best[12] = Non_Parameters[Temp][1][1] = Uniform(1.5,5.);
-		Best[13] = Non_Parameters[Temp][1][2] = Uniform(1.,6.);
+		Best[0] = JPsi_Parameters[Temp][0][1] = Uniform(Random_Range[0][0],Random_Range[0][1]);
+		Best[1] = JPsi_Parameters[Temp][0][2] = Uniform(Random_Range[1][0],Random_Range[1][1]);
+		Best[2] = JPsi_Parameters[Temp][1][1] = Uniform(Random_Range[2][0],Random_Range[2][1]);
+		Best[3] = JPsi_Parameters[Temp][1][2] = Uniform(Random_Range[3][0],Random_Range[3][1]);
+		Best[4] = JPsi_Parameters[Temp][2][1] = Uniform(Random_Range[4][0],Random_Range[4][1]);
+		Best[5] = JPsi_Parameters[Temp][2][2] = Uniform(Random_Range[5][0],Random_Range[5][1]);
+		Best[6] = JPsi_Parameters[Temp][3][1] = Uniform(Random_Range[6][0],Random_Range[6][1]);
+		Best[7] = JPsi_Parameters[Temp][3][2] = Uniform(Random_Range[7][0],Random_Range[7][1]);
+		Best[8] = JPsi_Parameters[Temp][4][1] = Uniform(Random_Range[8][0],Random_Range[8][1]);
+		Best[9] = JPsi_Parameters[Temp][4][2] = Uniform(Random_Range[9][0],Random_Range[9][1]);
+		Best[10] = Non_Parameters[Temp][0][1] = Uniform(Random_Range[10][0],Random_Range[10][1]);
+		Best[11] = Non_Parameters[Temp][0][2] = Uniform(Random_Range[11][0],Random_Range[11][1]);
+		Best[12] = Non_Parameters[Temp][1][1] = Uniform(Random_Range[12][0],Random_Range[12][1]);
+		Best[13] = Non_Parameters[Temp][1][2] = Uniform(Random_Range[13][0],Random_Range[13][1]);
 	}
 	else
 	{
@@ -273,20 +313,20 @@ int main(int argc, char* argv[])
 
 	while(difftime(time(NULL), start_time) < 9000)
 	{
-		JPsi_Parameters[Temp][0][1] = Uniform(.1,.5);
-		JPsi_Parameters[Temp][1][1] = Uniform(2.5,3.5);
-		JPsi_Parameters[Temp][2][1] = Uniform(.02,.18);
-		JPsi_Parameters[Temp][3][1] = Uniform(5.,15.);
-		JPsi_Parameters[Temp][4][1] = Uniform(1.5,3.5);
-		JPsi_Parameters[Temp][0][2] = Uniform(1.,6.);
-		JPsi_Parameters[Temp][1][2] = Uniform(1.,6.);
-		JPsi_Parameters[Temp][2][2] = Uniform(1.,6.);
-		JPsi_Parameters[Temp][3][2] = Uniform(1.,6.);
-		JPsi_Parameters[Temp][4][2] = Uniform(1.,6.);
-		Non_Parameters[Temp][0][1] = Uniform(1.59,1.79);
-		Non_Parameters[Temp][1][1] = Uniform(1.5,5.);
-		Non_Parameters[Temp][0][2] = Uniform(1.,6.);
-		Non_Parameters[Temp][1][2] = Uniform(1.,6.);
+		JPsi_Parameters[Temp][0][1] = Uniform(Random_Range[0][0],Random_Range[0][1]);
+		JPsi_Parameters[Temp][0][2] = Uniform(Random_Range[1][0],Random_Range[1][1]);
+		JPsi_Parameters[Temp][1][1] = Uniform(Random_Range[2][0],Random_Range[2][1]);
+		JPsi_Parameters[Temp][1][2] = Uniform(Random_Range[3][0],Random_Range[3][1]);
+		JPsi_Parameters[Temp][2][1] = Uniform(Random_Range[4][0],Random_Range[4][1]);
+		JPsi_Parameters[Temp][2][2] = Uniform(Random_Range[5][0],Random_Range[5][1]);
+		JPsi_Parameters[Temp][3][1] = Uniform(Random_Range[6][0],Random_Range[6][1]);
+		JPsi_Parameters[Temp][3][2] = Uniform(Random_Range[7][0],Random_Range[7][1]);
+		JPsi_Parameters[Temp][4][1] = Uniform(Random_Range[8][0],Random_Range[8][1]);
+		JPsi_Parameters[Temp][4][2] = Uniform(Random_Range[9][0],Random_Range[9][1]);
+		Non_Parameters[Temp][0][1] = Uniform(Random_Range[10][0],Random_Range[10][1]);
+		Non_Parameters[Temp][0][2] = Uniform(Random_Range[11][0],Random_Range[11][1]);
+		Non_Parameters[Temp][1][1] = Uniform(Random_Range[12][0],Random_Range[12][1]);
+		Non_Parameters[Temp][1][2] = Uniform(Random_Range[13][0],Random_Range[13][1]);
 		Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 		Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 		for(int j = 0; j < 7; j++)
