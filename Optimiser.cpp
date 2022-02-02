@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
 		cout << setprecision(18) << Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]) << endl;
 		return(0);
 	}
-	else if(argc == 30)
+	else if(argc == 31)
 	{
 		strcat(File,argv[2]);
 		strcat(File,".");
