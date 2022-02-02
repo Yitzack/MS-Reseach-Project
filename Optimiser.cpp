@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 					       {0.0264690797013430510705, 0.00575549843590767333436}};
 	long double Medium_Spatial[7];
 	long double Medium_Euclidean[2];
-	long double Random_Range[14][2] = {{.1,.5},{1.,6.},{2.5,3.5},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{1.59,1.79},{1.,6.},{1.5,5.},{1.,6.}};
+	long double Random_Range[14][2] = {{.1,.5},{1.,6.},{1.,3.5},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{1.59,1.79},{1.,6.},{1.5,5.},{1.,6.}};
 	/*for(int i = 0; i < 6; i++)	//Superceeded by precalculated values, standing by if services required
 		Vacuum_Spatial[i] = Spatial((long double)(i)+.25, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
 	Vacuum_Euclidean[0][0] = Euclidean(1./.388, .194, 0, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
@@ -311,7 +311,7 @@ int main(int argc, char* argv[])
 		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 	Best[14] = Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]);
 
-	while(difftime(time(NULL), start_time) < 9000)
+	while(difftime(time(NULL), start_time) < 15)
 	{
 		JPsi_Parameters[Temp][0][1] = Uniform(Random_Range[0][0],Random_Range[0][1]);
 		JPsi_Parameters[Temp][0][2] = Uniform(Random_Range[1][0],Random_Range[1][1]);
@@ -373,7 +373,7 @@ int main(int argc, char* argv[])
 	start_time = time(NULL);
 
 	Gradient(gradn_1, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Vacuum_Euclidean[Temp-1], Vacuum_Spatial, Spatial_Ratio[Temp-1], T);
-	for(int i = 0; i < 6; i++)
+	for(int i = 0; i < 14; i++)
 		sn_1[i] = gradn_1[i];
 	Minimize(sn_1, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Vacuum_Euclidean[Temp-1], Vacuum_Spatial, Spatial_Ratio[Temp-1], T);
 	do
@@ -382,13 +382,13 @@ int main(int argc, char* argv[])
 		Gradient(gradn, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Vacuum_Euclidean[Temp-1], Vacuum_Spatial, Spatial_Ratio[Temp-1], T);
 		betan = PolakRibiere(gradn_1,gradn);
 		if(betan < 0)
-			for(int i = 0; i < 6; i++)
+			for(int i = 0; i < 14; i++)
 				sn[i] = gradn[i]+betan*sn_1[i];
 		else
-			for(int i = 0; i < 6; i++)
+			for(int i = 0; i < 14; i++)
 				sn[i] = gradn[i];
 		Minimize(sn, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Vacuum_Euclidean[Temp-1], Vacuum_Spatial, Spatial_Ratio[Temp-1], T);
-		for(int i = 0; i < 6; i++)
+		for(int i = 0; i < 14; i++)
 		{
 			gradn_1[i] = gradn[i];
 			sn_1[i] = sn[i];
@@ -478,7 +478,6 @@ void Minimize(long double sn[14], long double JPsi_Parameters[5][3], long double
 	int Min_i;
 
 	OutputFile << "Line search" << endl;
-	//cout << "Line search: a " << a << " c " << c << endl;
 	for(int i = 0; i <= 100; i++)
 	{
 		fz[i][0] = a+(c-a)*i/100.;
@@ -501,7 +500,6 @@ void Minimize(long double sn[14], long double JPsi_Parameters[5][3], long double
 		for(int j = 0; j < 7; j++)
 			Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Local, PsiPrime_Local, Non_Local, false);
 		fz[i][1] = Print(JPsi_Local, PsiPrime_Local, Non_Local, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
-		//cout << "Line Search " << fz[i][0] << " " << fz[i][1] << endl;
 	}
 
 	for(int i = 1; i < 101; i++)
@@ -654,7 +652,7 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	for(int j = 0; j < 7; j++)
 		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
 	f0 = Chi_Square(Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
-	//cout << "Gradient " << f0 << endl;
+	//cerr << "Gradient " << f0 << endl;
 
 	JPsi_Parameters[0][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
@@ -664,7 +662,7 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[0][1] -= h;
 	grad[0] = (f0-f1)/h;
-	//cout << "Gradient " << f1 << " " << grad[0] << endl;
+	//cerr << "Gradient " << f1 << " " << grad[0] << endl;
 
 	JPsi_Parameters[0][2] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
@@ -674,7 +672,7 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[0][2] -= h;
 	grad[1] = (f0-f1)/h;
-	//cout << "Gradient " << f1 << " " << grad[1] << endl;
+	//cerr << "Gradient " << f1 << " " << grad[1] << endl;
 
 	JPsi_Parameters[1][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
@@ -684,7 +682,7 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[1][1] -= h;
 	grad[2] = (f0-f1)/h;
-	//cout << "Gradient " << f1 << " " << grad[2] << endl;
+	//cerr << "Gradient " << f1 << " " << grad[2] << endl;
 
 	JPsi_Parameters[1][2] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
@@ -694,7 +692,7 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[1][2] -= h;
 	grad[3] = (f0-f1)/h;
-	//cout << "Gradient " << f1 << " " << grad[3] << endl;
+	//cerr << "Gradient " << f1 << " " << grad[3] << endl;
 
 	JPsi_Parameters[2][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
@@ -704,7 +702,7 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[2][1] -= h;
 	grad[4] = (f0-f1)/h;
-	//cout << "Gradient " << f1 << " " << grad[4] << endl;
+	//cerr << "Gradient " << f1 << " " << grad[4] << endl;
 
 	JPsi_Parameters[2][2] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
@@ -714,7 +712,7 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	f1 = Print(JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	JPsi_Parameters[2][2] -= h;
 	grad[5] = (f0-f1)/h;
-	//cout << "Gradient " << f1 << " " << grad[5] << endl;
+	//cerr << "Gradient " << f1 << " " << grad[5] << endl;
 
 	/*JPsi_Parameters[3][1] += h;
 	Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, false);
