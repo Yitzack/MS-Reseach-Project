@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 						{{.403047,.30626,2.2706},{3.151,2.50082,3.56841},{.68,.136461,3.56011},{9.07,7.93198,4.11694},{3,3.05149,4.4995}},
 						{{.266834,.44,3.3},{3.1855,3.15,1.5},{.98,.056,5.},{9.52,9.52,1.},{3,3,1}}};
 	long double PsiPrime_Parameters[5][5][3] = {{{.150566,.150566,3.1},{3.6861,3.6861,3.6},{.102,.102,3.5},{9.34,9.34,4.57122},{1,1,5.25}},
-						    {{.55/(2.*3.785),.55/(2.*3.785),3.1},{3.785,3.785,3.6},{.43,.43,3.5},{10.58,4.2,4.57122},{1,1,5.25}},
+						    {{.55/(2.*3.785),.55/(2.*3.785),3.1},{3.785,3.785,3.6},{.43,.43,3.5},{10.58,10.58,4.57122},{1,1,5.25}},
 						    {{0,0,1},{0,0,1},{0,0,1},{0,0,1},{0,0,1}},
 						    {{0,0,1},{0,0,1},{0,0,1},{0,0,1},{0,0,1}},
 						    {{0,0,1},{0,0,1},{0,0,1},{0,0,1},{0,0,1}}};
@@ -311,7 +311,7 @@ int main(int argc, char* argv[])
 		Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
 	Best[14] = Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]);
 
-	while(difftime(time(NULL), start_time) < 15)
+	while(difftime(time(NULL), start_time) < 9000)
 	{
 		JPsi_Parameters[Temp][0][1] = Uniform(Random_Range[0][0],Random_Range[0][1]);
 		JPsi_Parameters[Temp][0][2] = Uniform(Random_Range[1][0],Random_Range[1][1]);
