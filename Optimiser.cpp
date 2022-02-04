@@ -150,6 +150,37 @@ int main(int argc, char* argv[])
 		cout << setprecision(18) << Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]) << endl;
 		return(0);
 	}
+	else if(argc == 17)
+	{
+                strcat(File,"API.");
+                strcat(File,argv[2]);
+                strcat(File,".");
+                strcat(File,argv[1]);
+                strcat(File,".csv");
+                OutputFile.open(File);
+
+		JPsi_Parameters[Temp][0][1] = atof(argv[3]);
+		JPsi_Parameters[Temp][0][2] = atof(argv[4]);
+		JPsi_Parameters[Temp][1][1] = atof(argv[5]);
+		JPsi_Parameters[Temp][1][2] = atof(argv[6]);
+		JPsi_Parameters[Temp][2][1] = atof(argv[7]);
+		JPsi_Parameters[Temp][2][2] = atof(argv[8]);
+		JPsi_Parameters[Temp][3][1] = atof(argv[9]);
+		JPsi_Parameters[Temp][3][2] = atof(argv[10]);
+		JPsi_Parameters[Temp][4][1] = atof(argv[11]);
+		JPsi_Parameters[Temp][4][2] = atof(argv[12]);
+		Non_Parameters[Temp][0][1] = atof(argv[13]);
+		Non_Parameters[Temp][0][2] = atof(argv[14]);
+		Non_Parameters[Temp][1][1] = atof(argv[15]);
+		Non_Parameters[Temp][1][2] = atof(argv[16]);
+
+		Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
+		Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
+		for(int j = 0; j < 7; j++)
+			Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
+		OutputFile << setprecision(18) << Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]) << endl;
+		return(0);
+	}
 	else if(argc == 31)
 	{
 		strcat(File,argv[2]);
@@ -244,6 +275,34 @@ int main(int argc, char* argv[])
 								Parameter_List[i][9] = Pn;
 								i++;
 							}
+
+		switch(Temp)
+		{
+			case 1:
+				JPsi_Parameters[1][3][1] = 10.58;
+				JPsi_Parameters[1][3][2] = 4.57122;
+				JPsi_Parameters[1][4][1] = 3;
+				JPsi_Parameters[1][4][2] = 5.25;
+				break;
+			case 2:
+				JPsi_Parameters[2][3][1] = 8.97;
+				JPsi_Parameters[2][3][2] = 1;
+				JPsi_Parameters[2][4][1] = 3;
+				JPsi_Parameters[2][4][2] = 1;
+				break;
+			case 3:
+				JPsi_Parameters[3][3][1] = 7.93198;
+				JPsi_Parameters[3][3][2] = 4.11694;
+				JPsi_Parameters[3][4][1] = 3.05149;
+				JPsi_Parameters[3][4][2] = 4.4995;
+				break;
+			case 4:
+				JPsi_Parameters[4][3][1] = 9.52;
+				JPsi_Parameters[4][3][2] = 1;
+				JPsi_Parameters[4][4][1] = 3;
+				JPsi_Parameters[4][4][2] = 1;
+				break;
+		}
 
 		for(i = Thread_Num; i < Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]*Dims[6]*Dims[7]*Dims[8]*Dims[9]; i += Num_Threads)
 		{
