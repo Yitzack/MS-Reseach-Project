@@ -6,36 +6,22 @@
 #include<iomanip>
 #include<ctime>
 #include<cfloat>
+#include"Spectral_Inter.h"
+#include"Spectral_Non.h"
 #ifdef _OPENMP
 #include<omp.h>
 #endif
 using namespace std;
 
-long double Q(long double, long double, long double, long double);
-long double SpectralJPsi(long double, long double, long double[5][3], bool);
-long double SpectralPsiPrime(long double, long double, long double[5][3], bool);
-long double Width(long double, long double, long double[5][3]);
 long double SpectralNon(long double, long double, long double[2][3], bool);
-
-long double Spatial(long double, long double[5][3], long double[5][3], long double[2][3], bool);
-long double Spatial_sInt(long double, long double, long double[5][3], long double[5][3], long double[2][3], bool);
-long double Spatial_P0Int(long double, long double, long double[5][3], long double[5][3], long double[2][3], bool);
-long double SpatialGeneralKernel(long double, long double, long double);
-long double SpatialLorentz(long double, long double);
-long double SpatialCutoffKernel(long double, long double, long double);
-
-long double Euclidean(long double, long double, long double, long double[5][3], long double[5][3], long double[2][3], bool);
-long double EuclideanKernel(long double, long double, long double, long double);
 
 void Gradient(long double[14], long double[5][3], long double[5][3], long double[2][3], long double[2], long double[7], long double[7], long double);
 long double PolakRibiere(long double[14], long double[14]);
 void Minimize(long double[14], long double[5][3], long double[5][3], long double[2][3], long double[2], long double[7], long double[7], long double);
 
-void mergeSort(long double[], int, int);
 long double Uniform(long double, long double);
-void Characterize_PsiPrime(long double[5][3], long double, pair<long double, long double>&, bool);
-void Characterize_JPsi(long double[5][3], long double, pair<long double, long double>&, bool);
 long double Chi_Square(long double[2], long double[2], long double[7], long double[7], long double[7]);
+long double Least_Squares(long double, long double, long double, long double);
 long double Print(long double[5][3], long double[5][3], long double[2][3], long double[2], long double[2], long double[7], long double[7], long double[7]); //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
 
 long double Boundary[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85};
@@ -44,11 +30,11 @@ ofstream OutputFile;
 /*{0.296663, 2.99912, 2.41053, 5.50001, 0.168958, 3.60003, 10.58, 4.57122, 3, 5.25, 1.69802, 4.00006, 3.00002, 5.49997, 0.181899, 1.00337, 1.00995, 0.995169, 0.985732, 0.980595, 0.973869, 0.956278, 0.00181892} T=194 MeV Min
 {0.3, 3, 2.45, 5.5, 0.18, 3.6, 10.58, 4.57122, 3, 5.25, 1.7, 5.5, 2.25, 6, 0.169186, 1.00663, 1.03674, 1.00002, 0.997114, 0.999272, 0.946506, 0.939859, 0.00737184} T=194 MeV Grid
 {0.445826, 3.86826, 2.58405, 4.01049, 0.535639, 4.20052, 10.3425, 2.64938, 2.81697, 2.12552, 1.69153, 3.42941, 2.26904, 4.4543, 0.159886, 1.00841, 1.06611, 0.933118, 0.803052, 0.778368, 0.74589, 0.664434, 0.0225266} T=258 Min
-{0.3, 3, 2.81, 3.6, 0.032, 4.9, 8.97, 1, 3, 1, 1.59, 3.09, 2.7, 5.5, 0.112458, 1.00738, 0.909125, 0.9208, 0.845615, 0.803736, 0.752825, 0.621187, 0.0496041} T=258 Grid
+{0.32, 3, 2.8, 3.6, 0.033, 4.9, 8.97, 1, 3, 1, 1.55, 5.5, 2.25, 3, 0.131497, 1.0083, 0.958267, 0.97533, 0.861404, 0.783244, 0.695317, 0.692414, 0.0298499} T=258 Grid
 {0.184891, 3.32152, 1.3123, 5.23093, 0.064861, 5.80902, 5.03399, 5.12164, 1.55583, 5.24328, 1.64566, 5.31292, 3.93386, 5.40511, 0.143769, 1.00805, 0.864955, 0.847608, 0.667474, 0.619708, 0.473687, 0.376542, 0.0332863} T=320 MeV Min
 {0.33, 2.4, 2.87, 2.5, 0.084, 5.5, 7.93198, 4.11694, 3.05149, 4.4995, 1.7, 5.5, 3, 3.5, 0.0622976, 1.0064, 0.936273, 0.864206, 0.728055, 0.50826, 0.476024, 0.400429, 0.105599} T=320 MeV Grid
 {0.529109, 4.49175, 2.67237, 2.20553, 0.165846, 5.87198, 6.08157, 2.67594, 2.80637, 3.47611, 1.56825, 3.52402, 1.78377, 3.60395, 0.101371, 1.00725, 1.02967, 0.875425, 0.402078, 0.00803392, 0.235885, 0.255533, 0.519549} T=400 MeV Min
-{0.2, 2, 2.6, 2, 0.1, 3.5, 9.52, 1, 3, 1, 1.36, 3.09, 1.98, 5.5, 0.0643115, 1.00325, 1.02997, 1.1458, 0.92826, 0.243907, 0.122592, 0.591802, 1.729} T=400 MeV Grid*/
+{0.19, 2.1, 2.58, 2.1, 0.104, 3.9, 9.52, 1, 3, 1, 1.36, 3.09, 1.98, 5.5, 0.055641, 1.00304, 1.05204, 1.17194, 0.951777, 0.290306, 0.0942507, 0.0513963, 0.972516} T=400 MeV Grid*/
 int main(int argc, char* argv[])
 {
 	long double JPsi_Parameters[5][5][3] = {{{.314831,.314831,1.},{3.0969,3.0969,1},{.032,.032,1},{9.34,9.34,1},{1,1,1}},
@@ -66,6 +52,16 @@ int main(int argc, char* argv[])
 					       {{1.59,1.69153,3.42941},{2.7,2.26904,4.4543}},
 					       {{1.51,1.64566,5.31292},{2.4,3.93386,5.40511}},
 					       {{1.36,1.56825,3.52402},{1.98,1.78377,3.60395}}};
+
+	Spectral_Inter* JPsi[5];
+	Spectral_Inter* Psi_Prime[5];
+	Spectral_Non* JPsi[5];
+	for(int i = 0; i < 5; i++)
+	{
+		JPsi[i] = new Spectral_Inter(JPsi_Parameters, i, bool(i));
+		Psi_Prime[i] = new Spectral_Inter(PsiPrime_Parameters, i, bool(i));
+		Non[i] = new Spectral_Non(Non_Parameters, i, bool(i));
+	}
 
 	long double Spatial_Ratio[4][7] = {{1.,1.00006,0.99883,0.992039,0.982366,0.970341,0.95766},
 					   {.99,0.988286,0.945063,0.879461,0.798659,0.7259,0.654381},
@@ -90,26 +86,6 @@ int main(int argc, char* argv[])
 	Vacuum_Euclidean[2][1] = Euclidean(1./.640, .320, 3, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
 	Vacuum_Euclidean[3][1] = Euclidean(1./.800, .400, 3, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);*/
 
-	int Temp = atoi(argv[1]);
-	long double T;
-	switch(Temp)
-	{
-		case 1:
-			T = .194;
-			break;
-		case 2:
-			T = .258;
-			break;
-		case 3:
-			T = .320;
-			break;
-		case 4:
-			T = .400;
-			break;
-		default:
-			return(2);
-	}
-
 	char File[70] = "data/Optimiser_Output";
 	if(argc == 3)
 	{
@@ -120,35 +96,6 @@ int main(int argc, char* argv[])
 		OutputFile.open(File,ios::app);
 		if(!OutputFile.is_open())
 			return(1);
-	}
-	else if(argc == 16)
-	{
-                strcat(File,"API.");
-                strcat(File,argv[1]);
-                strcat(File,".csv");
-                OutputFile.open(File,ios::app);
-
-		JPsi_Parameters[Temp][0][1] = atof(argv[2]);
-		JPsi_Parameters[Temp][0][2] = atof(argv[3]);
-		JPsi_Parameters[Temp][1][1] = atof(argv[4]);
-		JPsi_Parameters[Temp][1][2] = atof(argv[5]);
-		JPsi_Parameters[Temp][2][1] = atof(argv[6]);
-		JPsi_Parameters[Temp][2][2] = atof(argv[7]);
-		JPsi_Parameters[Temp][3][1] = atof(argv[8]);
-		JPsi_Parameters[Temp][3][2] = atof(argv[9]);
-		JPsi_Parameters[Temp][4][1] = atof(argv[10]);
-		JPsi_Parameters[Temp][4][2] = atof(argv[11]);
-		Non_Parameters[Temp][0][1] = atof(argv[12]);
-		Non_Parameters[Temp][0][2] = atof(argv[13]);
-		Non_Parameters[Temp][1][1] = atof(argv[14]);
-		Non_Parameters[Temp][1][2] = atof(argv[15]);
-
-		Medium_Euclidean[0] = Euclidean(1./(2.*T), T, 0, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
-		Medium_Euclidean[1] = Euclidean(1./(2.*T), T, 3, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
-		for(int j = 0; j < 7; j++)
-			Medium_Spatial[j] = Spatial((long double)(j)+.25, JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], false);
-		cout << setprecision(18) << Print(JPsi_Parameters[Temp], PsiPrime_Parameters[Temp], Non_Parameters[Temp], Medium_Euclidean, Vacuum_Euclidean[Temp-1], Medium_Spatial, Vacuum_Spatial, Spatial_Ratio[Temp-1]) << endl;
-		return(0);
 	}
 	else if(argc == 31)
 	{
@@ -795,507 +742,52 @@ void Gradient(long double grad[14], long double JPsi_Parameters[5][3], long doub
 	//cerr << "Gradient " << f1 << " " << grad[13] << endl;
 }
 
-long double Print(long double JPsi_Parameters[5][3], long double PsiPrime_Parameters[5][3], long double Non_Parameters[2][3], long double Medium_Euclidean[2], long double Vacuum_Euclidean[2], long double Medium_Spatial[7], long double Vacuum_Spatial[7], long double Spatial_Ratio[7])
+long double Print(Spectral_Inter JPsi[5], Spectral_Inter PsiPrime[5], Spectral_Non Non[5], long double Medium_Euclidean[4][2], long double Vacuum_Euclidean[4][2], long double Medium_Spatial[4][7], long double Vacuum_Spatial[7], long double Spatial_Ratio[4][7], int Temp)
 {
-	for(int j = 0; j < 5; j++)
-		OutputFile << JPsi_Parameters[j][1] << "," << JPsi_Parameters[j][2] << "," << flush;
-	for(int j = 0; j < 2; j++)
-		OutputFile << Non_Parameters[j][1] << "," << Non_Parameters[j][2] << "," << flush;
-	OutputFile << Medium_Euclidean[1]/Vacuum_Euclidean[1]-Medium_Euclidean[0]/Vacuum_Euclidean[0] << "," << flush;
+	OutputFile << Temp << "," << flush
+	JPsi[Temp].Print(OutputFile);
+	OutputFile << ",";
+	Non[Temp].Print(OutputFile);
+	OutputFile << "," << Medium_Euclidean[Temp-1][1]/Vacuum_Euclidean[Temp-1][1]-Medium_Euclidean[Temp-1][0]/Vacuum_Euclidean[Temp-1][0] << "," << flush;
 	for(int j = 0; j < 7; j++)
 	{
-		OutputFile << Medium_Spatial[j]/Vacuum_Spatial[j] << "," << flush;
+		OutputFile << Medium_Spatial[Temp-1][j]/Vacuum_Spatial[j] << "," << flush;
 	}
-	long double Chi = Chi_Square(Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
+	long double Chi = Chi_Square(JPsi, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	OutputFile << Chi << endl;
 	return(Chi);
 }
 
-long double Chi_Square(long double Medium_Euclidean[2], long double Vacuum_Euclidean[2], long double Medium_Spatial[7], long double Vacuum_Spatial[7], long double Spatial_Ratio[7])
+long double Chi_Square(Spectral_Inter JPsi[5], Spectral_Inter PsiPrime[5], Spectral_Non Non[5], long double Medium_Euclidean[4][2], long double Vacuum_Euclidean[4][2], long double Medium_Spatial[4][7], long double Vacuum_Spatial[7], long double Spatial_Ratio[4][7])
 {
-	long double answer;
-	answer = pow(Medium_Euclidean[1]/Vacuum_Euclidean[1]-Medium_Euclidean[0]/Vacuum_Euclidean[0]-.2,2)/.2;
-	for(int i = 0; i < 7; i++)
-		answer += pow(Medium_Spatial[i]/Vacuum_Spatial[i]-Spatial_Ratio[i],2)/Spatial_Ratio[i];
+	long double answer = 0;
+
+	for(int i = 0; i < 4; i++)
+		answer += pow(Medium_Euclidean[i][1]/Vacuum_Euclidean[i][1]-Medium_Euclidean[i][0]/Vacuum_Euclidean[i][0]-.2,2)/.2;
+
+	for(int i = 0; i < 4; i++)
+		for(int j = 0; j < 7; j++)
+			answer += pow(Medium_Spatial[i][j]/Vacuum_Spatial[j]-Spatial_Ratio[i][j],2)/Spatial_Ratio[i][j];
+
+	for(int i = 0; i < 15; i++)
+		answer += Least_Squares(JPsi[1].Read(i), JPsi[2].Read(i), JPsi[3].Read(i), JPsi[4].Read(i));
+	for(int i = 0; i < 6; i++)
+		answer += Least_Squares(Non[1].Read(i), Non[2].Read(i), Non[3].Read(i), Non[4].Read(i));
+
 	return(answer);
 }
 
-long double Spatial(long double z, long double JPsi_Parameters[5][3], long double PsiPrime_Parameters[5][3], long double Non_Parameters[2][3], bool Vacuum)
+long double Least_Squares(long double y1, long double y2, long double y3, long double y4)
 {
-	/*long double Disp[] = {0.06342068498268678602883, 0.1265859972696720510680, 0.1892415924618135864853, 0.2511351786125772735072, 0.3120175321197487622079, 0.3716435012622848888637, 0.4297729933415765246586, 0.4861719414524920421770, 0.5406132469917260665582, 0.5928776941089007124559, 0.6427548324192376640569, 0.6900438244251321135048, 0.7345542542374026962137, 0.7761068943454466350181, 0.8145344273598554315395, 0.8496821198441657010349, 0.8814084455730089100370, 0.9095856558280732852130, 0.9341002947558101490590, 0.9548536586741372335552, 0.9717622009015553801400, 0.9847578959142130043593, 0.9937886619441677907601, 0.9988201506066353793618};	//Displacement from center for 97th order Gauss-Legendre integration
-	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of the function at Disp*/
-	/*long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 37th order Gauss-Legendre integration
-	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp*/
-	long double Disp[] = {0.27963041316178305, 0.538469310105683, 0.7541667265708494, 0.9061798459386639, 0.9840853600948425};	//Displacement from center for unknown order Gauss-Kronrod integration from Mathematica
-	long double w[] = {0.2829874178574912, 0.2728498019125589, 0.24104033922864776, 0.1868007965564926, 0.11523331662247445, 0.0425820367510818};	//Weight of the function at Disp*/
-	long double a, b;	//Sub-interval limits of integration
-	long double Max = 187.*M_PI/(2.*z);	//Upper limit of integration
-	long double F;	//Sum of ordinates*weights
-	long double Answer = 0;	//Results to be returned
-	long double x1, x2;	//Abscissa
-	long double holder;
-	long double Intervals = 2.*M_PI/z;
-	int i, j, l;		//Counting varibles
-
-	a = 0;
-	b = M_PI/(2.*z);
-
-	do
-	{
-		if(b > Max)
-			b = Max;
-
-		F = 0;
-
-		for(l = 0; l < 5; l++) //Integrate the sub-interval
-		{
-			x1 = (b+a-Disp[l]*(b-a))/2.;
-			x2 = (b+a+Disp[l]*(b-a))/2.;
-			F += w[l+1]*Spatial_sInt(z, x1, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Vacuum);
-			F += w[l+1]*Spatial_sInt(z, x2, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Vacuum);
-		}
-		F += w[0]*Spatial_sInt(z, a/2.+b/2., JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Vacuum);
-
-		Answer += F*(b-a)/2.;
-		a = b;
-		b += Intervals;
-	}while(a < Max);
-	Answer += Spatial_P0Int(z, Max, JPsi_Parameters, PsiPrime_Parameters, Non_Parameters, Vacuum);
-
-	return(Answer);
+	return(0.030408*pow(y1,2)+ 0.064712*pow(y2,2)+ 0.066696*pow(y3,2)+ 0.023816*pow(y4,2)- 0.074128*y1*y2- 0.025024*y1*y3- 0.038848*y2*y3+ 0.038336*y1*y4- 0.016448*y2*y4- 0.06952*y3*y4);
 }
 
-long double Spatial_sInt(long double z, long double P, long double JPsi_Parameters[5][3], long double PsiPrime_Parameters[5][3], long double Non_Parameters[2][3], bool Vacuum)
-{
-	long double Disp[] = {0.06342068498268678602883, 0.1265859972696720510680, 0.1892415924618135864853, 0.2511351786125772735072, 0.3120175321197487622079, 0.3716435012622848888637, 0.4297729933415765246586, 0.4861719414524920421770, 0.5406132469917260665582, 0.5928776941089007124559, 0.6427548324192376640569, 0.6900438244251321135048, 0.7345542542374026962137, 0.7761068943454466350181, 0.8145344273598554315395, 0.8496821198441657010349, 0.8814084455730089100370, 0.9095856558280732852130, 0.9341002947558101490590, 0.9548536586741372335552, 0.9717622009015553801400, 0.9847578959142130043593, 0.9937886619441677907601, 0.9988201506066353793618};	//Displacement from center for 97th order Gauss-Legendre integration
-	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of the function at Disp*/
-	/*long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 37th order Gauss-Legendre integration
-	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp*/
-	long double Range[] = {-Boundary[7], -Boundary[6], -Boundary[5], -Boundary[4], -Boundary[3], -Boundary[2], -Boundary[1], -Boundary[0], 0, Boundary[0], Boundary[1], Boundary[2], Boundary[3], Boundary[4], Boundary[5], Boundary[6], Boundary[7]};
-	long double a, b;	//Sub-interval limits of integration
-	long double Max = 552.25;	//Upper limit of integration
-	long double F;	//Sum of ordinates*weights
-	long double Answer = 0;	//Results to be returned
-	long double x1, x2;	//Abscissa
-	long double holder;
-	pair<long double, long double> zero;
-	int Intervals;
-	int i, j, l;		//Counting varibles
-	long double Stops[60] = {0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 3, 6, 9, 12, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 552.25};
 
-	Characterize_JPsi(JPsi_Parameters, P, zero, Vacuum);
-	for(i = 0; i < 17; i++)
-		Stops[i+25] = pow(zero.first+zero.second*Range[i],2);
 
-	if(Q(P, PsiPrime_Parameters[0][0], PsiPrime_Parameters[0][1], PsiPrime_Parameters[0][2]) != 0)
-	{
-		Characterize_PsiPrime(PsiPrime_Parameters, P, zero, Vacuum);
-		for(i = 0; i < 17; i++)
-			Stops[i+42] = pow(zero.first+zero.second*Range[i],2);
-		Stops[59] = pow(2.*Q(P, Non_Parameters[0][0], Non_Parameters[0][1], Non_Parameters[0][2]),2);
-		Intervals = 60;
-	}
-	else
-	{
-		Stops[42] = pow(2.*Q(P, Non_Parameters[0][0], Non_Parameters[0][1], Non_Parameters[0][2]),2);
-		Intervals = 43;
-	}
 
-	mergeSort(Stops, 0, Intervals-1);
 
-	i = 0;
-	while(Stops[i] < 0)
-		i++;
 
-	a = b = 0;
-	do
-	{
-		b = Stops[i];
-		i++;
 
-		if(b > Max)
-			b = Max;
 
-		F = 0;
 
-		for(l = 0; l < 24; l++) //Integrate the sub-interval
-		{
-			x1 = (b+a-Disp[l]*(b-a))/2.;
-			x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			F += w[l+1]*SpatialGeneralKernel(x1, P, z)*(SpectralJPsi(x1, P, JPsi_Parameters, Vacuum)+SpectralPsiPrime(x1, P, PsiPrime_Parameters, Vacuum)+SpectralNon(x1, P, Non_Parameters, Vacuum));
-			F += w[l+1]*SpatialGeneralKernel(x2, P, z)*(SpectralJPsi(x2, P, JPsi_Parameters, Vacuum)+SpectralPsiPrime(x2, P, PsiPrime_Parameters, Vacuum)+SpectralNon(x2, P, Non_Parameters, Vacuum));
-		}
-		F += w[0]*SpatialGeneralKernel(a/2.+b/2., P, z)*(SpectralJPsi(a/2.+b/2., P, JPsi_Parameters, Vacuum)+SpectralPsiPrime(a/2.+b/2., P, PsiPrime_Parameters, Vacuum)+SpectralNon(a/2.+b/2., P, Non_Parameters, Vacuum));
-
-		Answer += F*(b-a)/2.;
-		a = b;
-	}while(a < Max);
-
-	return(Answer);
-}
-
-long double Spatial_P0Int(long double z, long double P0, long double JPsi_Parameters[5][3], long double PsiPrime_Parameters[5][3], long double Non_Parameters[2][3], bool Vacuum)
-{
-	/*long double Disp[] = {0.06342068498268678602883, 0.1265859972696720510680, 0.1892415924618135864853, 0.2511351786125772735072, 0.3120175321197487622079, 0.3716435012622848888637, 0.4297729933415765246586, 0.4861719414524920421770, 0.5406132469917260665582, 0.5928776941089007124559, 0.6427548324192376640569, 0.6900438244251321135048, 0.7345542542374026962137, 0.7761068943454466350181, 0.8145344273598554315395, 0.8496821198441657010349, 0.8814084455730089100370, 0.9095856558280732852130, 0.9341002947558101490590, 0.9548536586741372335552, 0.9717622009015553801400, 0.9847578959142130043593, 0.9937886619441677907601, 0.9988201506066353793618};	//Displacement from center for 97th order Gauss-Legendre integration
-	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of the function at Disp*/
-	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 37th order Gauss-Legendre integration
-	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp*/
-	long double Range[] = {-Boundary[7], -Boundary[6], -Boundary[5], -Boundary[4], -Boundary[3], -Boundary[2], -Boundary[1], -Boundary[0], 0, Boundary[0], Boundary[1], Boundary[2], Boundary[3], Boundary[4], Boundary[5], Boundary[6], Boundary[7]};
-	long double a, b;	//Sub-interval limits of integration
-	long double Max = 552.25;	//Upper limit of integration
-	long double F;	//Sum of ordinates*weights
-	long double Answer = 0;	//Results to be returned
-	long double x1, x2;	//Abscissa
-	long double holder;
-	pair<long double, long double> zero;
-	int Intervals;
-	int i, j, l;		//Counting varibles
-	long double Stops[52] = {3, 6, 9, 12, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 552.25};
-
-	Characterize_JPsi(JPsi_Parameters, P0, zero, Vacuum);
-	for(i = 0; i < 17; i++)
-		Stops[i+17] = pow(zero.first+zero.second*Range[i],2);
-
-	if(Q(P0, PsiPrime_Parameters[0][0], PsiPrime_Parameters[0][1], PsiPrime_Parameters[0][2]) != 0)
-	{
-		Characterize_PsiPrime(PsiPrime_Parameters, P0, zero, Vacuum);
-		for(i = 0; i < 17; i++)
-			Stops[i+34] = pow(zero.first+zero.second*Range[i],2);
-		Stops[51] = pow(2.*Q(P0, Non_Parameters[0][0], Non_Parameters[0][1], Non_Parameters[0][2]),2);
-		Intervals = 52;
-	}
-	else
-	{
-		Stops[34] = pow(2.*Q(P0, Non_Parameters[0][0], Non_Parameters[0][1], Non_Parameters[0][2]),2);
-		Intervals = 35;
-	}
-
-	mergeSort(Stops, 0, Intervals-1);
-
-	i = 0;
-	while(Stops[i] < 0)
-		i++;
-
-	a = b = 0;
-	i = 0;
-	do
-	{
-		b = Stops[i];
-		i++;
-
-		if(b > Max)
-			b = Max;
-
-		F = 0;
-
-		for(l = 0; l < 9; l++) //Integrate the sub-interval
-		{
-			x1 = (b+a-Disp[l]*(b-a))/2.;
-			x2 = (b+a+Disp[l]*(b-a))/2.;
-
-			F += w[l+1]*SpatialCutoffKernel(x1, P0, z)*(SpectralJPsi(x1, P0, JPsi_Parameters, Vacuum)+SpectralPsiPrime(x1, P0, PsiPrime_Parameters, Vacuum)+SpectralNon(x1, P0, Non_Parameters, Vacuum));
-			F += w[l+1]*SpatialCutoffKernel(x2, P0, z)*(SpectralJPsi(x2, P0, JPsi_Parameters, Vacuum)+SpectralPsiPrime(x2, P0, PsiPrime_Parameters, Vacuum)+SpectralNon(x2, P0, Non_Parameters, Vacuum));
-		}
-		F += w[0]*SpatialCutoffKernel(a/2.+b/2., P0, z)*(SpectralJPsi(a/2.+b/2., P0, JPsi_Parameters, Vacuum)+SpectralPsiPrime(a/2.+b/2., P0, PsiPrime_Parameters, Vacuum)+SpectralNon(a/2.+b/2., P0, Non_Parameters, Vacuum));
-		Answer += F*(b-a)/2.;
-		a = b;
-	}while(a < Max);
-
-	return(Answer);
-}
-
-long double Euclidean(long double tau, long double T, long double P, long double JPsi_Parameters[5][3], long double PsiPrime_Parameters[5][3], long double Non_Parameters[2][3], bool Vacuum)
-{
-	/*long double Disp[] = {0.06342068498268678602883, 0.1265859972696720510680, 0.1892415924618135864853, 0.2511351786125772735072, 0.3120175321197487622079, 0.3716435012622848888637, 0.4297729933415765246586, 0.4861719414524920421770, 0.5406132469917260665582, 0.5928776941089007124559, 0.6427548324192376640569, 0.6900438244251321135048, 0.7345542542374026962137, 0.7761068943454466350181, 0.8145344273598554315395, 0.8496821198441657010349, 0.8814084455730089100370, 0.9095856558280732852130, 0.9341002947558101490590, 0.9548536586741372335552, 0.9717622009015553801400, 0.9847578959142130043593, 0.9937886619441677907601, 0.9988201506066353793618};	//Displacement from center for 97th order Gauss-Legendre integration
-	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of the function at Disp*/
-	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 37th order Gauss-Legendre integration
-	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp*/
-	long double Range[] = {-Boundary[7], -Boundary[6], -Boundary[5], -Boundary[4], -Boundary[3], -Boundary[2], -Boundary[1], -Boundary[0], 0, Boundary[0], Boundary[1], Boundary[2], Boundary[3], Boundary[4], Boundary[5], Boundary[6], Boundary[7]};
-	long double a, b;	//Sub-interval limits of integration
-	long double Max = pow(400.,2);	//Upper limit of integration
-	long double F;	//Sum of ordinates*weights
-	long double Answer = 0;	//Results to be returned
-	long double x1, x2;	//Abscissa
-	long double holder;
-	pair<long double, long double> zero;
-	int Intervals;
-	int i, j, l;		//Counting varibles
-	long double Stops[78] = {3, 6, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 604, 704, 804, 904, 1004, 2004, 3004, 4004, 5004, 6004, 7004, 8004, 9004, 10004, 10004, 20004, 30004, 40004, 50004, 60004, 70004, 80004, 90004, 100004, 110004, 120004, 130004, 140004, 150004, 160000};
-
-	Characterize_JPsi(JPsi_Parameters, P, zero, Vacuum);
-	for(i = 0; i < 17; i++)
-		Stops[i+43] = pow(zero.first+zero.second*Range[i],2);
-
-	if(Q(P, PsiPrime_Parameters[0][0], PsiPrime_Parameters[0][1], PsiPrime_Parameters[0][2]) != 0)
-	{
-		Characterize_PsiPrime(PsiPrime_Parameters, P, zero, Vacuum);
-		for(i = 0; i < 17; i++)
-			Stops[i+60] = pow(zero.first+zero.second*Range[i],2);
-		Stops[77] = pow(2.*Q(P, Non_Parameters[0][0], Non_Parameters[0][1], Non_Parameters[0][2]),2);
-		Intervals = 78;
-	}
-	else
-	{
-		Stops[60] = pow(2.*Q(P, Non_Parameters[0][0], Non_Parameters[0][1], Non_Parameters[0][2]),2);
-		Intervals = 61;
-	}
-
-	mergeSort(Stops, 0, Intervals-1);
-
-	i = 0;
-	while(Stops[i] < 0)
-		i++;
-
-	a = b = 0;
-	do
-	{
-		b = Stops[i];
-		i++;
-
-		if(b > Max)
-			b = Max;
-
-		F = 0;
-
-		for(l = 0; l < 9; l++) //Integrate the sub-interval
-		{
-			x1 = (b+a-Disp[l]*(b-a))/2.;
-			x2 = (b+a+Disp[l]*(b-a))/2.;
-
-			F += w[l+1]*EuclideanKernel(x1, P, tau, T)*(SpectralJPsi(x1, P, JPsi_Parameters, Vacuum)+SpectralPsiPrime(x1, P, PsiPrime_Parameters, Vacuum)+SpectralNon(x1, P, Non_Parameters, Vacuum));
-			F += w[l+1]*EuclideanKernel(x2, P, tau, T)*(SpectralJPsi(x2, P, JPsi_Parameters, Vacuum)+SpectralPsiPrime(x2, P, PsiPrime_Parameters, Vacuum)+SpectralNon(x2, P, Non_Parameters, Vacuum));
-		}
-		F += w[0]*EuclideanKernel(a/2.+b/2., P, tau, T)*(SpectralJPsi(a/2.+b/2., P, JPsi_Parameters, Vacuum)+SpectralPsiPrime(a/2.+b/2., P, PsiPrime_Parameters, Vacuum)+SpectralNon(a/2.+b/2., P, Non_Parameters, Vacuum));
-
-		Answer += F*(b-a)/2.;
-		a = b;
-	}while(a < Max);
-
-	return(Answer);
-}
-
-void Characterize_PsiPrime(long double Parameters[5][3], long double P, pair<long double, long double>& zero, bool Vacuum)
-{
-	long double M_old = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-	long double M_new;
-	long double h = .001;
-	int i = 0;
-
-	M_new = M_old - h*(SpectralJPsi(pow(M_old+h,2), P, Parameters, Vacuum)-SpectralJPsi(pow(M_old,2), P, Parameters, Vacuum))/(SpectralJPsi(pow(M_old-h,2), P, Parameters, Vacuum)-2.*SpectralJPsi(pow(M_old,2), P, Parameters, Vacuum)+SpectralJPsi(pow(M_old+h,2), P, Parameters, Vacuum));
-
-	while(abs(M_new/M_old-1.) > 1e-5 && i < 20)
-	{
-		M_old = M_new;
-		M_new = M_old - h*(SpectralJPsi(pow(M_old+h,2), P, Parameters, Vacuum)-SpectralJPsi(pow(M_old,2), P, Parameters, Vacuum))/(SpectralJPsi(pow(M_old-h,2), P, Parameters, Vacuum)-2.*SpectralJPsi(pow(M_old,2), P, Parameters, Vacuum)+SpectralJPsi(pow(M_old+h,2), P, Parameters, Vacuum));
-		i++;
-	}
-
-	zero.first = M_new;
-	zero.second = 2.*sqrt(-pow(h,2)*SpectralPsiPrime(pow(M_new,2), P, Parameters, Vacuum)/(2.*(SpectralPsiPrime(pow(M_new-h,2), P, Parameters, Vacuum)-2.*SpectralPsiPrime(pow(M_new,2), P, Parameters, Vacuum)+SpectralPsiPrime(pow(M_new+h,2), P, Parameters, Vacuum))));
-
-	if(isnan(zero.second) || M_new < 2.5 || M_new > 4.5)
-	{
-		zero.first = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-		zero.second = Q(P,Parameters[3][0],Parameters[3][1],Parameters[3][2]);
-	}
-}
-
-void Characterize_JPsi(long double Parameters[5][3], long double P, pair<long double, long double>& zero, bool Vacuum)
-{
-	long double M_old = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-	long double M_new;
-	long double h = .001;
-	int i = 0;
-
-	M_new = M_old - h*(SpectralJPsi(pow(M_old+h,2), P, Parameters, Vacuum)-SpectralJPsi(pow(M_old,2), P, Parameters, Vacuum))/(SpectralJPsi(pow(M_old-h,2), P, Parameters, Vacuum)-2.*SpectralJPsi(pow(M_old,2), P, Parameters, Vacuum)+SpectralJPsi(pow(M_old+h,2), P, Parameters, Vacuum));
-
-	while(abs(M_new/M_old-1.) > 1e-5 && i < 20)
-	{
-		M_old = M_new;
-		M_new = M_old - h*(SpectralJPsi(pow(M_old+h,2), P, Parameters, Vacuum)-SpectralJPsi(pow(M_old,2), P, Parameters, Vacuum))/(SpectralJPsi(pow(M_old-h,2), P, Parameters, Vacuum)-2.*SpectralJPsi(pow(M_old,2), P, Parameters, Vacuum)+SpectralJPsi(pow(M_old+h,2), P, Parameters, Vacuum));
-		i++;
-	}
-
-	zero.first = M_new;
-	zero.second = 2.*sqrt(-pow(h,2)*SpectralJPsi(pow(M_new,2), P, Parameters, Vacuum)/(2.*(SpectralJPsi(pow(M_new-h,2), P, Parameters, Vacuum)-2.*SpectralJPsi(pow(M_new,2), P, Parameters, Vacuum)+SpectralJPsi(pow(M_new+h,2), P, Parameters, Vacuum))));
-
-	if(isnan(zero.second) || M_new < 1.5 || M_new > 4.5)
-	{
-		zero.first = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-		zero.second = Q(P,Parameters[3][0],Parameters[3][1],Parameters[3][2]);
-	}
-}
-
-long double SpatialGeneralKernel(long double s, long double P, long double z)
-{
-	return(cos(P*z)/(s+pow(P,2)));
-}
-
-long double SpatialLorentz(long double s, long double z)
-{
-	return(M_PI*exp(-sqrt(s)*z)/(2.*sqrt(s)));
-}
-
-long double SpatialCutoffKernel(long double s, long double P0, long double z)
-{
-	return(-((z*(-2.*P0*z*(12852.-5868.*pow(sqrt(s)*z,2)+1737.*pow(sqrt(s)*z,4)-78.*pow(sqrt(s)*z,6)+pow(P0*z,8)+pow(sqrt(s)*z,8)+3.*pow(P0*z,4)*(579.+26.*pow(sqrt(s)*z,2)+2.*pow(sqrt(s)*z,4))+pow(P0,6)*(78.*pow(z,6)+4.*s*pow(z,8))+pow(P0,2)*(5868.*pow(z,2)+2418.*s*pow(z,4)-78.*pow(s,2)*pow(z,6)+4.*pow(s,3)*pow(z,8)))*cos(P0*z)+(-5400.+33948.*pow(sqrt(s)*z,2)-16074.*pow(sqrt(s)*z,4)+2301.*pow(sqrt(s)*z,6)-88.*pow(sqrt(s)*z,8)+pow(P0*z,10)+pow(sqrt(s)*z,10)+pow(P0*z,8)*(84.+5.*pow(sqrt(s)*z,2))+pow(P0*z,6)*(2037.+164.*pow(sqrt(s)*z,2)+10.*pow(sqrt(s)*z,4))+pow(P0*z,4)*(10782.+3975.*pow(sqrt(s)*z,2)-12.*pow(sqrt(s)*z,4)+10.*pow(sqrt(s)*z,6))+pow(P0*z,2)*(27756.-4716.*pow(sqrt(s)*z,2)+4239.*pow(sqrt(s)*z,4)-180.*pow(sqrt(s)*z,6)+5.*pow(sqrt(s)*z,8)))*sin(P0*z)))/(pow(P0*z,12)+6.*pow(P0*z,10)*(15.+pow(sqrt(s)*z,2))+3.*pow(P0*z,8)*(819.+90.*pow(sqrt(s)*z,2)+5.*pow(sqrt(s)*z,4))+pow(-36.+216.*pow(sqrt(s)*z,2)-45.*pow(sqrt(s)*z,4)+pow(sqrt(s)*z,6),2)+4.*pow(P0*z,6)*(4878.+1593.*pow(sqrt(s)*z,2)+45.*pow(sqrt(s)*z,4)+5.*pow(sqrt(s)*z,6))+3.*pow(P0*z,4)*(16632.+6120.*pow(sqrt(s)*z,2)+2610.*pow(sqrt(s)*z,4)-60.*pow(sqrt(s)*z,6)+5.*pow(sqrt(s)*z,8))+6.*pow(P0*z,2)*(2592.+12312.*pow(sqrt(s)*z,2)-3060.*pow(sqrt(s)*z,4)+1062.*pow(sqrt(s)*z,6)-45.*pow(sqrt(s)*z,8)+pow(sqrt(s)*z,10)))));
-}
-
-long double EuclideanKernel(long double s, long double P, long double tau, long double T)
-{
-	return(cosh(sqrt(s+pow(P,2))*(tau-1./(2.*T)))/(2.*sqrt(s+pow(P,2))*sinh(sqrt(s+pow(P,2))/(2.*T))));
-}
-
-long double SpectralNon(long double s, long double P, long double Parameters[2][3], bool Vacuum)
-{
-	if(Vacuum)
-		P = 0;
-
-	static long double old_P = P;
-	static long double M = Q(P,Parameters[0][0],Parameters[0][1],Parameters[0][2]);
-	static long double n = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-
-	if(P != old_P)
-	{
-		old_P = P;
-		M = Q(P,Parameters[0][0],Parameters[0][1],Parameters[0][2]);
-		n = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-	}
-
-	if(s < pow(2.*M,2))
-		return(0);
-	return((3.*s)/(8.*pow(M_PI,2))*sqrt(1.-pow(pow(2.*M,2)/s,n)));
-}
-
-long double WidthPsiPrime(long double E, long double P, long double Parameters[5][3])
-{
-	static long double old_P = P;
-	static long double M = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-	static long double a = Q(P,Parameters[3][0],Parameters[3][1],Parameters[3][2]);
-	static long double b = Q(P,Parameters[4][0],Parameters[4][1],Parameters[4][2]);
-	static long double E0 = M-2.*Q(P,Parameters[2][0],Parameters[2][1],Parameters[2][2]);
-
-	if(P != old_P)
-	{
-		old_P = P;
-		M = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-		a = Q(P,Parameters[3][0],Parameters[3][1],Parameters[3][2]);
-		b = Q(P,Parameters[4][0],Parameters[4][1],Parameters[4][2]);
-		E0 = M-2.*Q(P,Parameters[2][0],Parameters[2][1],Parameters[2][2]);
-	}
-
-	return(exp(a*(sqrt(pow(sqrt(pow(E,2)+pow(P,2))-sqrt(pow(E0,2)+pow(P,2)),2)+pow(b,2))-sqrt(pow(E,2)+pow(P,2))+sqrt(pow(E0,2)+pow(P,2)))/(2.*(sqrt(pow(sqrt(pow(M,2)+pow(P,2))-sqrt(pow(E0,2)+pow(P,2)),2)+pow(b,2))-sqrt(pow(M,2)+pow(P,2))+sqrt(pow(E0,2)+pow(P,2))))*(M-E0-sqrt(pow(M-E0,2)+pow(b,2)))+a/2.*(E0-M+sqrt(pow(b,2)+pow(M-E0,2)))));
-}
-
-long double WidthJPsi(long double E, long double P, long double Parameters[5][3])
-{
-	static long double old_P = P;
-	static long double M = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-	static long double a = Q(P,Parameters[3][0],Parameters[3][1],Parameters[3][2]);
-	static long double b = Q(P,Parameters[4][0],Parameters[4][1],Parameters[4][2]);
-	static long double E0 = M-2.*Q(P,Parameters[2][0],Parameters[2][1],Parameters[2][2]);
-
-	if(P != old_P)
-	{
-		old_P = P;
-		M = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-		a = Q(P,Parameters[3][0],Parameters[3][1],Parameters[3][2]);
-		b = Q(P,Parameters[4][0],Parameters[4][1],Parameters[4][2]);
-		E0 = M-2.*Q(P,Parameters[2][0],Parameters[2][1],Parameters[2][2]);
-	}
-
-	return(exp(a*(sqrt(pow(sqrt(pow(E,2)+pow(P,2))-sqrt(pow(E0,2)+pow(P,2)),2)+pow(b,2))-sqrt(pow(E,2)+pow(P,2))+sqrt(pow(E0,2)+pow(P,2)))/(2.*(sqrt(pow(sqrt(pow(M,2)+pow(P,2))-sqrt(pow(E0,2)+pow(P,2)),2)+pow(b,2))-sqrt(pow(M,2)+pow(P,2))+sqrt(pow(E0,2)+pow(P,2))))*(M-E0-sqrt(pow(M-E0,2)+pow(b,2)))+a/2.*(E0-M+sqrt(pow(b,2)+pow(M-E0,2)))));
-}
-
-long double SpectralPsiPrime(long double s, long double P, long double Parameters[5][3], bool Vacuum)
-{
-	if(Vacuum)
-		P = 0;
-
-	static long double old_P = P;
-	if(0 == Q(P,Parameters[0][0],Parameters[0][1],Parameters[0][2]))
-		return(0);
-	static long double M = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-	static long double A = 2.*M*Q(P,Parameters[0][0],Parameters[0][1],Parameters[0][2]);
-	long double Gamma = Q(P,Parameters[2][0],Parameters[2][1],Parameters[2][2])*WidthPsiPrime(sqrt(s),P,Parameters);
-
-	if(P != old_P)
-	{
-		old_P = P;
-		M = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-		A = 2.*M*Q(P,Parameters[0][0],Parameters[0][1],Parameters[0][2]);
-	}
-
-	return((A*Gamma*M*sqrt((s+pow(P,2))/(pow(M,2)+pow(P,2))))/(M_PI*(pow(s-pow(M,2),2)+pow(Gamma*M*sqrt((s+pow(P,2))/(pow(M,2)+pow(P,2))),2))));
-}
-
-long double SpectralJPsi(long double s, long double P, long double Parameters[5][3], bool Vacuum)
-{
-	if(Vacuum)
-		P = 0;
-
-	static long double old_P = P;
-	if(0 == Q(P,Parameters[0][0],Parameters[0][1],Parameters[0][2]))
-		return(0);
-	static long double M = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-	static long double A = 2.*M*Q(P,Parameters[0][0],Parameters[0][1],Parameters[0][2]);
-	long double Gamma = Q(P,Parameters[2][0],Parameters[2][1],Parameters[2][2])*WidthJPsi(sqrt(s),P,Parameters);
-
-	if(P != old_P)
-	{
-		old_P = P;
-		M = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-		A = 2.*M*Q(P,Parameters[0][0],Parameters[0][1],Parameters[0][2]);
-	}
-
-	return((A*Gamma*M*sqrt((s+pow(P,2))/(pow(M,2)+pow(P,2))))/(M_PI*(pow(s-pow(M,2),2)+pow(Gamma*M*sqrt((s+pow(P,2))/(pow(M,2)+pow(P,2))),2))));
-}
-
-long double Q(long double P, long double Q0, long double QV, long double P0)
-{
-	return((Q0*pow(P0,2)+QV*pow(P,2))/(pow(P0,2)+pow(P,2)));
-}
-
-long double Uniform(long double a, long double b)
-{
-	return((long double)(rand())/(long double)(RAND_MAX)*(b-a)+a);
-}
-
-void mergeSort(long double List[], int a, int b)
-{
-	int i, j, k;
-	long double Temp[(a+b)/2-a+1];
-
-	if(b-a > 1)	//Divide
-	{
-		mergeSort(List, a, (a+b)/2);
-		mergeSort(List, (a+b)/2+1, b);
-	}
-
-	for(i = 0; i <= (a+b)/2-a; i++)	//Copy out the lower half array in prep for copy over
-		Temp[i] = List[i+a];
-
-	j = 0;
-	k = (a+b)/2+1;
-	for(i = a; i <= b && j <= (a+b)/2-a && k <= b; i++)	//Merge/Conqure while both half lists have not been exhausted
-	{
-		if(Temp[j] <= List[k])
-		{
-			List[i] = Temp[j];
-			j++;
-		}
-		else
-		{
-			List[i] = List[k];
-			k++;
-		}
-	}
-	for(; i <= b && j <= (a+b)/2-a; i++)	//If the Temp list has not been exhausted, complete the job
-	{
-		List[i] = Temp[j];
-		j++;
-	}
-
-	return;
-}
