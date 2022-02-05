@@ -342,6 +342,8 @@ long double Spectral_Inter::Euclidean(long double tau, long double P, long doubl
 	while(Stops[i] < 0)
 		i++;
 
+	tau /= T;
+
 	a = b = 0;
 	do
 	{
@@ -397,6 +399,8 @@ long double Spectral_Inter::Euclidean(long double tau, long double P)
 	i = 0;
 	while(Stops[i] < 0)
 		i++;
+
+	tau /= T;
 
 	a = b = 0;
 	do

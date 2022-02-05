@@ -320,6 +320,8 @@ long double Spectral_Non::Euclidean(long double tau, long double P, long double 
 	Stops[1] = Stops[0]/2.+Stops[1]/2.;
 	Intervals = 43;
 
+	tau /= T;
+
 	a = Stops[0];
 	do
 	{
@@ -369,6 +371,8 @@ long double Spectral_Non::Euclidean(long double tau, long double P)
 	Stops[0] = pow(2.*Q(P, Non_Parameters[0][0], Non_Parameters[0][1], Non_Parameters[0][2]),2);
 	Stops[1] = Stops[0]/2.+Stops[1]/2.;
 	Intervals = 43;
+
+	tau /= T;
 
 	a = Stops[0];
 	do
