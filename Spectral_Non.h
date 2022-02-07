@@ -1,26 +1,29 @@
 #include<fstream>
 #ifndef SPECTRAL_NON
 #define SPECTRAL_NON
+using namespace std;
 
 class Spectral_Non{
 	public:
-		long double f(long double s, long double P);
+		long double Spectral(long double s, long double P);
 		long double Spatial(long double z);
 		long double Euclidean(long double tau, long double P);
-		long double Print(ostream); //Print the parameters
+		long double Euclidean(long double tau, long double P, long double T);
+		void Print(ostream&); //Print the parameters
 		void Add(long double, int);		//Add to a parameter
 		void Add(long double, int, int);
 		void Replace(long double, int);	//Replace a parameter outright
 		void Replace(long double, int, int);
 		long double Read(int);			//Read a parameter
 		long double Read(int, int);
+		void Normal(int, long double[2], long double[2]);
 
 		Spectral_Non(long double[2][3], long double, bool);
 		Spectral_Non(long double[6], long double, bool);
 		Spectral_Non(long double[2][3], int, bool);
 		Spectral_Non(long double[6], int, bool);
 	private:
-		long double[2][3] Parmeters;
+		long double Parameters[2][3];
 		long double Temp;
 		bool Vacuum;
 
@@ -29,9 +32,10 @@ class Spectral_Non{
 
 		long double SpatialGeneralKernel(long double s, long double P, long double z);
 		long double SpatialCutoffKernel(long double s, long double P0, long double z);
-		long double EuclideanKernel(long double s, long double P, long double tau);
+		long double EuclideanKernel(long double s, long double P, long double tau, long double T);
 
 		long double Q(long double, long double, long double, long double);
+		long double Uniform();
 };
 
 Spectral_Non::Spectral_Non(long double Parm[2][3], long double T, bool Vac)
@@ -76,8 +80,6 @@ Spectral_Non::Spectral_Non(long double Parm[2][3], int T, bool Vac)
 		case 4:
 			Temp = .400;
 			break;
-		default:
-			return(2);
 	}
 
 	Vacuum = Vac;
@@ -105,14 +107,33 @@ Spectral_Non::Spectral_Non(long double Parm[6], int T, bool Vac)
 		case 4:
 			Temp = .400;
 			break;
-		default:
-			return(2);
 	}
 
 	Vacuum = Vac;
 }
 
-void Spectral_Non::Print(ostream Stream)
+void Spectral_Non::Normal(int i, long double Range0[2], long double Range1[2])
+{
+	long double uniform[2] = {Uniform(),Uniform()};
+	long double normal[2] = {sqrt(-2.*log(uniform[0]))*cos(2.*M_PI*uniform[1]),sqrt(-2.*log(uniform[0]))*sin(2.*M_PI*uniform[1])};
+	long double mu[2] = {Parameters[i][1], Parameters[i][2]};
+	long double test[2] = {mu[0]+.05*normal[0],mu[1]+.05*normal[1]};
+
+	while(test[0] < Range0[0] || test[0] > Range0[1] || test[1] < Range1[0] || test[1] > Range0[1])
+	{
+		uniform[0] = Uniform();
+		uniform[1] = Uniform();
+		normal[0] = sqrt(-2.*log(uniform[0]))*cos(2.*M_PI*uniform[1]);
+		normal[1] = sqrt(-2.*log(uniform[0]))*sin(2.*M_PI*uniform[1]);
+		test[0] = mu[0]+.05*normal[0];
+		test[1] = mu[1]+.05*normal[1];
+	}
+
+	Parameters[i][1] = test[0];
+	Parameters[i][2] = test[1];
+}
+
+void Spectral_Non::Print(ostream& Stream)
 {
 	for(int i = 0; i < 2; i++)
 		for(int j = 0; j < 3; j++)
@@ -205,7 +226,6 @@ long double Spectral_Non::Spatial_sInt(long double z, long double P)
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of the function at Disp*/
 	/*long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 37th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp*/
-	long double Range[] = {-Boundary[7], -Boundary[6], -Boundary[5], -Boundary[4], -Boundary[3], -Boundary[2], -Boundary[1], -Boundary[0], 0, Boundary[0], Boundary[1], Boundary[2], Boundary[3], Boundary[4], Boundary[5], Boundary[6], Boundary[7]};
 	long double a, b;	//Sub-interval limits of integration
 	long double Max = 552.25;	//Upper limit of integration
 	long double F;	//Sum of ordinates*weights
@@ -217,7 +237,7 @@ long double Spectral_Non::Spatial_sInt(long double z, long double P)
 	int i = 1, j, l;		//Counting varibles
 	long double Stops[15] = {0, 0, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 552.25};
 
-	Stops[0] = pow(2.*Q(P0, Non_Parameters[0][0], Non_Parameters[0][1], Non_Parameters[0][2]),2);
+	Stops[0] = pow(2.*Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2]),2);
 	Stops[1] = Stops[0]/2.+Stops[1]/2.;
 	Intervals = 14;
 
@@ -255,7 +275,6 @@ long double Spectral_Non::Spatial_P0Int(long double z, long double P0)
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of the function at Disp*/
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 37th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp*/
-	long double Range[] = {-Boundary[7], -Boundary[6], -Boundary[5], -Boundary[4], -Boundary[3], -Boundary[2], -Boundary[1], -Boundary[0], 0, Boundary[0], Boundary[1], Boundary[2], Boundary[3], Boundary[4], Boundary[5], Boundary[6], Boundary[7]};
 	long double a, b;	//Sub-interval limits of integration
 	long double Max = 552.25;	//Upper limit of integration
 	long double F;	//Sum of ordinates*weights
@@ -267,7 +286,7 @@ long double Spectral_Non::Spatial_P0Int(long double z, long double P0)
 	int i = 1, j, l;		//Counting varibles
 	long double Stops[15] = {0, 0, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 552.25};
 
-	Stops[0] = pow(2.*Q(P0, Non_Parameters[0][0], Non_Parameters[0][1], Non_Parameters[0][2]),2);
+	Stops[0] = pow(2.*Q(P0, Parameters[0][0], Parameters[0][1], Parameters[0][2]),2);
 	Stops[1] = Stops[0]/2.+Stops[1]/2.;
 	Intervals = 14;
 
@@ -304,7 +323,6 @@ long double Spectral_Non::Euclidean(long double tau, long double P, long double 
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of the function at Disp*/
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 37th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp*/
-	long double Range[] = {-Boundary[7], -Boundary[6], -Boundary[5], -Boundary[4], -Boundary[3], -Boundary[2], -Boundary[1], -Boundary[0], 0, Boundary[0], Boundary[1], Boundary[2], Boundary[3], Boundary[4], Boundary[5], Boundary[6], Boundary[7]};
 	long double a, b;	//Sub-interval limits of integration
 	long double Max = pow(400.,2);	//Upper limit of integration
 	long double F;	//Sum of ordinates*weights
@@ -316,7 +334,7 @@ long double Spectral_Non::Euclidean(long double tau, long double P, long double 
 	int i = 1, j, l;		//Counting varibles
 	long double Stops[44] = {0, 0, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 604, 704, 804, 904, 1004, 2004, 3004, 4004, 5004, 6004, 7004, 8004, 9004, 10004, 10004, 20004, 30004, 40004, 50004, 60004, 70004, 80004, 90004, 100004, 110004, 120004, 130004, 140004, 150004, 160000};
 
-	Stops[0] = pow(2.*Q(P, Non_Parameters[0][0], Non_Parameters[0][1], Non_Parameters[0][2]),2);
+	Stops[0] = pow(2.*Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2]),2);
 	Stops[1] = Stops[0]/2.+Stops[1]/2.;
 	Intervals = 43;
 
@@ -356,7 +374,6 @@ long double Spectral_Non::Euclidean(long double tau, long double P)
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of the function at Disp*/
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 37th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp*/
-	long double Range[] = {-Boundary[7], -Boundary[6], -Boundary[5], -Boundary[4], -Boundary[3], -Boundary[2], -Boundary[1], -Boundary[0], 0, Boundary[0], Boundary[1], Boundary[2], Boundary[3], Boundary[4], Boundary[5], Boundary[6], Boundary[7]};
 	long double a, b;	//Sub-interval limits of integration
 	long double Max = pow(400.,2);	//Upper limit of integration
 	long double F;	//Sum of ordinates*weights
@@ -368,11 +385,11 @@ long double Spectral_Non::Euclidean(long double tau, long double P)
 	int i = 1, j, l;		//Counting varibles
 	long double Stops[44] = {0, 0, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 604, 704, 804, 904, 1004, 2004, 3004, 4004, 5004, 6004, 7004, 8004, 9004, 10004, 10004, 20004, 30004, 40004, 50004, 60004, 70004, 80004, 90004, 100004, 110004, 120004, 130004, 140004, 150004, 160000};
 
-	Stops[0] = pow(2.*Q(P, Non_Parameters[0][0], Non_Parameters[0][1], Non_Parameters[0][2]),2);
+	Stops[0] = pow(2.*Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2]),2);
 	Stops[1] = Stops[0]/2.+Stops[1]/2.;
 	Intervals = 43;
 
-	tau /= T;
+	tau /= Temp;
 
 	a = Stops[0];
 	do
@@ -417,7 +434,7 @@ long double Spectral_Non::EuclideanKernel(long double s, long double P, long dou
 	return(cosh(sqrt(s+pow(P,2))*(tau-1./(2.*T)))/(2.*sqrt(s+pow(P,2))*sinh(sqrt(s+pow(P,2))/(2.*T))));
 }
 
-long double Spectral_Non::SpectralNon(long double s, long double P)
+long double Spectral_Non::Spectral(long double s, long double P)
 {
 	if(Vacuum)
 		P = 0;
@@ -441,6 +458,11 @@ long double Spectral_Non::SpectralNon(long double s, long double P)
 long double Spectral_Non::Q(long double P, long double Q0, long double QV, long double P0)
 {
 	return((Q0*pow(P0,2)+QV*pow(P,2))/(pow(P0,2)+pow(P,2)));
+}
+
+long double Spectral_Non::Uniform()
+{
+	return((long double)(rand())/(long double)(RAND_MAX));
 }
 
 #endif

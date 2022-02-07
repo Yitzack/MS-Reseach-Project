@@ -1,6 +1,9 @@
 #include<fstream>
+#include<cstdlib>
+#include<cmath>
 #ifndef SPECTRAL_INTER
 #define SPECTRAL_INTER
+using namespace std;
 
 class Spectral_Inter{
 	public:
@@ -9,22 +12,24 @@ class Spectral_Inter{
 		long double Spatial(long double z);
 		long double Euclidean(long double tau, long double P);
 		long double Euclidean(long double tau, long double P, long double T);
-		void Print(ostream Stream);		//Print the parameters to Stream
+		void Print(ostream& Stream);		//Print the parameters to Stream
 		void Add(long double, int);		//Add to a parameter
 		void Add(long double, int, int);
 		void Replace(long double, int);	//Replace a parameter outright
 		void Replace(long double, int, int);
 		long double Read(int);			//Read a parameter
 		long double Read(int, int);
+		void Normal(int, long double[2], long double[2]);
 
 		Spectral_Inter(long double[5][3], long double, bool);
 		Spectral_Inter(long double[15], long double, bool);
 		Spectral_Inter(long double[5][3], int, bool);
 		Spectral_Inter(long double[15], int, bool);
 	private:
-		long double[5][3] Parameters;
+		long double Parameters[5][3];
 		long double Temp;
 		bool Vacuum;
+		long double Width(long double, long double);
 
 		long double Spatial_sInt(long double z, long double P);
 		long double Spatial_P0Int(long double z, long double P0);
@@ -35,6 +40,8 @@ class Spectral_Inter{
 
 		void mergeSort(long double[], int, int);
 		long double Q(long double, long double, long double, long double);
+		long double Uniform();
+		const long double Boundary[8] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85};
 };
 
 Spectral_Inter::Spectral_Inter(long double Parm[5][3], long double T, bool Vac)
@@ -79,8 +86,6 @@ Spectral_Inter::Spectral_Inter(long double Parm[5][3], int T, bool Vac)
 		case 4:
 			Temp = .400;
 			break;
-		default:
-			return(2);
 	}
 
 	Vacuum = Vac;
@@ -108,14 +113,33 @@ Spectral_Inter::Spectral_Inter(long double Parm[15], int T, bool Vac)
 		case 4:
 			Temp = .400;
 			break;
-		default:
-			return(2);
 	}
 
 	Vacuum = Vac;
 }
 
-void Spectral_Inter::Print(ostream Stream)
+void Spectral_Inter::Normal(int i, long double Range0[2], long double Range1[2])
+{
+	long double uniform[2] = {Uniform(),Uniform()};
+	long double normal[2] = {sqrt(-2.*log(uniform[0]))*cos(2.*M_PI*uniform[1]),sqrt(-2.*log(uniform[0]))*sin(2.*M_PI*uniform[1])};
+	long double mu[2] = {Parameters[i][1], Parameters[i][2]};
+	long double test[2] = {mu[0]+.05*normal[0],mu[1]+.05*normal[1]};
+
+	while(test[0] < Range0[0] || test[0] > Range0[1] || test[1] < Range1[0] || test[1] > Range0[1])
+	{
+		uniform[0] = Uniform();
+		uniform[1] = Uniform();
+		normal[0] = sqrt(-2.*log(uniform[0]))*cos(2.*M_PI*uniform[1]);
+		normal[1] = sqrt(-2.*log(uniform[0]))*sin(2.*M_PI*uniform[1]);
+		test[0] = mu[0]+.05*normal[0];
+		test[1] = mu[1]+.05*normal[1];
+	}
+
+	Parameters[i][1] = test[0];
+	Parameters[i][2] = test[1];
+}
+
+void Spectral_Inter::Print(ostream& Stream)
 {
 	for(int i = 0; i < 5; i++)
 		for(int j = 0; j < 3; j++)
@@ -400,7 +424,7 @@ long double Spectral_Inter::Euclidean(long double tau, long double P)
 	while(Stops[i] < 0)
 		i++;
 
-	tau /= T;
+	tau /= Temp;
 
 	a = b = 0;
 	do
@@ -516,6 +540,11 @@ long double Spectral_Inter::Spectral(long double s, long double P)
 long double Spectral_Inter::Q(long double P, long double Q0, long double QV, long double P0)
 {
 	return((Q0*pow(P0,2)+QV*pow(P,2))/(pow(P0,2)+pow(P,2)));
+}
+
+long double Spectral_Inter::Uniform()
+{
+	return((long double)(rand())/(long double)(RAND_MAX));
 }
 
 void Spectral_Inter::mergeSort(long double List[], int a, int b)
