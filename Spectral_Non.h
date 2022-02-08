@@ -117,7 +117,7 @@ void Spectral_Non::Normal(int i, long double Range0[2], long double Range1[2])
 	long double uniform[2] = {Uniform(),Uniform()};
 	long double normal[2] = {sqrt(-2.*log(uniform[0]))*cos(2.*M_PI*uniform[1]),sqrt(-2.*log(uniform[0]))*sin(2.*M_PI*uniform[1])};
 	long double mu[2] = {Parameters[i][1], Parameters[i][2]};
-	long double test[2] = {mu[0]+.05*normal[0],mu[1]+.05*normal[1]};
+	long double test[2] = {mu[0]+.1*normal[0],mu[1]+.1*normal[1]};
 
 	while(test[0] < Range0[0] || test[0] > Range0[1] || test[1] < Range1[0] || test[1] > Range1[1])
 	{
@@ -125,8 +125,8 @@ void Spectral_Non::Normal(int i, long double Range0[2], long double Range1[2])
 		uniform[1] = Uniform();
 		normal[0] = sqrt(-2.*log(uniform[0]))*cos(2.*M_PI*uniform[1]);
 		normal[1] = sqrt(-2.*log(uniform[0]))*sin(2.*M_PI*uniform[1]);
-		test[0] = mu[0]+.05*normal[0];
-		test[1] = mu[1]+.05*normal[1];
+		test[0] = mu[0]+.1*normal[0];
+		test[1] = mu[1]+.1*normal[1];
 	}
 
 	Parameters[i][1] = test[0];
