@@ -40,7 +40,7 @@ class Spectral_Non{
 
 Spectral_Non::Spectral_Non(long double Parm[2][3], long double T, bool Vac)
 {
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < 2; i++)
 		for(int j = 0; j < 3; j++)
 			Parameters[i][j] = Parm[i][j];
 	
@@ -50,7 +50,7 @@ Spectral_Non::Spectral_Non(long double Parm[2][3], long double T, bool Vac)
 
 Spectral_Non::Spectral_Non(long double Parm[6], long double T, bool Vac)
 {
-	for(int i = 0; i < 15; i++)
+	for(int i = 0; i < 6; i++)
 		Parameters[i/3][i%3] = Parm[i];
 	
 	Temp = T;
@@ -59,7 +59,7 @@ Spectral_Non::Spectral_Non(long double Parm[6], long double T, bool Vac)
 
 Spectral_Non::Spectral_Non(long double Parm[2][3], int T, bool Vac)
 {
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < 2; i++)
 		for(int j = 0; j < 3; j++)
 			Parameters[i][j] = Parm[i][j];
 	
@@ -119,7 +119,7 @@ void Spectral_Non::Normal(int i, long double Range0[2], long double Range1[2])
 	long double mu[2] = {Parameters[i][1], Parameters[i][2]};
 	long double test[2] = {mu[0]+.05*normal[0],mu[1]+.05*normal[1]};
 
-	while(test[0] < Range0[0] || test[0] > Range0[1] || test[1] < Range1[0] || test[1] > Range0[1])
+	while(test[0] < Range0[0] || test[0] > Range0[1] || test[1] < Range1[0] || test[1] > Range1[1])
 	{
 		uniform[0] = Uniform();
 		uniform[1] = Uniform();
@@ -136,10 +136,10 @@ void Spectral_Non::Normal(int i, long double Range0[2], long double Range1[2])
 void Spectral_Non::Print(ostream& Stream)
 {
 	for(int i = 0; i < 2; i++)
-		for(int j = 0; j < 3; j++)
+		for(int j = 1; j < 3; j++)
 		{
 			Stream << Parameters[i][j];
-			if(i != 1 && j != 2)
+			if(!(i == 1 && j == 2))
 				Stream << ",";
 		}
 	Stream << flush;
@@ -238,7 +238,7 @@ long double Spectral_Non::Spatial_sInt(long double z, long double P)
 	long double Stops[15] = {0, 0, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 552.25};
 
 	Stops[0] = pow(2.*Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2]),2);
-	Stops[1] = Stops[0]/2.+Stops[1]/2.;
+	Stops[1] = Stops[0]/2.+Stops[2]/2.;
 	Intervals = 14;
 
 	a = Stops[0];
@@ -287,7 +287,7 @@ long double Spectral_Non::Spatial_P0Int(long double z, long double P0)
 	long double Stops[15] = {0, 0, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 552.25};
 
 	Stops[0] = pow(2.*Q(P0, Parameters[0][0], Parameters[0][1], Parameters[0][2]),2);
-	Stops[1] = Stops[0]/2.+Stops[1]/2.;
+	Stops[1] = Stops[0]/2.+Stops[2]/2.;
 	Intervals = 14;
 
 	a = Stops[0];
@@ -330,13 +330,11 @@ long double Spectral_Non::Euclidean(long double tau, long double P, long double 
 	long double x1, x2;	//Abscissa
 	long double holder;
 	pair<long double, long double> zero;
-	int Intervals;
 	int i = 1, j, l;		//Counting varibles
 	long double Stops[44] = {0, 0, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 604, 704, 804, 904, 1004, 2004, 3004, 4004, 5004, 6004, 7004, 8004, 9004, 10004, 10004, 20004, 30004, 40004, 50004, 60004, 70004, 80004, 90004, 100004, 110004, 120004, 130004, 140004, 150004, 160000};
 
 	Stops[0] = pow(2.*Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2]),2);
-	Stops[1] = Stops[0]/2.+Stops[1]/2.;
-	Intervals = 43;
+	Stops[1] = Stops[0]/2.+Stops[2]/2.;
 
 	tau /= T;
 
@@ -381,13 +379,11 @@ long double Spectral_Non::Euclidean(long double tau, long double P)
 	long double x1, x2;	//Abscissa
 	long double holder;
 	pair<long double, long double> zero;
-	int Intervals;
 	int i = 1, j, l;		//Counting varibles
 	long double Stops[44] = {0, 0, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 604, 704, 804, 904, 1004, 2004, 3004, 4004, 5004, 6004, 7004, 8004, 9004, 10004, 10004, 20004, 30004, 40004, 50004, 60004, 70004, 80004, 90004, 100004, 110004, 120004, 130004, 140004, 150004, 160000};
 
 	Stops[0] = pow(2.*Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2]),2);
-	Stops[1] = Stops[0]/2.+Stops[1]/2.;
-	Intervals = 43;
+	Stops[1] = Stops[0]/2.+Stops[2]/2.;
 
 	tau /= Temp;
 

@@ -125,7 +125,7 @@ void Spectral_Inter::Normal(int i, long double Range0[2], long double Range1[2])
 	long double mu[2] = {Parameters[i][1], Parameters[i][2]};
 	long double test[2] = {mu[0]+.05*normal[0],mu[1]+.05*normal[1]};
 
-	while(test[0] < Range0[0] || test[0] > Range0[1] || test[1] < Range1[0] || test[1] > Range0[1])
+	while(test[0] < Range0[0] || test[0] > Range0[1] || test[1] < Range1[0] || test[1] > Range1[1])
 	{
 		uniform[0] = Uniform();
 		uniform[1] = Uniform();
@@ -142,10 +142,10 @@ void Spectral_Inter::Normal(int i, long double Range0[2], long double Range1[2])
 void Spectral_Inter::Print(ostream& Stream)
 {
 	for(int i = 0; i < 5; i++)
-		for(int j = 0; j < 3; j++)
+		for(int j = 1; j < 3; j++)
 		{
 			Stream << Parameters[i][j];
-			if(i != 4 && j != 2)
+			if(!(i == 4 && j == 2))
 				Stream << ",";
 		}
 	Stream << flush;
@@ -198,6 +198,9 @@ long double Spectral_Inter::Spatial(long double z)
 	long double Intervals = 2.*M_PI/z;
 	int i, j, l;		//Counting varibles
 
+	if(Parameters[0][0]==0 && Parameters[0][1]==0)
+		return(0);
+
 	a = 0;
 	b = M_PI/(2.*z);
 
@@ -240,15 +243,17 @@ long double Spectral_Inter::Spatial_sInt(long double z, long double P)
 	long double x1, x2;	//Abscissa
 	long double holder;
 	pair<long double, long double> zero;
-	int Intervals;
 	int i, j, l;		//Counting varibles
-	long double Stops[43] = {0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 3, 6, 9, 12, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 552.25};
+	long double Stops[42] = {0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 3, 6, 9, 12, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 552.25};
+
+	if(Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2])==0)
+		return(0);
 
 	Characterize(P, zero);
 	for(i = 0; i < 17; i++)
 		Stops[i+25] = pow(zero.first+zero.second*Range[i],2);
 
-	mergeSort(Stops, 0, Intervals-1);
+	mergeSort(Stops, 0, 41);
 
 	i = 0;
 	while(Stops[i] < 0)
@@ -296,15 +301,17 @@ long double Spectral_Inter::Spatial_P0Int(long double z, long double P0)
 	long double x1, x2;	//Abscissa
 	long double holder;
 	pair<long double, long double> zero;
-	int Intervals;
 	int i, j, l;		//Counting varibles
-	long double Stops[35] = {3, 6, 9, 12, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 552.25};
+	long double Stops[34] = {3, 6, 9, 12, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 552.25};
+
+	if(Q(P0, Parameters[0][0], Parameters[0][1], Parameters[0][2])==0)
+		return(0);
 
 	Characterize(P0, zero);
 	for(i = 0; i < 17; i++)
 		Stops[i+17] = pow(zero.first+zero.second*Range[i],2);
 
-	mergeSort(Stops, 0, Intervals-1);
+	mergeSort(Stops, 0, 33);
 
 	i = 0;
 	while(Stops[i] < 0)
@@ -352,15 +359,17 @@ long double Spectral_Inter::Euclidean(long double tau, long double P, long doubl
 	long double x1, x2;	//Abscissa
 	long double holder;
 	pair<long double, long double> zero;
-	int Intervals;
 	int i, j, l;		//Counting varibles
-	long double Stops[61] = {3, 6, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 604, 704, 804, 904, 1004, 2004, 3004, 4004, 5004, 6004, 7004, 8004, 9004, 10004, 10004, 20004, 30004, 40004, 50004, 60004, 70004, 80004, 90004, 100004, 110004, 120004, 130004, 140004, 150004, 160000};
+	long double Stops[60] = {3, 6, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 604, 704, 804, 904, 1004, 2004, 3004, 4004, 5004, 6004, 7004, 8004, 9004, 10004, 10004, 20004, 30004, 40004, 50004, 60004, 70004, 80004, 90004, 100004, 110004, 120004, 130004, 140004, 150004, 160000};
+
+	if(Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2])==0)
+		return(0);
 
 	Characterize(P, zero);
 	for(i = 0; i < 17; i++)
 		Stops[i+43] = pow(zero.first+zero.second*Range[i],2);
 
-	mergeSort(Stops, 0, Intervals-1);
+	mergeSort(Stops, 0, 59);
 
 	i = 0;
 	while(Stops[i] < 0)
@@ -410,15 +419,17 @@ long double Spectral_Inter::Euclidean(long double tau, long double P)
 	long double x1, x2;	//Abscissa
 	long double holder;
 	pair<long double, long double> zero;
-	int Intervals;
 	int i, j, l;		//Counting varibles
-	long double Stops[61] = {3, 6, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 604, 704, 804, 904, 1004, 2004, 3004, 4004, 5004, 6004, 7004, 8004, 9004, 10004, 10004, 20004, 30004, 40004, 50004, 60004, 70004, 80004, 90004, 100004, 110004, 120004, 130004, 140004, 150004, 160000};
+	long double Stops[60] = {3, 6, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 604, 704, 804, 904, 1004, 2004, 3004, 4004, 5004, 6004, 7004, 8004, 9004, 10004, 10004, 20004, 30004, 40004, 50004, 60004, 70004, 80004, 90004, 100004, 110004, 120004, 130004, 140004, 150004, 160000};
+
+	if(Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2])==0)
+		return(0);
 
 	Characterize(P, zero);
 	for(i = 0; i < 17; i++)
 		Stops[i+43] = pow(zero.first+zero.second*Range[i],2);
 
-	mergeSort(Stops, 0, Intervals-1);
+	mergeSort(Stops, 0, 59);
 
 	i = 0;
 	while(Stops[i] < 0)

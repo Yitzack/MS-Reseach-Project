@@ -24,7 +24,7 @@ long double Least_Squares(long double, long double, long double, long double);
 long double Print(Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][2], long double[4][7], long double[7], long double[4][7], int)
 ; //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
 
-long double Random_Range[14][2] = {{.1,.5},{1.,6.},{1.,3.5},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{1.59,1.79},{1.,6.},{1.5,5.},{1.,6.}};
+long double Random_Range[14][2] = {{.1,.5},{1.,6.},{2.5,3.5},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{1.59,1.79},{1.,6.},{1.5,5.},{1.,6.}};
 ofstream OutputFile;
 /*{0.288932, 3.08583, 2.14036, 6.28346, 0.176898, 3.7228, 10.4096, 3.68198, 3.3731, 5.49648, 1.7771, 5.67363, 3.33235, 5.37273, 0.189619 1.00418, 0.994359, 0.988435, 0.993465, 0.982567, 0.978127, 0.957538, 0.000761529} T=194 MeV Min
 {0.3, 3, 2.45, 5.5, 0.18, 3.6, 10.58, 4.57122, 3, 5.25, 1.7, 5.5, 2.25, 6, 0.169186, 1.00663, 1.03674, 1.00002, 0.997114, 0.999272, 0.946506, 0.939859, 0.00737184} T=194 MeV Grid
@@ -38,8 +38,8 @@ int main(int argc, char* argv[])
 {
 	long double JPsi_Parameters[5][5][3] = {{{.314831,.314831,1.},{3.0969,3.0969,1},{.032,.032,1},{9.34,9.34,1},{1,1,1}},
 						{{1.97/(2.*3.09946),.29663,2.99912},{3.09946,2.41053,5.50001},{.106597,.168958,3.60003},{10.58,10.58,4.57122},{3,3,5.25}},
-						{{.4024,.445826,3.86826},{3.125,2.58405,4.01049},{.372,.535639,4.20052},{8.97,10.3425,2.64938},{3,2.81697,2.12552}},
-						{{.403047,.184891,3.32152},{3.151,1.3123,5.23093},{.68,.064861,5.80902},{9.07,5.03399,5.12164},{3,1.55583,5.24328}},
+						{{.4024,.445826,3.86826},{3.125,2.58405,4.01049},{.372,.15,4.20052},{8.97,10.3425,2.64938},{3,2.81697,2.12552}},
+						{{.403047,.184891,3.32152},{3.151,2.7,5.23093},{.68,.064861,5.80902},{9.07,5.03399,5.12164},{3,1.55583,5.24328}},
 						{{.266834,.529109,4.49175},{3.1855,2.67237,2.20553},{.98,.165846,5.87198},{9.52,6.08157,2.67594},{3,2.80637,3.47611}}};
 	long double PsiPrime_Parameters[5][5][3] = {{{.150566,.150566,3.1},{3.6861,3.6861,3.6},{.102,.102,3.5},{9.34,9.34,4.57122},{1,1,5.25}},
 						    {{.55/(2.*3.785),.55/(2.*3.785),3.1},{3.785,3.785,3.6},{.43,.43,3.5},{10.58,10.58,4.57122},{1,1,5.25}},
@@ -74,6 +74,14 @@ int main(int argc, char* argv[])
 					       {0.0264690797013430510705, 0.00575549843590767333436}};
 	long double Medium_Spatial[4][7];
 	long double Medium_Euclidean[4][2];
+	int T;
+	for(T = 1; T < 5; T++)
+	{
+		Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
+		Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
+		for(int j = 0; j < 7; j++)
+			Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
+	}
 	/*for(int i = 0; i < 6; i++)	//Superceeded by precalculated values, standing by if services required
 		Vacuum_Spatial[i] = Spatial((long double)(i)+.25, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
 	Vacuum_Euclidean[0][0] = Euclidean(1./.388, .194, 0, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);
@@ -86,55 +94,52 @@ int main(int argc, char* argv[])
 	Vacuum_Euclidean[3][1] = Euclidean(1./.800, .400, 3, JPsi_Parameters[0], PsiPrime_Parameters[0], Non_Parameters[0], true);*/
 
 	char File[70] = "data/Optimiser_Output";
-	int T = atoi(argv[1]);
-	if(argc == 3)
+	if(argc == 2)
 	{
-		strcat(File,argv[2]);
 		strcat(File,".");
 		strcat(File,argv[1]);
 		strcat(File,".csv");
-		OutputFile.open(File,ios::app);
+		OutputFile.open(File);
 		if(!OutputFile.is_open())
 			return(1);
 	}
 	else if(argc == 31)
 	{
-		strcat(File,argv[2]);
 		strcat(File,".");
 		strcat(File,argv[1]);
 		strcat(File,".csv");
-		OutputFile.open(File,ios::app);
+		OutputFile.open(File);
 		if(!OutputFile.is_open())
 			return(1);
 
-		Random_Range[0][0] = atof(argv[3]);
-		Random_Range[0][1] = atof(argv[4]);
-		Random_Range[1][0] = atof(argv[5]);
-		Random_Range[1][1] = atof(argv[6]);
-		Random_Range[2][0] = atof(argv[7]);
-		Random_Range[2][1] = atof(argv[8]);
-		Random_Range[3][0] = atof(argv[9]);
-		Random_Range[3][1] = atof(argv[10]);
-		Random_Range[4][0] = atof(argv[11]);
-		Random_Range[4][1] = atof(argv[12]);
-		Random_Range[5][0] = atof(argv[13]);
-		Random_Range[5][1] = atof(argv[14]);
-		Random_Range[6][0] = atof(argv[15]);
-		Random_Range[6][1] = atof(argv[16]);
-		Random_Range[7][0] = atof(argv[17]);
-		Random_Range[7][1] = atof(argv[18]);
-		Random_Range[8][0] = atof(argv[19]);
-		Random_Range[8][1] = atof(argv[20]);
-		Random_Range[9][0] = atof(argv[21]);
-		Random_Range[9][1] = atof(argv[22]);
-		Random_Range[10][0] = atof(argv[23]);
-		Random_Range[10][1] = atof(argv[24]);
-		Random_Range[11][0] = atof(argv[25]);
-		Random_Range[11][1] = atof(argv[26]);
-		Random_Range[12][0] = atof(argv[27]);
-		Random_Range[12][1] = atof(argv[28]);
-		Random_Range[13][0] = atof(argv[29]);
-		Random_Range[13][1] = atof(argv[30]);
+		Random_Range[0][0] = atof(argv[2]);
+		Random_Range[0][1] = atof(argv[3]);
+		Random_Range[1][0] = atof(argv[4]);
+		Random_Range[1][1] = atof(argv[5]);
+		Random_Range[2][0] = atof(argv[6]);
+		Random_Range[2][1] = atof(argv[7]);
+		Random_Range[3][0] = atof(argv[8]);
+		Random_Range[3][1] = atof(argv[9]);
+		Random_Range[4][0] = atof(argv[10]);
+		Random_Range[4][1] = atof(argv[11]);
+		Random_Range[5][0] = atof(argv[12]);
+		Random_Range[5][1] = atof(argv[13]);
+		Random_Range[6][0] = atof(argv[14]);
+		Random_Range[6][1] = atof(argv[15]);
+		Random_Range[7][0] = atof(argv[16]);
+		Random_Range[7][1] = atof(argv[17]);
+		Random_Range[8][0] = atof(argv[18]);
+		Random_Range[8][1] = atof(argv[19]);
+		Random_Range[9][0] = atof(argv[20]);
+		Random_Range[9][1] = atof(argv[21]);
+		Random_Range[10][0] = atof(argv[22]);
+		Random_Range[10][1] = atof(argv[23]);
+		Random_Range[11][0] = atof(argv[24]);
+		Random_Range[11][1] = atof(argv[25]);
+		Random_Range[12][0] = atof(argv[26]);
+		Random_Range[12][1] = atof(argv[27]);
+		Random_Range[13][0] = atof(argv[28]);
+		Random_Range[13][1] = atof(argv[29]);
 	}
 	else
 	{
@@ -153,6 +158,7 @@ int main(int argc, char* argv[])
 		int Thread_Num = atoi(argv[4]);
 		int Dims[10];
 		int i;
+		T = atoi(argv[1]);
 
 		for(i = 0; i < 10; i++)
 		{
@@ -205,84 +211,52 @@ int main(int argc, char* argv[])
 			JPsi[T]->Replace(Parameter_List[i][8], 1, 1);
 			JPsi[T]->Replace(Parameter_List[i][9], 1, 2);
 
-			Medium_Euclidean[T][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
-			Medium_Euclidean[T][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
+			Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
+			Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
 			for(int j = 0; j < 7; j++)
-				Medium_Spatial[T][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
+				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 			Print(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, T);
 		}
 		return(0);
 	}
 
 	long double Best[15], Chi;
-	OutputFile << "Random Search seed: " << time(NULL)+3*atoi(argv[1]) << endl;
-	srand(time(NULL)+3*atoi(argv[2]));
-	time_t start_time = time(NULL);
-	int i = 0;
-	if(atoi(argv[2])!=0)
+	OutputFile << "Random Search seed: " << 1644290868 << endl;//time(NULL)+3*atoi(argv[1]) << endl;
+	srand(1644290868);//time(NULL)+3*atoi(argv[1]));
+	time_t master_start_time = time(NULL);
+	time_t round_start_time;
+	T = 1;
+	do
 	{
-		JPsi[T]->Normal(0, Random_Range[0], Random_Range[1]);
-		JPsi[T]->Normal(1, Random_Range[2], Random_Range[3]);
-		JPsi[T]->Normal(2, Random_Range[4], Random_Range[5]);
-		JPsi[T]->Normal(3, Random_Range[6], Random_Range[7]);
-		JPsi[T]->Normal(4, Random_Range[8], Random_Range[9]);
-		Non[T]->Normal(0, Random_Range[10], Random_Range[11]);
-		Non[T]->Normal(1, Random_Range[12], Random_Range[13]);
-		Best[0] = JPsi[T]->Read(0,1);
-		Best[1] = JPsi[T]->Read(0,2);
-		Best[2] = JPsi[T]->Read(1,1);
-		Best[3] = JPsi[T]->Read(1,2);
-		Best[4] = JPsi[T]->Read(2,1);
-		Best[5] = JPsi[T]->Read(2,2);
-		Best[6] = JPsi[T]->Read(3,1);
-		Best[7] = JPsi[T]->Read(3,2);
-		Best[8] = JPsi[T]->Read(4,1);
-		Best[9] = JPsi[T]->Read(4,2);
-		Best[10] = Non[T]->Read(0,1);
-		Best[11] = Non[T]->Read(0,2);
-		Best[12] = Non[T]->Read(1,1);
-		Best[13] = Non[T]->Read(1,2);
-	}
-	else
-	{
-		Best[0] = JPsi[T]->Read(0,1);
-		Best[1] = JPsi[T]->Read(0,2);
-		Best[2] = JPsi[T]->Read(1,1);
-		Best[3] = JPsi[T]->Read(1,2);
-		Best[4] = JPsi[T]->Read(2,1);
-		Best[5] = JPsi[T]->Read(2,2);
-		Best[6] = JPsi[T]->Read(3,1);
-		Best[7] = JPsi[T]->Read(3,2);
-		Best[8] = JPsi[T]->Read(4,1);
-		Best[9] = JPsi[T]->Read(4,2);
-		Best[10] = Non[T]->Read(0,1);
-		Best[11] = Non[T]->Read(0,2);
-		Best[12] = Non[T]->Read(1,1);
-		Best[13] = Non[T]->Read(1,2);
-	}
-	Medium_Euclidean[T][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
-	Medium_Euclidean[T][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
-	for(int j = 0; j < 7; j++)
-		Medium_Spatial[T][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
-	Best[14] = Print(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, T);
-
-	while(difftime(time(NULL), start_time) < 9000 && i < 28)
-	{
-		JPsi[T]->Normal(0, Random_Range[0], Random_Range[1]);
-		JPsi[T]->Normal(1, Random_Range[2], Random_Range[3]);
-		JPsi[T]->Normal(2, Random_Range[4], Random_Range[5]);
-		JPsi[T]->Normal(3, Random_Range[6], Random_Range[7]);
-		JPsi[T]->Normal(4, Random_Range[8], Random_Range[9]);
-		Non[T]->Normal(0, Random_Range[10], Random_Range[11]);
-		Non[T]->Normal(1, Random_Range[12], Random_Range[13]);
-		Medium_Euclidean[T][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
-		Medium_Euclidean[T][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
-		for(int j = 0; j < 7; j++)
-			Medium_Spatial[T][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
-
-		Chi = Print(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, T);
-
-		if((!isnan(Chi) && Chi < Best[14]) || isnan(Best[14]))
+		OutputFile << "Random Search" << endl;
+		int i = 0;
+		if(atoi(argv[1])!=0)
+		{
+			JPsi[T]->Normal(0, Random_Range[0], Random_Range[1]);
+			JPsi[T]->Normal(1, Random_Range[2], Random_Range[3]);
+			JPsi[T]->Normal(2, Random_Range[4], Random_Range[5]);
+			JPsi[T]->Normal(3, Random_Range[6], Random_Range[7]);
+			Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
+			Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
+			JPsi[T]->Normal(4, Random_Range[8], Random_Range[9]);
+			Non[T]->Normal(0, Random_Range[10], Random_Range[11]);
+			Non[T]->Normal(1, Random_Range[12], Random_Range[13]);
+			Best[0] = JPsi[T]->Read(0,1);
+			Best[1] = JPsi[T]->Read(0,2);
+			Best[2] = JPsi[T]->Read(1,1);
+			Best[3] = JPsi[T]->Read(1,2);
+			Best[4] = JPsi[T]->Read(2,1);
+			Best[5] = JPsi[T]->Read(2,2);
+			Best[6] = JPsi[T]->Read(3,1);
+			Best[7] = JPsi[T]->Read(3,2);
+			Best[8] = JPsi[T]->Read(4,1);
+			Best[9] = JPsi[T]->Read(4,2);
+			Best[10] = Non[T]->Read(0,1);
+			Best[11] = Non[T]->Read(0,2);
+			Best[12] = Non[T]->Read(1,1);
+			Best[13] = Non[T]->Read(1,2);
+		}
+		else
 		{
 			Best[0] = JPsi[T]->Read(0,1);
 			Best[1] = JPsi[T]->Read(0,2);
@@ -298,69 +272,124 @@ int main(int argc, char* argv[])
 			Best[11] = Non[T]->Read(0,2);
 			Best[12] = Non[T]->Read(1,1);
 			Best[13] = Non[T]->Read(1,2);
-			Best[14] = Chi;
-			i = 0;
 		}
-		else
+		Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
+		Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
+		for(int j = 0; j < 7; j++)
+			Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
+		Best[14] = Print(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, T);
+
+		round_start_time = time(NULL);
+		while(difftime(time(NULL), round_start_time) < 15 && i < 28)
 		{
-			JPsi[T]->Replace(Best[0],0,1);
-			JPsi[T]->Replace(Best[1],0,2);
-			JPsi[T]->Replace(Best[2],1,1);
-			JPsi[T]->Replace(Best[3],1,2);
-			JPsi[T]->Replace(Best[4],2,1);
-			JPsi[T]->Replace(Best[5],2,2);
-			JPsi[T]->Replace(Best[6],3,1);
-			JPsi[T]->Replace(Best[7],3,2);
-			JPsi[T]->Replace(Best[8],4,1);
-			JPsi[T]->Replace(Best[9],4,2);
-			Non[T]->Replace(Best[10],0,1);
-			Non[T]->Replace(Best[11],0,2);
-			Non[T]->Replace(Best[12],1,1);
-			Non[T]->Replace(Best[13],1,2);
-			i++;
+		cout << "Random Search: " << T << " i=" << i << endl;
+			JPsi[T]->Normal(0, Random_Range[0], Random_Range[1]);
+			JPsi[T]->Normal(1, Random_Range[2], Random_Range[3]);
+			JPsi[T]->Normal(2, Random_Range[4], Random_Range[5]);
+			JPsi[T]->Normal(3, Random_Range[6], Random_Range[7]);
+			Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
+			Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
+			JPsi[T]->Normal(4, Random_Range[8], Random_Range[9]);
+			Non[T]->Normal(0, Random_Range[10], Random_Range[11]);
+			Non[T]->Normal(1, Random_Range[12], Random_Range[13]);
+			Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
+			Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
+			for(int j = 0; j < 7; j++)
+				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
+
+			Chi = Print(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, T);
+
+			if((!isnan(Chi) && Chi < Best[14]) || isnan(Best[14]))
+			{
+				Best[0] = JPsi[T]->Read(0,1);
+				Best[1] = JPsi[T]->Read(0,2);
+				Best[2] = JPsi[T]->Read(1,1);
+				Best[3] = JPsi[T]->Read(1,2);
+				Best[4] = JPsi[T]->Read(2,1);
+				Best[5] = JPsi[T]->Read(2,2);
+				Best[6] = JPsi[T]->Read(3,1);
+				Best[7] = JPsi[T]->Read(3,2);
+				Best[8] = JPsi[T]->Read(4,1);
+				Best[9] = JPsi[T]->Read(4,2);
+				Best[10] = Non[T]->Read(0,1);
+				Best[11] = Non[T]->Read(0,2);
+				Best[12] = Non[T]->Read(1,1);
+				Best[13] = Non[T]->Read(1,2);
+				Best[14] = Chi;
+				i = 0;
+			}
+			else
+			{
+				JPsi[T]->Replace(Best[0],0,1);
+				JPsi[T]->Replace(Best[1],0,2);
+				JPsi[T]->Replace(Best[2],1,1);
+				JPsi[T]->Replace(Best[3],1,2);
+				JPsi[T]->Replace(Best[4],2,1);
+				JPsi[T]->Replace(Best[5],2,2);
+				JPsi[T]->Replace(Best[6],3,1);
+				JPsi[T]->Replace(Best[7],3,2);
+				Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
+				Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
+				JPsi[T]->Replace(Best[8],4,1);
+				JPsi[T]->Replace(Best[9],4,2);
+				Non[T]->Replace(Best[10],0,1);
+				Non[T]->Replace(Best[11],0,2);
+				Non[T]->Replace(Best[12],1,1);
+				Non[T]->Replace(Best[13],1,2);
+				i++;
+			}
 		}
-	}
-	JPsi[T]->Replace(Best[0],0,1);
-	JPsi[T]->Replace(Best[1],0,2);
-	JPsi[T]->Replace(Best[2],1,1);
-	JPsi[T]->Replace(Best[3],1,2);
-	JPsi[T]->Replace(Best[4],2,1);
-	JPsi[T]->Replace(Best[5],2,2);
-	JPsi[T]->Replace(Best[6],3,1);
-	JPsi[T]->Replace(Best[7],3,2);
-	JPsi[T]->Replace(Best[8],4,1);
-	JPsi[T]->Replace(Best[9],4,2);
-	Non[T]->Replace(Best[10],0,1);
-	Non[T]->Replace(Best[11],0,2);
-	Non[T]->Replace(Best[12],1,1);
-	Non[T]->Replace(Best[13],1,2);
+		JPsi[T]->Replace(Best[0],0,1);
+		JPsi[T]->Replace(Best[1],0,2);
+		JPsi[T]->Replace(Best[2],1,1);
+		JPsi[T]->Replace(Best[3],1,2);
+		JPsi[T]->Replace(Best[4],2,1);
+		JPsi[T]->Replace(Best[5],2,2);
+		JPsi[T]->Replace(Best[6],3,1);
+		JPsi[T]->Replace(Best[7],3,2);
+		Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
+		Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
+		JPsi[T]->Replace(Best[8],4,1);
+		JPsi[T]->Replace(Best[9],4,2);
+		Non[T]->Replace(Best[10],0,1);
+		Non[T]->Replace(Best[11],0,2);
+		Non[T]->Replace(Best[12],1,1);
+		Non[T]->Replace(Best[13],1,2);
 
-	long double gradn_1[14], gradn[14], sn_1[14], sn[14];
-	long double betan = 0, betan_1;
-	start_time = time(NULL);
+		long double gradn_1[14], gradn[14], sn_1[14], sn[14];
+		long double betan = 0, betan_1;
+		round_start_time = time(NULL);
 
-	Gradient(gradn_1, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio, T);
-	for(int i = 0; i < 14; i++)
-		sn_1[i] = gradn_1[i];
-	Minimize(sn_1, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio, T);
-	do
-	{
-		betan_1 = betan;
-		Gradient(gradn, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio, T);
-		betan = PolakRibiere(gradn_1,gradn);
-		if(betan < 0)
-			for(int i = 0; i < 14; i++)
-				sn[i] = gradn[i]+betan*sn_1[i];
-		else
-			for(int i = 0; i < 14; i++)
-				sn[i] = gradn[i];
-		Minimize(sn, JPsi, Psi_Prime, Non,  Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio, T);
+		Gradient(gradn_1, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio, T);
 		for(int i = 0; i < 14; i++)
 		{
-			gradn_1[i] = gradn[i];
-			sn_1[i] = sn[i];
+			sn_1[i] = gradn_1[i];
+			cout << gradn_1[i] << "," << flush;
 		}
-	}while((abs(betan)>1e-12 || abs(betan_1)>1e-12) && time(NULL)-start_time < 9000);
+		cout << endl;
+		Minimize(sn_1, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio, T);
+		do
+		{
+			betan_1 = betan;
+			Gradient(gradn, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio, T);
+			betan = PolakRibiere(gradn_1,gradn);
+			if(betan < 0)
+				for(int i = 0; i < 14; i++)
+					sn[i] = gradn[i]+betan*sn_1[i];
+			else
+				for(int i = 0; i < 14; i++)
+					sn[i] = gradn[i];
+			Minimize(sn, JPsi, Psi_Prime, Non,  Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio, T);
+			for(int i = 0; i < 14; i++)
+			{
+				gradn_1[i] = gradn[i];
+				sn_1[i] = sn[i];
+			}
+		}while((abs(betan)>1e-12 || abs(betan_1)>1e-12) && difftime(time(NULL), round_start_time) < 60);
+	
+		T++;
+		if(T>=5) T = 1;
+	}while(difftime(time(NULL), master_start_time) < 1800);
 
 	OutputFile.close();
 
@@ -383,60 +412,77 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_P
 				Non_Local[i][j] = Non[T]->Read(i,j);
 		}
 
-	length[0][0] = (sn[0]>0)?(Random_Range[0][1]-JPsi_Local[0][1])/sn[0]:(Random_Range[0][0]-JPsi_Local[0][1])/sn[0];
-	length[0][1] = (sn[0]>0)?(Random_Range[0][0]-JPsi_Local[0][1])/sn[0]:(Random_Range[0][1]-JPsi_Local[0][1])/sn[0];
-	length[1][0] = (sn[1]>0)?(Random_Range[1][1]-JPsi_Local[0][2])/sn[1]:(Random_Range[1][0]-JPsi_Local[0][2])/sn[1];
-	length[1][1] = (sn[1]>0)?(Random_Range[1][0]-JPsi_Local[0][2])/sn[1]:(Random_Range[1][1]-JPsi_Local[0][2])/sn[1];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[2]>0)?(Random_Range[2][1]-JPsi_Local[1][1])/sn[2]:(Random_Range[2][0]-JPsi_Local[1][1])/sn[2];
-	length[1][1] = (sn[2]>0)?(Random_Range[2][0]-JPsi_Local[1][1])/sn[2]:(Random_Range[2][1]-JPsi_Local[1][1])/sn[2];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[3]>0)?(Random_Range[3][1]-JPsi_Local[1][2])/sn[3]:(Random_Range[3][0]-JPsi_Local[1][2])/sn[3];
-	length[1][1] = (sn[3]>0)?(Random_Range[3][0]-JPsi_Local[1][2])/sn[3]:(Random_Range[3][1]-JPsi_Local[1][2])/sn[3];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[4]>0)?(Random_Range[4][1]-JPsi_Local[2][1])/sn[4]:(Random_Range[4][0]-JPsi_Local[2][1])/sn[4];
-	length[1][1] = (sn[4]>0)?(Random_Range[4][0]-JPsi_Local[2][1])/sn[4]:(Random_Range[4][1]-JPsi_Local[2][1])/sn[4];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[5]>0)?(Random_Range[5][1]-JPsi_Local[2][2])/sn[5]:(Random_Range[5][0]-JPsi_Local[2][2])/sn[5];
-	length[1][1] = (sn[5]>0)?(Random_Range[5][0]-JPsi_Local[2][2])/sn[5]:(Random_Range[5][1]-JPsi_Local[2][2])/sn[5];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[6]>0)?(Random_Range[6][1]-JPsi_Local[3][1])/sn[6]:(Random_Range[6][0]-JPsi_Local[3][1])/sn[6];
-	length[1][1] = (sn[6]>0)?(Random_Range[6][0]-JPsi_Local[3][1])/sn[6]:(Random_Range[6][1]-JPsi_Local[3][1])/sn[6];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[7]>0)?(Random_Range[7][1]-JPsi_Local[3][2])/sn[7]:(Random_Range[7][0]-JPsi_Local[3][2])/sn[7];
-	length[1][1] = (sn[7]>0)?(Random_Range[7][0]-JPsi_Local[3][2])/sn[7]:(Random_Range[7][1]-JPsi_Local[3][2])/sn[7];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[8]>0)?(Random_Range[8][1]-JPsi_Local[4][1])/sn[8]:(Random_Range[8][0]-JPsi_Local[4][1])/sn[8];
-	length[1][1] = (sn[8]>0)?(Random_Range[8][0]-JPsi_Local[4][1])/sn[8]:(Random_Range[8][1]-JPsi_Local[4][1])/sn[8];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[9]>0)?(Random_Range[9][1]-JPsi_Local[4][2])/sn[9]:(Random_Range[9][0]-JPsi_Local[4][2])/sn[9];
-	length[1][1] = (sn[9]>0)?(Random_Range[9][0]-JPsi_Local[4][2])/sn[9]:(Random_Range[9][1]-JPsi_Local[4][2])/sn[9];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[10]>0)?(Random_Range[10][1]-Non_Local[0][1])/sn[10]:(Random_Range[10][0]-Non_Local[0][1])/sn[10];
-	length[1][1] = (sn[10]>0)?(Random_Range[10][0]-Non_Local[0][1])/sn[10]:(Random_Range[10][1]-Non_Local[0][1])/sn[10];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[11]>0)?(Random_Range[11][1]-Non_Local[0][2])/sn[11]:(Random_Range[11][0]-Non_Local[0][2])/sn[11];
-	length[1][1] = (sn[11]>0)?(Random_Range[11][0]-Non_Local[0][2])/sn[11]:(Random_Range[11][1]-Non_Local[0][2])/sn[11];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[12]>0)?(Random_Range[12][1]-Non_Local[1][1])/sn[12]:(Random_Range[12][0]-Non_Local[1][1])/sn[12];
-	length[1][1] = (sn[12]>0)?(Random_Range[12][0]-Non_Local[1][1])/sn[12]:(Random_Range[12][1]-Non_Local[1][1])/sn[12];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[13]>0)?(Random_Range[13][1]-Non_Local[1][2])/sn[13]:(Random_Range[13][0]-Non_Local[1][2])/sn[13];
-	length[1][1] = (sn[13]>0)?(Random_Range[13][0]-Non_Local[1][2])/sn[13]:(Random_Range[13][1]-Non_Local[1][2])/sn[13];
-	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
+	length[0][0] = (sn[0]>0)?sn[0]/(Random_Range[0][1]-JPsi_Local[0][1]):sn[0]/(Random_Range[0][0]-JPsi_Local[0][1]);
+	length[0][1] = (sn[0]>0)?sn[0]/(Random_Range[0][0]-JPsi_Local[0][1]):sn[0]/(Random_Range[0][1]-JPsi_Local[0][1]);
+	cout << 1./length[0][0] << "," << 1./length[0][1] << endl;
+	length[1][0] = (sn[1]>0)?sn[1]/(Random_Range[1][1]-JPsi_Local[0][2]):sn[1]/(Random_Range[1][0]-JPsi_Local[0][2]);
+	length[1][1] = (sn[1]>0)?sn[1]/(Random_Range[1][0]-JPsi_Local[0][2]):sn[1]/(Random_Range[1][1]-JPsi_Local[0][2]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[2]>0)?sn[1]/(Random_Range[2][1]-JPsi_Local[1][1]):sn[1]/(Random_Range[2][0]-JPsi_Local[1][1]);
+	length[1][1] = (sn[2]>0)?sn[1]/(Random_Range[2][0]-JPsi_Local[1][1]):sn[1]/(Random_Range[2][1]-JPsi_Local[1][1]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[3]>0)?sn[3]/(Random_Range[3][1]-JPsi_Local[1][2]):sn[3]/(Random_Range[3][0]-JPsi_Local[1][2]);
+	length[1][1] = (sn[3]>0)?sn[3]/(Random_Range[3][0]-JPsi_Local[1][2]):sn[3]/(Random_Range[3][1]-JPsi_Local[1][2]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[4]>0)?sn[4]/(Random_Range[4][1]-JPsi_Local[2][1]):sn[4]/(Random_Range[4][0]-JPsi_Local[2][1]);
+	length[1][1] = (sn[4]>0)?sn[4]/(Random_Range[4][0]-JPsi_Local[2][1]):sn[4]/(Random_Range[4][1]-JPsi_Local[2][1]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[5]>0)?sn[5]/(Random_Range[5][1]-JPsi_Local[2][2]):sn[5]/(Random_Range[5][0]-JPsi_Local[2][2]);
+	length[1][1] = (sn[5]>0)?sn[5]/(Random_Range[5][0]-JPsi_Local[2][2]):sn[5]/(Random_Range[5][1]-JPsi_Local[2][2]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[6]>0)?sn[6]/(Random_Range[6][1]-JPsi_Local[3][1]):sn[6]/(Random_Range[6][0]-JPsi_Local[3][1]);
+	length[1][1] = (sn[6]>0)?sn[6]/(Random_Range[6][0]-JPsi_Local[3][1]):sn[6]/(Random_Range[6][1]-JPsi_Local[3][1]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[7]>0)?sn[7]/(Random_Range[7][1]-JPsi_Local[3][2]):sn[7]/(Random_Range[7][0]-JPsi_Local[3][2]);
+	length[1][1] = (sn[7]>0)?sn[7]/(Random_Range[7][0]-JPsi_Local[3][2]):sn[7]/(Random_Range[7][1]-JPsi_Local[3][2]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[8]>0)?sn[8]/(Random_Range[8][1]-JPsi_Local[4][1]):sn[8]/(Random_Range[8][0]-JPsi_Local[4][1]);
+	length[1][1] = (sn[8]>0)?sn[8]/(Random_Range[8][0]-JPsi_Local[4][1]):sn[8]/(Random_Range[8][1]-JPsi_Local[4][1]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[9]>0)?sn[9]/(Random_Range[9][1]-JPsi_Local[4][2]):sn[9]/(Random_Range[9][0]-JPsi_Local[4][2]);
+	length[1][1] = (sn[9]>0)?sn[9]/(Random_Range[9][0]-JPsi_Local[4][2]):sn[9]/(Random_Range[9][1]-JPsi_Local[4][2]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[10]>0)?sn[10]/(Random_Range[10][1]-Non_Local[0][1]):sn[10]/(Random_Range[10][0]-Non_Local[0][1]);
+	length[1][1] = (sn[10]>0)?sn[10]/(Random_Range[10][0]-Non_Local[0][1]):sn[10]/(Random_Range[10][1]-Non_Local[0][1]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[11]>0)?sn[11]/(Random_Range[11][1]-Non_Local[0][2]):sn[11]/(Random_Range[11][0]-Non_Local[0][2]);
+	length[1][1] = (sn[11]>0)?sn[11]/(Random_Range[11][0]-Non_Local[0][2]):sn[11]/(Random_Range[11][1]-Non_Local[0][2]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[12]>0)?sn[12]/(Random_Range[12][1]-Non_Local[1][1]):sn[12]/(Random_Range[12][0]-Non_Local[1][1]);
+	length[1][1] = (sn[12]>0)?sn[12]/(Random_Range[12][0]-Non_Local[1][1]):sn[12]/(Random_Range[12][1]-Non_Local[1][1]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[13]>0)?sn[13]/(Random_Range[13][1]-Non_Local[1][2]):sn[13]/(Random_Range[13][0]-Non_Local[1][2]);
+	length[1][1] = (sn[13]>0)?sn[13]/(Random_Range[13][0]-Non_Local[1][2]):sn[13]/(Random_Range[13][1]-Non_Local[1][2]);
+	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	cout << 1./length[0][0] << "," << 1./length[0][1] << endl;
+	length[0][0] = 1./length[0][0];
+	length[0][1] = 1./length[0][1];
 
 	long double fz[101][2];
 	long double a = 0, c = 1;
@@ -454,16 +500,18 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_P
 		JPsi[T]->Replace(JPsi_Local[2][2]+length[0][0]*fz[i][0]*sn[5], 2, 2);
 		JPsi[T]->Replace(JPsi_Local[3][1]+length[0][0]*fz[i][0]*sn[6], 3, 1);
 		JPsi[T]->Replace(JPsi_Local[3][2]+length[0][0]*fz[i][0]*sn[7], 3, 2);
+		Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
+		Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
 		JPsi[T]->Replace(JPsi_Local[4][1]+length[0][0]*fz[i][0]*sn[8], 4, 1);
 		JPsi[T]->Replace(JPsi_Local[4][2]+length[0][0]*fz[i][0]*sn[9], 4, 2);
 		Non[T]->Replace(Non_Local[0][1]+length[0][0]*fz[i][0]*sn[10], 0, 1);
 		Non[T]->Replace(Non_Local[0][2]+length[0][0]*fz[i][0]*sn[11], 0, 2);
 		Non[T]->Replace(Non_Local[1][1]+length[0][0]*fz[i][0]*sn[12], 1, 1);
 		Non[T]->Replace(Non_Local[1][2]+length[0][0]*fz[i][0]*sn[13], 1, 2);
-		Medium_Euclidean[T][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5, 0)+Non[T]->Euclidean(.5, 0);
-		Medium_Euclidean[T][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5, 3)+Non[T]->Euclidean(.5, 3);
+		Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5, 0)+Non[T]->Euclidean(.5, 0);
+		Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5, 3)+Non[T]->Euclidean(.5, 3);
 		for(int j = 0; j < 7; j++)
-			Medium_Spatial[T][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
+			Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 		fz[i][1] = Print(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, T);
 	}
 
@@ -503,6 +551,8 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_P
 			JPsi[T]->Replace(JPsi_Local[2][2]+length[0][0]*x*sn[5], 2, 2);
 			JPsi[T]->Replace(JPsi_Local[3][1]+length[0][0]*x*sn[6], 3, 1);
 			JPsi[T]->Replace(JPsi_Local[3][2]+length[0][0]*x*sn[7], 3, 2);
+			Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
+			Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
 			JPsi[T]->Replace(JPsi_Local[4][1]+length[0][0]*x*sn[8], 4, 1);
 			JPsi[T]->Replace(JPsi_Local[4][2]+length[0][0]*x*sn[9], 4, 2);
 			Non[T]->Replace(Non_Local[0][1]+length[0][0]*x*sn[10], 0, 1);
@@ -544,16 +594,18 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_P
 		JPsi[T]->Replace(JPsi_Local[2][2]+length[0][0]*u*sn[5], 2, 2);
 		JPsi[T]->Replace(JPsi_Local[3][1]+length[0][0]*u*sn[6], 3, 1);
 		JPsi[T]->Replace(JPsi_Local[3][2]+length[0][0]*u*sn[7], 3, 2);
+		Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
+		Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
 		JPsi[T]->Replace(JPsi_Local[4][1]+length[0][0]*u*sn[8], 4, 1);
 		JPsi[T]->Replace(JPsi_Local[4][2]+length[0][0]*u*sn[9], 4, 2);
 		Non[T]->Replace(Non_Local[0][1]+length[0][0]*u*sn[10], 0, 1);
 		Non[T]->Replace(Non_Local[0][2]+length[0][0]*u*sn[11], 0, 2);
 		Non[T]->Replace(Non_Local[1][1]+length[0][0]*u*sn[12], 1, 1);
 		Non[T]->Replace(Non_Local[1][2]+length[0][0]*u*sn[13], 1, 2);
-		Medium_Euclidean[T][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5, 0)+Non[T]->Euclidean(.5, 0);
-		Medium_Euclidean[T][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5, 3)+Non[T]->Euclidean(.5, 3);
+		Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5, 0)+Non[T]->Euclidean(.5, 0);
+		Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5, 3)+Non[T]->Euclidean(.5, 3);
 		for(int j = 0; j < 7; j++)
-			Medium_Spatial[T][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
+			Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 		fu = Print(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, T);
 
 		if(fu <= fx)
@@ -608,33 +660,26 @@ long double PolakRibiere(long double gradn_1[14], long double gradn[14])
 void Gradient(long double grad[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7], long double Vacuum_Euclidean[4][2], long double Vacuum_Spatial[7], long double Spatial_Ratio[4][7], int T)
 {
 	long double f0, f1, h = 1e-5;
-	long double holder[3];
-	long double Reduce_Euclidean[2][2];
-	long double Reduce_Spatial[2][7];
+	long double Reduce_Euclidean[3][2];
+	long double Reduce_Spatial[3][7];
 	int i, j;
 	
 	OutputFile << "Gradient" << endl;
-	holder[0] = JPsi[T]->Euclidean(.5, 0);
-	holder[1] = Psi_Prime[T]->Euclidean(.5, 0);
-	holder[2] = Non[T]->Euclidean(.5, 0);
-	Medium_Euclidean[T][0] = holder[0]+holder[1]+holder[2];
-	Reduce_Euclidean[0][0] = holder[1]+holder[2];
-	Reduce_Euclidean[1][0] = holder[0]+holder[1];
+	Reduce_Euclidean[0][0] = JPsi[T]->Euclidean(.5, 0);
+	Reduce_Euclidean[1][0] = Psi_Prime[T]->Euclidean(.5, 0);
+	Reduce_Euclidean[2][0] = Non[T]->Euclidean(.5, 0);
+	Medium_Euclidean[T-1][0] = Reduce_Euclidean[0][0]+Reduce_Euclidean[1][0]+Reduce_Euclidean[2][0];
 
-	holder[0] = JPsi[T]->Euclidean(.5, 3);
-	holder[1] = Psi_Prime[T]->Euclidean(.5, 3);
-	holder[2] = Non[T]->Euclidean(.5, 3);
-	Medium_Euclidean[T][1] = holder[0]+holder[1]+holder[2];
-	Reduce_Euclidean[0][1] = holder[1]+holder[2];
-	Reduce_Euclidean[1][1] = holder[0]+holder[1];
+	Reduce_Euclidean[0][1] = JPsi[T]->Euclidean(.5, 3);
+	Reduce_Euclidean[1][1] = Psi_Prime[T]->Euclidean(.5, 3);
+	Reduce_Euclidean[2][1] = Non[T]->Euclidean(.5, 3);
+	Medium_Euclidean[T-1][1] = Reduce_Euclidean[0][1]+Reduce_Euclidean[1][1]+Reduce_Euclidean[2][1];
 	for(int j = 0; j < 7; j++)
 	{
-		holder[0] = JPsi[T]->Spatial((long double)(j)+.25);
-		holder[1] = Psi_Prime[T]->Spatial((long double)(j)+.25);
-		holder[2] = Non[T]->Spatial((long double)(j)+.25);
-		Medium_Spatial[T][j] = holder[0]+holder[1]+holder[2];
-		Reduce_Spatial[0][j] = holder[1]+holder[2];
-		Reduce_Spatial[1][j] = holder[0]+holder[1];
+		Reduce_Spatial[0][j] = JPsi[T]->Spatial((long double)(j)+.25);
+		Reduce_Spatial[1][j] = Psi_Prime[T]->Spatial((long double)(j)+.25);
+		Reduce_Spatial[2][j] = Non[T]->Spatial((long double)(j)+.25);
+		Medium_Spatial[T][j] = Reduce_Spatial[0][j]+Reduce_Spatial[1][j]+Reduce_Spatial[2][j];
 	}
 	f0 = Chi_Square(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	//cerr << "Gradient " << f0 << endl;
@@ -643,10 +688,22 @@ void Gradient(long double grad[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi
 		for(j = 1; j < 3; j++)
 		{
 			JPsi[T]->Add(h,i,j);
-			Medium_Euclidean[T][0] = JPsi[T]->Euclidean(.5, 0)+Reduce_Euclidean[0][0];
-			Medium_Euclidean[T][1] = JPsi[T]->Euclidean(.5, 3)+Reduce_Euclidean[0][1];
-			for(int j = 0; j < 7; j++)
-				Medium_Spatial[T][j] = JPsi[T]->Spatial((long double)(j)+.25)+Reduce_Spatial[0][j];
+			if(i == 3)
+			{
+				Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
+				Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
+				Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5, 0)+Reduce_Euclidean[2][0];
+				Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5, 3)+Reduce_Euclidean[2][1];
+				for(int j = 0; j < 7; j++)
+					Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Reduce_Spatial[2][j];
+			}
+			else
+			{
+				Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Reduce_Euclidean[1][0]+Reduce_Euclidean[2][0];
+				Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Reduce_Euclidean[1][1]+Reduce_Euclidean[2][1];
+				for(int j = 0; j < 7; j++)
+					Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Reduce_Spatial[1][j]+Reduce_Spatial[2][j];
+			}
 			f1 = Print(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, T);
 			JPsi[T]->Add(-h,i,j);
 			grad[i*2+j-1] = (f0-f1)/h;
@@ -657,10 +714,10 @@ void Gradient(long double grad[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi
 		for(j = 1; j < 3; j++)
 		{
 			Non[T]->Add(h,i,j);
-			Medium_Euclidean[T][0] = Reduce_Euclidean[1][0]+Non[T]->Euclidean(.5, 0);
-			Medium_Euclidean[T][1] = Reduce_Euclidean[1][1]+Non[T]->Euclidean(.5, 3);
+			Medium_Euclidean[T-1][0] = Reduce_Euclidean[0][0]+Reduce_Euclidean[1][0]+Non[T]->Euclidean(.5, 0);
+			Medium_Euclidean[T-1][1] = Reduce_Euclidean[0][1]+Reduce_Euclidean[1][1]+Non[T]->Euclidean(.5, 3);
 			for(int j = 0; j < 7; j++)
-				Medium_Spatial[T][j] = Reduce_Spatial[1][j]+Non[T]->Spatial((long double)(j)+.25);
+				Medium_Spatial[T-1][j] = Reduce_Spatial[0][j]+Reduce_Spatial[1][j]+Non[T]->Spatial((long double)(j)+.25);
 			f1 = Print(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, T);
 			Non[T]->Add(-h,i,j);
 			grad[i*2+j+9] = (f0-f1)/h;
@@ -695,10 +752,12 @@ long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Sp
 		for(int j = 0; j < 7; j++)
 			answer += pow(Medium_Spatial[i][j]/Vacuum_Spatial[j]-Spatial_Ratio[i][j],2)/Spatial_Ratio[i][j];
 
-	for(int i = 0; i < 15; i++)
-		answer += Least_Squares(JPsi[1]->Read(i), JPsi[2]->Read(i), JPsi[3]->Read(i), JPsi[4]->Read(i));
-	for(int i = 0; i < 6; i++)
-		answer += Least_Squares(Non[1]->Read(i), Non[2]->Read(i), Non[3]->Read(i), Non[4]->Read(i));
+	for(int i = 0; i < 5; i++)
+		for(int j = 1; j < 2; j++)
+			answer += Least_Squares(JPsi[1]->Read(i,j), JPsi[2]->Read(i,j), JPsi[3]->Read(i,j), JPsi[4]->Read(i,j));
+	for(int i = 0; i < 2; i++)
+		for(int j = 1; j < 2; j++)
+			answer += Least_Squares(Non[1]->Read(i,j), Non[2]->Read(i,j), Non[3]->Read(i,j), Non[4]->Read(i,j));
 
 	return(answer);
 }
