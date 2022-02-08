@@ -221,8 +221,8 @@ int main(int argc, char* argv[])
 	}
 
 	long double Best[15], Chi;
-	OutputFile << "Random Search seed: " << 1644290868 << endl;//time(NULL)+3*atoi(argv[1]) << endl;
-	srand(1644290868);//time(NULL)+3*atoi(argv[1]));
+	OutputFile << "Random Search seed: " << time(NULL)+3*atoi(argv[1]) << endl;
+	srand(time(NULL)+3*atoi(argv[1]));
 	time_t master_start_time = time(NULL);
 	time_t round_start_time;
 	T = 1;
@@ -282,7 +282,6 @@ int main(int argc, char* argv[])
 		round_start_time = time(NULL);
 		while(difftime(time(NULL), round_start_time) < 15 && i < 28)
 		{
-		cout << "Random Search: " << T << " i=" << i << endl;
 			JPsi[T]->Normal(0, Random_Range[0], Random_Range[1]);
 			JPsi[T]->Normal(1, Random_Range[2], Random_Range[3]);
 			JPsi[T]->Normal(2, Random_Range[4], Random_Range[5]);
@@ -362,11 +361,7 @@ int main(int argc, char* argv[])
 
 		Gradient(gradn_1, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio, T);
 		for(int i = 0; i < 14; i++)
-		{
 			sn_1[i] = gradn_1[i];
-			cout << gradn_1[i] << "," << flush;
-		}
-		cout << endl;
 		Minimize(sn_1, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio, T);
 		do
 		{
@@ -414,73 +409,58 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_P
 
 	length[0][0] = (sn[0]>0)?sn[0]/(Random_Range[0][1]-JPsi_Local[0][1]):sn[0]/(Random_Range[0][0]-JPsi_Local[0][1]);
 	length[0][1] = (sn[0]>0)?sn[0]/(Random_Range[0][0]-JPsi_Local[0][1]):sn[0]/(Random_Range[0][1]-JPsi_Local[0][1]);
-	cout << 1./length[0][0] << "," << 1./length[0][1] << endl;
 	length[1][0] = (sn[1]>0)?sn[1]/(Random_Range[1][1]-JPsi_Local[0][2]):sn[1]/(Random_Range[1][0]-JPsi_Local[0][2]);
 	length[1][1] = (sn[1]>0)?sn[1]/(Random_Range[1][0]-JPsi_Local[0][2]):sn[1]/(Random_Range[1][1]-JPsi_Local[0][2]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[2]>0)?sn[1]/(Random_Range[2][1]-JPsi_Local[1][1]):sn[1]/(Random_Range[2][0]-JPsi_Local[1][1]);
 	length[1][1] = (sn[2]>0)?sn[1]/(Random_Range[2][0]-JPsi_Local[1][1]):sn[1]/(Random_Range[2][1]-JPsi_Local[1][1]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[3]>0)?sn[3]/(Random_Range[3][1]-JPsi_Local[1][2]):sn[3]/(Random_Range[3][0]-JPsi_Local[1][2]);
 	length[1][1] = (sn[3]>0)?sn[3]/(Random_Range[3][0]-JPsi_Local[1][2]):sn[3]/(Random_Range[3][1]-JPsi_Local[1][2]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[4]>0)?sn[4]/(Random_Range[4][1]-JPsi_Local[2][1]):sn[4]/(Random_Range[4][0]-JPsi_Local[2][1]);
 	length[1][1] = (sn[4]>0)?sn[4]/(Random_Range[4][0]-JPsi_Local[2][1]):sn[4]/(Random_Range[4][1]-JPsi_Local[2][1]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[5]>0)?sn[5]/(Random_Range[5][1]-JPsi_Local[2][2]):sn[5]/(Random_Range[5][0]-JPsi_Local[2][2]);
 	length[1][1] = (sn[5]>0)?sn[5]/(Random_Range[5][0]-JPsi_Local[2][2]):sn[5]/(Random_Range[5][1]-JPsi_Local[2][2]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[6]>0)?sn[6]/(Random_Range[6][1]-JPsi_Local[3][1]):sn[6]/(Random_Range[6][0]-JPsi_Local[3][1]);
 	length[1][1] = (sn[6]>0)?sn[6]/(Random_Range[6][0]-JPsi_Local[3][1]):sn[6]/(Random_Range[6][1]-JPsi_Local[3][1]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[7]>0)?sn[7]/(Random_Range[7][1]-JPsi_Local[3][2]):sn[7]/(Random_Range[7][0]-JPsi_Local[3][2]);
 	length[1][1] = (sn[7]>0)?sn[7]/(Random_Range[7][0]-JPsi_Local[3][2]):sn[7]/(Random_Range[7][1]-JPsi_Local[3][2]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[8]>0)?sn[8]/(Random_Range[8][1]-JPsi_Local[4][1]):sn[8]/(Random_Range[8][0]-JPsi_Local[4][1]);
 	length[1][1] = (sn[8]>0)?sn[8]/(Random_Range[8][0]-JPsi_Local[4][1]):sn[8]/(Random_Range[8][1]-JPsi_Local[4][1]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[9]>0)?sn[9]/(Random_Range[9][1]-JPsi_Local[4][2]):sn[9]/(Random_Range[9][0]-JPsi_Local[4][2]);
 	length[1][1] = (sn[9]>0)?sn[9]/(Random_Range[9][0]-JPsi_Local[4][2]):sn[9]/(Random_Range[9][1]-JPsi_Local[4][2]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[10]>0)?sn[10]/(Random_Range[10][1]-Non_Local[0][1]):sn[10]/(Random_Range[10][0]-Non_Local[0][1]);
 	length[1][1] = (sn[10]>0)?sn[10]/(Random_Range[10][0]-Non_Local[0][1]):sn[10]/(Random_Range[10][1]-Non_Local[0][1]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[11]>0)?sn[11]/(Random_Range[11][1]-Non_Local[0][2]):sn[11]/(Random_Range[11][0]-Non_Local[0][2]);
 	length[1][1] = (sn[11]>0)?sn[11]/(Random_Range[11][0]-Non_Local[0][2]):sn[11]/(Random_Range[11][1]-Non_Local[0][2]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[12]>0)?sn[12]/(Random_Range[12][1]-Non_Local[1][1]):sn[12]/(Random_Range[12][0]-Non_Local[1][1]);
 	length[1][1] = (sn[12]>0)?sn[12]/(Random_Range[12][0]-Non_Local[1][1]):sn[12]/(Random_Range[12][1]-Non_Local[1][1]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[13]>0)?sn[13]/(Random_Range[13][1]-Non_Local[1][2]):sn[13]/(Random_Range[13][0]-Non_Local[1][2]);
 	length[1][1] = (sn[13]>0)?sn[13]/(Random_Range[13][0]-Non_Local[1][2]):sn[13]/(Random_Range[13][1]-Non_Local[1][2]);
-	cout << 1./length[1][0] << "," << 1./length[1][1] << endl;
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
-	cout << 1./length[0][0] << "," << 1./length[0][1] << endl;
 	length[0][0] = 1./length[0][0];
 	length[0][1] = 1./length[0][1];
 
