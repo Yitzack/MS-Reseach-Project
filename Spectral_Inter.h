@@ -19,7 +19,7 @@ class Spectral_Inter{
 		void Replace(long double, int, int);
 		long double Read(int);			//Read a parameter
 		long double Read(int, int);
-		void Normal(int, long double[2], long double[2]);
+		void Random(int, long double[2], long double[2], bool);
 
 		Spectral_Inter(long double[5][3], long double, bool);
 		Spectral_Inter(long double[15], long double, bool);
@@ -40,6 +40,8 @@ class Spectral_Inter{
 
 		void mergeSort(long double[], int, int);
 		long double Q(long double, long double, long double, long double);
+		void Normal(int, long double[2], long double[2]);
+		void Uniform(int, int, long double, long double);
 		long double Uniform();
 		const long double Boundary[8] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85};
 };
@@ -116,6 +118,21 @@ Spectral_Inter::Spectral_Inter(long double Parm[15], int T, bool Vac)
 	}
 
 	Vacuum = Vac;
+}
+
+void Spectral_Inter::Random(int i, long double Range0[2], long double Range1[2], bool uni_norm)
+{
+	if(uni_norm)
+	{
+		Uniform(i, 1, Range0[0], Range0[1]);
+		Uniform(i, 2, Range1[0], Range1[1]);
+	}
+	else
+	{
+		Normal(i, Range0, Range1);
+	}
+
+	return;
 }
 
 void Spectral_Inter::Normal(int i, long double Range0[2], long double Range1[2])
@@ -551,6 +568,11 @@ long double Spectral_Inter::Spectral(long double s, long double P)
 long double Spectral_Inter::Q(long double P, long double Q0, long double QV, long double P0)
 {
 	return((Q0*pow(P0,2)+QV*pow(P,2))/(pow(P0,2)+pow(P,2)));
+}
+
+void Spectral_Inter::Uniform(int i, int j, long double a, long double b)
+{
+	Parameters[i][j] = Uniform()*(b-a)+a;
 }
 
 long double Spectral_Inter::Uniform()

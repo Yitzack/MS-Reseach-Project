@@ -19,7 +19,7 @@ void Gradient(long double[14], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_
 long double PolakRibiere(long double[14], long double[14]);
 void Minimize(long double[14], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][7], long double[4][2], long double[7], long double[4][7], int);
 
-long double Chi_Square(Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][2], long double[4][7], long double[7], long double[4][7]);
+long double Chi_Square(Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][2], long double[4][7], long double[7], long double[4][7], int);
 long double Least_Squares(long double, long double, long double, long double);
 long double Print(Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][2], long double[4][7], long double[7], long double[4][7], int)
 ; //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
@@ -75,6 +75,7 @@ int main(int argc, char* argv[])
 	long double Medium_Spatial[4][7];
 	long double Medium_Euclidean[4][2];
 	int T;
+	bool Cycle = true;
 	for(T = 1; T < 5; T++)
 	{
 		Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
@@ -99,7 +100,7 @@ int main(int argc, char* argv[])
 		strcat(File,".");
 		strcat(File,argv[1]);
 		strcat(File,".csv");
-		OutputFile.open(File);
+		OutputFile.open(File,ios::app);
 		if(!OutputFile.is_open())
 			return(1);
 	}
@@ -108,7 +109,7 @@ int main(int argc, char* argv[])
 		strcat(File,".");
 		strcat(File,argv[1]);
 		strcat(File,".csv");
-		OutputFile.open(File);
+		OutputFile.open(File,ios::app);
 		if(!OutputFile.is_open())
 			return(1);
 
@@ -232,15 +233,15 @@ int main(int argc, char* argv[])
 		int i = 0;
 		if(atoi(argv[1])!=0)
 		{
-			JPsi[T]->Normal(0, Random_Range[0], Random_Range[1]);
-			JPsi[T]->Normal(1, Random_Range[2], Random_Range[3]);
-			JPsi[T]->Normal(2, Random_Range[4], Random_Range[5]);
-			JPsi[T]->Normal(3, Random_Range[6], Random_Range[7]);
+			JPsi[T]->Random(0, Random_Range[0], Random_Range[1], Cycle);
+			JPsi[T]->Random(1, Random_Range[2], Random_Range[3], Cycle);
+			JPsi[T]->Random(2, Random_Range[4], Random_Range[5], Cycle);
+			JPsi[T]->Random(3, Random_Range[6], Random_Range[7], Cycle);
 			Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
 			Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
-			JPsi[T]->Normal(4, Random_Range[8], Random_Range[9]);
-			Non[T]->Normal(0, Random_Range[10], Random_Range[11]);
-			Non[T]->Normal(1, Random_Range[12], Random_Range[13]);
+			JPsi[T]->Random(4, Random_Range[8], Random_Range[9], Cycle);
+			Non[T]->Random(0, Random_Range[10], Random_Range[11], Cycle);
+			Non[T]->Random(1, Random_Range[12], Random_Range[13], Cycle);
 			Best[0] = JPsi[T]->Read(0,1);
 			Best[1] = JPsi[T]->Read(0,2);
 			Best[2] = JPsi[T]->Read(1,1);
@@ -280,17 +281,17 @@ int main(int argc, char* argv[])
 		Best[14] = Print(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, T);
 
 		round_start_time = time(NULL);
-		while(difftime(time(NULL), round_start_time) < 15 && i < 1800)
+		while(difftime(time(NULL), round_start_time) < 1800 && i < 28)
 		{
-			JPsi[T]->Normal(0, Random_Range[0], Random_Range[1]);
-			JPsi[T]->Normal(1, Random_Range[2], Random_Range[3]);
-			JPsi[T]->Normal(2, Random_Range[4], Random_Range[5]);
-			JPsi[T]->Normal(3, Random_Range[6], Random_Range[7]);
+			JPsi[T]->Random(0, Random_Range[0], Random_Range[1], Cycle);
+			JPsi[T]->Random(1, Random_Range[2], Random_Range[3], Cycle);
+			JPsi[T]->Random(2, Random_Range[4], Random_Range[5], Cycle);
+			JPsi[T]->Random(3, Random_Range[6], Random_Range[7], Cycle);
 			Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
 			Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
-			JPsi[T]->Normal(4, Random_Range[8], Random_Range[9]);
-			Non[T]->Normal(0, Random_Range[10], Random_Range[11]);
-			Non[T]->Normal(1, Random_Range[12], Random_Range[13]);
+			JPsi[T]->Random(4, Random_Range[8], Random_Range[9], Cycle);
+			Non[T]->Random(0, Random_Range[10], Random_Range[11], Cycle);
+			Non[T]->Random(1, Random_Range[12], Random_Range[13], Cycle);
 			Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
 			Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
 			for(int j = 0; j < 7; j++)
@@ -724,16 +725,24 @@ long double Print(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectra
 	return(Chi);
 }
 
-long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Vacuum_Euclidean[4][2], long double Medium_Spatial[4][7], long double Vacuum_Spatial[7], long double Spatial_Ratio[4][7])
+long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Vacuum_Euclidean[4][2], long double Medium_Spatial[4][7], long double Vacuum_Spatial[7], long double Spatial_Ratio[4][7], int Temp)
 {
 	long double answer = 0;
 
-	for(int i = 0; i < 4; i++)
-		answer += pow(Medium_Euclidean[i][1]/Vacuum_Euclidean[i][1]-Medium_Euclidean[i][0]/Vacuum_Euclidean[i][0]-.2,2)/.2;
-
-	for(int i = 0; i < 4; i++)
+	if(Temp != 0)	//Temprature Chi-squared, so that one temp doesn't get lost under other temps that aren't as well refined
+	{
+		answer += pow(Medium_Euclidean[Temp-1][1]/Vacuum_Euclidean[Temp-1][1]-Medium_Euclidean[Temp-1][0]/Vacuum_Euclidean[Temp-1][0]-.2,2)/.2;
 		for(int j = 0; j < 7; j++)
-			answer += pow(Medium_Spatial[i][j]/Vacuum_Spatial[j]-Spatial_Ratio[i][j],2)/Spatial_Ratio[i][j];
+			answer += pow(Medium_Spatial[Temp-1][j]/Vacuum_Spatial[j]-Spatial_Ratio[Temp-1][j],2)/Spatial_Ratio[Temp-1][j];
+	}
+	else	//Total Chi-squared
+	{
+		for(int i = 0; i < 4; i++)
+			answer += pow(Medium_Euclidean[i][1]/Vacuum_Euclidean[i][1]-Medium_Euclidean[i][0]/Vacuum_Euclidean[i][0]-.2,2)/.2;
+		for(int i = 0; i < 4; i++)
+			for(int j = 0; j < 7; j++)
+				answer += pow(Medium_Spatial[i][j]/Vacuum_Spatial[j]-Spatial_Ratio[i][j],2)/Spatial_Ratio[i][j];
+	}
 
 	for(int i = 0; i < 5; i++)
 		for(int j = 1; j < 2; j++)

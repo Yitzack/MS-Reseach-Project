@@ -16,7 +16,7 @@ class Spectral_Non{
 		void Replace(long double, int, int);
 		long double Read(int);			//Read a parameter
 		long double Read(int, int);
-		void Normal(int, long double[2], long double[2]);
+		void Random(int, long double[2], long double[2], bool);
 
 		Spectral_Non(long double[2][3], long double, bool);
 		Spectral_Non(long double[6], long double, bool);
@@ -35,6 +35,8 @@ class Spectral_Non{
 		long double EuclideanKernel(long double s, long double P, long double tau, long double T);
 
 		long double Q(long double, long double, long double, long double);
+		void Normal(int, long double[2], long double[2]);
+		void Uniform(int, int, long double, long double);
 		long double Uniform();
 };
 
@@ -110,6 +112,21 @@ Spectral_Non::Spectral_Non(long double Parm[6], int T, bool Vac)
 	}
 
 	Vacuum = Vac;
+}
+
+void Spectral_Non::Random(int i, long double Range0[2], long double Range1[2], bool uni_norm)
+{
+        if(uni_norm)
+        {
+                Uniform(i, 1, Range0[0], Range0[1]);
+                Uniform(i, 2, Range1[0], Range1[1]);
+        }
+        else
+        {
+                Normal(i, Range0, Range1);
+        }
+
+        return;
 }
 
 void Spectral_Non::Normal(int i, long double Range0[2], long double Range1[2])
@@ -454,6 +471,11 @@ long double Spectral_Non::Spectral(long double s, long double P)
 long double Spectral_Non::Q(long double P, long double Q0, long double QV, long double P0)
 {
 	return((Q0*pow(P0,2)+QV*pow(P,2))/(pow(P0,2)+pow(P,2)));
+}
+
+void Spectral_Inter::Uniform(int i, int j, long double a, long double b)
+{
+        Parameters[i][j] = Uniform()*(b-a)+a;
 }
 
 long double Spectral_Non::Uniform()
