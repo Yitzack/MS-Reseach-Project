@@ -707,14 +707,17 @@ void Gradient(long double grad[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi
 
 long double Print(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Vacuum_Euclidean[4][2], long double Medium_Spatial[4][7], long double Vacuum_Spatial[7], long double Spatial_Ratio[4][7], int Temp)
 {
-	OutputFile << Temp << "," << flush;
-	JPsi[Temp]->Print(OutputFile);
-	OutputFile << ",";
-	Non[Temp]->Print(OutputFile);
-	OutputFile << "," << Medium_Euclidean[Temp-1][1]/Vacuum_Euclidean[Temp-1][1]-Medium_Euclidean[Temp-1][0]/Vacuum_Euclidean[Temp-1][0] << "," << flush;
-	for(int j = 0; j < 7; j++)
+	for(int i = 1; i < 5; i++)
 	{
-		OutputFile << Medium_Spatial[Temp-1][j]/Vacuum_Spatial[j] << "," << flush;
+		OutputFile << i << "," << flush;
+		JPsi[i]->Print(OutputFile);
+		OutputFile << ",";
+		Non[i]->Print(OutputFile);
+		OutputFile << "," << Medium_Euclidean[i-1][1]/Vacuum_Euclidean[i-1][1]-Medium_Euclidean[i-1][0]/Vacuum_Euclidean[i-1][0] << "," << flush;
+		for(int j = 0; j < 7; j++)
+		{
+			OutputFile << Medium_Spatial[i-1][j]/Vacuum_Spatial[j] << "," << flush;
+		}
 	}
 	long double Chi = Chi_Square(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
 	OutputFile << Chi << endl;
