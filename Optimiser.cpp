@@ -755,7 +755,7 @@ long double Print(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectra
 		OutputFile << chi_Out[i] << "," << flush;
 	}
 	OutputFile << chi_linear << "," << chi_Out[0] << endl;
-	return(Chi);
+	return(chi_Out[0]);
 }
 
 long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Vacuum_Euclidean[4][2], long double Medium_Spatial[4][7], long double Vacuum_Spatial[7], long double Spatial_Ratio[4][7], int Temp)
