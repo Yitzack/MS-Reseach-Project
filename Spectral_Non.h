@@ -473,7 +473,7 @@ long double Spectral_Non::Q(long double P, long double Q0, long double QV, long 
 	return((Q0*pow(P0,2)+QV*pow(P,2))/(pow(P0,2)+pow(P,2)));
 }
 
-void Spectral_Inter::Uniform(int i, int j, long double a, long double b)
+void Spectral_Non::Uniform(int i, int j, long double a, long double b)
 {
         Parameters[i][j] = Uniform()*(b-a)+a;
 }
