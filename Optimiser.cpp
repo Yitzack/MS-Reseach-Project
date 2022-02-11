@@ -711,6 +711,10 @@ void Gradient(long double grad[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi
 			//cerr << "Gradient " << f1 << " " << grad[0] << endl;
 		}
 
+	for(i; i < 5; i++)
+		for(j = 0; j < 3; j++)
+			grad[i*2+j-1] = 0;
+
 	for(i = 0; i < 2; i++)
 		for(j = 1; j < 3; j++)
 		{
