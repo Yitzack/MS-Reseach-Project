@@ -504,7 +504,7 @@ void Spectral_Inter::Characterize(long double P, pair<long double, long double>&
 	if(isnan(zero.second) || M_new < 2.5 || M_new > 4.5)
 	{
 		zero.first = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
-		zero.second = Q(P,Parameters[3][0],Parameters[3][1],Parameters[3][2]);
+		zero.second = Q(P,Parameters[2][0],Parameters[2][1],Parameters[2][2])*Width(zero.first,P);
 	}
 }
 
