@@ -48,25 +48,25 @@ int main(int argc, char* argv[])
 					       {{1.59,1.69153,3.42941},{2.7,2.26904,4.4543}},
 					       {{1.51,1.64566,5.31292},{2.4,3.93386,5.40511}},
 					       {{1.36,1.56825,3.52402},{1.98,1.78377,3.60395}}};*/
-/*{0.496299, 2.22434, 3.08625, 3.65373, 0.111499, 2.5064, 10.2796, 3.7574, 3.11408, 3.97944, 1.65511, 1.16113, 1.94182, 1.1952, -0.09253, 0.998279, 0.961124, 0.940596, 0.933862, 0.936096, 0.937303, 0.820366, 0.763843} T=194 MeV Grid
-{0.435929, 2.35913, 2.91458, 1.62311, 0.121766, 4.15214, 11.195, 2.39425, 3.45662, 2.94666, 1.59044, 4.66222, 4.49366, 1.63344, 0.0314621, 0.984802, 0.797197, 0.726426, 0.729257, 0.741236, 0.394921, 0.874434, 0.737935} T=258 Grid
-{0.462728, 2.44122, 3.22741, 5.30318, 0.121299, 1.92309, 10.6627, 5.68392, 2.7598, 3.59181, 1.72849, 2.63744, 3.58422, 3.18298, 0.0510034, 0.984802, 0.797193, 0.726383, 0.727844, 0.731248, 0.0906411, 0.640101, 0.927391} T=320 MeV Grid
-{0.197367, 2.10737, 2.58737, 2.10737, 0.111367, 3.90737, 9.52737, 1.00737, 3.00737, 1.00737, 1.36737, 3.09737, 1.98737, 5.50737, 0.0632417, 0.976796, 0.702505, 0.613464, 0.645032, 0.742582, 0.825325, 0.166261, 4.45329} T=400 MeV Grid*/
+/*{1, 0.172203, 2.35534, 2.65928, 4.55517, 0.176593, 2.34302, 10.7745, 4.00927, 2.98617, 3.91323, 1.6557, 2.44807, 3.60542, 1.93449, -0.092542, 0.998279, 0.961151, 0.940489, 0.932428, 0.927563, 0.895863, 0.624772, 0.560898,
+2, 0.487709, 4.5535, 3.3331, 1.91861, 0.11185, 3.07496, 13.7223, 2.61299, 1.81941, 2.22449, 1.59034, 2.41953, 3.95857, 1.92468, 0.0314521, 0.984802, 0.797231, 0.72642, 0.725395, 0.685274, 0.706916, 0.654938, 0.273171,
+3, 0.462728, 2.44122, 3.22741, 5.30318, 0.121299, 1.92309, 10.6627, 5.68392, 2.7598, 3.59181, 1.72849, 2.63744, 3.58422, 3.18298, 0.0510032, 0.984802, 0.797231, 0.72642, 0.725366, 0.684991, 0.694521, 0.480793, 0.32854,
+4, 0.197406, 2.10741, 2.58741, 2.10741, 0.111406, 3.90741, 9.52741, 1.00741, 3.00741, 1.00741, 1.36741, 3.09741, 1.98741, 5.50741, 0.0632412, 0.976796, 0.702505, 0.613528, 0.644618, 0.756777, 0.83364, 0.189434, 1.97982, 3.2925, 6.43493}*/
 	long double JPsi_Parameters[5][5][3] = {{{.314831,.314831,1.},{3.0969,3.0969,1},{.032,.032,1},{9.34,9.34,1},{1,1,1}},
-						{{1.97/(2.*3.09946),.496299,2.22434},{3.09946,3.08625,3.65373},{.106597,.111499,2.5064},{10.58,10.2796,3.7574},{3,3.11408,3.97944}},
-						{{.4024,.435929,2.35913},{3.125,2.91458,1.62311},{.372,.121766,4.15214},{8.97,11.195,2.39425},{3,3.45662,2.94666}},
+						{{1.97/(2.*3.09946),.172203,2.35534},{3.09946,2.65928,4.55517},{.106597,.176593,2.34302},{10.58,10.7745,4.00927},{3,2.98617,3.91323}},
+						{{.4024,.487709,4.5535},{3.125,3.3331,1.91861},{.372,.11185,3.07496},{8.97,13.7223,2.61299},{3,1.81941,2.22449}},
 						{{.403047,.462728,2.44122},{3.151,3.22741,5.30318},{.68,.121299,1.92309},{9.07,10.6627,5.68392},{3,2.7598,3.59181}},
-						{{.266834,.197367,2.10737},{3.1855,2.58737,2.10737},{.98,.111367,3.90737},{9.52,9.52737,1.00737},{3,3.00737,1.00737}}};
+						{{.266834,.197406,2.10741},{3.1855,2.58741,2.10741},{.98,.111406,3.90741},{9.52,9.52741,1.00741},{3,3.00741,1.00741}}};
 	long double PsiPrime_Parameters[5][5][3] = {{{.150566,.150566,3.1},{3.6861,3.6861,3.6},{.102,.102,3.5},{9.34,9.34,4.57122},{1,1,5.25}},
-						    {{.55/(2.*3.785),.55/(2.*3.785),3.1},{3.785,3.785,3.6},{.43,.43,3.5},{10.58,10.2796,3.7574},{1,1,5.25}},
+						    {{.55/(2.*3.785),.55/(2.*3.785),3.1},{3.785,3.785,3.6},{.43,.43,3.5},{10.58,10.7745,4.00927},{1,1,5.25}},
 						    {{0,0,1},{0,0,1},{0,0,1},{0,0,1},{0,0,1}},
 						    {{0,0,1},{0,0,1},{0,0,1},{0,0,1},{0,0,1}},
 						    {{0,0,1},{0,0,1},{0,0,1},{0,0,1},{0,0,1}}};
 	long double Non_Parameters[5][2][3] = {{{1.775,1.775,3.09},{2.41182,2.41182,5.5}},
-					       {{1.655,1.65511,1.16113},{2.45,1.94182,1.1952}},
-					       {{1.59,1.59044,4.66222},{2.7,4.49366,1.63344}},
+					       {{1.655,1.6557,2.4807},{2.45,3.60542,1.93449}},
+					       {{1.59,1.59034,2.41953},{2.7,3.95857,1.92468}},
 					       {{1.51,1.72849,2.63744},{2.4,3.58422,3.18298}},
-					       {{1.36,1.36737,3.09737},{1.98,1.98737,5.50737}}};
+					       {{1.36,1.36741,3.09741},{1.98,1.98741,5.50741}}};
 
 	Spectral_Inter* JPsi[5];
 	Spectral_Inter* Psi_Prime[5];
@@ -434,8 +434,8 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_P
 	length[1][1] = (sn[1]>0)?sn[1]/(Random_Range[1][0]-JPsi_Local[0][2]):sn[1]/(Random_Range[1][1]-JPsi_Local[0][2]);
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[2]>0)?sn[1]/(Random_Range[2][1]-JPsi_Local[1][1]):sn[1]/(Random_Range[2][0]-JPsi_Local[1][1]);
-	length[1][1] = (sn[2]>0)?sn[1]/(Random_Range[2][0]-JPsi_Local[1][1]):sn[1]/(Random_Range[2][1]-JPsi_Local[1][1]);
+	length[1][0] = (sn[2]>0)?sn[2]/(Random_Range[2][1]-JPsi_Local[1][1]):sn[2]/(Random_Range[2][0]-JPsi_Local[1][1]);
+	length[1][1] = (sn[2]>0)?sn[2]/(Random_Range[2][0]-JPsi_Local[1][1]):sn[2]/(Random_Range[2][1]-JPsi_Local[1][1]);
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[3]>0)?sn[3]/(Random_Range[3][1]-JPsi_Local[1][2]):sn[3]/(Random_Range[3][0]-JPsi_Local[1][2]);
@@ -450,7 +450,7 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_P
 	length[1][1] = (sn[5]>0)?sn[5]/(Random_Range[5][0]-JPsi_Local[2][2]):sn[5]/(Random_Range[5][1]-JPsi_Local[2][2]);
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
-	length[1][0] = (sn[6]>0)?sn[6]/(Random_Range[6][1]-JPsi_Local[3][1]):sn[6]/(Random_Range[6][0]-JPsi_Local[3][1]);
+	/*length[1][0] = (sn[6]>0)?sn[6]/(Random_Range[6][1]-JPsi_Local[3][1]):sn[6]/(Random_Range[6][0]-JPsi_Local[3][1]);
 	length[1][1] = (sn[6]>0)?sn[6]/(Random_Range[6][0]-JPsi_Local[3][1]):sn[6]/(Random_Range[6][1]-JPsi_Local[3][1]);
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
@@ -465,7 +465,7 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_P
 	length[1][0] = (sn[9]>0)?sn[9]/(Random_Range[9][1]-JPsi_Local[4][2]):sn[9]/(Random_Range[9][0]-JPsi_Local[4][2]);
 	length[1][1] = (sn[9]>0)?sn[9]/(Random_Range[9][0]-JPsi_Local[4][2]):sn[9]/(Random_Range[9][1]-JPsi_Local[4][2]);
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];*/
 	length[1][0] = (sn[10]>0)?sn[10]/(Random_Range[10][1]-Non_Local[0][1]):sn[10]/(Random_Range[10][0]-Non_Local[0][1]);
 	length[1][1] = (sn[10]>0)?sn[10]/(Random_Range[10][0]-Non_Local[0][1]):sn[10]/(Random_Range[10][1]-Non_Local[0][1]);
 	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
@@ -499,12 +499,12 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_P
 		JPsi[T]->Replace(JPsi_Local[1][2]+length[0][0]*fz[i][0]*sn[3], 1, 2);
 		JPsi[T]->Replace(JPsi_Local[2][1]+length[0][0]*fz[i][0]*sn[4], 2, 1);
 		JPsi[T]->Replace(JPsi_Local[2][2]+length[0][0]*fz[i][0]*sn[5], 2, 2);
-		JPsi[T]->Replace(JPsi_Local[3][1]+length[0][0]*fz[i][0]*sn[6], 3, 1);
+		/*JPsi[T]->Replace(JPsi_Local[3][1]+length[0][0]*fz[i][0]*sn[6], 3, 1);
 		JPsi[T]->Replace(JPsi_Local[3][2]+length[0][0]*fz[i][0]*sn[7], 3, 2);
 		Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
 		Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
 		JPsi[T]->Replace(JPsi_Local[4][1]+length[0][0]*fz[i][0]*sn[8], 4, 1);
-		JPsi[T]->Replace(JPsi_Local[4][2]+length[0][0]*fz[i][0]*sn[9], 4, 2);
+		JPsi[T]->Replace(JPsi_Local[4][2]+length[0][0]*fz[i][0]*sn[9], 4, 2);*/
 		Non[T]->Replace(Non_Local[0][1]+length[0][0]*fz[i][0]*sn[10], 0, 1);
 		Non[T]->Replace(Non_Local[0][2]+length[0][0]*fz[i][0]*sn[11], 0, 2);
 		Non[T]->Replace(Non_Local[1][1]+length[0][0]*fz[i][0]*sn[12], 1, 1);
@@ -550,12 +550,12 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_P
 			JPsi[T]->Replace(JPsi_Local[1][2]+length[0][0]*x*sn[3], 1, 2);
 			JPsi[T]->Replace(JPsi_Local[2][1]+length[0][0]*x*sn[4], 2, 1);
 			JPsi[T]->Replace(JPsi_Local[2][2]+length[0][0]*x*sn[5], 2, 2);
-			JPsi[T]->Replace(JPsi_Local[3][1]+length[0][0]*x*sn[6], 3, 1);
+			/*JPsi[T]->Replace(JPsi_Local[3][1]+length[0][0]*x*sn[6], 3, 1);
 			JPsi[T]->Replace(JPsi_Local[3][2]+length[0][0]*x*sn[7], 3, 2);
 			Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
 			Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
 			JPsi[T]->Replace(JPsi_Local[4][1]+length[0][0]*x*sn[8], 4, 1);
-			JPsi[T]->Replace(JPsi_Local[4][2]+length[0][0]*x*sn[9], 4, 2);
+			JPsi[T]->Replace(JPsi_Local[4][2]+length[0][0]*x*sn[9], 4, 2);*/
 			Non[T]->Replace(Non_Local[0][1]+length[0][0]*x*sn[10], 0, 1);
 			Non[T]->Replace(Non_Local[0][2]+length[0][0]*x*sn[11], 0, 2);
 			Non[T]->Replace(Non_Local[1][1]+length[0][0]*x*sn[12], 1, 1);
@@ -593,12 +593,12 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_P
 		JPsi[T]->Replace(JPsi_Local[1][2]+length[0][0]*u*sn[3], 1, 2);
 		JPsi[T]->Replace(JPsi_Local[2][1]+length[0][0]*u*sn[4], 2, 1);
 		JPsi[T]->Replace(JPsi_Local[2][2]+length[0][0]*u*sn[5], 2, 2);
-		JPsi[T]->Replace(JPsi_Local[3][1]+length[0][0]*u*sn[6], 3, 1);
+		/*JPsi[T]->Replace(JPsi_Local[3][1]+length[0][0]*u*sn[6], 3, 1);
 		JPsi[T]->Replace(JPsi_Local[3][2]+length[0][0]*u*sn[7], 3, 2);
 		Psi_Prime[T]->Replace(JPsi[T]->Read(3,1),3,1);
 		Psi_Prime[T]->Replace(JPsi[T]->Read(3,2),3,2);
 		JPsi[T]->Replace(JPsi_Local[4][1]+length[0][0]*u*sn[8], 4, 1);
-		JPsi[T]->Replace(JPsi_Local[4][2]+length[0][0]*u*sn[9], 4, 2);
+		JPsi[T]->Replace(JPsi_Local[4][2]+length[0][0]*u*sn[9], 4, 2);*/
 		Non[T]->Replace(Non_Local[0][1]+length[0][0]*u*sn[10], 0, 1);
 		Non[T]->Replace(Non_Local[0][2]+length[0][0]*u*sn[11], 0, 2);
 		Non[T]->Replace(Non_Local[1][1]+length[0][0]*u*sn[12], 1, 1);
@@ -685,7 +685,7 @@ void Gradient(long double grad[14], Spectral_Inter* JPsi[5], Spectral_Inter* Psi
 	f0 = Chi_Square(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, T);
 	//cerr << "Gradient " << f0 << endl;
 
-	for(i = 0; i < 5; i++)
+	for(i = 0; i < 3; i++)
 		for(j = 1; j < 3; j++)
 		{
 			JPsi[T]->Add(h,i,j);
