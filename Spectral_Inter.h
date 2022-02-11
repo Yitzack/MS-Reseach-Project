@@ -486,15 +486,15 @@ void Spectral_Inter::Characterize(long double P, pair<long double, long double>&
 {
 	long double M_old = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
 	long double M_new;
-	long double h = .001;
+	long double h = .00001;
 	int i = 0;
 
-	M_new = M_old - h*(Spectral(pow(M_old+h,2), P)-Spectral(pow(M_old,2), P))/(Spectral(pow(M_old-h,2), P)-2.*Spectral(pow(M_old,2), P)+Spectral(pow(M_old+h,2), P));
+	M_new = M_old - h*(1./Spectral(pow(M_old+h,2), P)-1./Spectral(pow(M_old,2), P))/(1./Spectral(pow(M_old-h,2), P)-2.*1./Spectral(pow(M_old,2), P)+1./Spectral(pow(M_old+h,2), P));
 
 	while(abs(M_new/M_old-1.) > 1e-5 && i < 20)
 	{
 		M_old = M_new;
-		M_new = M_old - h*(Spectral(pow(M_old+h,2), P)-Spectral(pow(M_old,2), P))/(Spectral(pow(M_old-h,2), P)-2.*Spectral(pow(M_old,2), P)+Spectral(pow(M_old+h,2), P));
+		M_new = M_old - h*(1./Spectral(pow(M_old+h,2), P)-1./Spectral(pow(M_old,2), P))/(1./Spectral(pow(M_old-h,2), P)-2./Spectral(pow(M_old,2), P)+1./Spectral(pow(M_old+h,2), P));
 		i++;
 	}
 
