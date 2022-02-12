@@ -23,18 +23,29 @@ Total[Frankenstein[[{24,48,72,96}]]]+%
 Join[Frankenstein,{%%,%}]
 */
 
-void Gradient(long double[20], long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][7], long double[4][2], long double[7], long double[4][7]);
+void Gradient(long double[20], long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][7]);
 long double PolakRibiere(long double[20], long double[20]);
-void Minimize(long double[20], long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][7], long double[4][2], long double[7], long double[4][7]);
+void Minimize(long double[20], long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][7]);
 
-long double Chi_Square(Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][2], long double[4][7], long double[7], long double[4][7], int);
+long double Chi_Square(Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][7], int);
 long double Least_Squares(long double, long double, long double, long double);
-long double Print(long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][2], long double[4][7], long double[7], long double[4][7]); //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
+long double Print(long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][7]); //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
 long double Uniform(long double, long double);
 void DataLoad(Spectral_Inter*[5], Spectral_Non*[5], long double[20]);
 
 long double Random_Range[14][2] = {{.1,.5},{1.,6.},{2.5,3.5},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{1.59,1.79},{1.,6.},{1.5,5.},{1.,6.}};
 ofstream OutputFile;
+
+const long double Spatial_Ratio[4][7] = {{1.,1.00006,0.99883,0.992039,0.982366,0.970341,0.95766},
+				   {.99,0.988286,0.945063,0.879461,0.798659,0.7259,0.654381},
+				   {.98,0.954875,0.856416,0.720447,0.573465,0.45867,0.376707},
+				   {.97,0.908029,0.715435,0.524036,0.372788,0.246218,0.18}};
+const long double Vacuum_Spatial[7] = {13.5965519695970589115, 0.0415680222792943527448, 0.00120126774580634698112, 4.65000126560610055077e-05, 
+				  1.96861980208214073368e-06, 8.66667213197805982178e-08, 3.94190650826746653845e-09};
+const long double Vacuum_Euclidean[4][2] = {{0.000259568923526295945662, 9.64220418032793835491e-06},
+				       {0.00219476484784199273204, 0.000188143003166908006425},
+				       {0.00821024781558290065043, 0.00116410367128954708042},
+				       {0.0264690797013430510705, 0.00575549843590767333436}};
 
 int main(int argc, char* argv[])
 {
@@ -108,16 +119,6 @@ int main(int argc, char* argv[])
 		Non[i] = new Spectral_Non(Non_Parameters[i], i, bool(i));
 	}
 
-	long double Spatial_Ratio[4][7] = {{1.,1.00006,0.99883,0.992039,0.982366,0.970341,0.95766},
-					   {.99,0.988286,0.945063,0.879461,0.798659,0.7259,0.654381},
-					   {.98,0.954875,0.856416,0.720447,0.573465,0.45867,0.376707},
-					   {.97,0.908029,0.715435,0.524036,0.372788,0.246218,0.18}};
-	long double Vacuum_Spatial[7] = {13.5965519695970589115, 0.0415680222792943527448, 0.00120126774580634698112, 4.65000126560610055077e-05, 
-					  1.96861980208214073368e-06, 8.66667213197805982178e-08, 3.94190650826746653845e-09};
-	long double Vacuum_Euclidean[4][2] = {{0.000259568923526295945662, 9.64220418032793835491e-06},
-					       {0.00219476484784199273204, 0.000188143003166908006425},
-					       {0.00821024781558290065043, 0.00116410367128954708042},
-					       {0.0264690797013430510705, 0.00575549843590767333436}};
 	long double Medium_Spatial[4][7];
 	long double Medium_Euclidean[4][2];
 	bool Cycle = true;
@@ -260,7 +261,7 @@ int main(int argc, char* argv[])
 			Medium_Euclidean[0][1] = JPsi[1]->Euclidean(.5, 3)+Psi_Prime[1]->Euclidean(.5,3)+Non[1]->Euclidean(.5,3);
 			for(int j = 0; j < 7; j++)
 				Medium_Spatial[0][j] = JPsi[1]->Spatial((long double)(j)+.25)+Psi_Prime[1]->Spatial((long double)(j)+.25)+Non[1]->Spatial((long double)(j)+.25);
-			Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
+			Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 		}
 		return(0);
 	}
@@ -307,14 +308,14 @@ int main(int argc, char* argv[])
 
 	DataLoad(JPsi, Non, Deviation_Parameters);
 
-	for(int T = 0; T < 4; T++)
+	for(int T = 1; T < 5; T++)
 	{
 		Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
 		Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
 		for(int j = 0; j < 7; j++)
 			Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 	}
-	Best[20] = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
+	Best[20] = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 
 	round_start_time = time(NULL);
 	while(difftime(time(NULL), round_start_time) < 18000 || i < 80)
@@ -322,7 +323,7 @@ int main(int argc, char* argv[])
 		for(int j = 0; j < 20; j++)
 			Deviation_Parameters[j] = Best[j]+Uniform(-.1,.1);
 
-		for(int T = 0; T < 4; T++)
+		for(int T = 1; T < 5; T++)
 		{
 			Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
 			Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
@@ -330,7 +331,7 @@ int main(int argc, char* argv[])
 				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 		}
 
-		Chi = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
+		Chi = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 
 		if((!isnan(Chi) && Chi < Best[20]) || isnan(Best[20]))
 		{
@@ -349,14 +350,14 @@ int main(int argc, char* argv[])
 	long double betan = 0, betan_1;
 	round_start_time = time(NULL);
 
-	Gradient(gradn_1, Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio);
+	Gradient(gradn_1, Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 	for(int i = 0; i < 20; i++)
 		sn_1[i] = gradn_1[i];
-	Minimize(sn_1, Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio);
+	Minimize(sn_1, Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 	do
 	{
 		betan_1 = betan;
-		Gradient(gradn, Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio);
+		Gradient(gradn, Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 		betan = PolakRibiere(gradn_1,gradn);
 		if(betan < 0)
 			for(int i = 0; i < 20; i++)
@@ -364,7 +365,7 @@ int main(int argc, char* argv[])
 		else
 			for(int i = 0; i < 20; i++)
 				sn[i] = gradn[i];
-		Minimize(sn, Deviation_Parameters, JPsi, Psi_Prime, Non,  Medium_Euclidean, Medium_Spatial, Vacuum_Euclidean, Vacuum_Spatial, Spatial_Ratio);
+		Minimize(sn, Deviation_Parameters, JPsi, Psi_Prime, Non,  Medium_Euclidean, Medium_Spatial);
 		for(int i = 0; i < 20; i++)
 		{
 			gradn_1[i] = gradn[i];
@@ -377,7 +378,7 @@ int main(int argc, char* argv[])
 	return(0);
 }
 
-void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7], long double Vacuum_Euclidean[4][2], long double Vacuum_Spatial[7], long double Spatial_Ratio[4][7])
+void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7])
 {
 	long double fz[101][2];
 	long double a = 0, c = 10;
@@ -393,7 +394,7 @@ void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral
 		for(int j = 0; j < 20; j++)
 			Deviation_Parameters[j] += sn[j]/10.;
 		DataLoad(JPsi, Non, Deviation_Parameters);
-		for(int T = 0; T < 4; T++)
+		for(int T = 1; T < 5; T++)
 		{
 			Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
 			Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
@@ -401,7 +402,7 @@ void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral
 				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 		}
 		fz[i][0] = (long double)(i)/10.;
-		fz[i][1] = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
+		fz[i][1] = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 	}
 
 	for(int i = 1; i < 101; i++)
@@ -464,14 +465,14 @@ void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral
 		for(int j = 0; j < 20; j++)
 			Deviation_Parameters[j] = Local_Parameters[j]+u*sn[j]/10.;
 		DataLoad(JPsi, Non, Deviation_Parameters);
-		for(int T = 0; T < 4; T++)
+		for(int T = 1; T < 5; T++)
 		{
 			Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
 			Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
 			for(int j = 0; j < 7; j++)
 				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 		}
-		fu = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
+		fu = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 
 		if(fu <= fx)
 		{
@@ -522,7 +523,7 @@ long double PolakRibiere(long double gradn_1[20], long double gradn[20])
 	return(num/den);
 }
 
-void Gradient(long double grad[20], long double Deviation_Parameters[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7], long double Vacuum_Euclidean[4][2], long double Vacuum_Spatial[7], long double Spatial_Ratio[4][7])
+void Gradient(long double grad[20], long double Deviation_Parameters[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7])
 {
 	long double f0, f1, h = 1e-5;
 	long double Reduce_Euclidean[4][3][2];
@@ -549,21 +550,21 @@ void Gradient(long double grad[20], long double Deviation_Parameters[20], Spectr
 			Medium_Spatial[T-1][j] = Reduce_Spatial[T-1][0][j]+Reduce_Spatial[T-1][1][j]+Reduce_Spatial[T-1][2][j];
 		}
 	}
-	f0 = Chi_Square(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, 0);
+	f0 = Chi_Square(JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, 0);
 	//cerr << "Gradient " << f0 << endl;
 
 	for(i = 0; i < 12; i++)
 	{
 		Deviation_Parameters[i] += h;
 		DataLoad(JPsi, Non, Deviation_Parameters);
-		for(int T = 0; T < 4; T++)
+		for(int T = 1; T < 5; T++)
 		{
-			Medium_Euclidean[T][0] = JPsi[T]->Euclidean(.5, 0)+Reduce_Euclidean[T][1][0]+Reduce_Euclidean[T][2][0];
-			Medium_Euclidean[T][1] = JPsi[T]->Euclidean(.5, 3)+Reduce_Euclidean[T][1][0]+Reduce_Euclidean[T][2][1];
+			Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Reduce_Euclidean[T-1][1][0]+Reduce_Euclidean[T-1][2][0];
+			Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Reduce_Euclidean[T-1][1][0]+Reduce_Euclidean[T-1][2][1];
 			for(int j = 0; j < 7; j++)
-				Medium_Spatial[T][j] = JPsi[T]->Spatial((long double)(j)+.25)+Reduce_Spatial[T][1][j]+Reduce_Spatial[T][2][j];
+				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Reduce_Spatial[T-1][1][j]+Reduce_Spatial[T-1][2][j];
 		}
-		f1 = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
+		f1 = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 		Deviation_Parameters[i] -= h;
 		grad[i] = (f0-f1)/h;
 	}
@@ -572,24 +573,24 @@ void Gradient(long double grad[20], long double Deviation_Parameters[20], Spectr
 	{
 		Deviation_Parameters[i] += h;
 		DataLoad(JPsi, Non, Deviation_Parameters);
-		for(int T = 0; T < 4; T++)
+		for(int T = 1; T < 5; T++)
 		{
-			Medium_Euclidean[T][0] = Reduce_Euclidean[T][0][0]+Reduce_Euclidean[T][1][0]+Non[T]->Euclidean(.5, 0);
-			Medium_Euclidean[T][1] = Reduce_Euclidean[T][0][1]+Reduce_Euclidean[T][1][1]+Non[T]->Euclidean(.5, 3);
+			Medium_Euclidean[T-1][0] = Reduce_Euclidean[T-1][0][0]+Reduce_Euclidean[T-1][1][0]+Non[T]->Euclidean(.5, 0);
+			Medium_Euclidean[T-1][1] = Reduce_Euclidean[T-1][0][1]+Reduce_Euclidean[T-1][1][1]+Non[T]->Euclidean(.5, 3);
 			for(int j = 0; j < 7; j++)
-				Medium_Spatial[T][j] = Reduce_Spatial[T][0][j]+Reduce_Spatial[T][1][j]+Non[T]->Spatial((long double)(j)+.25);
+				Medium_Spatial[T-1][j] = Reduce_Spatial[T-1][0][j]+Reduce_Spatial[T-1][1][j]+Non[T]->Spatial((long double)(j)+.25);
 		}
-		f1 = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio);
+		f1 = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 		Deviation_Parameters[i] -= h;
 		grad[i] = (f0-f1)/h;
 	}
 }
 
-long double Print(long double Deviation_Parameters[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Vacuum_Euclidean[4][2], long double Medium_Spatial[4][7], long double Vacuum_Spatial[7], long double Spatial_Ratio[4][7])
+long double Print(long double Deviation_Parameters[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7])
 {
 	long double chi[5];
 	for(int i = 0; i < 5; i++)
-		chi[i] = Chi_Square(JPsi, Psi_Prime, Non, Medium_Euclidean, Vacuum_Euclidean, Medium_Spatial, Vacuum_Spatial, Spatial_Ratio, i);
+		chi[i] = Chi_Square(JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, i);
 
 	for(int i = 0; i < 20; i++)
 	{
@@ -598,11 +599,11 @@ long double Print(long double Deviation_Parameters[20], Spectral_Inter* JPsi[5],
 
 	for(int i = 1; i < 5; i++)
 	{
-		/*OutputFile << i << "," << flush;
-		JPsi[i]->Print(OutputFile);
+		OutputFile << i << "," << flush;
+		/*JPsi[i]->Print(OutputFile);
 		OutputFile << ",";
 		Non[i]->Print(OutputFile);*/
-		OutputFile << "," << Medium_Euclidean[i-1][1]/Vacuum_Euclidean[i-1][1]-Medium_Euclidean[i-1][0]/Vacuum_Euclidean[i-1][0] << "," << flush;
+		OutputFile << Medium_Euclidean[i-1][1]/Vacuum_Euclidean[i-1][1]-Medium_Euclidean[i-1][0]/Vacuum_Euclidean[i-1][0] << "," << flush;
 		for(int j = 0; j < 7; j++)
 		{
 			OutputFile << Medium_Spatial[i-1][j]/Vacuum_Spatial[j] << "," << flush;
@@ -614,7 +615,7 @@ long double Print(long double Deviation_Parameters[20], Spectral_Inter* JPsi[5],
 	return(chi[0]);
 }
 
-long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Vacuum_Euclidean[4][2], long double Medium_Spatial[4][7], long double Vacuum_Spatial[7], long double Spatial_Ratio[4][7], int Temp)
+long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7], int Temp)
 {
 	long double answer = 0;
 
