@@ -318,7 +318,7 @@ int main(int argc, char* argv[])
 	Best[20] = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 
 	round_start_time = time(NULL);
-	while(difftime(time(NULL), round_start_time) < 60 || i < 5) //18000 seconds (5 hours) and 80 attempts
+	while(difftime(time(NULL), round_start_time) < 18000 || i < 80) //18000 seconds (5 hours) and 80 attempts
 	{
 		for(int j = 0; j < 20; j++)
 			Deviation_Parameters[j] = Best[j]+Uniform(-.1,.1);
