@@ -318,10 +318,12 @@ int main(int argc, char* argv[])
 	Best[20] = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 
 	round_start_time = time(NULL);
-	while(difftime(time(NULL), round_start_time) < 18000 || i < 80)
+	while(difftime(time(NULL), round_start_time) < 60 || i < 5) //18000 seconds (5 hours) and 80 attempts
 	{
 		for(int j = 0; j < 20; j++)
 			Deviation_Parameters[j] = Best[j]+Uniform(-.1,.1);
+
+		DataLoad(JPsi, Non, Deviation_Parameters);
 
 		for(int T = 1; T < 5; T++)
 		{
@@ -380,19 +382,24 @@ int main(int argc, char* argv[])
 
 void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7])
 {
-	long double fz[101][2];
+	long double fz[11][2];
 	long double a = 0, c = 10;
 	int Min_i;
 	long double Local_Parameters[20];
+	long double norm = 0;
 
 	for(int j = 0; j < 20; j++)
+	{
 		Local_Parameters[j] = Deviation_Parameters[j];
+		norm += pow(sn[j],2);
+	}
+	norm = sqrt(norm);
 
 	OutputFile << "Line search" << endl;
-	for(int i = 0; i <= 100; i++)
+	for(int i = 0; i <= 10; i++)
 	{
 		for(int j = 0; j < 20; j++)
-			Deviation_Parameters[j] += sn[j]/10.;
+			Deviation_Parameters[j] = Local_Parameters[j]+(long double)(i)*sn[j]/10./norm;
 		DataLoad(JPsi, Non, Deviation_Parameters);
 		for(int T = 1; T < 5; T++)
 		{
@@ -405,12 +412,12 @@ void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral
 		fz[i][1] = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 	}
 
-	for(int i = 1; i < 101; i++)
+	for(int i = 1; i < 11; i++)
 		Min_i = (fz[i][1]<fz[Min_i][1])?i:Min_i;
 	if(Min_i == 0)	//So as to not exceed the limits of the array
 		Min_i = 1;
-	else if(Min_i == 100)
-		Min_i = 99;
+	else if(Min_i == 10)
+		Min_i = 9;
 
 	OutputFile << "Brent's Method" << endl;
 	const int ITMAX = 100;
@@ -434,7 +441,16 @@ void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral
 		if(abs(x-xm) <= (tol2-(b-a)/2.) || abs(fx/fu-1.) < 1e-7)
 		{
 			for(int j = 0; j < 20; j++)
-				Deviation_Parameters[j] = Local_Parameters[j]+x*sn[j]/10.;
+				Deviation_Parameters[j] = Local_Parameters[j]+x*sn[j]/10./norm;
+			DataLoad(JPsi, Non, Deviation_Parameters);
+			for(int T = 1; T < 5; T++)
+			{
+				Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
+				Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
+				for(int j = 0; j < 7; j++)
+					Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
+			}
+			Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 			return;
 		}
 
@@ -463,7 +479,7 @@ void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral
 
 		u = (abs(d)>tol1?x+d:x+tol1*d/abs(d));
 		for(int j = 0; j < 20; j++)
-			Deviation_Parameters[j] = Local_Parameters[j]+u*sn[j]/10.;
+			Deviation_Parameters[j] = Local_Parameters[j]+u*sn[j]/10./norm;
 		DataLoad(JPsi, Non, Deviation_Parameters);
 		for(int T = 1; T < 5; T++)
 		{
@@ -528,6 +544,7 @@ void Gradient(long double grad[20], long double Deviation_Parameters[20], Spectr
 	long double f0, f1, h = 1e-5;
 	long double Reduce_Euclidean[4][3][2];
 	long double Reduce_Spatial[4][3][7];
+	long double norm = 0;
 	int i, j;
 
 	OutputFile << "Gradient" << endl;
@@ -584,6 +601,12 @@ void Gradient(long double grad[20], long double Deviation_Parameters[20], Spectr
 		Deviation_Parameters[i] -= h;
 		grad[i] = (f0-f1)/h;
 	}
+
+	/*for(int i = 0; i < 20; i++)
+		norm += pow(grad[i],2);
+	norm = sqrt(norm);
+	for(int i = 0; i < 20; i++)
+		grad[i] = grad[i]/norm;*/
 }
 
 long double Print(long double Deviation_Parameters[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7])
@@ -600,10 +623,10 @@ long double Print(long double Deviation_Parameters[20], Spectral_Inter* JPsi[5],
 	for(int i = 1; i < 5; i++)
 	{
 		OutputFile << i << "," << flush;
-		/*JPsi[i]->Print(OutputFile);
+		JPsi[i]->Print(OutputFile);
 		OutputFile << ",";
-		Non[i]->Print(OutputFile);*/
-		OutputFile << Medium_Euclidean[i-1][1]/Vacuum_Euclidean[i-1][1]-Medium_Euclidean[i-1][0]/Vacuum_Euclidean[i-1][0] << "," << flush;
+		Non[i]->Print(OutputFile);
+		OutputFile << "," << Medium_Euclidean[i-1][1]/Vacuum_Euclidean[i-1][1]-Medium_Euclidean[i-1][0]/Vacuum_Euclidean[i-1][0] << "," << flush;
 		for(int j = 0; j < 7; j++)
 		{
 			OutputFile << Medium_Spatial[i-1][j]/Vacuum_Spatial[j] << "," << flush;
