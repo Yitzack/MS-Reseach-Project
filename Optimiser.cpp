@@ -32,8 +32,8 @@ long double Least_Squares(long double, long double, long double, long double);
 long double Print(long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][7]); //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
 long double Uniform(long double, long double);
 void DataLoad(Spectral_Inter*[5], Spectral_Non*[5], long double[20]);
-
-long double Random_Range[14][2] = {{.1,.5},{1.,6.},{2.5,3.5},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{1.59,1.79},{1.,6.},{1.5,5.},{1.,6.}};
+				   //A, PA, DeltaM1, DeltaM4, PM, Gamma, PGamma, a, Pa, Delta, PDelta, DeltaMQ1, DeltaPMQ4, PMQ, n, Pn
+long double Random_Range[16][2] = {{.1,.5},{1.,6.},{-0.59946, 0.40054},{-0.6855, 0.3145},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{-.065,.135},{.23,.43},{1.,6.},{1.5,5.},{1.,6.}};
 ofstream OutputFile;
 
 const long double Spatial_Ratio[4][7] = {{1.,1.00006,0.99883,0.992039,0.982366,0.970341,0.95766},
@@ -49,8 +49,8 @@ const long double Vacuum_Euclidean[4][2] = {{0.000259568923526295945662, 9.64220
 
 int main(int argc, char* argv[])
 {
-	//long double Deviation_Parameters[20] = {A(T), AC, PA(T), PAC, DeltaM(T), DeltaMC, PM(T), PMC, Gamma(T), GammaC, PGamma(T), PGammaC, DeltaMQ(T), DeltaMQC, PMQ(T), PMQC, n(T), nC, Pn(T), PnC};
-	long double Deviation_Parameters[20] = {-.256477, .423044, 0, 1., -1.52969, .195169, 11.4878,.283092, 0, .1, 0, 3, 0, 0, 0, 3, 0, 1, 0, 3};
+	//long double Deviation_Points[20] = {A1, A4, PA1, PA4, DeltaM1, DeltaM4, PM1, PM4, Gamma1, Gamma4, PGamma1, PGamma4, DeltaMQ1, DeltaMQ4, PMQ1, PMQ4, n1, n4, Pn1, Pn4};
+	long double Deviation_Points[20] = {0.373287, 0.320453, 1., 1., -0.101591, -0.416707, 2.51173, 4.87821, .1, .1, 3, 3, 0, 0, 3, 3, 1, 1, 3, 3};
 
 	long double JPsi_Parameters[5][5][3] = {{{.314831,.314831,1.},{3.0969,3.0969,1},{.032,.032,1},{9.34,9.34,1},{1,1,1}},
 						{{1.97/(2.*3.09946),.317797,2.35534},{3.09946,3.09946,4.55517},{.106597,.106597,2.34302},{10.58,10.58,4.00927},{3,3,1}},
@@ -68,46 +68,46 @@ int main(int argc, char* argv[])
 					       {{1.51,1.51,2.63744},{2.4,2.4,3.18298}},
 					       {{1.36,1.36,3.09741},{1.98,1.98,5.50741}}};
 
-	JPsi_Parameters[1][0][1] = Deviation_Parameters[0]*.194+Deviation_Parameters[1];
-	JPsi_Parameters[2][0][1] = Deviation_Parameters[0]*.258+Deviation_Parameters[1];
-	JPsi_Parameters[3][0][1] = Deviation_Parameters[0]*.32+Deviation_Parameters[1];
-	JPsi_Parameters[4][0][1] = Deviation_Parameters[0]*.4+Deviation_Parameters[1];
-	JPsi_Parameters[1][0][2] = Deviation_Parameters[2]*.194+Deviation_Parameters[3];
-	JPsi_Parameters[2][0][2] = Deviation_Parameters[2]*.258+Deviation_Parameters[3];
-	JPsi_Parameters[3][0][2] = Deviation_Parameters[2]*.32+Deviation_Parameters[3];
-	JPsi_Parameters[4][0][2] = Deviation_Parameters[2]*.4+Deviation_Parameters[3];
-	JPsi_Parameters[1][1][1] = JPsi_Parameters[1][2][0]+Deviation_Parameters[4]*.194+Deviation_Parameters[5];
-	JPsi_Parameters[2][1][1] = JPsi_Parameters[2][2][0]+Deviation_Parameters[4]*.258+Deviation_Parameters[5];
-	JPsi_Parameters[3][1][1] = JPsi_Parameters[3][2][0]+Deviation_Parameters[4]*.32+Deviation_Parameters[5];
-	JPsi_Parameters[4][1][1] = JPsi_Parameters[4][2][0]+Deviation_Parameters[4]*.4+Deviation_Parameters[5];
-	JPsi_Parameters[1][1][2] = Deviation_Parameters[6]*.194+Deviation_Parameters[7];
-	JPsi_Parameters[2][1][2] = Deviation_Parameters[6]*.258+Deviation_Parameters[7];
-	JPsi_Parameters[3][1][2] = Deviation_Parameters[6]*.32+Deviation_Parameters[7];
-	JPsi_Parameters[4][1][2] = Deviation_Parameters[6]*.4+Deviation_Parameters[7];
-	JPsi_Parameters[1][2][1] = Deviation_Parameters[8]*.194+Deviation_Parameters[9];
-	JPsi_Parameters[2][2][1] = Deviation_Parameters[8]*.258+Deviation_Parameters[9];
-	JPsi_Parameters[3][2][1] = Deviation_Parameters[8]*.32+Deviation_Parameters[9];
-	JPsi_Parameters[4][2][1] = Deviation_Parameters[8]*.4+Deviation_Parameters[9];
-	JPsi_Parameters[1][2][2] = Deviation_Parameters[10]*.194+Deviation_Parameters[11];
-	JPsi_Parameters[2][2][2] = Deviation_Parameters[10]*.258+Deviation_Parameters[11];
-	JPsi_Parameters[3][2][2] = Deviation_Parameters[10]*.32+Deviation_Parameters[11];
-	JPsi_Parameters[4][2][2] = Deviation_Parameters[10]*.4+Deviation_Parameters[11];
-	Non_Parameters[1][0][1] = Non_Parameters[1][0][0]+Deviation_Parameters[12]*.194+Deviation_Parameters[13];
-	Non_Parameters[2][0][1] = Non_Parameters[2][0][0]+Deviation_Parameters[12]*.258+Deviation_Parameters[13];
-	Non_Parameters[3][0][1] = Non_Parameters[3][0][0]+Deviation_Parameters[12]*.32+Deviation_Parameters[13];
-	Non_Parameters[4][0][1] = Non_Parameters[4][0][0]+Deviation_Parameters[12]*.4+Deviation_Parameters[13];
-	Non_Parameters[1][0][2] = Deviation_Parameters[14]*.194+Deviation_Parameters[15];
-	Non_Parameters[2][0][2] = Deviation_Parameters[14]*.258+Deviation_Parameters[15];
-	Non_Parameters[3][0][2] = Deviation_Parameters[14]*.32+Deviation_Parameters[15];
-	Non_Parameters[4][0][2] = Deviation_Parameters[14]*.4+Deviation_Parameters[15];
-	Non_Parameters[1][1][1] = Deviation_Parameters[16]*.194+Deviation_Parameters[17];
-	Non_Parameters[2][1][1] = Deviation_Parameters[16]*.258+Deviation_Parameters[17];
-	Non_Parameters[3][1][1] = Deviation_Parameters[16]*.32+Deviation_Parameters[17];
-	Non_Parameters[4][1][1] = Deviation_Parameters[16]*.4+Deviation_Parameters[17];
-	Non_Parameters[1][1][2] = Deviation_Parameters[18]*.194+Deviation_Parameters[19];
-	Non_Parameters[2][1][2] = Deviation_Parameters[18]*.258+Deviation_Parameters[19];
-	Non_Parameters[3][1][2] = Deviation_Parameters[18]*.32+Deviation_Parameters[19];
-	Non_Parameters[4][1][2] = Deviation_Parameters[18]*.4+Deviation_Parameters[19];
+	JPsi_Parameters[1][0][1] = Deviation_Points[0];
+	JPsi_Parameters[2][0][1] = (71.*Deviation_Points[0]+32.*Deviation_Points[1])/103.;
+	JPsi_Parameters[3][0][1] = (40.*Deviation_Points[0]+63.*Deviation_Points[1])/103.;
+	JPsi_Parameters[4][0][1] = Deviation_Points[1];
+	JPsi_Parameters[1][0][2] = Deviation_Points[2];
+	JPsi_Parameters[2][0][2] = (71.*Deviation_Points[2]+32.*Deviation_Points[3])/103.;
+	JPsi_Parameters[3][0][2] = (40.*Deviation_Points[2]+63.*Deviation_Points[3])/103.;
+	JPsi_Parameters[4][0][2] = Deviation_Points[3];
+	JPsi_Parameters[1][1][1] = JPsi_Parameters[1][1][0]+Deviation_Points[4];
+	JPsi_Parameters[2][1][1] = JPsi_Parameters[2][1][0]+(71.*Deviation_Points[4]+32.*Deviation_Points[5])/103.;
+	JPsi_Parameters[3][1][1] = JPsi_Parameters[3][1][0]+(40.*Deviation_Points[4]+63.*Deviation_Points[5])/103.;
+	JPsi_Parameters[4][1][1] = JPsi_Parameters[4][1][0]+Deviation_Points[5];
+	JPsi_Parameters[1][1][2] = Deviation_Points[6];
+	JPsi_Parameters[2][1][2] = (71.*Deviation_Points[6]+32.*Deviation_Points[7])/103.;
+	JPsi_Parameters[3][1][2] = (40.*Deviation_Points[6]+63.*Deviation_Points[7])/103.;
+	JPsi_Parameters[4][1][2] = Deviation_Points[7];
+	JPsi_Parameters[1][2][1] = Deviation_Points[8];
+	JPsi_Parameters[2][2][1] = (71.*Deviation_Points[8]+32.*Deviation_Points[9])/103.;
+	JPsi_Parameters[3][2][1] = (40.*Deviation_Points[8]+63.*Deviation_Points[9])/103.;
+	JPsi_Parameters[4][2][1] = Deviation_Points[9];
+	JPsi_Parameters[1][2][2] = Deviation_Points[10];
+	JPsi_Parameters[2][2][2] = (71.*Deviation_Points[10]+32.*Deviation_Points[11])/103.;
+	JPsi_Parameters[3][2][2] = (40.*Deviation_Points[10]+63.*Deviation_Points[11])/103.;
+	JPsi_Parameters[4][2][2] = Deviation_Points[11];
+	Non_Parameters[1][0][1] = Non_Parameters[1][0][0]+Deviation_Points[12];
+	Non_Parameters[2][0][1] = Non_Parameters[2][0][0]+(71.*Deviation_Points[12]+32.*Deviation_Points[13])/103.;
+	Non_Parameters[3][0][1] = Non_Parameters[3][0][0]+(40.*Deviation_Points[12]+63.*Deviation_Points[13])/103.;
+	Non_Parameters[4][0][1] = Non_Parameters[4][0][0]+Deviation_Points[13];
+	Non_Parameters[1][0][2] = Deviation_Points[14];
+	Non_Parameters[2][0][2] = (71.*Deviation_Points[14]+32.*Deviation_Points[15])/103.;
+	Non_Parameters[3][0][2] = (40.*Deviation_Points[14]+63.*Deviation_Points[15])/103.;
+	Non_Parameters[4][0][2] = Deviation_Points[15];
+	Non_Parameters[1][1][1] = Deviation_Points[16];
+	Non_Parameters[2][1][1] = (71.*Deviation_Points[16]+32.*Deviation_Points[17])/103.;
+	Non_Parameters[3][1][1] = (40.*Deviation_Points[16]+63.*Deviation_Points[17])/103.;
+	Non_Parameters[4][1][1] = Deviation_Points[17];
+	Non_Parameters[1][1][2] = Deviation_Points[18];
+	Non_Parameters[2][1][2] = (71.*Deviation_Points[18]+32.*Deviation_Points[19])/103.;
+	Non_Parameters[3][1][2] = (40.*Deviation_Points[18]+63.*Deviation_Points[19])/103.;
+	Non_Parameters[4][1][2] = Deviation_Points[19];
 
 	Spectral_Inter* JPsi[5];
 	Spectral_Inter* Psi_Prime[5];
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
 		if(!OutputFile.is_open())
 			return(1);
 	}
-	else if(argc == 31)
+	else if(argc == 35)
 	{
 		strcat(File,".");
 		strcat(File,argv[1]);
@@ -187,6 +187,10 @@ int main(int argc, char* argv[])
 		Random_Range[12][1] = atof(argv[27]);
 		Random_Range[13][0] = atof(argv[28]);
 		Random_Range[13][1] = atof(argv[29]);
+		Random_Range[14][0] = atof(argv[30]);
+		Random_Range[14][1] = atof(argv[31]);
+		Random_Range[15][0] = atof(argv[32]);
+		Random_Range[15][1] = atof(argv[33]);
 	}
 	else
 	{
@@ -261,7 +265,7 @@ int main(int argc, char* argv[])
 			Medium_Euclidean[0][1] = JPsi[1]->Euclidean(.5, 3)+Psi_Prime[1]->Euclidean(.5,3)+Non[1]->Euclidean(.5,3);
 			for(int j = 0; j < 7; j++)
 				Medium_Spatial[0][j] = JPsi[1]->Spatial((long double)(j)+.25)+Psi_Prime[1]->Spatial((long double)(j)+.25)+Non[1]->Spatial((long double)(j)+.25);
-			Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
+			Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 		}
 		return(0);
 	}
@@ -275,38 +279,38 @@ int main(int argc, char* argv[])
 	int i = 0;
 	if(atoi(argv[1])!=0 && Cycle)
 	{
-		//Deviation_Parameters = {A(T), AC, PA(T), PAC, DeltaM(T), DeltaMC, PM(T), PMC, Gamma(T), GammaC, PGamma(T), PGammaC, DeltaMQ(T), DeltaMQC, PMQ(T), PMQC, n(T), nC, Pn(T), PnC};
-		Deviation_Parameters[0] = Uniform(-10,10);
-		Deviation_Parameters[1] = Uniform(-1,1);
-		Deviation_Parameters[2] = Uniform(-10,10);
-		Deviation_Parameters[3] = Uniform(-1,1);
-		Deviation_Parameters[4] = Uniform(-10,10);
-		Deviation_Parameters[5] = Uniform(-1,1);
-		Deviation_Parameters[6] = Uniform(-10,10);
-		Deviation_Parameters[7] = Uniform(-1,1);
-		Deviation_Parameters[8] = Uniform(-10,10);
-		Deviation_Parameters[9] = Uniform(-1,1);
-		Deviation_Parameters[10] = Uniform(-1,1);
-		Deviation_Parameters[11] = Uniform(-1,1);
-		Deviation_Parameters[12] = Uniform(-.1,.1);
-		Deviation_Parameters[13] = Uniform(-.05,.05);
-		Deviation_Parameters[14] = Uniform(-1,1);
-		Deviation_Parameters[15] = Uniform(-1,1);
-		Deviation_Parameters[16] = Uniform(-1,1);
-		Deviation_Parameters[17] = Uniform(-1,1);
-		Deviation_Parameters[18] = Uniform(-1,1);
-		Deviation_Parameters[19] = Uniform(-1,1);
+//A, PA, DeltaM1, DeltaM4, PM, Gamma, PGamma, a, Pa, Delta, PDelta, DeltaMQ1, DeltaPMQ4, PMQ, n, Pn
+		Deviation_Points[0] = Uniform(Random_Range[0][0],Random_Range[0][1]);
+		Deviation_Points[1] = Uniform(Random_Range[0][0],Random_Range[0][1]);
+		Deviation_Points[2] = Uniform(Random_Range[1][0],Random_Range[1][1]);
+		Deviation_Points[3] = Uniform(Random_Range[1][0],Random_Range[1][1]);
+		Deviation_Points[4] = Uniform(Random_Range[2][0],Random_Range[2][1]);
+		Deviation_Points[5] = Uniform(Random_Range[3][0],Random_Range[3][1]);
+		Deviation_Points[6] = Uniform(Random_Range[4][0],Random_Range[4][1]);
+		Deviation_Points[7] = Uniform(Random_Range[4][0],Random_Range[4][1]);
+		Deviation_Points[8] = Uniform(Random_Range[5][0],Random_Range[5][1]);
+		Deviation_Points[9] = Uniform(Random_Range[5][0],Random_Range[5][1]);
+		Deviation_Points[10] = Uniform(Random_Range[6][0],Random_Range[6][1]);
+		Deviation_Points[11] = Uniform(Random_Range[6][0],Random_Range[6][1]);
+		Deviation_Points[12] = Uniform(Random_Range[11][0],Random_Range[11][1]);
+		Deviation_Points[13] = Uniform(Random_Range[12][0],Random_Range[12][1]);
+		Deviation_Points[14] = Uniform(Random_Range[13][0],Random_Range[13][1]);
+		Deviation_Points[15] = Uniform(Random_Range[13][0],Random_Range[13][1]);
+		Deviation_Points[16] = Uniform(Random_Range[14][0],Random_Range[14][1]);
+		Deviation_Points[17] = Uniform(Random_Range[14][0],Random_Range[14][1]);
+		Deviation_Points[18] = Uniform(Random_Range[15][0],Random_Range[15][1]);
+		Deviation_Points[19] = Uniform(Random_Range[15][0],Random_Range[15][1]);
 
 		for(int j = 0; j < 20; j++)
-			Best[j] = Deviation_Parameters[j];
+			Best[j] = Deviation_Points[j];
 	}
 	else
 	{
 		for(int j = 0; j < 20; j++)
-			Best[j] = Deviation_Parameters[j];
+			Best[j] = Deviation_Points[j];
 	}
 
-	DataLoad(JPsi, Non, Deviation_Parameters);
+	DataLoad(JPsi, Non, Deviation_Points);
 
 	for(int T = 1; T < 5; T++)
 	{
@@ -315,15 +319,15 @@ int main(int argc, char* argv[])
 		for(int j = 0; j < 7; j++)
 			Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 	}
-	Best[20] = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
+	Best[20] = Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 
 	round_start_time = time(NULL);
 	while(difftime(time(NULL), round_start_time) < 18000 || i < 80) //18000 seconds (5 hours) and 80 attempts
 	{
 		for(int j = 0; j < 20; j++)
-			Deviation_Parameters[j] = Best[j]+Uniform(-.1,.1);
+			Deviation_Points[j] = Best[j]+Uniform(-.1,.1);
 
-		DataLoad(JPsi, Non, Deviation_Parameters);
+		DataLoad(JPsi, Non, Deviation_Points);
 
 		for(int T = 1; T < 5; T++)
 		{
@@ -333,12 +337,12 @@ int main(int argc, char* argv[])
 				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 		}
 
-		Chi = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
+		Chi = Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 
 		if((!isnan(Chi) && Chi < Best[20]) || isnan(Best[20]))
 		{
 			for(int j = 0; j < 20; j++)
-				Best[j] = Deviation_Parameters[j];
+				Best[j] = Deviation_Points[j];
 			Best[20] = Chi;
 			i = 0;
 		}
@@ -346,20 +350,20 @@ int main(int argc, char* argv[])
 			i++;
 	}
 	for(int j = 0; j < 20; j++)
-		Deviation_Parameters[j] = Best[j];
+		Deviation_Points[j] = Best[j];
 
 	long double gradn_1[20], gradn[20], sn_1[20], sn[20];
 	long double betan = 0, betan_1;
 	round_start_time = time(NULL);
 
-	Gradient(gradn_1, Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
+	Gradient(gradn_1, Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 	for(int i = 0; i < 20; i++)
 		sn_1[i] = gradn_1[i];
-	Minimize(sn_1, Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
+	Minimize(sn_1, Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 	do
 	{
 		betan_1 = betan;
-		Gradient(gradn, Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
+		Gradient(gradn, Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 		betan = PolakRibiere(gradn_1,gradn);
 		if(betan < 0)
 			for(int i = 0; i < 20; i++)
@@ -367,7 +371,7 @@ int main(int argc, char* argv[])
 		else
 			for(int i = 0; i < 20; i++)
 				sn[i] = gradn[i];
-		Minimize(sn, Deviation_Parameters, JPsi, Psi_Prime, Non,  Medium_Euclidean, Medium_Spatial);
+		Minimize(sn, Deviation_Points, JPsi, Psi_Prime, Non,  Medium_Euclidean, Medium_Spatial);
 		for(int i = 0; i < 20; i++)
 		{
 			gradn_1[i] = gradn[i];
@@ -380,27 +384,105 @@ int main(int argc, char* argv[])
 	return(0);
 }
 
-void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7])
+void Minimize(long double sn[20], long double Deviation_Points[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7])
 {
-	long double fz[11][2];
-	long double a = 0, c = 10;
+	long double fz[101][2];
+	long double a = 0, c = 1;
 	int Min_i;
 	long double Local_Parameters[20];
-	long double norm = 0;
+	long double length[2][2];
 
-	for(int j = 0; j < 20; j++)
-	{
-		Local_Parameters[j] = Deviation_Parameters[j];
-		norm += pow(sn[j],2);
-	}
-	norm = sqrt(norm);
+	for(int i = 0; i < 20; i++)
+		Local_Parameters[i] = Deviation_Points[i];
+
+	length[0][0] = (sn[0]>0)?sn[0]/(Random_Range[0][1]-Local_Parameters[0]):sn[0]/(Random_Range[0][0]-Local_Parameters[0]);
+	length[0][1] = (sn[0]>0)?sn[0]/(Random_Range[0][0]-Local_Parameters[0]):sn[0]/(Random_Range[0][1]-Local_Parameters[0]);
+	length[1][0] = (sn[1]>0)?sn[1]/(Random_Range[0][1]-Local_Parameters[1]):sn[1]/(Random_Range[0][0]-Local_Parameters[1]);
+	length[1][1] = (sn[1]>0)?sn[1]/(Random_Range[0][0]-Local_Parameters[1]):sn[1]/(Random_Range[0][1]-Local_Parameters[1]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[2]>0)?sn[2]/(Random_Range[1][1]-Local_Parameters[2]):sn[2]/(Random_Range[1][0]-Local_Parameters[2]);
+	length[1][1] = (sn[2]>0)?sn[2]/(Random_Range[1][0]-Local_Parameters[2]):sn[2]/(Random_Range[1][1]-Local_Parameters[2]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[3]>0)?sn[3]/(Random_Range[1][1]-Local_Parameters[3]):sn[3]/(Random_Range[1][0]-Local_Parameters[3]);
+	length[1][1] = (sn[3]>0)?sn[3]/(Random_Range[1][0]-Local_Parameters[3]):sn[3]/(Random_Range[1][1]-Local_Parameters[3]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[4]>0)?sn[4]/(Random_Range[2][1]-Local_Parameters[4]):sn[4]/(Random_Range[2][0]-Local_Parameters[4]);
+	length[1][1] = (sn[4]>0)?sn[4]/(Random_Range[2][0]-Local_Parameters[4]):sn[4]/(Random_Range[2][1]-Local_Parameters[4]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[5]>0)?sn[5]/(Random_Range[3][1]-Local_Parameters[5]):sn[5]/(Random_Range[3][0]-Local_Parameters[5]);
+	length[1][1] = (sn[5]>0)?sn[5]/(Random_Range[3][0]-Local_Parameters[5]):sn[5]/(Random_Range[3][1]-Local_Parameters[5]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[6]>0)?sn[6]/(Random_Range[4][1]-Local_Parameters[6]):sn[6]/(Random_Range[4][0]-Local_Parameters[6]);
+	length[1][1] = (sn[6]>0)?sn[6]/(Random_Range[4][0]-Local_Parameters[6]):sn[6]/(Random_Range[4][1]-Local_Parameters[6]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[7]>0)?sn[7]/(Random_Range[4][1]-Local_Parameters[7]):sn[7]/(Random_Range[4][0]-Local_Parameters[7]);
+	length[1][1] = (sn[7]>0)?sn[7]/(Random_Range[4][0]-Local_Parameters[7]):sn[7]/(Random_Range[4][1]-Local_Parameters[7]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[8]>0)?sn[8]/(Random_Range[5][1]-Local_Parameters[8]):sn[8]/(Random_Range[5][0]-Local_Parameters[8]);
+	length[1][1] = (sn[8]>0)?sn[8]/(Random_Range[5][0]-Local_Parameters[8]):sn[8]/(Random_Range[5][1]-Local_Parameters[8]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[9]>0)?sn[9]/(Random_Range[5][1]-Local_Parameters[9]):sn[9]/(Random_Range[5][0]-Local_Parameters[9]);
+	length[1][1] = (sn[9]>0)?sn[9]/(Random_Range[5][0]-Local_Parameters[9]):sn[9]/(Random_Range[5][1]-Local_Parameters[9]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[10]>0)?sn[10]/(Random_Range[6][1]-Local_Parameters[10]):sn[10]/(Random_Range[6][0]-Local_Parameters[10]);
+	length[1][1] = (sn[10]>0)?sn[10]/(Random_Range[6][0]-Local_Parameters[10]):sn[10]/(Random_Range[6][1]-Local_Parameters[10]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[11]>0)?sn[11]/(Random_Range[6][1]-Local_Parameters[11]):sn[11]/(Random_Range[6][0]-Local_Parameters[11]);
+	length[1][1] = (sn[11]>0)?sn[11]/(Random_Range[6][0]-Local_Parameters[11]):sn[11]/(Random_Range[6][1]-Local_Parameters[11]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[12]>0)?sn[12]/(Random_Range[11][1]-Local_Parameters[12]):sn[12]/(Random_Range[11][0]-Local_Parameters[12]);
+	length[1][1] = (sn[12]>0)?sn[12]/(Random_Range[11][0]-Local_Parameters[12]):sn[12]/(Random_Range[11][1]-Local_Parameters[12]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[13]>0)?sn[13]/(Random_Range[12][1]-Local_Parameters[13]):sn[13]/(Random_Range[12][0]-Local_Parameters[13]);
+	length[1][1] = (sn[13]>0)?sn[13]/(Random_Range[12][0]-Local_Parameters[13]):sn[13]/(Random_Range[12][1]-Local_Parameters[13]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[14]>0)?sn[14]/(Random_Range[13][1]-Local_Parameters[14]):sn[14]/(Random_Range[13][0]-Local_Parameters[14]);
+	length[1][1] = (sn[14]>0)?sn[14]/(Random_Range[13][0]-Local_Parameters[14]):sn[14]/(Random_Range[13][1]-Local_Parameters[14]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[15]>0)?sn[15]/(Random_Range[13][1]-Local_Parameters[15]):sn[15]/(Random_Range[13][0]-Local_Parameters[15]);
+	length[1][1] = (sn[15]>0)?sn[15]/(Random_Range[13][0]-Local_Parameters[15]):sn[15]/(Random_Range[13][1]-Local_Parameters[15]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[16]>0)?sn[16]/(Random_Range[14][1]-Local_Parameters[16]):sn[16]/(Random_Range[14][0]-Local_Parameters[16]);
+	length[1][1] = (sn[16]>0)?sn[16]/(Random_Range[14][0]-Local_Parameters[16]):sn[16]/(Random_Range[14][1]-Local_Parameters[16]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[17]>0)?sn[17]/(Random_Range[14][1]-Local_Parameters[17]):sn[17]/(Random_Range[14][0]-Local_Parameters[17]);
+	length[1][1] = (sn[17]>0)?sn[17]/(Random_Range[14][0]-Local_Parameters[17]):sn[17]/(Random_Range[14][1]-Local_Parameters[17]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[18]>0)?sn[18]/(Random_Range[15][1]-Local_Parameters[18]):sn[18]/(Random_Range[15][0]-Local_Parameters[18]);
+	length[1][1] = (sn[18]>0)?sn[18]/(Random_Range[15][0]-Local_Parameters[18]):sn[18]/(Random_Range[15][1]-Local_Parameters[18]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[1][0] = (sn[19]>0)?sn[19]/(Random_Range[15][1]-Local_Parameters[19]):sn[19]/(Random_Range[15][0]-Local_Parameters[19]);
+	length[1][1] = (sn[19]>0)?sn[19]/(Random_Range[15][0]-Local_Parameters[19]):sn[19]/(Random_Range[15][1]-Local_Parameters[19]);
+	length[0][0] = (length[0][0]>length[1][0])?length[0][0]:length[1][0];
+	length[0][1] = (length[0][1]<length[1][1])?length[0][1]:length[1][1];
+	length[0][0] = 1./length[0][0];
+	length[0][1] = 1./length[0][1];
 
 	OutputFile << "Line search" << endl;
-	for(int i = 0; i <= 10; i++)
+	for(int i = 0; i <= 100; i++)
 	{
+		fz[i][0] = a+(c-a)*i/100.;
 		for(int j = 0; j < 20; j++)
-			Deviation_Parameters[j] = Local_Parameters[j]+(long double)(i)*sn[j]/10./norm;
-		DataLoad(JPsi, Non, Deviation_Parameters);
+			Deviation_Points[j] = Local_Parameters[j]+length[0][0]*fz[i][0]*sn[j];
+		DataLoad(JPsi, Non, Deviation_Points);
 		for(int T = 1; T < 5; T++)
 		{
 			Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
@@ -408,16 +490,15 @@ void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral
 			for(int j = 0; j < 7; j++)
 				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 		}
-		fz[i][0] = (long double)(i)/10.;
-		fz[i][1] = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
+		fz[i][1] = Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 	}
 
-	for(int i = 1; i < 11; i++)
+	for(int i = 1; i < 101; i++)
 		Min_i = (fz[i][1]<fz[Min_i][1])?i:Min_i;
 	if(Min_i == 0)	//So as to not exceed the limits of the array
 		Min_i = 1;
-	else if(Min_i == 10)
-		Min_i = 9;
+	else if(Min_i == 100)
+		Min_i = 99;
 
 	OutputFile << "Brent's Method" << endl;
 	const int ITMAX = 100;
@@ -441,8 +522,8 @@ void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral
 		if(abs(x-xm) <= (tol2-(b-a)/2.) || abs(fx/fu-1.) < 1e-7)
 		{
 			for(int j = 0; j < 20; j++)
-				Deviation_Parameters[j] = Local_Parameters[j]+x*sn[j]/10./norm;
-			DataLoad(JPsi, Non, Deviation_Parameters);
+				Deviation_Points[j] = Local_Parameters[j]+length[0][0]*x*sn[j];
+			DataLoad(JPsi, Non, Deviation_Points);
 			for(int T = 1; T < 5; T++)
 			{
 				Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
@@ -450,7 +531,7 @@ void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral
 				for(int j = 0; j < 7; j++)
 					Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 			}
-			Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
+			Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 			return;
 		}
 
@@ -479,8 +560,8 @@ void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral
 
 		u = (abs(d)>tol1?x+d:x+tol1*d/abs(d));
 		for(int j = 0; j < 20; j++)
-			Deviation_Parameters[j] = Local_Parameters[j]+u*sn[j]/10./norm;
-		DataLoad(JPsi, Non, Deviation_Parameters);
+			Deviation_Points[j] = Local_Parameters[j]+length[0][0]*u*sn[j];
+		DataLoad(JPsi, Non, Deviation_Points);
 		for(int T = 1; T < 5; T++)
 		{
 			Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
@@ -488,7 +569,7 @@ void Minimize(long double sn[20], long double Deviation_Parameters[20], Spectral
 			for(int j = 0; j < 7; j++)
 				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 		}
-		fu = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
+		fu = Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
 
 		if(fu <= fx)
 		{
@@ -539,7 +620,7 @@ long double PolakRibiere(long double gradn_1[20], long double gradn[20])
 	return(num/den);
 }
 
-void Gradient(long double grad[20], long double Deviation_Parameters[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7])
+void Gradient(long double grad[20], long double Deviation_Points[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7])
 {
 	long double f0, f1, h = 1e-5;
 	long double Reduce_Euclidean[4][3][2];
@@ -572,8 +653,8 @@ void Gradient(long double grad[20], long double Deviation_Parameters[20], Spectr
 
 	for(i = 0; i < 12; i++)
 	{
-		Deviation_Parameters[i] += h;
-		DataLoad(JPsi, Non, Deviation_Parameters);
+		Deviation_Points[i] += h;
+		DataLoad(JPsi, Non, Deviation_Points);
 		for(int T = 1; T < 5; T++)
 		{
 			Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Reduce_Euclidean[T-1][1][0]+Reduce_Euclidean[T-1][2][0];
@@ -581,15 +662,15 @@ void Gradient(long double grad[20], long double Deviation_Parameters[20], Spectr
 			for(int j = 0; j < 7; j++)
 				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Reduce_Spatial[T-1][1][j]+Reduce_Spatial[T-1][2][j];
 		}
-		f1 = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
-		Deviation_Parameters[i] -= h;
+		f1 = Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
+		Deviation_Points[i] -= h;
 		grad[i] = (f0-f1)/h;
 	}
 
 	for(i; i < 20; i++)
 	{
-		Deviation_Parameters[i] += h;
-		DataLoad(JPsi, Non, Deviation_Parameters);
+		Deviation_Points[i] += h;
+		DataLoad(JPsi, Non, Deviation_Points);
 		for(int T = 1; T < 5; T++)
 		{
 			Medium_Euclidean[T-1][0] = Reduce_Euclidean[T-1][0][0]+Reduce_Euclidean[T-1][1][0]+Non[T]->Euclidean(.5, 0);
@@ -597,19 +678,13 @@ void Gradient(long double grad[20], long double Deviation_Parameters[20], Spectr
 			for(int j = 0; j < 7; j++)
 				Medium_Spatial[T-1][j] = Reduce_Spatial[T-1][0][j]+Reduce_Spatial[T-1][1][j]+Non[T]->Spatial((long double)(j)+.25);
 		}
-		f1 = Print(Deviation_Parameters, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
-		Deviation_Parameters[i] -= h;
+		f1 = Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial);
+		Deviation_Points[i] -= h;
 		grad[i] = (f0-f1)/h;
 	}
-
-	/*for(int i = 0; i < 20; i++)
-		norm += pow(grad[i],2);
-	norm = sqrt(norm);
-	for(int i = 0; i < 20; i++)
-		grad[i] = grad[i]/norm;*/
 }
 
-long double Print(long double Deviation_Parameters[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7])
+long double Print(long double Deviation_Points[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7])
 {
 	long double chi[5];
 	for(int i = 0; i < 5; i++)
@@ -617,7 +692,7 @@ long double Print(long double Deviation_Parameters[20], Spectral_Inter* JPsi[5],
 
 	for(int i = 0; i < 20; i++)
 	{
-		OutputFile << Deviation_Parameters[i] << "," << flush;
+		OutputFile << Deviation_Points[i] << "," << flush;
 	}
 
 	for(int i = 1; i < 5; i++)
@@ -642,7 +717,7 @@ long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Sp
 {
 	long double answer = 0;
 
-	if(Temp != 0)	//Temprature Chi-squared, so that one temp doesn't get lost under other temps that aren't as well refined
+	if(Temp != 0)	//To report out each temprature for goodness of fit considerations
 	{
 		answer += pow(Medium_Euclidean[Temp-1][1]/Vacuum_Euclidean[Temp-1][1]-Medium_Euclidean[Temp-1][0]/Vacuum_Euclidean[Temp-1][0]-.2,2)/.2;
 		for(int j = 0; j < 7; j++)
@@ -667,48 +742,48 @@ long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Sp
 	return(answer);
 }
 
-void DataLoad(Spectral_Inter* JPsi[5], Spectral_Non* Non[5], long double Deviation_Parameters[20])
+void DataLoad(Spectral_Inter* JPsi[5], Spectral_Non* Non[5], long double Deviation_Points[20])
 {
-	JPsi[1]->Replace(Deviation_Parameters[0]*.194+Deviation_Parameters[1], 0, 2);
-	JPsi[2]->Replace(Deviation_Parameters[0]*.258+Deviation_Parameters[1], 0, 2);
-	JPsi[3]->Replace(Deviation_Parameters[0]*.32+Deviation_Parameters[1], 0, 2);
-	JPsi[4]->Replace(Deviation_Parameters[0]*.4+Deviation_Parameters[1], 0, 2);
-	JPsi[1]->Replace(Deviation_Parameters[2]*.194+Deviation_Parameters[3], 0, 2);
-	JPsi[2]->Replace(Deviation_Parameters[2]*.258+Deviation_Parameters[3], 0, 2);
-	JPsi[3]->Replace(Deviation_Parameters[2]*.32+Deviation_Parameters[3], 0, 2);
-	JPsi[4]->Replace(Deviation_Parameters[2]*.4+Deviation_Parameters[3], 0, 2);
-	JPsi[1]->Replace(3.09946+Deviation_Parameters[4]*.194+Deviation_Parameters[5], 1, 1);
-	JPsi[2]->Replace(3.125+Deviation_Parameters[4]*.258+Deviation_Parameters[5], 1, 1);
-	JPsi[3]->Replace(3.151+Deviation_Parameters[4]*.32+Deviation_Parameters[5], 1, 1);
-	JPsi[4]->Replace(3.1855+Deviation_Parameters[4]*.4+Deviation_Parameters[5], 1, 1);
-	JPsi[1]->Replace(Deviation_Parameters[6]*.194+Deviation_Parameters[7], 1, 2);
-	JPsi[2]->Replace(Deviation_Parameters[6]*.258+Deviation_Parameters[7], 1, 2);
-	JPsi[3]->Replace(Deviation_Parameters[6]*.32+Deviation_Parameters[7], 1, 2);
-	JPsi[4]->Replace(Deviation_Parameters[6]*.4+Deviation_Parameters[7], 1, 2);
-	JPsi[1]->Replace(Deviation_Parameters[8]*.194+Deviation_Parameters[9], 2, 1);
-	JPsi[2]->Replace(Deviation_Parameters[8]*.258+Deviation_Parameters[9], 2, 1);
-	JPsi[3]->Replace(Deviation_Parameters[8]*.32+Deviation_Parameters[9], 2, 1);
-	JPsi[4]->Replace(Deviation_Parameters[8]*.4+Deviation_Parameters[9], 2, 1);
-	JPsi[1]->Replace(Deviation_Parameters[10]*.194+Deviation_Parameters[11], 2, 2);
-	JPsi[2]->Replace(Deviation_Parameters[10]*.258+Deviation_Parameters[11], 2, 2);
-	JPsi[3]->Replace(Deviation_Parameters[10]*.32+Deviation_Parameters[11], 2, 2);
-	JPsi[4]->Replace(Deviation_Parameters[10]*.4+Deviation_Parameters[11], 2, 2);
-	Non[1]->Replace(1.655+Deviation_Parameters[12]*.194+Deviation_Parameters[13], 0, 1);
-	Non[2]->Replace(1.59+Deviation_Parameters[12]*.258+Deviation_Parameters[13], 0, 1);
-	Non[3]->Replace(1.51+Deviation_Parameters[12]*.32+Deviation_Parameters[13], 0, 1);
-	Non[4]->Replace(1.36+Deviation_Parameters[12]*.4+Deviation_Parameters[13], 0, 1);
-	Non[1]->Replace(Deviation_Parameters[14]*.194+Deviation_Parameters[15], 0, 2);
-	Non[2]->Replace(Deviation_Parameters[14]*.258+Deviation_Parameters[15], 0, 2);
-	Non[3]->Replace(Deviation_Parameters[14]*.32+Deviation_Parameters[15], 0, 2);
-	Non[4]->Replace(Deviation_Parameters[14]*.4+Deviation_Parameters[15], 0, 2);
-	Non[1]->Replace(Deviation_Parameters[16]*.194+Deviation_Parameters[17], 1, 1);
-	Non[2]->Replace(Deviation_Parameters[16]*.258+Deviation_Parameters[17], 1, 1);
-	Non[3]->Replace(Deviation_Parameters[16]*.32+Deviation_Parameters[17], 1, 1);
-	Non[4]->Replace(Deviation_Parameters[16]*.4+Deviation_Parameters[17], 1, 1);
-	Non[1]->Replace(Deviation_Parameters[18]*.194+Deviation_Parameters[19], 1, 2);
-	Non[2]->Replace(Deviation_Parameters[18]*.258+Deviation_Parameters[19], 1, 2);
-	Non[3]->Replace(Deviation_Parameters[18]*.32+Deviation_Parameters[19], 1, 2);
-	Non[4]->Replace(Deviation_Parameters[18]*.4+Deviation_Parameters[19], 1, 2);
+	JPsi[1]->Replace(Deviation_Points[0],0,1);
+	JPsi[1]->Replace(Deviation_Points[2],0,2);
+	JPsi[1]->Replace(3.09946+Deviation_Points[4],1,1);
+	JPsi[1]->Replace(Deviation_Points[6],1,2);
+	JPsi[1]->Replace(Deviation_Points[8],2,1);
+	JPsi[1]->Replace(Deviation_Points[10],2,2);
+	Non[1]->Replace(1.655+Deviation_Points[12],0,1);
+	Non[1]->Replace(Deviation_Points[14],0,2);
+	Non[1]->Replace(Deviation_Points[16],1,1);
+	Non[1]->Replace(Deviation_Points[18],1,2);
+	JPsi[2]->Replace((71.*Deviation_Points[0]+32.*Deviation_Points[1])/103.,0,1);
+	JPsi[2]->Replace((71.*Deviation_Points[2]+32.*Deviation_Points[3])/103.,0,2);
+	JPsi[2]->Replace(3.125+(71.*Deviation_Points[4]+32.*Deviation_Points[5])/103.,1,1);
+	JPsi[2]->Replace((71.*Deviation_Points[6]+32.*Deviation_Points[7])/103.,1,2);
+	JPsi[2]->Replace((71.*Deviation_Points[8]+32.*Deviation_Points[9])/103.,2,1);
+	JPsi[2]->Replace((71.*Deviation_Points[10]+32.*Deviation_Points[11])/103.,2,2);
+	Non[2]->Replace(1.59+(71.*Deviation_Points[12]+32.*Deviation_Points[13])/103.,0,1);
+	Non[2]->Replace((71.*Deviation_Points[14]+32.*Deviation_Points[15])/103.,0,2);
+	Non[2]->Replace((71.*Deviation_Points[16]+32.*Deviation_Points[17])/103.,1,1);
+	Non[2]->Replace((71.*Deviation_Points[18]+32.*Deviation_Points[19])/103.,1,2);
+	JPsi[3]->Replace((40.*Deviation_Points[0]+63.*Deviation_Points[1])/103.,0,1);
+	JPsi[3]->Replace((40.*Deviation_Points[2]+63.*Deviation_Points[3])/103.,0,2);
+	JPsi[3]->Replace(3.151+(40.*Deviation_Points[4]+63.*Deviation_Points[5])/103.,1,1);
+	JPsi[3]->Replace((40.*Deviation_Points[6]+63.*Deviation_Points[7])/103.,1,2);
+	JPsi[3]->Replace((40.*Deviation_Points[8]+63.*Deviation_Points[9])/103.,2,1);
+	JPsi[3]->Replace((40.*Deviation_Points[10]+63.*Deviation_Points[11])/103.,2,2);
+	Non[3]->Replace(1.51+(40.*Deviation_Points[12]+63.*Deviation_Points[13])/103.,0,1);
+	Non[3]->Replace((40.*Deviation_Points[14]+63.*Deviation_Points[15])/103.,0,2);
+	Non[3]->Replace((40.*Deviation_Points[16]+63.*Deviation_Points[17])/103.,1,1);
+	Non[3]->Replace((40.*Deviation_Points[18]+63.*Deviation_Points[19])/103.,1,2);
+	JPsi[4]->Replace(Deviation_Points[1],0,1);
+	JPsi[4]->Replace(Deviation_Points[3],0,2);
+	JPsi[4]->Replace(3.1855+Deviation_Points[5],1,1);
+	JPsi[4]->Replace(Deviation_Points[7],1,2);
+	JPsi[4]->Replace(Deviation_Points[9],2,1);
+	JPsi[4]->Replace(Deviation_Points[11],2,2);
+	Non[4]->Replace(1.36+Deviation_Points[13],0,1);
+	Non[4]->Replace(Deviation_Points[15],0,2);
+	Non[4]->Replace(Deviation_Points[17],1,1);
+	Non[4]->Replace(Deviation_Points[19],1,2);
 }
 
 long double Uniform(long double a, long double b)
