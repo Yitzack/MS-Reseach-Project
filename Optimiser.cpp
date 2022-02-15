@@ -34,7 +34,7 @@ long double Uniform(long double, long double);
 long double Protected_Uniform(long double, long double, long double);
 void DataLoad(Spectral_Inter*[5], Spectral_Non*[5], long double[20]);
 				   //A, PA, DeltaM1, DeltaM4, PM, Gamma, PGamma, a, Pa, Delta, PDelta, DeltaMQ1, DeltaPMQ4, PMQ, n, Pn
-long double Random_Range[16][2] = {{.1,.51},{1.,6.},{-0.59946, 0.40054},{-0.6855, 0.3145},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{-.065,.135},{-.05,.43},{1.,6.},{1.5,5.},{1.,6.}};
+long double Random_Range[16][2] = {{.1,.5},{1.,6.},{-0.59946, 0.40054},{-0.6855, 0.3145},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{-.065,.135},{-.05,.43},{1.,6.},{1.5,5.},{1.,6.}};
 ofstream OutputFile;
 
 const long double Spatial_Ratio[4][7] = {{1.,1.00006,0.99883,0.992039,0.982366,0.970341,0.95766},
@@ -51,7 +51,7 @@ const long double Vacuum_Euclidean[4][2] = {{0.000259568923526295945662, 9.64220
 int main(int argc, char* argv[])
 {
 	//long double Deviation_Points[20] = {A1, A4, PA1, PA4, DeltaM1, DeltaM4, PM1, PM4, Gamma1, Gamma4, PGamma1, PGamma4, DeltaMQ1, DeltaMQ4, PMQ1, PMQ4, n1, n4, Pn1, Pn4};
-	long double Deviation_Points[20] = {0.372152, 0.504725, 3.12511, 5.76123, 0.215029, 0.105021, 4.42803, 5.06918, 0.1, 0.1, 3.92739, 2.94664, -0.00229189, 0.0064931, 4.71375, 4.55841, 1.89053, 4.4515, 5.75791, 1.36598};
+	long double Deviation_Points[20] = {0.115296, 0.286618, 2.08208, 1.56006, -0.405478, -0.285573, 5.26038, 5.25057, 0.0238598, 0.0716614, 2.50265, 1.90889, -0.0032714, 0.00857572, 4.48368, 3.60523, 3.06481, 3.43242, 4.25095, 5.06179};
 
 	long double JPsi_Parameters[5][5][3] = {{{.314831,.314831,1.},{3.0969,3.0969,1},{.032,.032,1},{9.34,9.34,1},{1,1,1}},
 						{{1.97/(2.*3.09946),.317797,2.35534},{3.09946,3.09946,4.55517},{.106597,.106597,2.34302},{10.58,10.58,4.00927},{3,3,1}},
@@ -807,13 +807,14 @@ void DataLoad(Spectral_Inter* JPsi[5], Spectral_Non* Non[5], long double Deviati
 
 long double Protected_Uniform(long double x0, long double a, long double b)
 {
-	if(x0-.1 < a && x0+.1 > b)
+	long double Delta = (b-a)/100.;
+	if(x0-Delta < a && x0+Delta > b)
 		return(Uniform(a,b));
-	else if(x0-.1 < a)
-		return(Uniform(a,x0+.1));
-	else if(x0+.1 > b)
-		return(Uniform(x0-.1,b));
-	return(x0+Uniform(-.1,.1));
+	else if(x0-Delta < a)
+		return(Uniform(a,x0+Delta));
+	else if(x0+Delta > b)
+		return(Uniform(x0-Delta,b));
+	return(x0+Uniform(-Delta,Delta));
 }
 
 long double Uniform(long double a, long double b)
