@@ -31,7 +31,7 @@ long double Chi_Square(Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5],
 long double Least_Squares(long double, long double, long double, long double);
 long double Print(long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][7]); //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
 long double Uniform(long double, long double);
-long double Protected_Uniform(long double, long double, long double);
+long double Protected_Uniform(long double, long double, long double, long double);
 void DataLoad(Spectral_Inter*[5], Spectral_Non*[5], long double[20]);
 				   //A, PA, DeltaM1, DeltaM4, PM, Gamma, PGamma, a, Pa, Delta, PDelta, DeltaMQ1, DeltaPMQ4, PMQ, n, Pn
 long double Random_Range[16][2] = {{.1,.5},{1.,6.},{-0.59946, 0.40054},{-0.6855, 0.3145},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{-.065,.135},{-.05,.43},{1.,6.},{1.5,5.},{1.,6.}};
@@ -325,26 +325,26 @@ int main(int argc, char* argv[])
 	round_start_time = time(NULL);
 	while(difftime(time(NULL), round_start_time) < 18000 || i < 80) //18000 seconds (5 hours) and 80 attempts
 	{
-		Deviation_Points[0] = Protected_Uniform(Best[0],Random_Range[0][0],Random_Range[0][1]);
-		Deviation_Points[1] = Protected_Uniform(Best[1],Random_Range[0][0],Random_Range[0][1]);
-		Deviation_Points[2] = Protected_Uniform(Best[2],Random_Range[1][0],Random_Range[1][1]);
-		Deviation_Points[3] = Protected_Uniform(Best[3],Random_Range[1][0],Random_Range[1][1]);
-		Deviation_Points[4] = Protected_Uniform(Best[4],Random_Range[2][0],Random_Range[2][1]);
-		Deviation_Points[5] = Protected_Uniform(Best[5],Random_Range[3][0],Random_Range[3][1]);
-		Deviation_Points[6] = Protected_Uniform(Best[6],Random_Range[4][0],Random_Range[4][1]);
-		Deviation_Points[7] = Protected_Uniform(Best[7],Random_Range[4][0],Random_Range[4][1]);
-		Deviation_Points[8] = Protected_Uniform(Best[8],Random_Range[5][0],Random_Range[5][1]);
-		Deviation_Points[9] = Protected_Uniform(Best[9],Random_Range[5][0],Random_Range[5][1]);
-		Deviation_Points[10] = Protected_Uniform(Best[10],Random_Range[6][0],Random_Range[6][1]);
-		Deviation_Points[11] = Protected_Uniform(Best[11],Random_Range[6][0],Random_Range[6][1]);
-		Deviation_Points[12] = Protected_Uniform(Best[12],Random_Range[11][0],Random_Range[11][1]);
-		Deviation_Points[13] = Protected_Uniform(Best[13],Random_Range[12][0],Random_Range[12][1]);
-		Deviation_Points[14] = Protected_Uniform(Best[14],Random_Range[13][0],Random_Range[13][1]);
-		Deviation_Points[15] = Protected_Uniform(Best[15],Random_Range[13][0],Random_Range[13][1]);
-		Deviation_Points[16] = Protected_Uniform(Best[16],Random_Range[14][0],Random_Range[14][1]);
-		Deviation_Points[17] = Protected_Uniform(Best[17],Random_Range[14][0],Random_Range[14][1]);
-		Deviation_Points[18] = Protected_Uniform(Best[18],Random_Range[15][0],Random_Range[15][1]);
-		Deviation_Points[19] = Protected_Uniform(Best[19],Random_Range[15][0],Random_Range[15][1]);
+		Deviation_Points[0] = Protected_Uniform(Best[0],Random_Range[0][0],Random_Range[0][1],Best[20]);
+		Deviation_Points[1] = Protected_Uniform(Best[1],Random_Range[0][0],Random_Range[0][1],Best[20]);
+		Deviation_Points[2] = Protected_Uniform(Best[2],Random_Range[1][0],Random_Range[1][1],Best[20]);
+		Deviation_Points[3] = Protected_Uniform(Best[3],Random_Range[1][0],Random_Range[1][1],Best[20]);
+		Deviation_Points[4] = Protected_Uniform(Best[4],Random_Range[2][0],Random_Range[2][1],Best[20]);
+		Deviation_Points[5] = Protected_Uniform(Best[5],Random_Range[3][0],Random_Range[3][1],Best[20]);
+		Deviation_Points[6] = Protected_Uniform(Best[6],Random_Range[4][0],Random_Range[4][1],Best[20]);
+		Deviation_Points[7] = Protected_Uniform(Best[7],Random_Range[4][0],Random_Range[4][1],Best[20]);
+		Deviation_Points[8] = Protected_Uniform(Best[8],Random_Range[5][0],Random_Range[5][1],Best[20]);
+		Deviation_Points[9] = Protected_Uniform(Best[9],Random_Range[5][0],Random_Range[5][1],Best[20]);
+		Deviation_Points[10] = Protected_Uniform(Best[10],Random_Range[6][0],Random_Range[6][1],Best[20]);
+		Deviation_Points[11] = Protected_Uniform(Best[11],Random_Range[6][0],Random_Range[6][1],Best[20]);
+		Deviation_Points[12] = Protected_Uniform(Best[12],Random_Range[11][0],Random_Range[11][1],Best[20]);
+		Deviation_Points[13] = Protected_Uniform(Best[13],Random_Range[12][0],Random_Range[12][1],Best[20]);
+		Deviation_Points[14] = Protected_Uniform(Best[14],Random_Range[13][0],Random_Range[13][1],Best[20]);
+		Deviation_Points[15] = Protected_Uniform(Best[15],Random_Range[13][0],Random_Range[13][1],Best[20]);
+		Deviation_Points[16] = Protected_Uniform(Best[16],Random_Range[14][0],Random_Range[14][1],Best[20]);
+		Deviation_Points[17] = Protected_Uniform(Best[17],Random_Range[14][0],Random_Range[14][1],Best[20]);
+		Deviation_Points[18] = Protected_Uniform(Best[18],Random_Range[15][0],Random_Range[15][1],Best[20]);
+		Deviation_Points[19] = Protected_Uniform(Best[19],Random_Range[15][0],Random_Range[15][1],Best[20]);
 
 		DataLoad(JPsi, Non, Deviation_Points);
 
@@ -805,9 +805,9 @@ void DataLoad(Spectral_Inter* JPsi[5], Spectral_Non* Non[5], long double Deviati
 	Non[4]->Replace(Deviation_Points[19],1,2);
 }
 
-long double Protected_Uniform(long double x0, long double a, long double b)
+long double Protected_Uniform(long double x0, long double a, long double b, long double chi)
 {
-	long double Delta = (b-a)/100.;
+	long double Delta = (b-a)*pow(chi,.2)/100.;
 	if(x0-Delta < a && x0+Delta > b)
 		return(Uniform(a,b));
 	else if(x0-Delta < a)
