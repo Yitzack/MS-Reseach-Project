@@ -52,8 +52,8 @@ int main(int argc, char* argv[])
 {
 	//long double Deviation_Points[20] = {A1, A4, PA1, PA4, DeltaM1, DeltaM4, PM1, PM4, Gamma1, Gamma4, PGamma1, PGamma4, DeltaMQ1, DeltaMQ4, PMQ1, PMQ4, n1, n4, Pn1, Pn4};{0.486081, 0.155585, 1.1562, 3.61439, -0.180868, -0.151585, 4.05393, 4.08588, 0.0470915, 0.0790153, 5.62678, 5.68307, -0.00134413, 0.00410448, 3.02722, 1.65693, 2.135601, 4.283871, 2.885071, 1.396201, 1, 0.486081, 1.1562, 2.91859, 4.05393, 0.0470915, 5.62678, 10.58, 4.00927, 3, 1, 1.65366, 3.02722, 2.135601, 2.885071, -0.0925551, 1.01848, 1.25656, 1.41628, 1.53576, 1.90257, -3.580289, 0.8759678, 23.17668, 2, 0.383403, 1.91991, 2.95323, 4.06386, 0.0570096, 5.64427, 8.97, 2.61299, 3, 2.22449, 1.59035, 2.6015, 2.803022, 2.422511, 0.0314531, 0.984802, 0.797222, 0.726317, 0.724347, 0.6775956, 0.6065823, 0.538415, 0.31551, 3, 0.283933, 2.65975, 2.98804, 4.07347, 0.0666177, 5.66121, 9.07, 5.68392, 3, 3.59181, 1.51199, 2.18908, 3.449591, 1.974402, 0.0511807, 0.979265, 0.730733, 0.640868, 0.629152, 0.518963, -0.1865786, 4.49366, 46.1355, 4, 0.155585, 3.61439, 3.03391, 4.08588, 0.0790153, 5.68307, 9.52, 1.00741, 3, 1.00741, 1.3641, 1.65693, 4.283871, 1.396201, 0.0632518, 0.976794, 0.702607, 0.61441, 0.641127, 0.674582, 0.479097, 3.44028, 59.6975, 129.325}
 	//long double Deviation_Points[20] = {0.486081, 0.155585, 1.1562, 3.61439, -0.180868, -0.151585, 4.05393, 4.08588, 0.0470915, 0.0790153, 5.62678, 5.68307, -0.00134413, 0.00410448, 3.02722, 1.65693, 2.135601, 4.283871, 2.885071, 1.396201};
-	//long double Deviation_Points[20] = {DeltaA1, DeltaA4, PA1, PA4, DeltaM1, DeltaM4, PM1, PM4, Gamma1, Gamma4, PGamma1, PGamma4, DeltaMQ1, DeltaMQ4, PMQ1, PMQ4, n1, n4, Pn1, Pn4};
-	long double Deviation_Points[20] = {-0.0658081, 0.07263, 3.77224, 4.40354, -0.0414323, -0.617058, 3.3948, 2.29006, 0.15236, 0.130075, 5.75559, 5.55805, 0.0600837, 0.341591, 3.20978, 3.68541, 3.65112, 4.65372, 4.26362, 5.75064};
+	//long double Deviation_Points[20] = {DeltaA1, DeltaA4, PA1, PA4, DeltaM1, DeltaM4, PM1, PM4, Gamma1, Gamma4, PGamma1, PGamma4, DeltaMQ1, DeltaMQ4, PMQ1, PMQ4, n1, n4, Pn1, Pn4};{-0.0551979, 0.0820988, 3.85997, 4.412, -0.0242682, -0.558705, 3.26683, 2.22181, 0.163377, 0.132282, 5.72404, 5.43586, 0.0530835, 0.367393, 3.15481, 3.49742, 3.62434, 4.68273, 4.34571, 5.737, 1, 0.262599, 3.85997, 3.07519, 3.26683, 0.163377, 5.72404, 10.58, 4.00927, 3, 1, 1.70808, 3.15481, 3.62434, 4.34571, -0.0816096, 1.00253, 0.962476, 1.01238, 1.05689, 1.05706, 1.0294, 1.18131, 0.463866, 2, 0.389857, 4.03148, 2.93469, 2.94216, 0.153716, 5.63451, 8.97, 2.61299, 3, 2.22449, 1.74073, 3.26125, 3.95316, 4.77796, 0.0912595, 1.00532, 0.988146, 1.04293, 0.910218, 0.655021, 0.459574, 0.737203, 0.204598, 3, 0.431827, 4.19762, 2.79984, 2.62765, 0.144358, 5.54778, 9.07, 5.68392, 3, 3.59181, 1.75533, 3.36437, 4.27171, 5.19669, 0.0831871, 1.00333, 1.06785, 1.12721, 0.759387, 0.157107, -0.151084, 0.582631, 1.39534, 4, 0.348933, 4.412, 2.62679, 2.22181, 0.132282, 5.43586, 9.52, 1.00741, 3, 1.00741, 1.72739, 3.49742, 4.68273, 5.737, 0.0194722, 0.999635, 1.09664, 1.23903, 0.882943, 0.302388, 0.486446, 0.186508, 1.07995, 3.14376}
+	long double Deviation_Points[20] = {-0.0551979, 0.0820988, 3.85997, 4.412, -0.0242682, -0.558705, 3.26683, 2.22181, 0.163377, 0.132282, 5.72404, 5.43586, 0.0530835, 0.367393, 3.15481, 3.49742, 3.62434, 4.68273, 4.34571, 5.737};
 
 	long double JPsi_Parameters[5][5][3] = {{{.314831,.314831,1.},{3.0969,3.0969,1},{.032,.032,1},{9.34,9.34,1},{1,1,1}},
 						{{1.97/(2.*3.09946),.317797,2.35534},{3.09946,3.09946,4.55517},{.106597,.106597,2.34302},{10.58,10.58,4.00927},{3,3,1}},
@@ -321,31 +321,6 @@ int main(int argc, char* argv[])
 		return(0);
 	}
 
-	for(int i = 0; i < 4; i++)
-		for(int j = 0; j < 7; j++)
-			OutputFile << Spatial_Ratio[i][j] << "," << flush;
-	cout << endl;
-	for(int i = 0; i < 4; i++)
-		for(int j = 0; j < 2; j++)
-			OutputFile << Vacuum_Euclidean[i][j] << "," << flush;
-	cout << endl;
-	for(int i = 0; i < 7; i++)
-		OutputFile << Vacuum_Spatial[i] << "," << flush;
-	cout << endl;
-	for(int i = 0; i < 5; i++)
-		for(int j = 0; j < 5; j++)
-			OutputFile << JPsi[i]->Read(j,0) << "," << flush;
-	cout << endl;
-	for(int i = 0; i < 5; i++)
-		for(int j = 0; j < 5; j++)
-			OutputFile << Psi_Prime[i]->Read(j,0) << "," << flush;
-	cout << endl;
-	for(int i = 0; i < 5; i++)
-		for(int j = 0; j < 2; j++)
-			OutputFile << Non[i]->Read(j,0) << "," << flush;
-	cout << endl;
-
-
 	long double Best[21], Chi;
 	OutputFile << "Random Search seed: " << time(NULL)+3*atoi(argv[1]) << endl;
 	srand(time(NULL)+3*atoi(argv[1]));
@@ -398,7 +373,7 @@ int main(int argc, char* argv[])
 	Best[20] = Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, 0);
 
 	round_start_time = time(NULL);
-	while(difftime(time(NULL), round_start_time) < 43200 || i < 80) //18000 seconds (5 hours) and 80 attempts
+	while(difftime(time(NULL), round_start_time) < 43200 || i < 80) //18000 seconds (5 hours)
 	{
 		Deviation_Points[0] = Protected_Uniform(Best[0],Random_Range[0][0],Random_Range[0][1],Best[20]);
 		Deviation_Points[1] = Protected_Uniform(Best[1],Random_Range[0][0],Random_Range[0][1],Best[20]);
@@ -472,30 +447,6 @@ int main(int argc, char* argv[])
 			sn_1[i] = sn[i];
 		}
 	}while((abs(betan)>1e-12 || abs(betan_1)>1e-12) && difftime(time(NULL), round_start_time) < 1800);
-
-	for(int i = 0; i < 4; i++)
-		for(int j = 0; j < 7; j++)
-			OutputFile << Spatial_Ratio[i][j] << "," << flush;
-	cout << endl;
-	for(int i = 0; i < 4; i++)
-		for(int j = 0; j < 2; j++)
-			OutputFile << Vacuum_Euclidean[i][j] << "," << flush;
-	cout << endl;
-	for(int i = 0; i < 7; i++)
-		OutputFile << Vacuum_Spatial[i] << "," << flush;
-	cout << endl;
-	for(int i = 0; i < 5; i++)
-		for(int j = 0; j < 5; j++)
-			OutputFile << JPsi[i]->Read(j,0) << "," << flush;
-	cout << endl;
-	for(int i = 0; i < 5; i++)
-		for(int j = 0; j < 5; j++)
-			OutputFile << Psi_Prime[i]->Read(j,0) << "," << flush;
-	cout << endl;
-	for(int i = 0; i < 5; i++)
-		for(int j = 0; j < 2; j++)
-			OutputFile << Non[i]->Read(j,0) << "," << flush;
-	cout << endl;
 
 	OutputFile.close();
 

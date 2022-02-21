@@ -255,6 +255,8 @@ long double Spectral_Non::Spatial_sInt(long double z, long double P)
 	long double Stops[15] = {0, 0, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 552.25};
 
 	Stops[0] = pow(2.*Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2]),2);
+	if(Vacuum)
+		Stops[0] = pow(2.*Parameters[0][0],2);
 	Stops[1] = Stops[0]/2.+Stops[2]/2.;
 	Intervals = 14;
 
@@ -304,6 +306,8 @@ long double Spectral_Non::Spatial_P0Int(long double z, long double P0)
 	long double Stops[15] = {0, 0, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 552.25};
 
 	Stops[0] = pow(2.*Q(P0, Parameters[0][0], Parameters[0][1], Parameters[0][2]),2);
+	if(Vacuum)
+		Stops[0] = pow(2.*Parameters[0][0],2);
 	Stops[1] = Stops[0]/2.+Stops[2]/2.;
 	Intervals = 14;
 
@@ -351,6 +355,8 @@ long double Spectral_Non::Euclidean(long double tau, long double P, long double 
 	long double Stops[44] = {0, 0, 15, 18, 21, 24, 34, 44, 54, 104, 204, 304, 404, 504, 604, 704, 804, 904, 1004, 2004, 3004, 4004, 5004, 6004, 7004, 8004, 9004, 10004, 10004, 20004, 30004, 40004, 50004, 60004, 70004, 80004, 90004, 100004, 110004, 120004, 130004, 140004, 150004, 160000};
 
 	Stops[0] = pow(2.*Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2]),2);
+	if(Vacuum)
+		Stops[0] = pow(2.*Parameters[0][0],2);
 	Stops[1] = Stops[0]/2.+Stops[2]/2.;
 
 	tau /= T;
