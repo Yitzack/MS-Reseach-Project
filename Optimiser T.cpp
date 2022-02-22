@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 			return(2);
 	}
 
-	char File[70] = "data/Optimiser_Output";
+	char File[70] = "data/Optimiser_Output.";
 	if(argc == 3)
 	{
 		strcat(File,argv[2]);
@@ -634,7 +634,10 @@ long double Chi_Square(long double Medium_Euclidean[2], long double Medium_Spati
 	long double answer;
 	answer = pow(Medium_Euclidean[1]/Vacuum_Euclidean[T-1][1]-Medium_Euclidean[0]/Vacuum_Euclidean[T-1][0]-.2,2)/.2;
 	for(int i = 0; i < 7; i++)
+	{
 		answer += pow(Medium_Spatial[i]/Vacuum_Spatial[i]-Spatial_Ratio[T-1][i],2)/Spatial_Ratio[T-1][i];
+		if(i < 6)answer += (Medium_Spatial[i]/Vacuum_Spatial[i]-Medium_Spatial[i-1]/Vacuum_Spatial[i-1]>0)?(Medium_Spatial[i]/Vacuum_Spatial[i]-Medium_Spatial[i-1]/Vacuum_Spatial[i-1]):0;
+	}
 	return(answer);
 }
 

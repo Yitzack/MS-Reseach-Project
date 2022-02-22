@@ -808,7 +808,10 @@ long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Sp
 	{
 		answer += pow(Medium_Euclidean[Temp-1][1]/Vacuum_Euclidean[Temp-1][1]-Medium_Euclidean[Temp-1][0]/Vacuum_Euclidean[Temp-1][0]-.2,2)/.2;
 		for(int j = 0; j < 7; j++)
+		{
 			answer += pow(Medium_Spatial[Temp-1][j]/Vacuum_Spatial[j]-Spatial_Ratio[Temp-1][j],2)/Spatial_Ratio[Temp-1][j];
+			if(j < 6)answer += (Medium_Spatial[Temp-1][j]/Vacuum_Spatial[j]-Medium_Spatial[Temp-1][j-1]/Vacuum_Spatial[j-1]>0)?(Medium_Spatial[Temp-1][j]/Vacuum_Spatial[j]-Medium_Spatial[Temp-1][j-1]/Vacuum_Spatial[j-1]):0;
+		}
 	}
 	else	//Total Chi-squared
 	{
@@ -816,7 +819,10 @@ long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Sp
 			answer += pow(Medium_Euclidean[i][1]/Vacuum_Euclidean[i][1]-Medium_Euclidean[i][0]/Vacuum_Euclidean[i][0]-.2,2)/.2;
 		for(int i = 0; i < 4; i++)
 			for(int j = 0; j < 7; j++)
+			{
 				answer += pow(Medium_Spatial[i][j]/Vacuum_Spatial[j]-Spatial_Ratio[i][j],2)/Spatial_Ratio[i][j];
+				if(j < 6)answer += (Medium_Spatial[i][j]/Vacuum_Spatial[j]-Medium_Spatial[i][j-1]/Vacuum_Spatial[j-1]>0)?(Medium_Spatial[i][j]/Vacuum_Spatial[j]-Medium_Spatial[i][j-1]/Vacuum_Spatial[j-1]):0;
+			}
 	}
 
 	/*for(int i = 0; i < 5; i++)
