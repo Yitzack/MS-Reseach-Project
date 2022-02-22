@@ -18,6 +18,7 @@ long double PolakRibiere(long double[14], long double[14]);
 void Minimize(long double[14], Spectral_Inter*, Spectral_Inter*, Spectral_Non*, int);
 
 long double Uniform(long double, long double);
+long double Protected_Uniform(long double, long double, long double, long double);
 long double Chi_Square(long double[2], long double[7], int);
 long double Print(Spectral_Inter*, Spectral_Inter*, Spectral_Non*, long double[2], long double[7], int); //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
 
@@ -319,22 +320,22 @@ int main(int argc, char* argv[])
 
 	while(difftime(time(NULL), start_time) < 9000)
 	{
-		JPsi[Temp]->Replace(Uniform(Random_Range[0][0],Random_Range[0][1]),0,1);
-		JPsi[Temp]->Replace(Uniform(Random_Range[1][0],Random_Range[1][1]),0,2);
-		JPsi[Temp]->Replace(Uniform(Random_Range[2][0],Random_Range[2][1]),1,1);
-		JPsi[Temp]->Replace(Uniform(Random_Range[3][0],Random_Range[3][1]),1,2);
-		JPsi[Temp]->Replace(Uniform(Random_Range[4][0],Random_Range[4][1]),2,1);
-		JPsi[Temp]->Replace(Uniform(Random_Range[5][0],Random_Range[5][1]),2,2);
-		JPsi[Temp]->Replace(Uniform(Random_Range[6][0],Random_Range[6][1]),3,1);
-		JPsi[Temp]->Replace(Uniform(Random_Range[7][0],Random_Range[7][1]),3,2);
+		JPsi[Temp]->Replace(Protected_Uniform(Best[0],Random_Range[0][0],Random_Range[0][1],Best[14]),0,1);
+		JPsi[Temp]->Replace(Protected_Uniform(Best[1],Random_Range[1][0],Random_Range[1][1],Best[14]),0,2);
+		JPsi[Temp]->Replace(Protected_Uniform(Best[2],Random_Range[2][0],Random_Range[2][1],Best[14]),1,1);
+		JPsi[Temp]->Replace(Protected_Uniform(Best[3],Random_Range[3][0],Random_Range[3][1],Best[14]),1,2);
+		JPsi[Temp]->Replace(Protected_Uniform(Best[4],Random_Range[4][0],Random_Range[4][1],Best[14]),2,1);
+		JPsi[Temp]->Replace(Protected_Uniform(Best[5],Random_Range[5][0],Random_Range[5][1],Best[14]),2,2);
+		JPsi[Temp]->Replace(Protected_Uniform(Best[6],Random_Range[6][0],Random_Range[6][1],Best[14]),3,1);
+		JPsi[Temp]->Replace(Protected_Uniform(Best[7],Random_Range[7][0],Random_Range[7][1],Best[14]),3,2);
 		Psi_Prime[Temp]->Replace(JPsi[Temp]->Read(3,1),3,1);
 		Psi_Prime[Temp]->Replace(JPsi[Temp]->Read(3,2),3,2);
-		JPsi[Temp]->Replace(Uniform(Random_Range[8][0],Random_Range[8][1]),4,1);
-		JPsi[Temp]->Replace(Uniform(Random_Range[9][0],Random_Range[9][1]),4,2);
-		Non[Temp]->Replace(Uniform(Random_Range[10][0],Random_Range[10][1]),0,1);
-		Non[Temp]->Replace(Uniform(Random_Range[11][0],Random_Range[11][1]),0,2);
-		Non[Temp]->Replace(Uniform(Random_Range[12][0],Random_Range[12][1]),1,1);
-		Non[Temp]->Replace(Uniform(Random_Range[13][0],Random_Range[13][1]),1,2);
+		JPsi[Temp]->Replace(Protected_Uniform(Best[8],Random_Range[8][0],Random_Range[8][1],Best[14]),4,1);
+		JPsi[Temp]->Replace(Protected_Uniform(Best[9],Random_Range[9][0],Random_Range[9][1],Best[14]),4,2);
+		Non[Temp]->Replace(Protected_Uniform(Best[10],Random_Range[10][0],Random_Range[10][1],Best[14]),0,1);
+		Non[Temp]->Replace(Protected_Uniform(Best[11],Random_Range[11][0],Random_Range[11][1],Best[14]),0,2);
+		Non[Temp]->Replace(Protected_Uniform(Best[12],Random_Range[12][0],Random_Range[12][1],Best[14]),1,1);
+		Non[Temp]->Replace(Protected_Uniform(Best[13],Random_Range[13][0],Random_Range[13][1],Best[14]),1,2);
 		Medium_Euclidean[0] = JPsi[Temp]->Euclidean(.5,0)+Psi_Prime[Temp]->Euclidean(.5,0)+Non[Temp]->Euclidean(.5,0);
 		Medium_Euclidean[1] = JPsi[Temp]->Euclidean(.5,3)+Psi_Prime[Temp]->Euclidean(.5,3)+Non[Temp]->Euclidean(.5,3);
 		for(int j = 0; j < 7; j++)
@@ -759,6 +760,17 @@ long double Chi_Square(long double Medium_Euclidean[2], long double Medium_Spati
 		if(i < 6)answer += (Medium_Spatial[i]/Vacuum_Spatial[i]-Medium_Spatial[i-1]/Vacuum_Spatial[i-1]>0)?(Medium_Spatial[i]/Vacuum_Spatial[i]-Medium_Spatial[i-1]/Vacuum_Spatial[i-1]):0;
 	}
 	return(answer);
+}
+long double Protected_Uniform(long double x0, long double a, long double b, long double chi)
+{
+	long double Delta = (b-a)*pow(chi,.6)/10.;
+	if(x0-Delta < a && x0+Delta > b)
+		return(Uniform(a,b));
+	else if(x0-Delta < a)
+		return(Uniform(a,x0+Delta));
+	else if(x0+Delta > b)
+		return(Uniform(x0-Delta,b));
+	return(x0+Uniform(-Delta,Delta));
 }
 
 long double Uniform(long double a, long double b)
