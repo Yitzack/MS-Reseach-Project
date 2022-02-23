@@ -162,6 +162,8 @@ int main(int argc, char* argv[])
 
 		strcat(File,".");
 		strcat(File,argv[1]);
+		strcat(File,".");
+		strcat(File,argv[2]);
 		strcat(File,".csv");
 		OutputFile.open(File);
 		if(!OutputFile.is_open())
