@@ -30,6 +30,7 @@ void Minimize(long double[20], long double[20], Spectral_Inter*[5], Spectral_Int
 long double Chi_Square(Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][7], int);
 long double Least_Squares(long double, long double, long double, long double);
 long double Print(long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][7], int); //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
+long double Print(long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], long double[4][2], long double[4][7], long double[7], int); //Like the print above but it get an extra array of Lorentz spatial correlations, for use in one place because I don't want in the optimiser
 long double Uniform(long double, long double);
 long double Protected_Uniform(long double, long double, long double, long double);
 void DataLoad(Spectral_Inter*[5], Spectral_Non*[5], long double[20]);
@@ -170,6 +171,7 @@ int main(int argc, char* argv[])
 			return(1);
 
 		int T = atoi(argv[2]);
+		long double Medium_Lorentz[7];
 
 		do
 		{
@@ -197,8 +199,10 @@ int main(int argc, char* argv[])
 			Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
 			for(int j = 0; j < 7; j++)
 				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
+			for(int j = 0; j < 7; j++)
+				Medium_Lorentz[T-1][j] = JPsi[T]->Spatial_Lorentz((long double)(j)+.25)+Psi_Prime[T]->Spatial_Lorentz((long double)(j)+.25)+Non[T]->Spatial_Lorentz((long double)(j)+.25);
 
-			Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, T);
+			Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Medium_Lorentz, T);
 		}while(!InputFile.eof());
 
 		return(0);
@@ -802,6 +806,57 @@ long double Print(long double Deviation_Points[20], Spectral_Inter* JPsi[5], Spe
 	return(chi[0]);
 }
 
+long double Print(long double Deviation_Points[20], Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7], long double Medium_Lorentz[7], int T)
+{
+	long double chi[5];
+	if(T == 0)
+	{
+		for(int i = 0; i < 5; i++)
+			chi[i] = Chi_Square(JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, i);
+
+		for(int i = 0; i < 20; i++)
+		{
+			OutputFile << Deviation_Points[i] << "," << flush;
+		}
+
+		for(int i = 1; i < 5; i++)
+		{
+			OutputFile << i << "," << flush;
+			JPsi[i]->Print(OutputFile);
+			OutputFile << ",";
+			Non[i]->Print(OutputFile);
+			OutputFile << "," << Medium_Euclidean[i-1][1]/Vacuum_Euclidean[i-1][1]-Medium_Euclidean[i-1][0]/Vacuum_Euclidean[i-1][0] << "," << flush;
+			for(int j = 0; j < 7; j++)
+			{
+				OutputFile << Medium_Spatial[i-1][j]/Vacuum_Spatial[j] << "," << flush;
+			}
+			OutputFile << chi[i] << "," << flush;
+		}
+
+		OutputFile << chi[0] << endl;
+	}
+	else
+	{
+		chi[T] = Chi_Square(JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, T);
+
+		OutputFile << T << "," << flush;
+		JPsi[T]->Print(OutputFile);
+		OutputFile << ",";
+		Non[T]->Print(OutputFile);
+		OutputFile << "," << Medium_Euclidean[T-1][1]/Vacuum_Euclidean[T-1][1]-Medium_Euclidean[T-1][0]/Vacuum_Euclidean[T-1][0] << "," << flush;
+		for(int j = 0; j < 7; j++)
+		{
+			OutputFile << Medium_Spatial[T-1][j]/Vacuum_Spatial[j] << "," << flush;
+		}
+		for(int j = 0; j < 7; j++)
+		{
+			OutputFile << Medium_Lorentz[T-1][j]/Vacuum_Spatial[j] << "," << flush;
+		}
+		OutputFile << chi[T] << endl;
+	}
+	return(chi[0]);
+}
+
 long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Spectral_Non* Non[5], long double Medium_Euclidean[4][2], long double Medium_Spatial[4][7], int Temp)
 {
 	long double answer = 0;
@@ -812,7 +867,7 @@ long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Sp
 		for(int j = 0; j < 7; j++)
 		{
 			answer += pow(Medium_Spatial[Temp-1][j]/Vacuum_Spatial[j]-Spatial_Ratio[Temp-1][j],2)/Spatial_Ratio[Temp-1][j];
-			if(j < 6)answer += (Medium_Spatial[Temp-1][j]/Vacuum_Spatial[j]-Medium_Spatial[Temp-1][j-1]/Vacuum_Spatial[j-1]>0)?(Medium_Spatial[Temp-1][j]/Vacuum_Spatial[j]-Medium_Spatial[Temp-1][j-1]/Vacuum_Spatial[j-1]):0;
+			if(j < 6)answer += pow((Medium_Spatial[Temp-1][j+1]/Vacuum_Spatial[j+1]-Medium_Spatial[Temp-1][j]/Vacuum_Spatial[j]>0)?(Medium_Spatial[Temp-1][j+1]/Vacuum_Spatial[j+1]-Medium_Spatial[Temp-1][j]/Vacuum_Spatial[j]):0,.5);
 		}
 	}
 	else	//Total Chi-squared
@@ -823,7 +878,7 @@ long double Chi_Square(Spectral_Inter* JPsi[5], Spectral_Inter* Psi_Prime[5], Sp
 			for(int j = 0; j < 7; j++)
 			{
 				answer += pow(Medium_Spatial[i][j]/Vacuum_Spatial[j]-Spatial_Ratio[i][j],2)/Spatial_Ratio[i][j];
-				if(j < 6)answer += (Medium_Spatial[i][j]/Vacuum_Spatial[j]-Medium_Spatial[i][j-1]/Vacuum_Spatial[j-1]>0)?(Medium_Spatial[i][j]/Vacuum_Spatial[j]-Medium_Spatial[i][j-1]/Vacuum_Spatial[j-1]):0;
+				if(j < 6)answer += pow((Medium_Spatial[i][j+1]/Vacuum_Spatial[j+1]-Medium_Spatial[i][j]/Vacuum_Spatial[j]>0)?(Medium_Spatial[i][j+1]/Vacuum_Spatial[j+1]-Medium_Spatial[i][j]/Vacuum_Spatial[j]):0,.5);
 			}
 	}
 
