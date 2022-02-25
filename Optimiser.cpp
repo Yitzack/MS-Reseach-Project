@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
 			for(int j = 0; j < 7; j++)
 				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 			for(int j = 0; j < 7; j++)
-				Medium_Lorentz[T-1][j] = JPsi[T]->Spatial_Lorentz((long double)(j)+.25)+Psi_Prime[T]->Spatial_Lorentz((long double)(j)+.25)+Non[T]->Spatial_Lorentz((long double)(j)+.25);
+				Medium_Lorentz[j] = JPsi[T]->Spatial_Lorentz((long double)(j)+.25)+Psi_Prime[T]->Spatial_Lorentz((long double)(j)+.25)+Non[T]->Spatial_Lorentz((long double)(j)+.25);
 
 			Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Medium_Lorentz, T);
 		}while(!InputFile.eof());
@@ -850,7 +850,7 @@ long double Print(long double Deviation_Points[20], Spectral_Inter* JPsi[5], Spe
 		}
 		for(int j = 0; j < 7; j++)
 		{
-			OutputFile << Medium_Lorentz[T-1][j]/Vacuum_Spatial[j] << "," << flush;
+			OutputFile << Medium_Lorentz[j]/Vacuum_Spatial[j] << "," << flush;
 		}
 		OutputFile << chi[T] << endl;
 	}
