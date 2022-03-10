@@ -762,13 +762,13 @@ long double Chi_Square(long double Medium_Euclidean[2], long double Medium_Spati
 long double Protected_Uniform(long double x0, long double a, long double b, long double chi)
 {
 	long double Delta = (b-a)*pow(chi,.6)/10.;
-	if(x0-Delta < a && x0+Delta > b)
+	if((x0-Delta < a && x0+Delta > b) || x0+Delta < a || x0-Delta > b) // If the provisioned range exceeds the allowed range in both directions or is entirely outside of the allowed range
 		return(Uniform(a,b));
-	else if(x0-Delta < a)
+	else if(x0-Delta < a)	//If the provisioned range is only extends below the allowed range
 		return(Uniform(a,x0+Delta));
-	else if(x0+Delta > b)
+	else if(x0+Delta > b)	//If the provisioned range is only extends above the allowed range
 		return(Uniform(x0-Delta,b));
-	return(x0+Uniform(-Delta,Delta));
+	return(x0+Uniform(-Delta,Delta));	//If the provisioned range is entirely inside the allowed range
 }
 
 long double Uniform(long double a, long double b)
