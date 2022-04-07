@@ -573,6 +573,8 @@ pair<long double, long double> Spectral_Inter::Spatial_sInt(long double z, long 
 
 long double Spectral_Inter::Spatial_LorentzInt(long double z, long double s)
 {
+	if(s == 0)
+		return(0);
 	return(SpatialLorentzKernel(s, z)*Spectral(s, 0));
 }
 

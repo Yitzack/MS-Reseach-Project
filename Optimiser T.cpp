@@ -201,7 +201,7 @@ int main(int argc, char* argv[])
 		cout << setprecision(6) << "{" << flush;
 		for(int j = 0; j < 7; j++)
 		{
-			for(long double s = 0; s < 49; s+=.01)
+			for(long double s = 0; s <= 49; s+=.01)
 			{
 				cout << "{" << j+.25 << "," << s << "," << JPsi[Temp]->Spatial_PInt((long double)(j)+.25, s) << "," << Psi_Prime[Temp]->Spatial_PInt((long double)(j)+.25, s) << "," << Non[Temp]->Spatial_PInt((long double)(j)+.25, s) << "," << JPsi[Temp]->Spatial_LorentzInt((long double)(j)+.25, s) << "," << Psi_Prime[Temp]->Spatial_LorentzInt((long double)(j)+.25, s) << "," << Non[Temp]->Spatial_LorentzInt((long double)(j)+.25, s) << "}," << flush;
 				if(abs(s-int(s))<.00001)
