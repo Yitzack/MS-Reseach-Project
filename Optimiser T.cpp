@@ -53,10 +53,10 @@ const long double Spatial_Ratio[4][7] = {{1.,1.00006,0.99883,0.992039,0.982366,0
 				   {.99,0.988286,0.945063,0.879461,0.798659,0.7259,0.654381},
 				   {.98,0.954875,0.856416,0.720447,0.573465,0.45867,0.376707},
 				   {.97,0.908029,0.715435,0.524036,0.372788,0.246218,0.18}};
-pair<long double,long double> Vacuum_Spatial[7] = {pair<long double,long double>(13.5719974203458292,0.00257322939646542972),
-	pair<long double,long double>(0.0415401419189466119,0.000116115986289425807),pair<long double,long double>(0.00121784547439522611,5.23967592849549791e-06),
-	pair<long double,long double>(4.75989294696363385e-05,2.36437137041312583e-07),pair<long double,long double>(2.02156824400987624e-06,1.06690509624912329e-08),
-	pair<long double,long double>(8.86906414698568242e-08,4.81431729167113829e-10),pair<long double,long double>(3.94884207796262952e-09,2.17241326417592634e-11)};
+const pair<long double,long double> Vacuum_Spatial[7] = {pair<long double,long double>(13.5965519874368885,4.02179730192699146e-07),
+	pair<long double,long double>(0.0415680226812305554,1.1556052202630816e-08),pair<long double,long double>(0.0012012677483247847,3.32066969108868755e-10),
+	pair<long double,long double>(4.6499993403302829e-05,9.54353876931880564e-12),pair<long double,long double>(1.96859078869344768e-06,2.74386862111523716e-13),
+	pair<long double,long double>(8.66288828408022226e-08,7.89830973612391187e-15),pair<long double,long double>(3.89562525681864189e-09,2.62903068734599143e-16)};
 pair<long double,long double> Vacuum_Euclidean[4][2] = 
 	{{pair<long double,long double>(0.000264166718975248739,2.42154874798803876e-07),pair<long double,long double>(9.71945863898214921e-06,7.60261186227071115e-09)},
 	{pair<long double,long double>(0.00221555204564226004,1.75479630470614913e-06),pair<long double,long double>(0.000188270934911146417,1.19763944939391319e-07)},
@@ -94,9 +94,9 @@ int main(int argc, char* argv[])
 		Non[i] = new Spectral_Non(Non_Parameters[i], i, !bool(i));
 	}
 
-	/*cout << setprecision(18);
 	pair<long double,long double> Medium_Spatial[7];
 	pair<long double,long double> Medium_Euclidean[2];
+	/*cout << setprecision(18);
 	for(int i = 0; i < 7; i++)	//Superceeded by precalculated values, standing by if services required
 	{
 		Vacuum_Spatial[i] = JPsi[0]->Spatial_Lorentz((long double)(i)+.25)+Psi_Prime[0]->Spatial_Lorentz((long double)(i)+.25)+Non[0]->Spatial_Lorentz((long double)(i)+.25);
@@ -191,20 +191,19 @@ int main(int argc, char* argv[])
 		for(int j = 0; j < 7; j++)
 			Medium_Spatial[j] = Psi_Prime[Temp]->Spatial((long double)(j)+.25);
 		Print(JPsi[Temp], Psi_Prime[Temp], Non[Temp], Medium_Euclidean, Medium_Spatial, Temp);
-		for(int j = 6; j >= 0; j--)
+		for(int j = 0; j < 7; j++)
 			Medium_Spatial[j] = Non[Temp]->Spatial((long double)(j)+.25);
 		Print(JPsi[Temp], Psi_Prime[Temp], Non[Temp], Medium_Euclidean, Medium_Spatial, Temp);
 		for(int j = 0; j < 7; j++)
 			Medium_Spatial[j] = JPsi[Temp]->Spatial((long double)(j)+.25)+Psi_Prime[Temp]->Spatial((long double)(j)+.25)+Non[Temp]->Spatial((long double)(j)+.25);
 		cout << setprecision(18) << Print(JPsi[Temp], Psi_Prime[Temp], Non[Temp], Medium_Euclidean, Medium_Spatial, Temp) << endl;
-		return(0);
 #ifdef Ps
-		cout << "{" << flush;
+		cout << setprecision(6) << "{" << flush;
 		for(int j = 0; j < 7; j++)
 		{
 			for(long double s = 0; s < 49; s+=.01)
 			{
-				cout << "{" << j+.25 << "," << s << "," << JPsi[Temp]->Spatial_sInt((long double)(j)+.25, s) << "," << Psi_Prime[Temp]->Spatial_sInt((long double)(j)+.25, s) << "," << Non[Temp]->Spatial_sInt((long double)(j)+.25, s) << "}," << flush;
+				cout << "{" << j+.25 << "," << s << "," << JPsi[Temp]->Spatial_PInt((long double)(j)+.25, s) << "," << Psi_Prime[Temp]->Spatial_PInt((long double)(j)+.25, s) << "," << Non[Temp]->Spatial_PInt((long double)(j)+.25, s) << "," << JPsi[Temp]->Spatial_LorentzInt((long double)(j)+.25, s) << "," << Psi_Prime[Temp]->Spatial_LorentzInt((long double)(j)+.25, s) << "," << Non[Temp]->Spatial_LorentzInt((long double)(j)+.25, s) << "}," << flush;
 				if(abs(s-int(s))<.00001)
 					cout << endl;
 			}
