@@ -79,10 +79,10 @@ int main(int argc, char* argv[])
 						    {{0,0,1},{0,0,1},{0,0,1},{0,0,1},{0,0,1}},
 						    {{0,0,1},{0,0,1},{0,0,1},{0,0,1},{0,0,1}}};
 	long double Non_Parameters[5][2][3] = {{{1.775,1.775,3.09},{2.41182,2.41182,5.5}},
-					       {{1.655,1.69037,3.5005},{2.45,2.76392,5.76324}},
-					       {{1.59,1.69037,3.5005},{2.7,2.76392,5.76324}},
-					       {{1.51,1.70903,3.5127},{2.4,3.57602,5.61959}},
-					       {{1.36,1.66919,3.17155},{1.98,4.74933,4.69052}}};
+					       {{1.655,1.655,3.5005},{2.45,2.76392,5.76324}},
+					       {{1.59,1.59,3.5005},{2.7,2.76392,5.76324}},
+					       {{1.51,1.51,3.5127},{2.4,3.57602,5.61959}},
+					       {{1.36,1.36,3.17155},{1.98,4.74933,4.69052}}};
 
 	Spectral_Inter* JPsi[5];
 	Spectral_Inter* Psi_Prime[5];
@@ -178,8 +178,8 @@ int main(int argc, char* argv[])
 		Psi_Prime[Temp]->Replace(atof(argv[9]),3,2);
 		JPsi[Temp]->Replace(atof(argv[10]),4,1);
 		JPsi[Temp]->Replace(atof(argv[11]),4,2);
-		Non[Temp]->Replace(atof(argv[12]),0,1);
-		Non[Temp]->Replace(atof(argv[13]),0,2);
+		//Non[Temp]->Replace(atof(argv[12]),0,1);
+		//Non[Temp]->Replace(atof(argv[13]),0,2);
 		Non[Temp]->Replace(atof(argv[14]),1,1);
 		Non[Temp]->Replace(atof(argv[15]),1,2);
 
@@ -342,8 +342,8 @@ int main(int argc, char* argv[])
 		Best[7] = Uniform(Random_Range[7][0],Random_Range[7][1]);
 		Best[8] = Uniform(Random_Range[8][0],Random_Range[8][1]);
 		Best[9] = Uniform(Random_Range[9][0],Random_Range[9][1]);
-		Best[10] = Uniform(Random_Range[10][0],Random_Range[10][1]);
-		Best[11] = Uniform(Random_Range[11][0],Random_Range[11][1]);
+		//Best[10] = Uniform(Random_Range[10][0],Random_Range[10][1]);
+		//Best[11] = Uniform(Random_Range[11][0],Random_Range[11][1]);
 		Best[12] = Uniform(Random_Range[12][0],Random_Range[12][1]);
 		Best[13] = Uniform(Random_Range[13][0],Random_Range[13][1]);
 		JPsi[Temp]->Replace(Best[0],0,1);
@@ -358,8 +358,8 @@ int main(int argc, char* argv[])
 		Psi_Prime[Temp]->Replace(Best[7],3,2);
 		JPsi[Temp]->Replace(Best[8],4,1);
 		JPsi[Temp]->Replace(Best[9],4,2);
-		Non[Temp]->Replace(Best[10],0,1);
-		Non[Temp]->Replace(Best[11],0,2);
+		//Non[Temp]->Replace(Best[10],0,1);
+		//Non[Temp]->Replace(Best[11],0,2);
 		Non[Temp]->Replace(Best[12],1,1);
 		Non[Temp]->Replace(Best[13],1,2);
 	}
@@ -375,8 +375,8 @@ int main(int argc, char* argv[])
 		Best[7] = JPsi[Temp]->Read(3,2);
 		Best[8] = JPsi[Temp]->Read(4,1);
 		Best[9] = JPsi[Temp]->Read(4,2);
-		Best[10] = Non[Temp]->Read(0,1);
-		Best[11] = Non[Temp]->Read(0,2);
+		//Best[10] = Non[Temp]->Read(0,1);
+		//Best[11] = Non[Temp]->Read(0,2);
 		Best[12] = Non[Temp]->Read(1,1);
 		Best[13] = Non[Temp]->Read(1,2);
 	}
@@ -386,7 +386,7 @@ int main(int argc, char* argv[])
 		Medium_Spatial[j] = JPsi[Temp]->Spatial((long double)(j)+.25)+Psi_Prime[Temp]->Spatial((long double)(j)+.25)+Non[Temp]->Spatial((long double)(j)+.25);
 	Best[14] = Print(JPsi[Temp], Psi_Prime[Temp], Non[Temp], Medium_Euclidean, Medium_Spatial, Temp);
 
-	/*while(difftime(time(NULL), start_time) < 9000)
+	while(difftime(time(NULL), start_time) < 9000)
 	{
 		JPsi[Temp]->Replace(Protected_Uniform(Best[0],Random_Range[0][0],Random_Range[0][1],Best[14]),0,1);
 		JPsi[Temp]->Replace(Protected_Uniform(Best[1],Random_Range[1][0],Random_Range[1][1],Best[14]),0,2);
@@ -400,8 +400,8 @@ int main(int argc, char* argv[])
 		Psi_Prime[Temp]->Replace(JPsi[Temp]->Read(3,2),3,2);
 		JPsi[Temp]->Replace(Protected_Uniform(Best[8],Random_Range[8][0],Random_Range[8][1],Best[14]),4,1);
 		JPsi[Temp]->Replace(Protected_Uniform(Best[9],Random_Range[9][0],Random_Range[9][1],Best[14]),4,2);
-		Non[Temp]->Replace(Protected_Uniform(Best[10],Random_Range[10][0],Random_Range[10][1],Best[14]),0,1);
-		Non[Temp]->Replace(Protected_Uniform(Best[11],Random_Range[11][0],Random_Range[11][1],Best[14]),0,2);
+		//Non[Temp]->Replace(Protected_Uniform(Best[10],Random_Range[10][0],Random_Range[10][1],Best[14]),0,1);
+		//Non[Temp]->Replace(Protected_Uniform(Best[11],Random_Range[11][0],Random_Range[11][1],Best[14]),0,2);
 		Non[Temp]->Replace(Protected_Uniform(Best[12],Random_Range[12][0],Random_Range[12][1],Best[14]),1,1);
 		Non[Temp]->Replace(Protected_Uniform(Best[13],Random_Range[13][0],Random_Range[13][1],Best[14]),1,2);
 		Medium_Euclidean[0] = JPsi[Temp]->Euclidean(.5,0)+Psi_Prime[Temp]->Euclidean(.5,0)+Non[Temp]->Euclidean(.5,0);
@@ -422,8 +422,8 @@ int main(int argc, char* argv[])
 			Best[7] = JPsi[Temp]->Read(3,2);
 			Best[8] = JPsi[Temp]->Read(4,1);
 			Best[9] = JPsi[Temp]->Read(4,2);
-			Best[10] = Non[Temp]->Read(0,1);
-			Best[11] = Non[Temp]->Read(0,2);
+			//Best[10] = Non[Temp]->Read(0,1);
+			//Best[11] = Non[Temp]->Read(0,2);
 			Best[12] = Non[Temp]->Read(1,1);
 			Best[13] = Non[Temp]->Read(1,2);
 			Best[14] = Chi;
@@ -441,10 +441,10 @@ int main(int argc, char* argv[])
 	Psi_Prime[Temp]->Replace(Best[7],3,2);
 	JPsi[Temp]->Replace(Best[8],4,1);
 	JPsi[Temp]->Replace(Best[9],4,2);
-	Non[Temp]->Replace(Best[10],0,1);
-	Non[Temp]->Replace(Best[11],0,2);
+	//Non[Temp]->Replace(Best[10],0,1);
+	//Non[Temp]->Replace(Best[11],0,2);
 	Non[Temp]->Replace(Best[12],1,1);
-	Non[Temp]->Replace(Best[13],1,2);*/
+	Non[Temp]->Replace(Best[13],1,2);
 
 	long double gradn_1[14], gradn[14], sn_1[14], sn[14];
 	long double betan = 0, betan_1;
@@ -518,7 +518,7 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Prim
 	length[1][1] = (sn[5]>0)?(Random_Range[5][0]-JPsi_Local[2][2])/sn[5]:(Random_Range[5][1]-JPsi_Local[2][2])/sn[5];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
-	/*length[1][0] = (sn[6]>0)?(Random_Range[6][1]-JPsi_Local[3][1])/sn[6]:(Random_Range[6][0]-JPsi_Local[3][1])/sn[6];
+	length[1][0] = (sn[6]>0)?(Random_Range[6][1]-JPsi_Local[3][1])/sn[6]:(Random_Range[6][0]-JPsi_Local[3][1])/sn[6];
 	length[1][1] = (sn[6]>0)?(Random_Range[6][0]-JPsi_Local[3][1])/sn[6]:(Random_Range[6][1]-JPsi_Local[3][1])/sn[6];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
@@ -533,15 +533,15 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Prim
 	length[1][0] = (sn[9]>0)?(Random_Range[9][1]-JPsi_Local[4][2])/sn[9]:(Random_Range[9][0]-JPsi_Local[4][2])/sn[9];
 	length[1][1] = (sn[9]>0)?(Random_Range[9][0]-JPsi_Local[4][2])/sn[9]:(Random_Range[9][1]-JPsi_Local[4][2])/sn[9];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];*/
-	length[1][0] = (sn[10]>0)?(Random_Range[10][1]-Non_Local[0][1])/sn[10]:(Random_Range[10][0]-Non_Local[0][1])/sn[10];
+	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
+	/*length[1][0] = (sn[10]>0)?(Random_Range[10][1]-Non_Local[0][1])/sn[10]:(Random_Range[10][0]-Non_Local[0][1])/sn[10];
 	length[1][1] = (sn[10]>0)?(Random_Range[10][0]-Non_Local[0][1])/sn[10]:(Random_Range[10][1]-Non_Local[0][1])/sn[10];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
 	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
 	length[1][0] = (sn[11]>0)?(Random_Range[11][1]-Non_Local[0][2])/sn[11]:(Random_Range[11][0]-Non_Local[0][2])/sn[11];
 	length[1][1] = (sn[11]>0)?(Random_Range[11][0]-Non_Local[0][2])/sn[11]:(Random_Range[11][1]-Non_Local[0][2])/sn[11];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
-	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];
+	length[0][1] = (length[0][1]>length[1][1])?length[0][1]:length[1][1];*/
 	length[1][0] = (sn[12]>0)?(Random_Range[12][1]-Non_Local[1][1])/sn[12]:(Random_Range[12][0]-Non_Local[1][1])/sn[12];
 	length[1][1] = (sn[12]>0)?(Random_Range[12][0]-Non_Local[1][1])/sn[12]:(Random_Range[12][1]-Non_Local[1][1])/sn[12];
 	length[0][0] = (length[0][0]<length[1][0])?length[0][0]:length[1][0];
@@ -565,14 +565,14 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Prim
 		JPsi->Replace(JPsi_Local[1][2]+length[0][0]*fz[i][0]*sn[0],1,2);
 		JPsi->Replace(JPsi_Local[2][1]+length[0][0]*fz[i][0]*sn[0],2,1);
 		JPsi->Replace(JPsi_Local[2][2]+length[0][0]*fz[i][0]*sn[0],2,2);
-		/*JPsi->Replace(JPsi_Local[3][1]+length[0][0]*fz[i][0]*sn[0],3,1);
+		JPsi->Replace(JPsi_Local[3][1]+length[0][0]*fz[i][0]*sn[0],3,1);
 		JPsi->Replace(JPsi_Local[3][2]+length[0][0]*fz[i][0]*sn[0],3,2);
 		Psi_Prime->Replace(Psi_Prime_Local[3][1]+length[0][0]*fz[i][0]*sn[0],3,1);
 		Psi_Prime->Replace(Psi_Prime_Local[3][2]+length[0][0]*fz[i][0]*sn[0],3,2);
 		JPsi->Replace(JPsi_Local[4][1]+length[0][0]*fz[i][0]*sn[0],4,1);
-		JPsi->Replace(JPsi_Local[4][2]+length[0][0]*fz[i][0]*sn[0],4,2);*/
-		Non->Replace(Non_Local[0][1]+length[0][0]*fz[i][0]*sn[0],0,1);
-		Non->Replace(Non_Local[0][2]+length[0][0]*fz[i][0]*sn[0],0,2);
+		JPsi->Replace(JPsi_Local[4][2]+length[0][0]*fz[i][0]*sn[0],4,2);
+		//Non->Replace(Non_Local[0][1]+length[0][0]*fz[i][0]*sn[0],0,1);
+		//Non->Replace(Non_Local[0][2]+length[0][0]*fz[i][0]*sn[0],0,2);
 		Non->Replace(Non_Local[1][1]+length[0][0]*fz[i][0]*sn[0],1,1);
 		Non->Replace(Non_Local[1][2]+length[0][0]*fz[i][0]*sn[0],1,2);
 		Medium_Euclidean[0] = JPsi->Euclidean(.5,0)+Psi_Prime->Euclidean(.5,0)+Non->Euclidean(.5,0);
@@ -616,14 +616,14 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Prim
 			JPsi->Replace(JPsi_Local[1][2]+length[0][0]*x*sn[0],1,2);
 			JPsi->Replace(JPsi_Local[2][1]+length[0][0]*x*sn[0],2,1);
 			JPsi->Replace(JPsi_Local[2][2]+length[0][0]*x*sn[0],2,2);
-			/*JPsi->Replace(JPsi_Local[3][1]+length[0][0]*x*sn[0],3,1);
+			JPsi->Replace(JPsi_Local[3][1]+length[0][0]*x*sn[0],3,1);
 			JPsi->Replace(JPsi_Local[3][2]+length[0][0]*x*sn[0],3,2);
 			Psi_Prime->Replace(Psi_Prime_Local[3][1]+length[0][0]*x*sn[0],3,1);
 			Psi_Prime->Replace(Psi_Prime_Local[3][2]+length[0][0]*x*sn[0],3,2);
 			JPsi->Replace(JPsi_Local[4][1]+length[0][0]*x*sn[0],4,1);
-			JPsi->Replace(JPsi_Local[4][2]+length[0][0]*x*sn[0],4,2);*/
-			Non->Replace(Non_Local[0][1]+length[0][0]*x*sn[0],0,1);
-			Non->Replace(Non_Local[0][2]+length[0][0]*x*sn[0],0,2);
+			JPsi->Replace(JPsi_Local[4][2]+length[0][0]*x*sn[0],4,2);
+			//Non->Replace(Non_Local[0][1]+length[0][0]*x*sn[0],0,1);
+			//Non->Replace(Non_Local[0][2]+length[0][0]*x*sn[0],0,2);
 			Non->Replace(Non_Local[1][1]+length[0][0]*x*sn[0],1,1);
 			Non->Replace(Non_Local[1][2]+length[0][0]*x*sn[0],1,2);
 			Medium_Euclidean[0] = JPsi->Euclidean(.5,0)+Psi_Prime->Euclidean(.5,0)+Non->Euclidean(.5,0);
@@ -664,14 +664,14 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Prim
 		JPsi->Replace(JPsi_Local[1][2]+length[0][0]*u*sn[0],1,2);
 		JPsi->Replace(JPsi_Local[2][1]+length[0][0]*u*sn[0],2,1);
 		JPsi->Replace(JPsi_Local[2][2]+length[0][0]*u*sn[0],2,2);
-		/*JPsi->Replace(JPsi_Local[3][1]+length[0][0]*u*sn[0],3,1);
+		JPsi->Replace(JPsi_Local[3][1]+length[0][0]*u*sn[0],3,1);
 		JPsi->Replace(JPsi_Local[3][2]+length[0][0]*u*sn[0],3,2);
 		Psi_Prime->Replace(Psi_Prime_Local[3][1]+length[0][0]*u*sn[0],3,1);
 		Psi_Prime->Replace(Psi_Prime_Local[3][2]+length[0][0]*u*sn[0],3,2);
 		JPsi->Replace(JPsi_Local[4][1]+length[0][0]*u*sn[0],4,1);
-		JPsi->Replace(JPsi_Local[4][2]+length[0][0]*u*sn[0],4,2);*/
-		Non->Replace(Non_Local[0][1]+length[0][0]*u*sn[0],0,1);
-		Non->Replace(Non_Local[0][2]+length[0][0]*u*sn[0],0,2);
+		JPsi->Replace(JPsi_Local[4][2]+length[0][0]*u*sn[0],4,2);
+		//Non->Replace(Non_Local[0][1]+length[0][0]*u*sn[0],0,1);
+		//Non->Replace(Non_Local[0][2]+length[0][0]*u*sn[0],0,2);
 		Non->Replace(Non_Local[1][1]+length[0][0]*u*sn[0],1,1);
 		Non->Replace(Non_Local[1][2]+length[0][0]*u*sn[0],1,2);
 		Medium_Euclidean[0] = JPsi->Euclidean(.5,0)+Psi_Prime->Euclidean(.5,0)+Non->Euclidean(.5,0);
@@ -786,7 +786,7 @@ void Gradient(long double grad[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Pr
 		}
 	}
 
-	for(i = 0; i < 2; i++)
+	for(i = 1; i < 2; i++)
 	{
 		for(j = 1; j < 3; j++)
 		{
