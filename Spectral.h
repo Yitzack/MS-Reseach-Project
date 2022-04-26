@@ -12,7 +12,7 @@ using namespace std;
 //Integrals that define results and ancillary functions
 Elements theta_Int(long double[], int);	//Integrates the theta results
 Elements k_Int(long double[], int, long double);	//Integrates the k momentum results
-Elements Folding(long double[], int, long double, long double);	//Folding integral, energy integral
+long double Folding(long double[], int, long double, long double);	//Folding integral, energy integral
 void Characterize_k_Int(long double[], int, long double, long double[], long double[], int&);	//Returns the poles of the k integral's integrands
 bool Newton_Method_k(long double&, long double, long double, long double, long double, long double, long double(*)(long double, long double, long double, long double), long double(*)(long double, long double, long double, long double, long double));	//Returns the k-intesection of a potiential and on-shell peak
 long double V_Plus(long double, long double, long double, long double);	//Potiential peaks
@@ -191,6 +191,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 	long double zero[26];	//The real part of the signular pole
 	long double gamma[26];	//The distance to the singular, maybe
 	long double UV_End, IR_Resume, IR_Stop;	//UV and IR boundaries in k to stop the inclusion of quark momentum prohibited by lattice space and box size.
+	long double k0;	//relative energy for a given center of mass momentum and relative momentum
 	int i, j, l;	//Counters
 	int Intervals;
 	//ofstream Table("k Table", ios::app);
@@ -304,14 +305,17 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 			x1 = (b+a-Disp[l]*(b-a))/2.; //Actual evaluation points
 			x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			holder = Folding(Par, Temp, x1, theta);
+			k0 = Energy(Par[2], Par[3], x1, theta)-Energy(Par[2], Par[3], -x1, theta);
+			holder = Elements(Spin_Sum1(Par, k0, x1, theta), 1/*Potential1(Par,k0,x1)*/, Spin_Linear(Par, k0, x1, theta)*Potential1(Par,k0,x1), Spin_Quad(Par, k0, x1, theta)*Potential1(Par,k0,x1), Potential2(Par,k0,x1))*Folding(Par, Temp, x1, theta);
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*pow(x1,2)*w[l+1]; //Evaluate function at x1
-			holder = Folding(Par, Temp, x2, theta);
+			k0 = Energy(Par[2], Par[3], x2, theta)-Energy(Par[2], Par[3], -x2, theta);
+			holder = Elements(Spin_Sum1(Par, k0, x2, theta), 1/*Potential1(Par,k0,x2)*/, Spin_Linear(Par, k0, x2, theta)*Potential1(Par,k0,x2), Spin_Quad(Par, k0, x2, theta)*Potential1(Par,k0,x2), Potential2(Par,k0,x2))*Folding(Par, Temp, x2, theta);
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*pow(x2,2)*w[l+1]; //Evaluate function at x2
 		}
-		holder = Folding(Par, Temp, (a+b)/2., theta);
+		k0 = Energy(Par[2], Par[3], (a+b)/2., theta)-Energy(Par[2], Par[3], -(a+b)/2., theta);
+		holder = Elements(Spin_Sum1(Par, k0, (a+b)/2., theta), 1/*Potential1(Par,k0,(a+b)/2.)*/, Spin_Linear(Par, k0, (a+b)/2., theta)*Potential1(Par,k0,(a+b)/2.), Spin_Quad(Par, k0, (a+b)/2., theta)*Potential1(Par,k0,(a+b)/2.), Potential2(Par,k0,(a+b)/2.))*Folding(Par, Temp, (a+b)/2., theta);
 		//Table << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		F += holder*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
 		Partial = F*(b-a)/(2.);
@@ -609,12 +613,12 @@ long double Lower_Bound(long double s, long double P, long double k, long double
 }
 
 //long double Par[] = {g, Lambda, M, P, s}
-Elements Folding(long double Par[], int Temp, long double k, long double theta)	//Folding integral, energy integral
+long double Folding(long double Par[], int Temp, long double k, long double theta)	//Folding integral, energy integral
 {
 	if(Temp == 0 && abs(sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta)-Energy(0,Par[3]/2.,k,theta)) < 1e-12)	//Let's save some time and just return 0, because it is
-		return(Elements(0,0,0,0,0));
+		return(0);
 	else if(Par[4]+pow(Par[3],2) < 0)
-		return(Elements(0,0,0,0,0));	//Bad data trap and time saver
+		return(0);	//Bad data trap and time saver
 #if ORDER == 37
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 37th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp
@@ -625,10 +629,10 @@ Elements Folding(long double Par[], int Temp, long double k, long double theta)	
 	long double Range[] = {-Boundary[7], -Boundary[6], -Boundary[5], -Boundary[4], -Boundary[3], -Boundary[2], -Boundary[1], -Boundary[0], 0, Boundary[0], Boundary[1], Boundary[2], Boundary[3], Boundary[4], Boundary[5], Boundary[6], Boundary[7]};	//Number of gamma from center
 	long double a, b;	//Sub-interval limits of integration
 	long double Max;	//Upper limit of integration
-	Elements F;	//Sum of ordinates*weights
-	Elements Answer(0,0,0,0,0);	//Results to be returned
-	Elements Partial(0,0,0,0,0);//Partial Answer
-	Elements holder;
+	long double F;	//Sum of ordinates*weights
+	long double Answer = 0;	//Results to be returned
+	long double Partial = 0;//Partial Answer
+	long double holder;
 	long double x1, x2;	//Abscissa
 	long double zero[12];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[12];	//Imaginary part of poles
@@ -717,7 +721,7 @@ Elements Folding(long double Par[], int Temp, long double k, long double theta)	
 		if(b > Max)
 			b = Max;
 
-		F.null();
+		F = 0;
 		#pragma omp parallel for
 #if ORDER == 37
 		for(l = 0; l < 9; l++) //Integrate the sub-interval
@@ -728,14 +732,14 @@ Elements Folding(long double Par[], int Temp, long double k, long double theta)	
 			long double x1 = (b+a-Disp[l]*(b-a))/2.;
 			long double x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			holder = (Elements(Spin_Sum1(Par, x1, k, theta), Potential1(Par,x1,k), Spin_Linear(Par, x1, k, theta)*Potential1(Par,x1,k), Spin_Quad(Par, x1, k, theta)*Potential1(Par,x1,k), Potential2(Par,x1,k))*ImFolding_Integrand(Par,x1,k,theta,Temp));
+			holder = ImFolding_Integrand(Par,x1,k,theta,Temp);
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*w[l+1];
-			holder = (Elements(Spin_Sum1(Par, x2, k, theta), Potential1(Par,x2,k), Spin_Linear(Par, x2, k, theta)*Potential1(Par,x2,k), Spin_Quad(Par, x2, k, theta)*Potential1(Par,x2,k), Potential2(Par,x2,k))*ImFolding_Integrand(Par,x2,k,theta,Temp));
+			holder = ImFolding_Integrand(Par,x2,k,theta,Temp);
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*w[l+1];
 		}
-		holder = (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), Potential1(Par,(a+b)/2.,k), Spin_Linear(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Spin_Quad(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*ImFolding_Integrand(Par,(a+b)/2.,k,theta,Temp));
+		holder = ImFolding_Integrand(Par,(a+b)/2.,k,theta,Temp);
 		//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		F += holder*w[0];
 
