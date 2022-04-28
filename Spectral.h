@@ -414,7 +414,7 @@ long double ImBbS1(long double Par[], int Temp, long double k, long double theta
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
-	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)+Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1],2)));
+	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1],2)));
 	return(common*2.*(omega[0]+omega[1]+ReSelf[0]+ReSelf[1])*(ImSelf[0]+ImSelf[1]));
 }
 
@@ -427,7 +427,7 @@ long double ReBbS1(long double Par[], int Temp, long double k, long double theta
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
-	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)+Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1],2)));
+	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1],2)));
 	return(common*(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2)));
 }
 
@@ -440,7 +440,7 @@ long double ImBbS2(long double Par[], int Temp, long double k, long double theta
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
-	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)+Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1],2)));
+	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1],2)));
 	return(common*2.*(omega[0]+omega[1]+ReSelf[0]+ReSelf[1])*(ImSelf[0]+ImSelf[1]));
 }
 
@@ -453,7 +453,7 @@ long double ReBbS2(long double Par[], int Temp, long double k, long double theta
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
-	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)+Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1],2)));
+	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1],2)));
 	return(common*(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2)));
 }
 
