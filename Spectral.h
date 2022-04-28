@@ -48,6 +48,8 @@ long double ImFolding_Integrand(long double[], long double, long double, long do
 long double ImSar(long double[], int, long double, long double);	//My assembly of the relavent approximations to the propagator so that only the valid one is used
 long double ImSar1(long double[], int, long double, long double);	//My wide aligned quark and narrow anti-aligned quark propagator
 long double ImSar2(long double[], int, long double, long double);	//My wide anti-aligned quark and narrow aligned quark propagator
+long double ReSar1(long double[], int, long double, long double);	//My wide aligned quark and narrow anti-aligned quark propagator
+long double ReSar2(long double[], int, long double, long double);	//My wide anti-aligned quark and narrow aligned quark propagator
 long double ImBbS1(long double[], int, long double, long double);	//The official ImBbS propagator
 long double ReBbS1(long double[], int, long double, long double);	//The official ReBbS propagator
 long double ImBbS2(long double[], int, long double, long double);	//By energy conservation, replaceing omega_+/- with E-omega_-/+
@@ -347,9 +349,9 @@ long double ImSar(long double Par[], int Temp, long double k, long double theta)
 	else if(omega[0] < Energy || omega[1] < Energy)	//Enough energy for one quark or the other to be sharp
 	{
 		if(omega[0] < Energy)
-			return(ImSar2(Par, Temp, k, theta));
-		else
 			return(ImSar1(Par, Temp, k, theta));
+		else
+			return(ImSar2(Par, Temp, k, theta));
 	}
 	else	//Not enough energy to make either quark sharp, no simplifing assumptions avalible, fall back
 		return(Folding(Par, Temp, k, theta));
@@ -357,26 +359,50 @@ long double ImSar(long double Par[], int Temp, long double k, long double theta)
 
 long double ImSar1(long double Par[], int Temp, long double k, long double theta)	//My wide aligned quark and narrow anti-aligned quark propagator
 {
-	long double omega[2] = {Energy(Par[2],Par[3]/2.,k,theta),Energy(Par[2],Par[3]/2.,-k,theta)};
+	long double omega[2] = {sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta),Energy(Par[2],Par[3]/2.,-k,theta)};
 	long double q[2] = {Energy(0,Par[3]/2.,k,theta),Energy(0,Par[3]/2.,-k,theta)};
 	long double ImSelf[2];
 	long double ReSelf[2];
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
-	return(4.*pow(Par[2],3)*ImSelf[0]*(1.-Fermi(omega[0],Temp)+Fermi(omega[1],Temp))/(omega[1]*(4.*pow(ImSelf[0],2)+pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2))));
+	return(4.*pow(Par[2],3)*ImSelf[0]*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[1]*(pow(2.*Par[2]*ImSelf[0],2)+pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2))));
+}
+
+long double ReSar1(long double Par[], int Temp, long double k, long double theta)	//My wide aligned quark and narrow anti-aligned quark propagator
+{
+	long double omega[2] = {sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta),Energy(Par[2],Par[3]/2.,-k,theta)};
+	long double q[2] = {Energy(0,Par[3]/2.,k,theta),Energy(0,Par[3]/2.,-k,theta)};
+	long double ImSelf[2];
+	long double ReSelf[2];
+	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
+	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
+
+	return(2.*pow(Par[2],2)*(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[1]*(pow(2.*Par[2]*ImSelf[0],2)+pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2))));
 }
 
 long double ImSar2(long double Par[], int Temp, long double k, long double theta)	//My wide anti-aligned quark and narrow aligned quark propagator
 {
-	long double omega[2] = {Energy(Par[2],Par[3]/2.,k,theta),Energy(Par[2],Par[3]/2.,-k,theta)};
+	long double omega[2] = {Energy(Par[2],Par[3]/2.,k,theta),sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta)};
 	long double q[2] = {Energy(0,Par[3]/2.,k,theta),Energy(0,Par[3]/2.,-k,theta)};
 	long double ImSelf[2];
 	long double ReSelf[2];
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
-	return(4.*pow(Par[2],3)*ImSelf[1]*(1.-Fermi(omega[0],Temp)+Fermi(omega[1],Temp))/(omega[0]*(4.*pow(ImSelf[1],2)+pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2))));
+	return(4.*pow(Par[2],3)*ImSelf[1]*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*(pow(2.*Par[2]*ImSelf[1],2)+pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2))));
+}
+
+long double ReSar2(long double Par[], int Temp, long double k, long double theta)	//My wide anti-aligned quark and narrow aligned quark propagator
+{
+	long double omega[2] = {Energy(Par[2],Par[3]/2.,k,theta),sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta)};
+	long double q[2] = {Energy(0,Par[3]/2.,k,theta),Energy(0,Par[3]/2.,-k,theta)};
+	long double ImSelf[2];
+	long double ReSelf[2];
+	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
+	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
+
+	return(2.*pow(Par[2],2)*(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*(pow(2.*Par[2]*ImSelf[1],2)+pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2))));
 }
 
 long double ImBbS1(long double Par[], int Temp, long double k, long double theta)	//The official ImBbS propagator
@@ -980,12 +1006,12 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], long dou
 		Been_Here = true;
 	}*/
 
-	if(pow(omega[0],2)>=pow(k[0],2))
+	if(pow(omega[0],2)>=pow(k[0],2) && omega[0]>0)
 		Results[0] = sqrt(pow(omega[0],2)-pow(k[0],2))*GAMMA;
 		//Results[0] = GAMMA*sqrt(Par[4])/3.0404;
 	else
 		Results[0] = 0;
-	if(pow(omega[1],2)>=pow(k[1],2))
+	if(pow(omega[1],2)>=pow(k[1],2) && omega[1]>0)
 		Results[1] = sqrt(pow(omega[1],2)-pow(k[1],2))*GAMMA;
 		//Results[1] = GAMMA*sqrt(Par[4])/3.0404;
 	else
@@ -1309,7 +1335,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, long 
 		Been_Here = true;
 	}*/
 
-	if(pow(omega,2)>=pow(k,2))
+	if(pow(omega,2)>=pow(k,2) && omega>0)
 		answer = sqrt(pow(omega,2)-pow(k,2))*GAMMA;
 		//answer = GAMMA*sqrt(Par[4])/3.0404;
 	else
