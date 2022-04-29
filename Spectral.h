@@ -429,7 +429,7 @@ long double ReSar2(long double Par[], int Temp, long double k, long double theta
 long double VacWidth(long double s)	//Return Vacuum width for BbS which clearly can't handle single particle vacuum widths
 {
 	if(s > 0)
-		return(2.*GAMMA*pow((pow(3.040308,2)+.36)/(s+.36),2)*sqrt(s)/3.040308);
+		return(2.*GAMMA*sqrt(s)/3.040308);
 	return(0);
 }
 
@@ -1034,6 +1034,15 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], long dou
 		Been_Here = true;
 	}*/
 
+	Results[0] = Results[1] = 0;
+
+	/*if(omega[0]>=k[0])
+		Results[0] = sqrt(pow(omega[0],2)-pow(k[0],2))*GAMMA;
+		//Results[0] = GAMMA*sqrt(Par[4])/3.0404;
+	if(omega[1]>=k[1])
+		Results[1] = sqrt(pow(omega[1],2)-pow(k[1],2))*GAMMA;
+		//Results[1] = GAMMA*sqrt(Par[4])/3.0404;*/
+
 	if(Temp == 0)
 		return;
 
@@ -1217,6 +1226,11 @@ void Self_Energy(long double M, long double omega[], long double k[], long doubl
 	ImSelf[0] = ImSelf[1] = 0;
 	ReSelf[0] = ReSelf[1] = 0;
 
+	/*if(omega[0]>=k[0])
+		ImSelf[0] = sqrt(pow(omega[0],2)-pow(k[0],2))*GAMMA;
+	if(omega[1]>=k[1])
+		ImSelf[1] = sqrt(pow(omega[1],2)-pow(k[1],2))*GAMMA;*/
+
 	if(Temp == 0)
 		return;
 
@@ -1328,8 +1342,10 @@ long double ImSelf_Energy(long double M, long double omega, long double k, long 
 	long double a, b;	//slope of exponential decrease to left and right
 	long double knee;	//space to change from left to right side of peak
 	long double M_T, Shift;
-	long double answer;
+	long double answer = 0;
 
+	//if(omega>=k)
+	//	answer += sqrt(pow(omega,2)-pow(k,2))*GAMMA;
 	/*static bool Been_Here = false;
 	static char File_Name[70] = "Self_E_Modifier.";
 	static long double Mod[26];
