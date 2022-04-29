@@ -335,7 +335,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 		Partial = F*(b-a)/(2.);
 		Answer += Partial;
 		a = b;
-	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a <= 20.*sqrt(Par[4]+pow(Par[3],2)));// UV_End); //k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
+	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a <= 350.*sqrt(Par[4]+pow(Par[3],2)));// UV_End); //k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }
