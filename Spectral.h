@@ -368,9 +368,9 @@ long double ImSar1(long double Par[], int Temp, long double k, long double theta
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
 	if(omega[0] > q[0])
-		ImSelf[0] += -GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
+		ImSelf[0] += GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
 	if(omega[1] > q[1])
-		ImSelf[1] += -GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
+		ImSelf[1] += GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
 
 	return(4.*pow(Par[2],3)*ImSelf[0]*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[1]*(pow(2.*Par[2]*ImSelf[0],2)+pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2))));
 }
@@ -385,9 +385,9 @@ long double ReSar1(long double Par[], int Temp, long double k, long double theta
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
 	if(omega[0] > q[0])
-		ImSelf[0] += -GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
+		ImSelf[0] += GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
 	if(omega[1] > q[1])
-		ImSelf[1] += -GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
+		ImSelf[1] += GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
 
 	return(2.*pow(Par[2],2)*(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[1]*(pow(2.*Par[2]*ImSelf[0],2)+pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2))));
 }
@@ -402,9 +402,9 @@ long double ImSar2(long double Par[], int Temp, long double k, long double theta
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
 	if(omega[0] > q[0])
-		ImSelf[0] += -GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
+		ImSelf[0] += GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
 	if(omega[1] > q[1])
-		ImSelf[1] += -GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
+		ImSelf[1] += GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
 
 	return(4.*pow(Par[2],3)*ImSelf[1]*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*(pow(2.*Par[2]*ImSelf[1],2)+pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2))));
 }
@@ -419,9 +419,9 @@ long double ReSar2(long double Par[], int Temp, long double k, long double theta
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
 	if(omega[0] > q[0])
-		ImSelf[0] += -GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
+		ImSelf[0] += GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
 	if(omega[1] > q[1])
-		ImSelf[1] += -GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
+		ImSelf[1] += GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
 
 	return(2.*pow(Par[2],2)*(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*(pow(2.*Par[2]*ImSelf[1],2)+pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2))));
 }
@@ -429,7 +429,7 @@ long double ReSar2(long double Par[], int Temp, long double k, long double theta
 long double VacWidth(long double s)	//Return Vacuum width for BbS which clearly can't handle single particle vacuum widths
 {
 	if(s > 0)
-		return(-2.*GAMMA*pow((pow(3.040308,2)+.36)/(s+.36),2)*sqrt(s)/3.040308);
+		return(2.*GAMMA*pow((pow(3.040308,2)+.36)/(s+.36),2)*sqrt(s)/3.040308);
 	return(0);
 }
 
@@ -1704,9 +1704,9 @@ long double ImFolding_Integrand(long double Par[], long double k0, long double k
 	//Self_Energy(Par[2], omega, q, Par, Temp, ImSelf, ReSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 	if(omega[0] > q[0])
-		ImSelf[0] += -GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
+		ImSelf[0] += GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
 	if(omega[1] > q[1])
-		ImSelf[1] += -GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
+		ImSelf[1] += GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
 
 	return(-((4.*ImSelf[0]*ImSelf[1]*pow(Par[2],2)*(1.-fermi[0]-fermi[1]))/((pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2))*(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2)+pow(ImSelf[1],2)))));
 }
