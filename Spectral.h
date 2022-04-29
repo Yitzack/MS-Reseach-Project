@@ -54,6 +54,7 @@ long double ImBbS1(long double[], int, long double, long double);	//The official
 long double ReBbS1(long double[], int, long double, long double);	//The official ReBbS propagator
 long double ImBbS2(long double[], int, long double, long double);	//By energy conservation, replaceing omega_+/- with E-omega_-/+
 long double ReBbS2(long double[], int, long double, long double);	//By energy conservation, replaceing omega_+/- with E-omega_-/+
+long double VacWidth(long double);	//Return Vacuum width for BbS which clearly can't handle single particle vacuum widths
 
 void mergeSort(long double List[], int a, int b)
 {
@@ -366,6 +367,11 @@ long double ImSar1(long double Par[], int Temp, long double k, long double theta
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
+	if(omega[0] > q[0])
+		ImSelf[0] += -GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
+	if(omega[1] > q[1])
+		ImSelf[1] += -GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
+
 	return(4.*pow(Par[2],3)*ImSelf[0]*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[1]*(pow(2.*Par[2]*ImSelf[0],2)+pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2))));
 }
 
@@ -377,6 +383,11 @@ long double ReSar1(long double Par[], int Temp, long double k, long double theta
 	long double ReSelf[2];
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
+
+	if(omega[0] > q[0])
+		ImSelf[0] += -GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
+	if(omega[1] > q[1])
+		ImSelf[1] += -GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
 
 	return(2.*pow(Par[2],2)*(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[1]*(pow(2.*Par[2]*ImSelf[0],2)+pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2))));
 }
@@ -390,6 +401,11 @@ long double ImSar2(long double Par[], int Temp, long double k, long double theta
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
+	if(omega[0] > q[0])
+		ImSelf[0] += -GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
+	if(omega[1] > q[1])
+		ImSelf[1] += -GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
+
 	return(4.*pow(Par[2],3)*ImSelf[1]*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*(pow(2.*Par[2]*ImSelf[1],2)+pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2))));
 }
 
@@ -402,7 +418,17 @@ long double ReSar2(long double Par[], int Temp, long double k, long double theta
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
+	if(omega[0] > q[0])
+		ImSelf[0] += -GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
+	if(omega[1] > q[1])
+		ImSelf[1] += -GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
+
 	return(2.*pow(Par[2],2)*(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*(pow(2.*Par[2]*ImSelf[1],2)+pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2))));
+}
+
+long double VacWidth(long double s)	//Return Vacuum width for BbS which clearly can't handle single particle vacuum widths
+{
+	return(-2.*GAMMA*pow((pow(3.040308,2)+.36)/(s+.36),2)*s/pow(3.040308,2));
 }
 
 long double ImBbS1(long double Par[], int Temp, long double k, long double theta)	//The official ImBbS propagator
@@ -414,8 +440,8 @@ long double ImBbS1(long double Par[], int Temp, long double k, long double theta
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
-	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1],2)));
-	return(common*2.*(omega[0]+omega[1]+ReSelf[0]+ReSelf[1])*(ImSelf[0]+ImSelf[1]));
+	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1]+VacWidth(Par[4]),2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1]+VacWidth(Par[4]),2)));
+	return(common*2.*(omega[0]+omega[1]+ReSelf[0]+ReSelf[1])*(ImSelf[0]+ImSelf[1]+VacWidth(Par[4])));
 }
 
 long double ReBbS1(long double Par[], int Temp, long double k, long double theta)	//The official ReBbS propagator
@@ -427,8 +453,8 @@ long double ReBbS1(long double Par[], int Temp, long double k, long double theta
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
-	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1],2)));
-	return(common*(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2)));
+	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1]+VacWidth(Par[4]),2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1]+VacWidth(Par[4]),2)));
+	return(common*(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1]+VacWidth(Par[4]),2)));
 }
 
 long double ImBbS2(long double Par[], int Temp, long double k, long double theta)	//By energy conservation, replaceing omega_+/- with E-omega_-/+
@@ -440,8 +466,8 @@ long double ImBbS2(long double Par[], int Temp, long double k, long double theta
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
-	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1],2)));
-	return(common*2.*(omega[0]+omega[1]+ReSelf[0]+ReSelf[1])*(ImSelf[0]+ImSelf[1]));
+	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1]+VacWidth(Par[4]),2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1]+VacWidth(Par[4]),2)));
+	return(common*2.*(omega[0]+omega[1]+ReSelf[0]+ReSelf[1])*(ImSelf[0]+ImSelf[1]+VacWidth(Par[4])));
 }
 
 long double ReBbS2(long double Par[], int Temp, long double k, long double theta)	//By energy conservation, replaceing omega_+/- with E-omega_-/+
@@ -453,8 +479,8 @@ long double ReBbS2(long double Par[], int Temp, long double k, long double theta
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
-	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1],2)));
-	return(common*(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2)));
+	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1]+VacWidth(Par[4]),2),2)+4.*pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)*pow(ImSelf[0]+ImSelf[1]+VacWidth(Par[4]),2)));
+	return(common*(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1]+VacWidth(Par[4]),2)));
 }
 
 void Characterize_k_Int(long double Par[], int Temp, long double theta, long double zero[], long double gamma[], int &Poles) //Returns the poles of the k integral's integrands
@@ -1006,17 +1032,6 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], long dou
 		Been_Here = true;
 	}*/
 
-	if(pow(omega[0],2)>=pow(k[0],2) && omega[0]>0)
-		Results[0] = sqrt(pow(omega[0],2)-pow(k[0],2))*GAMMA;
-		//Results[0] = GAMMA*sqrt(Par[4])/3.0404;
-	else
-		Results[0] = 0;
-	if(pow(omega[1],2)>=pow(k[1],2) && omega[1]>0)
-		Results[1] = sqrt(pow(omega[1],2)-pow(k[1],2))*GAMMA;
-		//Results[1] = GAMMA*sqrt(Par[4])/3.0404;
-	else
-		Results[1] = 0;
-
 	if(Temp == 0)
 		return;
 
@@ -1197,14 +1212,7 @@ void Self_Energy(long double M, long double omega[], long double k[], long doubl
 	static long double gamma[2];	//space to change from left to right side of peak
 	static long double k_old[2];
 
-	if(pow(omega[0],2)>=pow(k[0],2))
-		ImSelf[0] = sqrt(pow(omega[0],2)-pow(k[0],2))*GAMMA;
-	else
-		ImSelf[0] = 0;
-	if(pow(omega[1],2)>=pow(k[1],2))
-		ImSelf[1] = sqrt(pow(omega[1],2)-pow(k[1],2))*GAMMA;
-	else
-		ImSelf[1] = 0;
+	ImSelf[0] = ImSelf[1] = 0;
 	ReSelf[0] = ReSelf[1] = 0;
 
 	if(Temp == 0)
@@ -1334,12 +1342,6 @@ long double ImSelf_Energy(long double M, long double omega, long double k, long 
 			File >> Mod[i];
 		Been_Here = true;
 	}*/
-
-	if(pow(omega,2)>=pow(k,2) && omega>0)
-		answer = sqrt(pow(omega,2)-pow(k,2))*GAMMA;
-		//answer = GAMMA*sqrt(Par[4])/3.0404;
-	else
-		answer = 0;
 
 	if(Temp == 0)
 		return(answer);
@@ -1699,6 +1701,10 @@ long double ImFolding_Integrand(long double Par[], long double k0, long double k
 	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
 	//Self_Energy(Par[2], omega, q, Par, Temp, ImSelf, ReSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
+	if(omega[0] > q[0])
+		ImSelf[0] += -GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
+	if(omega[1] > q[1])
+		ImSelf[1] += -GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
 
 	return(-((4.*ImSelf[0]*ImSelf[1]*pow(Par[2],2)*(1.-fermi[0]-fermi[1]))/((pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2))*(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2)+pow(ImSelf[1],2)))));
 }
