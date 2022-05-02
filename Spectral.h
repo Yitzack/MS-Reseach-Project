@@ -318,112 +318,26 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 
 			k0 = Energy(Par[2], Par[3]/2., x1, theta)-Energy(Par[2], Par[3]/2., -x1, theta);
 			//holder = Elements(Spin_Sum1(Par, k0, x1, theta), Potential1(Par,k0,x1), Spin_Linear(Par, k0, x1, theta)*Potential1(Par,k0,x1), Spin_Quad(Par, k0, x1, theta)*Potential1(Par,k0,x1), Potential2(Par,k0,x1))*Folding(Par, Temp, x1, theta);
-			holder = Elements(Folding(Par, Temp, x1, theta), ImBbS1(Par, Temp, x1, theta), ImBbS2(Par, Temp, x1, theta), ImSar(Par, Temp, x1, theta), ImSar1(Par, Temp, x1, theta))*(-(pow(Par[2],2)+pow(x1,2)-pow(Par[3]/2.,2)+Energy(Par[2], Par[3]/2., x1, theta)*Energy(Par[2], Par[3]/2., -x1, theta))/pow(Par[2],2));
+			holder = Elements(Folding(Par, Temp, x1, theta), ImBbS1(Par, Temp, x1, theta), 0,0,0)*(-(pow(Par[2],2)+pow(x1,2)-pow(Par[3]/2.,2)+Energy(Par[2], Par[3]/2., x1, theta)*Energy(Par[2], Par[3]/2., -x1, theta))/pow(Par[2],2));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*pow(x1,2)*w[l+1]; //Evaluate function at x1
 			k0 = Energy(Par[2], Par[3]/2., x2, theta)-Energy(Par[2], Par[3]/2., -x2, theta);
 			//holder = Elements(Spin_Sum1(Par, k0, x2, theta), Potential1(Par,k0,x2), Spin_Linear(Par, k0, x2, theta)*Potential1(Par,k0,x2), Spin_Quad(Par, k0, x2, theta)*Potential1(Par,k0,x2), Potential2(Par,k0,x2))*Folding(Par, Temp, x2, theta);
-			holder = Elements(Folding(Par, Temp, x2, theta), ImBbS1(Par, Temp, x2, theta), ImBbS2(Par, Temp, x2, theta), ImSar(Par, Temp, x2, theta), ImSar1(Par, Temp, x2, theta))*(-(pow(Par[2],2)+pow(x2,2)-pow(Par[3]/2.,2)+Energy(Par[2], Par[3]/2., x2, theta)*Energy(Par[2], Par[3]/2., -x2, theta))/pow(Par[2],2));
+			holder = Elements(Folding(Par, Temp, x2, theta), ImBbS1(Par, Temp, x2, theta), 0,0,0)*(-(pow(Par[2],2)+pow(x2,2)-pow(Par[3]/2.,2)+Energy(Par[2], Par[3]/2., x2, theta)*Energy(Par[2], Par[3]/2., -x2, theta))/pow(Par[2],2));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*pow(x2,2)*w[l+1]; //Evaluate function at x2
 		}
 		k0 = Energy(Par[2], Par[3]/2., (a+b)/2., theta)-Energy(Par[2], Par[3]/2., -(a+b)/2., theta);
 		//holder = Elements(Spin_Sum1(Par, k0, (a+b)/2., theta), Potential1(Par,k0,(a+b)/2.), Spin_Linear(Par, k0, (a+b)/2., theta)*Potential1(Par,k0,(a+b)/2.), Spin_Quad(Par, k0, (a+b)/2., theta)*Potential1(Par,k0,(a+b)/2.), Potential2(Par,k0,(a+b)/2.))*Folding(Par, Temp, (a+b)/2., theta);
 		//Table << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-		holder = Elements(Folding(Par, Temp, (a+b)/2., theta), ImBbS1(Par, Temp, (a+b)/2., theta), ImBbS2(Par, Temp, (a+b)/2., theta), ImSar(Par, Temp, (a+b)/2., theta), ImSar1(Par, Temp, (a+b)/2., theta))*(-(pow(Par[2],2)+pow((a+b)/2.,2)-pow(Par[3]/2.,2)+Energy(Par[2], Par[3]/2., (a+b)/2., theta)*Energy(Par[2], Par[3]/2., -(a+b)/2., theta))/pow(Par[2],2));
+		holder = Elements(Folding(Par, Temp, (a+b)/2., theta), ImBbS1(Par, Temp, (a+b)/2., theta), 0,0,0)*(-(pow(Par[2],2)+pow((a+b)/2.,2)-pow(Par[3]/2.,2)+Energy(Par[2], Par[3]/2., (a+b)/2., theta)*Energy(Par[2], Par[3]/2., -(a+b)/2., theta))/pow(Par[2],2));
 		F += holder*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
 		Partial = F*(b-a)/(2.);
 		Answer += Partial;
 		a = b;
-	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a <= 350.*sqrt(Par[4]+pow(Par[3],2)));// UV_End); //k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
+	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a <= 20.*sqrt(Par[4]+pow(Par[3],2)));// UV_End); //k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
-}
-
-long double ImSar(long double Par[], int Temp, long double k, long double theta)
-{
-	long double omega[2] = {Energy(Par[2],Par[3]/2.,k,theta),Energy(Par[2],Par[3]/2.,-k,theta)};
-	long double Energy = sqrt(Par[4]+pow(Par[3],2));
-
-	if(omega[0]+omega[1] < Energy)	//Enough energy for both quarks to be sharp
-		return(ImBbS2(Par, Temp, k, theta));
-	else if(omega[0] < Energy || omega[1] < Energy)	//Enough energy for one quark or the other to be sharp
-	{
-		if(omega[0] < Energy)
-			return(ImSar1(Par, Temp, k, theta));
-		else
-			return(ImSar2(Par, Temp, k, theta));
-	}
-	else	//Not enough energy to make either quark sharp, no simplifing assumptions avalible, fall back
-		return(Folding(Par, Temp, k, theta));
-}
-
-long double ImSar1(long double Par[], int Temp, long double k, long double theta)	//My wide aligned quark and narrow anti-aligned quark propagator
-{
-	long double omega[2] = {sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta),Energy(Par[2],Par[3]/2.,-k,theta)};
-	long double q[2] = {Energy(0,Par[3]/2.,k,theta),Energy(0,Par[3]/2.,-k,theta)};
-	long double ImSelf[2];
-	long double ReSelf[2];
-	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
-	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
-
-	if(omega[0] > q[0])
-		ImSelf[0] += GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
-	if(omega[1] > q[1])
-		ImSelf[1] += GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
-
-	return(4.*pow(Par[2],3)*ImSelf[0]*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[1]*(pow(2.*Par[2]*ImSelf[0],2)+pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2))));
-}
-
-long double ReSar1(long double Par[], int Temp, long double k, long double theta)	//My wide aligned quark and narrow anti-aligned quark propagator
-{
-	long double omega[2] = {sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta),Energy(Par[2],Par[3]/2.,-k,theta)};
-	long double q[2] = {Energy(0,Par[3]/2.,k,theta),Energy(0,Par[3]/2.,-k,theta)};
-	long double ImSelf[2];
-	long double ReSelf[2];
-	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
-	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
-
-	if(omega[0] > q[0])
-		ImSelf[0] += GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
-	if(omega[1] > q[1])
-		ImSelf[1] += GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
-
-	return(2.*pow(Par[2],2)*(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[1]*(pow(2.*Par[2]*ImSelf[0],2)+pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2))));
-}
-
-long double ImSar2(long double Par[], int Temp, long double k, long double theta)	//My wide anti-aligned quark and narrow aligned quark propagator
-{
-	long double omega[2] = {Energy(Par[2],Par[3]/2.,k,theta),sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta)};
-	long double q[2] = {Energy(0,Par[3]/2.,k,theta),Energy(0,Par[3]/2.,-k,theta)};
-	long double ImSelf[2];
-	long double ReSelf[2];
-	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
-	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
-
-	if(omega[0] > q[0])
-		ImSelf[0] += GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
-	if(omega[1] > q[1])
-		ImSelf[1] += GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
-
-	return(4.*pow(Par[2],3)*ImSelf[1]*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*(pow(2.*Par[2]*ImSelf[1],2)+pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2))));
-}
-
-long double ReSar2(long double Par[], int Temp, long double k, long double theta)	//My wide anti-aligned quark and narrow aligned quark propagator
-{
-	long double omega[2] = {Energy(Par[2],Par[3]/2.,k,theta),sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta)};
-	long double q[2] = {Energy(0,Par[3]/2.,k,theta),Energy(0,Par[3]/2.,-k,theta)};
-	long double ImSelf[2];
-	long double ReSelf[2];
-	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
-	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
-
-	if(omega[0] > q[0])
-		ImSelf[0] += GAMMA*sqrt(pow(omega[0],2)-pow(q[0],2));
-	if(omega[1] > q[1])
-		ImSelf[1] += GAMMA*sqrt(pow(omega[1],2)-pow(q[1],2));
-
-	return(2.*pow(Par[2],2)*(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*(pow(2.*Par[2]*ImSelf[1],2)+pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2))));
 }
 
 long double VacWidth(long double s)	//Return Vacuum width for BbS which clearly can't handle single particle vacuum widths
@@ -449,32 +363,6 @@ long double ImBbS1(long double Par[], int Temp, long double k, long double theta
 long double ReBbS1(long double Par[], int Temp, long double k, long double theta)	//The official ReBbS propagator
 {
 	long double omega[2] = {Energy(Par[2],Par[3]/2.,k,theta),Energy(Par[2],Par[3]/2.,-k,theta)};
-	long double q[2] = {Energy(0,Par[3]/2.,k,theta),Energy(0,Par[3]/2.,-k,theta)};
-	long double ImSelf[2];
-	long double ReSelf[2];
-	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
-	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
-
-	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1]+VacWidth(Par[4]),2),2)+pow(2.*(omega[0]+omega[1]+ReSelf[0]+ReSelf[1])*(ImSelf[0]+ImSelf[1])+VacWidth(Par[4]),2)));
-	return(common*(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1],2)));
-}
-
-long double ImBbS2(long double Par[], int Temp, long double k, long double theta)	//By energy conservation, replaceing omega_+/- with E-omega_-/+
-{
-	long double omega[2] = {sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta),sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta)};
-	long double q[2] = {Energy(0,Par[3]/2.,k,theta),Energy(0,Par[3]/2.,-k,theta)};
-	long double ImSelf[2];
-	long double ReSelf[2];
-	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
-	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
-
-	long double common = 2.*pow(Par[2],2)*(omega[0]+omega[1])*(1.-Fermi(omega[0],Temp)-Fermi(omega[1],Temp))/(omega[0]*omega[1]*(pow(Par[4]+pow(Par[3],2)-pow(omega[0]+omega[1]+ReSelf[0]+ReSelf[1],2)+pow(ImSelf[0]+ImSelf[1]+VacWidth(Par[4]),2),2)+pow(2.*(omega[0]+omega[1]+ReSelf[0]+ReSelf[1])*(ImSelf[0]+ImSelf[1])+VacWidth(Par[4]),2)));
-	return(common*(2.*(omega[0]+omega[1]+ReSelf[0]+ReSelf[1])*(ImSelf[0]+ImSelf[1])+VacWidth(Par[4])));
-}
-
-long double ReBbS2(long double Par[], int Temp, long double k, long double theta)	//By energy conservation, replaceing omega_+/- with E-omega_-/+
-{
-	long double omega[2] = {sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,-k,theta),sqrt(Par[4]+pow(Par[3],2))-Energy(Par[2],Par[3]/2.,k,theta)};
 	long double q[2] = {Energy(0,Par[3]/2.,k,theta),Energy(0,Par[3]/2.,-k,theta)};
 	long double ImSelf[2];
 	long double ReSelf[2];
