@@ -110,8 +110,8 @@ Elements theta_Int(long double Par[], int Temp)
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center for 37th order Gauss-Legendre integration
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight of the function at Disp
 #elif ORDER == 97
-	long double Disp[] = {0.06342068498268678602883,0.1265859972696720510680,0.1892415924618135864853,0.2511351786125772735072,0.3120175321197487622079,0.3716435012622848888637,0.4297729933415765246586,0.4861719414524920421770,0.5406132469917260665582,0.5928776941089007124559,0.6427548324192376640569,0.6900438244251321135048,0.7345542542374026962137,0.7761068943454466350181,0.8145344273598554315395,0.8496821198441657010349,0.8814084455730089100370,0.9095856558280732852130,0.9341002947558101490590,0.9548536586741372335552,0.9717622009015553801400,0.9847578959142130043593,0.9937886619441677907601,0.9988201506066353793618};	//Displacement from center for 97th order Gauss-Legendre integration
-	long double w[] = {0.06346328140479059771825,0.06333550929649174859084,0.06295270746519569947440,0.06231641732005726740108,0.06142920097919293629683,0.06029463095315201730311,0.05891727576002726602453,0.05730268153018747548516,0.05545734967480358869043,0.05338871070825896852794,0.05110509433014459067462,0.04861569588782824027765,0.04593053935559585354250,0.04306043698125959798835,0.04001694576637302136861,0.03681232096300068981947,0.03345946679162217434249,0.02997188462058382535069,0.02636361892706601696095,0.02264920158744667649877,0.01884359585308945844445,0.01496214493562465102958,0.01102055103159358049751,0.007035099590086451473451,0.003027278988922905077481};	//Weight of the function at Disp
+	long double Disp[] = {0.06342068498268678602883, 0.1265859972696720510680, 0.1892415924618135864853, 0.2511351786125772735072, 0.3120175321197487622079, 0.3716435012622848888637, 0.4297729933415765246586, 0.4861719414524920421770, 0.5406132469917260665582, 0.5928776941089007124559, 0.6427548324192376640569, 0.6900438244251321135048, 0.7345542542374026962137, 0.7761068943454466350181, 0.8145344273598554315395, 0.8496821198441657010349, 0.8814084455730089100370, 0.9095856558280732852130, 0.9341002947558101490590, 0.9548536586741372335552, 0.9717622009015553801400, 0.9847578959142130043593, 0.9937886619441677907601, 0.9988201506066353793618};	//Displacement from center for 97th order Gauss-Legendre integration
+	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight of the function at Disp
 #endif
 	long double x1, x2;	//Abscissa
 	if(Par[4] > 0 && Par[3] > sqrt(Par[4]/2.)) //The maximum of the theta integral, valid for all s>0, arcsin(sqrt(s/(2P^2))) or pi/2
@@ -124,7 +124,7 @@ Elements theta_Int(long double Par[], int Temp)
 	Elements F;	//Sum of ordinate*weights
 	Elements Answer = Elements(0,0,0,0,0);	//Answer to be returned
 	Elements holder;
-	long double a = 0, b;	//Sub-interval limits of integration
+	long double a = 0, b = 0;	//Sub-interval limits of integration
 	int i, j;	//Counters
 	//ofstream Table("theta Table", ios::app);
 
@@ -316,21 +316,21 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 			x1 = (b+a-Disp[l]*(b-a))/2.; //Actual evaluation points
 			x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			k0 = Energy(Par[2], Par[3]/2., x1, theta)-Energy(Par[2], Par[3]/2., -x1, theta);
-			//holder = Elements(Spin_Sum1(Par, k0, x1, theta), Potential1(Par,k0,x1), Spin_Linear(Par, k0, x1, theta)*Potential1(Par,k0,x1), Spin_Quad(Par, k0, x1, theta)*Potential1(Par,k0,x1), Potential2(Par,k0,x1))*Folding(Par, Temp, x1, theta);
-			holder = Elements(Folding(Par, Temp, x1, theta), ImBbS1(Par, Temp, x1, theta), 0,0,0)*(-(pow(Par[2],2)+pow(x1,2)-pow(Par[3]/2.,2)+Energy(Par[2], Par[3]/2., x1, theta)*Energy(Par[2], Par[3]/2., -x1, theta))/pow(Par[2],2));
+			k0 = (Energy(Par[2], Par[3]/2., x1, theta)-Energy(Par[2], Par[3]/2., -x1, theta))/2.;
+			holder = Elements((Energy(Par[2], Par[3]/2., x1, theta)*Energy(Par[2], Par[3]/2., -x1, theta)-pow(Par[3]/2.,2)+pow(x1,2)+pow(Par[2],2))/pow(Par[2],2), Potential1(Par,k0,x1), Spin_Linear(Par, k0, x1, theta)*Potential1(Par,k0,x1), Spin_Quad(Par, k0, x1, theta)*Potential1(Par,k0,x1), Potential2(Par,k0,x1))*Folding(Par, Temp, x1, theta);
+			//holder = Elements(Folding(Par, Temp, x1, theta), ImBbS1(Par, Temp, x1, theta), 0,0,0)*(-Par[4]/(2.*pow(Par[2],2)));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*pow(x1,2)*w[l+1]; //Evaluate function at x1
-			k0 = Energy(Par[2], Par[3]/2., x2, theta)-Energy(Par[2], Par[3]/2., -x2, theta);
-			//holder = Elements(Spin_Sum1(Par, k0, x2, theta), Potential1(Par,k0,x2), Spin_Linear(Par, k0, x2, theta)*Potential1(Par,k0,x2), Spin_Quad(Par, k0, x2, theta)*Potential1(Par,k0,x2), Potential2(Par,k0,x2))*Folding(Par, Temp, x2, theta);
-			holder = Elements(Folding(Par, Temp, x2, theta), ImBbS1(Par, Temp, x2, theta), 0,0,0)*(-(pow(Par[2],2)+pow(x2,2)-pow(Par[3]/2.,2)+Energy(Par[2], Par[3]/2., x2, theta)*Energy(Par[2], Par[3]/2., -x2, theta))/pow(Par[2],2));
+			k0 = (Energy(Par[2], Par[3]/2., x2, theta)-Energy(Par[2], Par[3]/2., -x2, theta))/2.;
+			holder = Elements((Energy(Par[2], Par[3]/2., x2, theta)*Energy(Par[2], Par[3]/2., -x2, theta)-pow(Par[3]/2.,2)+pow(x2,2)+pow(Par[2],2))/pow(Par[2],2), Potential1(Par,k0,x2), Spin_Linear(Par, k0, x2, theta)*Potential1(Par,k0,x2), Spin_Quad(Par, k0, x2, theta)*Potential1(Par,k0,x2), Potential2(Par,k0,x2))*Folding(Par, Temp, x2, theta);
+			//holder = Elements(Folding(Par, Temp, x2, theta), ImBbS1(Par, Temp, x2, theta), 0,0,0)*(-Par[4]/(2.*pow(Par[2],2)));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*pow(x2,2)*w[l+1]; //Evaluate function at x2
 		}
-		k0 = Energy(Par[2], Par[3]/2., (a+b)/2., theta)-Energy(Par[2], Par[3]/2., -(a+b)/2., theta);
-		//holder = Elements(Spin_Sum1(Par, k0, (a+b)/2., theta), Potential1(Par,k0,(a+b)/2.), Spin_Linear(Par, k0, (a+b)/2., theta)*Potential1(Par,k0,(a+b)/2.), Spin_Quad(Par, k0, (a+b)/2., theta)*Potential1(Par,k0,(a+b)/2.), Potential2(Par,k0,(a+b)/2.))*Folding(Par, Temp, (a+b)/2., theta);
+		k0 = (Energy(Par[2], Par[3]/2., (a+b)/2., theta)-Energy(Par[2], Par[3]/2., -(a+b)/2., theta))/2.;
+		holder = Elements((Energy(Par[2], Par[3]/2., (a+b)/2., theta)*Energy(Par[2], Par[3]/2., -(a+b)/2., theta)-pow(Par[3]/2.,2)+pow((a+b)/2.,2)+pow(Par[2],2))/pow(Par[2],2), Potential1(Par,k0,(a+b)/2.), Spin_Linear(Par, k0, (a+b)/2., theta)*Potential1(Par,k0,(a+b)/2.), Spin_Quad(Par, k0, (a+b)/2., theta)*Potential1(Par,k0,(a+b)/2.), Potential2(Par,k0,(a+b)/2.))*Folding(Par, Temp, (a+b)/2., theta);
+		//holder = Elements(Folding(Par, Temp, (a+b)/2., theta), ImBbS1(Par, Temp, (a+b)/2., theta), 0,0,0)*(-Par[4]/(2.*pow(Par[2],2)));
 		//Table << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
-		holder = Elements(Folding(Par, Temp, (a+b)/2., theta), ImBbS1(Par, Temp, (a+b)/2., theta), 0,0,0)*(-(pow(Par[2],2)+pow((a+b)/2.,2)-pow(Par[3]/2.,2)+Energy(Par[2], Par[3]/2., (a+b)/2., theta)*Energy(Par[2], Par[3]/2., -(a+b)/2., theta))/pow(Par[2],2));
 		F += holder*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
 		Partial = F*(b-a)/(2.);
 		Answer += Partial;
@@ -780,14 +780,14 @@ long double Folding(long double Par[], int Temp, long double k, long double thet
 			long double x2 = (b+a+Disp[l]*(b-a))/2.;
 
 			holder = ImFolding_Integrand(Par,x1,k,theta,Temp);
-			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder << endl;
 			F += holder*w[l+1];
 			holder = ImFolding_Integrand(Par,x2,k,theta,Temp);
-			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder << endl;
 			F += holder*w[l+1];
 		}
 		holder = ImFolding_Integrand(Par,(a+b)/2.,k,theta,Temp);
-		//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
+		//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder << endl;
 		F += holder*w[0];
 
 		Partial = F*(b-a)/(2.);

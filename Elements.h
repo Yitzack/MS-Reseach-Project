@@ -105,19 +105,19 @@ bool Elements::operator==(long double A)
 
 bool Elements::operator>=(long double A)
 {
-	return(std::abs(Array[0]) >= A &&
-		std::abs(Array[1]) >= A &&
-		std::abs(Array[2]) >= A &&
-		std::abs(Array[3]) >= A &&
+	return(std::abs(Array[0]) >= A ||
+		std::abs(Array[1]) >= A ||
+		std::abs(Array[2]) >= A ||
+		std::abs(Array[3]) >= A ||
 		std::abs(Array[4]) >= A);
 }
 
 bool Elements::operator>(long double A)
 {
-	return(std::abs(Array[0]) > A &
-		std::abs(Array[1]) > A &&
-		std::abs(Array[2]) > A &&
-		std::abs(Array[3]) > A &&
+	return(std::abs(Array[0]) > A ||
+		std::abs(Array[1]) > A ||
+		std::abs(Array[2]) > A ||
+		std::abs(Array[3]) > A ||
 		std::abs(Array[4]) > A);
 }
 
