@@ -306,7 +306,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 		else
 			b += 3;
 
-		//if(b>50) b = 50;
+		if(b>50) b = 50;
 
 		F.null();
 #if ORDER == 37
@@ -319,25 +319,25 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 			x2 = (b+a+Disp[l]*(b-a))/2.;
 
 			k0 = (Energy(Par[2], Par[3]/2., x1, theta)-Energy(Par[2], Par[3]/2., -x1, theta))/2.;
-			holder = Elements((Energy(Par[2], Par[3]/2., x1, theta)*Energy(Par[2], Par[3]/2., -x1, theta)-pow(Par[3]/2.,2)+pow(x1,2)+pow(Par[2],2))/pow(Par[2],2), Potential1(Par,k0,x1), Spin_Linear(Par, k0, x1, theta)*Potential1(Par,k0,x1), Spin_Quad(Par, k0, x1, theta)*Potential1(Par,k0,x1), Potential2(Par,k0,x1))*Folding(Par, Temp, x1, theta);
+			holder = Elements((Energy(Par[2], Par[3]/2., x1, theta)*Energy(Par[2], Par[3]/2., -x1, theta)-pow(Par[3]/2.,2)+pow(x1,2)+pow(Par[2],2))/pow(Par[2],2), Potential1(Par,k0,x1), Spin_Linear(Par, k0, x1, theta)*Potential1(Par,k0,x1), Spin_Quad(Par, k0, x1, theta)*Potential1(Par,k0,x1), Potential2(Par,k0,x1))*ReBbS1(Par, Temp, x1, theta);
 			//holder = Elements(Folding(Par, Temp, x1, theta), ImBbS1(Par, Temp, x1, theta), 0,0,0)*(-Par[4]/(2.*pow(Par[2],2)));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*pow(x1,2)*w[l+1]; //Evaluate function at x1
 			k0 = (Energy(Par[2], Par[3]/2., x2, theta)-Energy(Par[2], Par[3]/2., -x2, theta))/2.;
-			holder = Elements((Energy(Par[2], Par[3]/2., x2, theta)*Energy(Par[2], Par[3]/2., -x2, theta)-pow(Par[3]/2.,2)+pow(x2,2)+pow(Par[2],2))/pow(Par[2],2), Potential1(Par,k0,x2), Spin_Linear(Par, k0, x2, theta)*Potential1(Par,k0,x2), Spin_Quad(Par, k0, x2, theta)*Potential1(Par,k0,x2), Potential2(Par,k0,x2))*Folding(Par, Temp, x2, theta);
+			holder = Elements((Energy(Par[2], Par[3]/2., x2, theta)*Energy(Par[2], Par[3]/2., -x2, theta)-pow(Par[3]/2.,2)+pow(x2,2)+pow(Par[2],2))/pow(Par[2],2), Potential1(Par,k0,x2), Spin_Linear(Par, k0, x2, theta)*Potential1(Par,k0,x2), Spin_Quad(Par, k0, x2, theta)*Potential1(Par,k0,x2), Potential2(Par,k0,x2))*ReBbS1(Par, Temp, x2, theta);
 			//holder = Elements(Folding(Par, Temp, x2, theta), ImBbS1(Par, Temp, x2, theta), 0,0,0)*(-Par[4]/(2.*pow(Par[2],2)));
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*pow(x2,2)*w[l+1]; //Evaluate function at x2
 		}
 		k0 = (Energy(Par[2], Par[3]/2., (a+b)/2., theta)-Energy(Par[2], Par[3]/2., -(a+b)/2., theta))/2.;
-		holder = Elements((Energy(Par[2], Par[3]/2., (a+b)/2., theta)*Energy(Par[2], Par[3]/2., -(a+b)/2., theta)-pow(Par[3]/2.,2)+pow((a+b)/2.,2)+pow(Par[2],2))/pow(Par[2],2), Potential1(Par,k0,(a+b)/2.), Spin_Linear(Par, k0, (a+b)/2., theta)*Potential1(Par,k0,(a+b)/2.), Spin_Quad(Par, k0, (a+b)/2., theta)*Potential1(Par,k0,(a+b)/2.), Potential2(Par,k0,(a+b)/2.))*Folding(Par, Temp, (a+b)/2., theta);
+		holder = Elements((Energy(Par[2], Par[3]/2., (a+b)/2., theta)*Energy(Par[2], Par[3]/2., -(a+b)/2., theta)-pow(Par[3]/2.,2)+pow((a+b)/2.,2)+pow(Par[2],2))/pow(Par[2],2), Potential1(Par,k0,(a+b)/2.), Spin_Linear(Par, k0, (a+b)/2., theta)*Potential1(Par,k0,(a+b)/2.), Spin_Quad(Par, k0, (a+b)/2., theta)*Potential1(Par,k0,(a+b)/2.), Potential2(Par,k0,(a+b)/2.))*ReBbS1(Par, Temp, (a+b)/2., theta);
 		//holder = Elements(Folding(Par, Temp, (a+b)/2., theta), ImBbS1(Par, Temp, (a+b)/2., theta), 0,0,0)*(-Par[4]/(2.*pow(Par[2],2)));
 		//Table << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		F += holder*pow((a+b)/2.,2)*w[0]; //Evaluate function at (a+b)/2.
 		Partial = F*(b-a)/(2.);
 		Answer += Partial;
 		a = b;
-	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a <= 20.*sqrt(Par[4]+pow(Par[3],2)));//a<50);// UV_End); //k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
+	}while(a<50);//!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a <= 20.*sqrt(Par[4]+pow(Par[3],2)));// UV_End); //k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }
