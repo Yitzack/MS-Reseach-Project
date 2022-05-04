@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 #elif VERSION == 22
      	char File[70] = "data/Spectralcc22.37.P_Dep4.";  //Name of the file
 #elif VERSION == 24
-     	char File[70] = "data/Spectralcc24.97.Test.";  //Name of the file
+     	char File[70] = "data/Spectralcc24.97.Test_Folding.";  //Name of the file
 #elif VERSION == 42
      	char File[70] = "data/Spectralcc42.37.P_Dep4.";  //Name of the file
 #endif
