@@ -208,7 +208,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 	ofstream Table("k Table", ios::app);
 	//ofstream Poles_Table("k Poles", ios::app);
 
-	//Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
+	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
 	//for(i = 0; i < Poles; i++)
 		//Poles_Table << Par[3] << " " << Par[4] << " " << theta << " " << zero[i] << " " << gamma[i] << endl;
 	long double Stops[Poles*17+12];
