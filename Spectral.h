@@ -205,7 +205,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)	//Integrates the 
 	long double k0;	//relative energy for a given center of mass momentum and relative momentum
 	int i, j, l;	//Counters
 	int Intervals;
-	ofstream Table("k Table", ios::app);
+	//ofstream Table("k Table", ios::app);
 	//ofstream Poles_Table("k Poles", ios::app);
 
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);
@@ -389,7 +389,8 @@ void Characterize_k_Int(long double Par[], int Temp, long double theta, long dou
 	if((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3]*sin(theta),2)) > 0.)
 	{
 		zero[Poles] = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//on-shell momentum, it's almost like every on-shell peak crosses every other one at this point
-		gamma[Poles] = 2.*ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp);
+		gamma[Poles] = abs(2.*ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp))+abs(2.*Par[2]*GAMMA);
+		//gamma[Poles] = VacWidth(Par[4]);
 		Poles++;
 	}
 
