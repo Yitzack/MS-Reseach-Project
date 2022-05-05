@@ -1611,9 +1611,9 @@ long double ImFolding_Integrand(long double Par[], long double k0, long double k
 	//Self_Energy(Par[2], omega, q, Par, Temp, ImSelf, ReSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 	if(omega[0] > q[0])
-		ImSelf[0] += GAMMA*Par[2];//sqrt(pow(omega[0],2)-pow(q[0],2));
+		ImSelf[0] += sqrt(pow(omega[0],2)-pow(q[0],2));//GAMMA*Par[2];//
 	if(omega[1] > q[1])
-		ImSelf[1] += GAMMA*Par[2];//sqrt(pow(omega[1],2)-pow(q[1],2));
+		ImSelf[1] += sqrt(pow(omega[1],2)-pow(q[1],2));//GAMMA*Par[2];//
 
 	return(-((4.*ImSelf[0]*ImSelf[1]*pow(Par[2],2)*(1.-fermi[0]-fermi[1]))/((pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2))*(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2)+pow(ImSelf[1],2)))));
 }
