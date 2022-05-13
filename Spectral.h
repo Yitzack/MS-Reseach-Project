@@ -814,8 +814,8 @@ long double Folding(long double Par[], int Temp, long double k, long double thet
 		for(l = 0; l < 24; l++) //Integrate the sub-interval
 #endif
 		{
-			long double x1 = (half+a-Disp[l]*(half-a))/2.;
-			long double x2 = (half+a+Disp[l]*(half-a))/2.;
+			x1 = (half+a-Disp[l]*(half-a))/2.;
+			x2 = (half+a+Disp[l]*(half-a))/2.;
 
 			holder = ImFolding_Integrand(Par,x1,k,theta,Temp);
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder << endl;
@@ -824,8 +824,8 @@ long double Folding(long double Par[], int Temp, long double k, long double thet
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder << endl;
 			F += holder*w[l+1];
 
-			long double x1 = (b+half-Disp[l]*(b-half))/2.;
-			long double x2 = (b+half+Disp[l]*(b-half))/2.;
+			x1 = (b+half-Disp[l]*(b-half))/2.;
+			x2 = (b+half+Disp[l]*(b-half))/2.;
 
 			holder = ImFolding_Integrand(Par,x1,k,theta,Temp);
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder << endl;
