@@ -1524,7 +1524,10 @@ long double Potential2(long double Par[], long double k0, long double k)	//Potie
 
 long double Spin_Sum1(long double Par[], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), strictly pseudoscalar for now
 {
-	return((Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2))/(pow(Par[2],2)));
+	if(Par[4] >= pow(2.*Par[2],2))
+		return((Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2))/(pow(Par[2],2)));
+	else
+		return(2.);
 }
 
 long double Spin_Linear(long double Par[], long double k0, long double k , long double theta)
