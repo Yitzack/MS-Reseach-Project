@@ -746,16 +746,16 @@ long double Folding(long double Par[], int Temp, long double k, long double thet
 			long double x2 = (b+a+Disp[l]*(b-a))/2.;
 
 			//holder = (Elements(Spin_Sum1(Par, x1, k, theta), Potential1(Par,x1,k), Spin_Linear(Par, x1, k, theta)*Potential1(Par,x1,k), Spin_Quad(Par, x1, k, theta)*Potential1(Par,x1,k), Potential2(Par,x1,k))*ImFolding_Integrand(Par,x1,k,theta,Temp));
-			holder = Spin_Sum1(Par, x1, k, theta)*ImFolding_Integrand(Par,x1,k,theta,Temp));
+			holder = Spin_Sum1(Par, x1, k, theta)*ImFolding_Integrand(Par,x1,k,theta,Temp);
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x1 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*w[l+1];
 			//holder = (Elements(Spin_Sum1(Par, x2, k, theta), Potential1(Par,x2,k), Spin_Linear(Par, x2, k, theta)*Potential1(Par,x2,k), Spin_Quad(Par, x2, k, theta)*Potential1(Par,x2,k), Potential2(Par,x2,k))*ImFolding_Integrand(Par,x2,k,theta,Temp));
-			holder = Spin_Sum1(Par, x2, k, theta)*ImFolding_Integrand(Par,x2,k,theta,Temp));
+			holder = Spin_Sum1(Par, x2, k, theta)*ImFolding_Integrand(Par,x2,k,theta,Temp);
 			//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << x2 << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 			F += holder*w[l+1];
 		}
 		//holder = (Elements(Spin_Sum1(Par, (a+b)/2., k, theta), Potential1(Par,(a+b)/2.,k), Spin_Linear(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Spin_Quad(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*ImFolding_Integrand(Par,(a+b)/2.,k,theta,Temp));
-		holder = Spin_Sum1(Par, (a+b)/2., k, theta)*ImFolding_Integrand(Par,(a+b)/2.,k,theta,Temp));
+		holder = Spin_Sum1(Par, (a+b)/2., k, theta)*ImFolding_Integrand(Par,(a+b)/2.,k,theta,Temp);
 		//Table << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << (a+b)/2. << " " << holder.store(0) << " " << holder.store(1) << " " << holder.store(2) << endl;
 		F += holder*w[0];
 
