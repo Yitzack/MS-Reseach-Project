@@ -139,12 +139,13 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
-				holder = theta_Int(ParPrivate, Temp);
+				/*holder = theta_Int(ParPrivate, Temp);
 				Table[j][0] = holder.store(0);
 				Table[j][1] = holder.store(1);
 				Table[j][2] = holder.store(2);
 				Table[j][3] = holder.store(3);
-				Table[j][4] = holder.store(4);
+				Table[j][4] = holder.store(4);*/
+				Table[j][0] = theta_Int(ParPrivate, Temp);
 			}
 		}
 
@@ -187,7 +188,7 @@ int main(int argc, char* argv[])
 					Par[4] = 552.25+GaussLa[j-567];
 			}
 
-			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << Table[j][0] << " " << Table[j][1] << " " << Table[j][2] << " " << Table[j][3] << " " << Table[j][4] << endl;
+			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << Table[j][0] << endl;//" " << Table[j][1] << " " << Table[j][2] << " " << Table[j][3] << " " << Table[j][4] << endl;
 		}
 		TPlot << endl;
 	}
