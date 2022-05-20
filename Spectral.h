@@ -1532,15 +1532,19 @@ long double Spin_Sum1(long double Par[], long double k0, long double k , long do
 
 long double Spin_Linear(long double Par[], long double k0, long double k , long double theta)
 {
-	if(Par[4] >= 0.)
+	if(Par[4] >= pow(2.*Par[2],2))
 		return(sqrt(3.*Par[4]/(8.*pow(Par[2],2))));
 	else
-		return(0.);
+		return(sqrt(1.5));
 }
 
 long double Spin_Quad(long double Par[], long double k0, long double k , long double theta)
 {
-	return(Par[4]/4.-pow(k0,2)+pow(k,2))/(2.*pow(Par[2],2));
+	if(Par[4] >= pow(2.*Par[2],2))
+		return(Par[4]/4.-pow(k0,2)+pow(k,2))/(2.*pow(Par[2],2));
+	else
+		return(.5);
+
 }
 
 long double Spin_Sum2(long double Par[], long double k0, long double k , long double theta)	//Spinor sum, depends on spin and other quantum numbers of the boson (scalar, pseudo-scale, vector, axial vector), stricktly pseudoscalar for now
