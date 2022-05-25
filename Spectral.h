@@ -84,7 +84,7 @@ void mergeSort(long double List[], int a, int b)
 	return;
 }
 
-#ifndef GAMMA
+#ifndef GAMMA	//use option -D GAMMA=<number> to alter single particle vacuum width, default value is 15MeV
 #define GAMMA -.015	//Width of single quark propagator
 #endif
 
@@ -916,9 +916,13 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], long dou
 	else
 		ImSigma[1] = -.5*((a[1]-b[1])*omega0[1]-((a[1]+b[1])*knee[1])/sqrt(a[1]*b[1]))+(a[1]-b[1])*omega[1]/2-sqrt(pow(((a[1]+b[1])/2.)*(omega[1]-omega0[1]+((a[1]-b[1])*knee[1])/(sqrt(a[1]*b[1])*(a[1]+b[1]))),2)+pow(knee[1],2));
 
-	Results[0] += -2.*M*Sigma[0]*exp(ImSigma[0]);	//ImSigma from the in-medium
+#ifdef HALF
+	Results[0] += -M*Sigma[0]*exp(ImSigma[0]);	//ImSigma from the in-medium
+	Results[1] += -M*Sigma[1]*exp(ImSigma[1]);
+#else
+	Results[0] += -2.*M*Sigma[0]*exp(ImSigma[0]);
 	Results[1] += -2.*M*Sigma[1]*exp(ImSigma[1]);
-
+#endif
 	return;
 }
 
@@ -1006,7 +1010,11 @@ long double ImSelf_Energy(long double M, long double omega, long double k, long 
 	else
 		ImSigma = -.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))),2)+pow(knee,2));
 
+#ifdef HALF
+	answer += -M*Sigma*exp(ImSigma);
+#else
 	answer += -2.*M*Sigma*exp(ImSigma);
+#endif
 
 	return(answer);
 }
@@ -1095,8 +1103,13 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 		}
 	}
 
+#ifdef HALF
+	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0],2)+gamma[0])/2.;
+	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1],2)+gamma[1])/2.;
+#else
 	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0],2)+gamma[0]);
 	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1],2)+gamma[1]);
+#endif
 	return;
 }
 
@@ -1169,10 +1182,17 @@ void Self_Energy(long double M, long double omega[], long double k[], long doubl
 		}
 	}
 
+#ifdef HALF
+	ImSelf[0] += -M*Sigma[0]*omega[0]*gamma[0]/(M_PI*(pow(omega[0]-omega0[0],2)+pow(omega[0]*gamma[0],2)));
+	ImSelf[1] += -M*Sigma[1]*omega[1]*gamma[1]/(M_PI*(pow(omega[1]-omega0[1],2)+pow(omega[1]*gamma[1],2)));
+	ReSelf[0] += Sigma[0]*(omega[0]-omega0[0])/(M_PI*(pow(omega[0]-omega0[0],2)+pow(omega[0]*gamma[0],2)))/2.;
+	ReSelf[1] += Sigma[1]*(omega[1]-omega0[1])/(M_PI*(pow(omega[1]-omega0[1],2)+pow(omega[1]*gamma[1],2)))/2.;
+#else
 	ImSelf[0] += -2.*M*Sigma[0]*omega[0]*gamma[0]/(M_PI*(pow(omega[0]-omega0[0],2)+pow(omega[0]*gamma[0],2)));
 	ImSelf[1] += -2.*M*Sigma[1]*omega[1]*gamma[1]/(M_PI*(pow(omega[1]-omega0[1],2)+pow(omega[1]*gamma[1],2)));
 	ReSelf[0] += Sigma[0]*(omega[0]-omega0[0])/(M_PI*(pow(omega[0]-omega0[0],2)+pow(omega[0]*gamma[0],2)));
 	ReSelf[1] += Sigma[1]*(omega[1]-omega0[1])/(M_PI*(pow(omega[1]-omega0[1],2)+pow(omega[1]*gamma[1],2)));
+#endif
 
 	return;
 }

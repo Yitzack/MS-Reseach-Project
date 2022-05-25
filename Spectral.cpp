@@ -14,52 +14,31 @@ long double Set_C(long double, long double, long double, long double, long doubl
 
 int main(int argc, char* argv[])
 {
-#if ORDER == 37	//use compile option -D ORDER = 37 or 97 for 37th order quadrature or 97th order quadrature
-	#ifdef BB	//use option -D BB= to activate bottomium macro
-		#if VERSION == EXP	//use compile option -D VERSION = Exp, 22, 24, or 42 to select the potential
-			char File[70] = "data/SpectralbbExp.37.";  //Name of the file
-		#elif VERSION == 22
-			char File[70] = "data/Spectralbb22.37.";
-		#elif VERSION == 24
-			char File[70] = "data/Spectralbb24.37.";
-		#elif VERSION == 42
-			char File[70] = "data/Spectralbb42.37.";
-		#endif
-	#endif
-	#ifdef CC	//use option -D CC= to activate charmonium macro
-		#if VERSION == EXP
-			char File[70] = "data/SpectralccExp.37.";
-		#elif VERSION == 22
-			char File[70] = "data/Spectralcc22.37.";
-		#elif VERSION == 24
-			char File[70] = "data/Spectralcc24.37.";
-		#elif VERSION == 42
-			char File[70] = "data/Spectralcc42.37.";
-		#endif
-	#endif
+#ifdef BB	//use option -D BB= to activate bottomium macro
+	char File[70] = "data/Spectralbb";  //Name of the file
+#endif
+#ifdef CC	//use option -D CC= to activate charmonium macro
+	char File[70] = "data/Spectralcc";
+#endif
+
+#if VERSION == EXP	//use option -D VERSION={Exp,22,24,42} to select one of the potentials
+	strcat(File,"Exp.");
+#elif VERSION == 22
+	strcat(File,"22.");
+#elif VERSION == 24
+	strcat(File,"24.");
+#elif VERSION == 42
+	strcat(File,"42.");
+#endif
+
+#if ORDER == 37	//use option -D ORDER={37,97} to select 37th order or 97th order Gauss-Legendre integration
+	strcat(File, "37.");
 #elif ORDER == 97
-	#ifdef BB
-		#if VERSION == EXP
-			char File[70] = "data/SpectralbbExp.97.";
-		#elif VERSION == 22
-			char File[70] = "data/Spectralbb22.97.";
-		#elif VERSION == 24
-			char File[70] = "data/Spectralbb24.97.";
-		#elif VERSION == 42
-			char File[70] = "data/Spectralbb42.97.";
-		#endif
-	#endif
-	#ifdef CC
-		#if VERSION == EXP
-			char File[70] = "data/SpectralccExp.97.";
-		#elif VERSION == 22
-			char File[70] = "data/Spectralcc22.97.";
-		#elif VERSION == 24
-			char File[70] = "data/Spectralcc24.97.";
-		#elif VERSION == 42
-			char File[70] = "data/Spectralcc42.97.";
-		#endif
-	#endif
+	strcat(File, "97.");
+#endif
+
+#ifdef HALF	//use option -D HALF= to divide self-energy in half
+	strcat(File, "Half.");
 #endif
 
 	char* Process = argv[1];
