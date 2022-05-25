@@ -8,9 +8,9 @@ using namespace std;
 
 int Start_Point(int, char[70]);						//Find highest line calculated and returns it, as written causes last line to be recalculated
 bool Restart_Check(char[70], char*, char*, char*, char*, char*);		//Checks to see if file header matches input parameters and clears it if not
+long double Set_Mq(long double, long double, long double);			//Momentum dependence for the quark mass, <number> 0 causes it to be constant
 long double Set_Lambda(long double, long double, long double, long double, int);//Momentum dependence for the potential cutoff, <number> 0 causes it to be constant
 long double Set_C(long double, long double, long double, long double, long double, int);//Momentum dependence for the coupling constant, <number> 0 causes it to be constant
-long double Set_Mq(long double, long double, long double);			//Momentum dependence for the quark mass, <number> 0 causes it to be constant
 
 int main(int argc, char* argv[])
 {
@@ -28,13 +28,13 @@ int main(int argc, char* argv[])
 	#endif
 	#ifdef CC	//use option -D CC= to activate charmonium macro
 		#if VERSION == EXP
-		     	char File[70] = "data/SpectralccExp.37.";
+			char File[70] = "data/SpectralccExp.37.";
 		#elif VERSION == 22
-		     	char File[70] = "data/Spectralcc22.37.";
+			char File[70] = "data/Spectralcc22.37.";
 		#elif VERSION == 24
-		     	char File[70] = "data/Spectralcc24.37.";
+			char File[70] = "data/Spectralcc24.37.";
 		#elif VERSION == 42
-		     	char File[70] = "data/Spectralcc42.37.";
+			char File[70] = "data/Spectralcc42.37.";
 		#endif
 	#endif
 #elif ORDER == 97
@@ -51,13 +51,13 @@ int main(int argc, char* argv[])
 	#endif
 	#ifdef CC
 		#if VERSION == EXP
-		     	char File[70] = "data/SpectralccExp.97.";
+			char File[70] = "data/SpectralccExp.97.";
 		#elif VERSION == 22
-		     	char File[70] = "data/Spectralcc22.97.";
+			char File[70] = "data/Spectralcc22.97.";
 		#elif VERSION == 24
-		     	char File[70] = "data/Spectralcc24.97.";
+			char File[70] = "data/Spectralcc24.97.";
 		#elif VERSION == 42
-		     	char File[70] = "data/Spectralcc42.97.";
+			char File[70] = "data/Spectralcc42.97.";
 		#endif
 	#endif
 #endif
