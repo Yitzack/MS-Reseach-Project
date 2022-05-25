@@ -140,11 +140,11 @@ int main(int argc, char* argv[])
 			else
 			{
 				holder = theta_Int(ParPrivate, Temp);
-				Table[j][0] = holder.store(0);
-				Table[j][1] = holder.store(1);
-				Table[j][2] = holder.store(2);
-				Table[j][3] = holder.store(3);
-				Table[j][4] = holder.store(4);
+				Table[j][0] = holder[0];
+				Table[j][1] = holder[1];
+				Table[j][2] = holder[2];
+				Table[j][3] = holder[3];
+				Table[j][4] = holder[4];
 			}
 		}
 
