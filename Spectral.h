@@ -396,7 +396,6 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 
 		F.null();	//Zero out F for next sub-interval
 
-		#pragma omp parallel for
 #if ORDER == 37
 		for(l = 0; l < 9; l++) //Count through points away from center
 #elif ORDER == 97
