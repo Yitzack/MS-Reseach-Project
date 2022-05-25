@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 #ifdef SHUAI
      	char File[70] = "SpectralccShuai.";  //Name of the file
 #endif
-	Process = argv[1];
+	char* Process = argv[1];
 	strcat(File, argv[3]);
 	strcat(File, ".");
 	strcat(File, Process);			//Appends the process number to the file name
