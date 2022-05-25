@@ -6,7 +6,7 @@ The files contained here calculate the imaginary contributions to the spectral f
 Compile Directions
 ------------------
 
-g++ Spectral.cpp \[-O3\] \[-o program name\] -D \<BB|CC\>= -D ORDER=\<37|97\> -D VERSION=\<22|24|42|EXP\> \[-D HALF=\]
+g++ Spectral.cpp \[-O3\] \[-o program_name\] -D \<BB|CC\>= -D ORDER=\<37|97\> -D VERSION=\<22|24|42|EXP\> \[-D HALF=\]
 
 The program will compile correctly at all common levels of optimization, which are optional. So -O, -O1, -O2, -O3 all work and are optional but highly recommended due the large number of loops.
 
