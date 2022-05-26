@@ -1,12 +1,12 @@
 #Schematic Spectral Function Search
-==================================
+===================================
 
 The files contained here attempt to locate the best fit schematic function to achieve the lQCD spatial correlation function and Euclidean correlation function difference.
 
 Optimiser.cpp is looking for a best fit that also has all of its parameters on a linear relation with temprature. Optimiser T.cpp is looking for the best for each temprature individually.
 
 ##Compile Directions
-------------------
+--------------------
 
 g++ Optimiser.cpp \[-O3\] \[-o program_name\] -D \<Ps|sP\>= -D ORDER=\<16|37|64|97\>
 g++ Optimiser\ T.cpp \[-O3\] \[-o program_name\] -D \<Ps|sP\>= -D ORDER=\<16|37|64|97\>
@@ -18,7 +18,7 @@ You must select the compile the order of integration for the full spatial correl
 You must select 16th, 37th, 64th, or 97th order Gauss-Kronrod integration with the -D ORDER= macro. I do recommend that you modify the program so that either you have one option permantly selected or you break up the order option for integral function. Before put the options in all of the integrating functions, I had 37th order for first level of the spatial (PInt, sInt), Lorentz, and P0_Int; 64th order for second level of the spatial (Spatial); and 97th order for Euclidean.
 
 ##Execute Directions
-------------------
+--------------------
 
 ###Optimiser T.cpp
 
