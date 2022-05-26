@@ -275,7 +275,7 @@ pair<long double, long double> Spectral_Inter::Spatial(long double z)
 #ifdef sP
 	long double Intervals = M_PI/z;	//Default subinterval spacing
 #endif
-	int i, j, l;		//Counting varibles
+	int i, j;		//Counting varibles
 
 	if(Parameters[0][0]==0 && Parameters[0][1]==0)	//If the amplitude the spectral function is zero for all P, then the answer is zero. Shortcut answer
 		return(pair<long double, long double>(0,0));
@@ -305,25 +305,25 @@ pair<long double, long double> Spectral_Inter::Spatial(long double z)
 			b = Max;	//Don't exceed specified maximum of the total interval
 
 #if ORDER == 16
-		for(l = 0; l < 5; l++) //Integrate the sub-interval
+		for(j = 0; j < 5; j++) //Integrate the sub-interval
 #elif ORDER == 37
-		for(l = 0; l < 12; l++)
+		for(j = 0; j < 12; j++)
 #elif ORDER == 64
-		for(l = 0; l < 21; l++)
+		for(j = 0; j < 21; j++)
 #elif ORDER == 97
-		for(l = 0; l < 32; l++)
+		for(j = 0; j < 32; j++)
 #endif
 		{
-			x1 = (b+a-Disp[l]*(b-a))/2.;
-			x2 = (b+a+Disp[l]*(b-a))/2.;
+			x1 = (b+a-Disp[j]*(b-a))/2.;
+			x2 = (b+a+Disp[j]*(b-a))/2.;
 
 #ifdef Ps
-			Spatial_PInt(z, x1, werr[l+1]*(b-a)/2., w[l+1]*(b-a)/2., i-2);
-			Spatial_PInt(z, x2, werr[l+1]*(b-a)/2., w[l+1]*(b-a)/2., i-2);
+			Spatial_PInt(z, x1, werr[j+1]*(b-a)/2., w[j+1]*(b-a)/2., i-2);
+			Spatial_PInt(z, x2, werr[j+1]*(b-a)/2., w[j+1]*(b-a)/2., i-2);
 #endif
 #ifdef sP
-			Spatial_sInt(z, x1, werr[l+1]*(b-a)/2., w[l+1]*(b-a)/2., i-2);
-			Spatial_sInt(z, x2, werr[l+1]*(b-a)/2., w[l+1]*(b-a)/2., i-2);
+			Spatial_sInt(z, x1, werr[j+1]*(b-a)/2., w[j+1]*(b-a)/2., i-2);
+			Spatial_sInt(z, x2, werr[j+1]*(b-a)/2., w[j+1]*(b-a)/2., i-2);
 #endif
 		}
 #ifdef Ps
