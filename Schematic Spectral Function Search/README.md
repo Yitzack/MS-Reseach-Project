@@ -24,28 +24,26 @@ Optimiser T.cpp has 5 modes.
 
 Optimiser.cpp has 2 modes. The first the default behavior of searching for the best on a linear relation with the default bounding box. The second has the bounding box overwritten by the call from the command line.
 
-First mode:
-./Optimiser ProcessID
+First mode: ./Optimiser ProcessID
 
-Second mode:
-./Optimiser ProcessID \<32 floating point numbers\>
+Second mode: ./Optimiser ProcessID \<32 floating point numbers\>
 
 ProcessID is an integer. Output is sent to ./data/Optimiser_Output.ProcessID.csv
 
 The 32 numbers are 16 pairs of lower boundary and upper boundary. You might need to futz with the schematic spectral function to understand what I mean by some of the names.
-1). Deviation from J/Psi amplitude boundary for all T
-2). Momentum scale of 1) for all T
-3). Deviation from T=194 J/Psi mass
-4). Deviation from T=400 J/Psi mass
-5). Momentum scale of 3) and 4) for all T
-6). Boundary for J/Psi width for all T
-7). Boundary of momentum scale for 6)
-8). Boundary for low energy tail width rate for all T
-9). Momentum scale for 8)
-10). Boundary for transition interval from low energy tail to constant high energy width for all T
-11). Momentum scale for 10)
-12). Deviation from T=194 quark mass
-13). Deviation from T=400 quark mass
-14). Momentum scale for 12) and 13)
-15). Boundary for continuum power for all T
-16). Momentum scale for 15)
+1. Deviation from J/Psi amplitude boundary for all T
+2. Momentum scale of 1) for all T
+3. Deviation from T=194 J/Psi mass
+4. Deviation from T=400 J/Psi mass
+5. Momentum scale of 3) and 4) for all T
+6. Boundary for J/Psi width for all T
+7. Boundary of momentum scale for 6)
+8. Boundary for low energy tail width rate for all T
+9. Momentum scale for 8)
+10. Boundary for transition interval from low energy tail to constant high energy width for all T
+11. Momentum scale for 10)
+12. Deviation from T=194 quark mass
+13. Deviation from T=400 quark mass
+14. Momentum scale for 12) and 13)
+15. Boundary for continuum power for all T
+16. Momentum scale for 15)
