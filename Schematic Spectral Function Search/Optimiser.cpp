@@ -8,9 +8,6 @@
 #include<cfloat>
 #include"Spectral_Inter.h"
 #include"Spectral_Non.h"
-#ifdef _OPENMP
-#include<omp.h>
-#endif
 using namespace std;
 
 /*(*Mathematica code payload for finding the best results and turning it into a Frankenstein's monster of different results*)
@@ -23,41 +20,35 @@ Total[Frankenstein[[{24,48,72,96}]]]+%
 Join[Frankenstein,{%%,%}]
 */
 
-void Gradient(long double[20], long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], pair<long double,long double>[4][2], pair<long double,long double>[4][7]);
-long double PolakRibiere(long double[20], long double[20]);
-void Minimize(long double[20], long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], pair<long double,long double>[4][2], pair<long double,long double>[4][7]);
+void Gradient(long double[20], long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], pair<long double,long double>[4][2], pair<long double,long double>[4][7]);	//Calculates gradient for conjugate gradient descent
+long double PolakRibiere(long double[20], long double[20]);	//Calculation of Polak-Ribiere conjugate gradient dot product thingy
+void Minimize(long double[20], long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], pair<long double,long double>[4][2], pair<long double,long double>[4][7]);	//Minimization algorithm switching between Brent's Method and Parabolic Interpolation searches along a line
 
-long double Chi_Square(Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], pair<long double,long double>[4][2], pair<long double,long double>[4][7], int);
-long double Least_Squares(long double, long double, long double, long double);
+long double Chi_Square(Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], pair<long double,long double>[4][2], pair<long double,long double>[4][7], int); //Calculates a chi-square like thing for finding best fits
+long double Least_Squares(long double, long double, long double, long double);	//Scores the difference betweeen 4 points and linear dependence on temprature
 long double Print(long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], pair<long double,long double>[4][2], pair<long double,long double>[4][7], int); //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
 long double Print(long double[20], Spectral_Inter*[5], Spectral_Inter*[5], Spectral_Non*[5], pair<long double,long double>[4][2], pair<long double,long double>[4][7], pair<long double, long double>[7], int); //Like the print above but it get an extra array of Lorentz spatial correlations, for use in one place because I don't want in the optimiser
-long double Uniform(long double, long double);
-long double Protected_Uniform(long double, long double, long double, long double);
-void DataLoad(Spectral_Inter*[5], Spectral_Non*[5], long double[20]);
-#ifndef PAIR_SUM
-#define PAIR_SUM
-pair<long double,long double> operator+(pair<long double,long double> a,pair<long double,long double> b)
-{
-    return(pair<long double,long double>(a.first+b.first,sqrt(pow(a.second,2)+pow(b.second,2))));
-}
-#endif
+long double Uniform(long double, long double);	//Uniform random distrubution between the inputs
+long double Protected_Uniform(long double, long double, long double, long double);	//Calls the uniform random above while making sure it doesn't wonder out of an acceptable window
+void DataLoad(Spectral_Inter*[5], Spectral_Non*[5], long double[20]);	//Complete override of data so that parameters have certain constraints and are linear
+
 				   //A, PA, DeltaM1, DeltaM4, PM, Gamma, PGamma, a, Pa, Delta, PDelta, DeltaMQ1, DeltaPMQ4, PMQ, n, Pn
 long double Random_Range[16][2] = {{-.25,.25},{1.,6.},{-0.59946, 0.40054},{-0.6855, 0.3145},{1.,6.},{.02,.18},{1.,6.},{5.,15.},{1.,6.},{1.5,3.5},{1.,6.},{-.065,.135},{-.05,.43},{1.,6.},{1.5,5.},{1.,6.}};
 ofstream OutputFile;
 
-const long double Spatial_Ratio[4][7] = {{1.,1.00006,0.99883,0.992039,0.982366,0.970341,0.95766},
+const long double Spatial_Ratio[4][7] = {{1.,1.00006,0.99883,0.992039,0.982366,0.970341,0.95766},	//Target Spatial Correlation Ratios
 				   {.99,0.988286,0.945063,0.879461,0.798659,0.7259,0.654381},
 				   {.98,0.954875,0.856416,0.720447,0.573465,0.45867,0.376707},
 				   {.97,0.908029,0.715435,0.524036,0.372788,0.246218,0.18}};
 const pair<long double,long double> Vacuum_Spatial[7] = {pair<long double,long double>(13.5965519874368885,4.02179730192699146e-07),
 	pair<long double,long double>(0.0415680226812305554,1.1556052202630816e-08),pair<long double,long double>(0.0012012677483247847,3.32066969108868755e-10),
 	pair<long double,long double>(4.6499993403302829e-05,9.54353876931880564e-12),pair<long double,long double>(1.96859078869344768e-06,2.74386862111523716e-13),
-	pair<long double,long double>(8.66288828408022226e-08,7.89830973612391187e-15),pair<long double,long double>(3.89562525681864189e-09,2.62903068734599143e-16)};
+	pair<long double,long double>(8.66288828408022226e-08,7.89830973612391187e-15),pair<long double,long double>(3.89562525681864189e-09,2.62903068734599143e-16)};	//Pre-calculated vacuum spatial correlation function
 const pair<long double,long double> Vacuum_Euclidean[4][2] = 
 	{{pair<long double,long double>(0.000264166718975248739,2.42154874798803876e-07),pair<long double,long double>(9.71945863898214921e-06,7.60261186227071115e-09)},
 	{pair<long double,long double>(0.00221555204564226004,1.75479630470614913e-06),pair<long double,long double>(0.000188270934911146417,1.19763944939391319e-07)},
 	{pair<long double,long double>(0.00824183567291781835,5.61577871796860943e-06),pair<long double,long double>(0.00116036845723485179,6.04705149983612623e-07)},
-	{pair<long double,long double>(0.0264511436195479036,1.47908592529210127e-05),pair<long double,long double>(0.00572333060820024838,2.32707330240952598e-06)}};
+	{pair<long double,long double>(0.0264511436195479036,1.47908592529210127e-05),pair<long double,long double>(0.00572333060820024838,2.32707330240952598e-06)}};	//Pre-calculated vacuum Euclidean correlation function at tau=T/2
 
 int main(int argc, char* argv[])
 {
@@ -169,7 +160,7 @@ int main(int argc, char* argv[])
 	cout << Vacuum_Euclidean[3][1].first << "±" << Vacuum_Euclidean[3][1].second << endl;*/
 
 	char File[70] = "data/Optimiser_Output";
-	if(argc == 2)
+	if(argc == 2)	//Default parameter search and chi-square minimization ./Optimizer ProcessID
 	{
 		strcat(File,".");
 		strcat(File,argv[1]);
@@ -178,57 +169,7 @@ int main(int argc, char* argv[])
 		if(!OutputFile.is_open())
 			return(1);
 	}
-	else if(argc == 4)
-	{
-		ifstream InputFile(argv[3]);
-
-		strcat(File,".");
-		strcat(File,argv[1]);
-		strcat(File,".");
-		strcat(File,argv[2]);
-		strcat(File,".csv");
-		OutputFile.open(File);
-		if(!OutputFile.is_open())
-			return(1);
-
-		int T = atoi(argv[2]);
-		pair<long double,long double> Medium_Lorentz[7];
-
-		do
-		{
-			for(int i = 0; i < 5; i++)
-				for(int j = 1; j < 3; j++)
-				{
-					long double holder;
-					InputFile >> holder;
-					JPsi[T]->Replace(holder, i, j);
-					if(i == 3)
-						Psi_Prime[T]->Replace(holder, i, j);
-				}
-			for(int i = 0; i < 2; i++)
-				for(int j = 1; j < 3; j++)
-				{
-					long double holder;
-					InputFile >> holder;
-					Non[T]->Replace(holder, i, j);
-				}
-
-			if(InputFile.eof())
-				break;
-
-			Medium_Euclidean[T-1][0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
-			Medium_Euclidean[T-1][1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
-			for(int j = 0; j < 7; j++)
-				Medium_Spatial[T-1][j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
-			for(int j = 0; j < 7; j++)
-				Medium_Lorentz[j] = JPsi[T]->Spatial_Lorentz((long double)(j)+.25)+Psi_Prime[T]->Spatial_Lorentz((long double)(j)+.25)+Non[T]->Spatial_Lorentz((long double)(j)+.25);
-
-			Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, Medium_Lorentz, T);
-		}while(!InputFile.eof());
-
-		return(0);
-	}
-	else if(argc == 35)
+	else if(argc == 35)	//Parameter search with search boundary overwritten ./Optimizer ProcessID <16 sets of 2 parameter boundaries>
 	{
 		strcat(File,".");
 		strcat(File,argv[1]);
@@ -269,83 +210,6 @@ int main(int argc, char* argv[])
 		Random_Range[14][1] = atof(argv[31]);
 		Random_Range[15][0] = atof(argv[32]);
 		Random_Range[15][1] = atof(argv[33]);
-	}
-	else
-	{
-		strcat(File,argv[2]);
-		strcat(File,".");
-		strcat(File,argv[1]);
-		strcat(File,".csv");
-		OutputFile.open(File);
-		if(!OutputFile.is_open())
-			return(1);
-
-		long double start[10];
-		long double finish[10];
-		long double step[10];
-		int Num_Threads = atoi(argv[3]);
-		int Thread_Num = atoi(argv[4]);
-		int Dims[10];
-		int i;
-
-		for(i = 0; i < 10; i++)
-		{
-			start[i] = atof(argv[5+3*i]);
-			finish[i] = atof(argv[6+3*i]);
-			step[i] = atof(argv[7+3*i]);
-			Dims[i] = int((finish[i]-start[i])/step[i]+1.0000000000001);
-			if(Dims[i] < 1)
-				return(2);
-		}
-
-		long double** Parameter_List = new long double*[Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]*Dims[6]*Dims[7]*Dims[8]*Dims[9]];
-
-		i = 0;
-		for(long double A = start[0]; A <= finish[0]*1.0000000000001; A += step[0])
-			for(long double PA = start[1]; PA <= finish[1]*1.0000000000001; PA += step[1])
-				for(long double M = start[2]; M <= finish[2]*1.0000000000001; M += step[2])
-					for(long double PM = start[3]; PM <= finish[3]*1.0000000000001; PM += step[3])
-						for(long double Gamma = start[4]; Gamma <= finish[4]*1.0000000000001; Gamma += step[4])
-							for(long double PGamma = start[5]; PGamma <= finish[5]*1.0000000000001; PGamma += step[5])
-				for(long double MQ = start[6]; MQ <= finish[6]*1.0000000000001; MQ += step[6])
-					for(long double PMQ = start[7]; PMQ <= finish[7]*1.0000000000001; PMQ += step[7])
-						for(long double n = start[8]; n <= finish[8]*1.0000000000001; n += step[8])
-							for(long double Pn = start[9]; Pn <= finish[9]*1.0000000000001; Pn += step[9])
-							{
-								Parameter_List[i] = new long double[10];
-								Parameter_List[i][0] = A;
-								Parameter_List[i][1] = PA;
-								Parameter_List[i][2] = M;
-								Parameter_List[i][3] = PM;
-								Parameter_List[i][4] = Gamma;
-								Parameter_List[i][5] = PGamma;
-								Parameter_List[i][6] = MQ;
-								Parameter_List[i][7] = PMQ;
-								Parameter_List[i][8] = n;
-								Parameter_List[i][9] = Pn;
-								i++;
-							}
-
-		for(i = Thread_Num; i < Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]*Dims[6]*Dims[7]*Dims[8]*Dims[9]; i += Num_Threads)
-		{
-			JPsi[1]->Replace(Parameter_List[i][0], 0, 1);
-			JPsi[1]->Replace(Parameter_List[i][1], 0, 2);
-			JPsi[1]->Replace(Parameter_List[i][2], 1, 1);
-			JPsi[1]->Replace(Parameter_List[i][3], 1, 2);
-			JPsi[1]->Replace(Parameter_List[i][4], 2, 1);
-			JPsi[1]->Replace(Parameter_List[i][5], 2, 2);
-			JPsi[1]->Replace(Parameter_List[i][6], 0, 1);
-			JPsi[1]->Replace(Parameter_List[i][7], 0, 2);
-			JPsi[1]->Replace(Parameter_List[i][8], 1, 1);
-			JPsi[1]->Replace(Parameter_List[i][9], 1, 2);
-
-			Medium_Euclidean[0][0] = JPsi[1]->Euclidean(.5, 0)+Psi_Prime[1]->Euclidean(.5,0)+Non[1]->Euclidean(.5,0);
-			Medium_Euclidean[0][1] = JPsi[1]->Euclidean(.5, 3)+Psi_Prime[1]->Euclidean(.5,3)+Non[1]->Euclidean(.5,3);
-			for(int j = 0; j < 7; j++)
-				Medium_Spatial[0][j] = JPsi[1]->Spatial((long double)(j)+.25)+Psi_Prime[1]->Spatial((long double)(j)+.25)+Non[1]->Spatial((long double)(j)+.25);
-			Print(Deviation_Points, JPsi, Psi_Prime, Non, Medium_Euclidean, Medium_Spatial, 0);
-		}
-		return(0);
 	}
 
 	long double Best[21], Chi;

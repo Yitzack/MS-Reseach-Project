@@ -8,60 +8,35 @@
 #include<cfloat>
 #include"Spectral_Inter.h"
 #include"Spectral_Non.h"
-#ifdef _OPENMP
-#include<omp.h>
-#endif
 using namespace std;
 
-void Gradient(long double[14], Spectral_Inter*, Spectral_Inter*, Spectral_Non*, int);
-long double PolakRibiere(long double[14], long double[14]);
-void Minimize(long double[14], Spectral_Inter*, Spectral_Inter*, Spectral_Non*, int);
+void Gradient(long double[14], Spectral_Inter*, Spectral_Inter*, Spectral_Non*, int);	//Gradient for steepest descent
+long double PolakRibiere(long double[14], long double[14]);					//Calculation of Polak-Ribiere dot product thingy for conjugant gradient descent
+void Minimize(long double[14], Spectral_Inter*, Spectral_Inter*, Spectral_Non*, int);	//Cycles between Brent's method and parabolic interolation looking for minimum
 
-long double Uniform(long double, long double);
-long double Protected_Uniform(long double, long double, long double, long double);
-long double Chi_Square(pair<long double,long double>[2], pair<long double,long double>[7], int);
+long double Uniform(long double, long double);	//Uniform random between inputs
+long double Protected_Uniform(long double, long double, long double, long double);	//Picks the range the call Uniform() such that boundaries are not exceeded
+long double Chi_Square(pair<long double,long double>[2], pair<long double,long double>[7], int);	//Chi-square goodness of fit
 long double Print(Spectral_Inter*, Spectral_Inter*, Spectral_Non*, pair<long double,long double>[2], pair<long double,long double>[7], int); //In addition to printing the parameters, Euclidean difference, Spatial correlator, and Chi-Square, it also returns Chi_Square(), basically as an alias for Chi_Square
-#ifndef PAIR_SUM
-#define PAIR_SUM
-pair<long double,long double> operator+(pair<long double,long double> a, pair<long double,long double> b)
-{
-	return(pair<long double,long double>(a.first+b.first,sqrt(pow(a.second,2)+pow(b.second,2))));
-}
-pair<long double,long double> operator-(pair<long double,long double> a, pair<long double,long double> b)
-{
-	return(pair<long double,long double>(a.first-b.first,sqrt(pow(a.second,2)+pow(b.second,2))));
-}
-pair<long double,long double> operator/(pair<long double, long double> a, pair<long double, long double> b)
-{
-	return(pair<long double,long double>(a.first/b.first,sqrt(pow(a.second/b.first,2)+pow(a.first*b.second/pow(b.first,2),2))));
-}
-pair<long double,long double> operator/(pair<long double,long double> a, long double b)
-{
-	return(pair<long double,long double>(a.first/b,a.second/b));
-}
-ostream& operator<<(ostream& os, pair<long double,long double> a)
-{
-	os << "Around[" << a.first << "," << a.second << "]";
-	return(os);
-}
-#endif
 
-long double Random_Range[14][2] = {{.3,.5},{4.,6.},{2.5,3.5},{3.,6.},{.12,.18},{3.,6.},{7.,15.},{3.5,6.},{2.5,3.5},{3.,6.},{1.65,1.70},{2.5,6.},{1.5,5.},{5.,6.}};
+long double Random_Range[14][2] = {{.3,.5},{4.,6.},{2.5,3.5},{3.,6.},{.12,.18},{3.,6.},{7.,15.},{3.5,6.},{2.5,3.5},{3.,6.},{1.65,1.70},{2.5,6.},{1.5,5.},{5.,6.}};	//Gives the range that the RGN can examine
 ofstream OutputFile;
 
-const long double Spatial_Ratio[4][7] = {{1.,1.00006,0.99883,0.992039,0.982366,0.970341,0.95766},
+const long double Spatial_Ratio[4][7] = {{1.,1.00006,0.99883,0.992039,0.982366,0.970341,0.95766},	//Target Spatial correlation ratios
 				   {.99,0.988286,0.945063,0.879461,0.798659,0.7259,0.654381},
 				   {.98,0.954875,0.856416,0.720447,0.573465,0.45867,0.376707},
 				   {.97,0.908029,0.715435,0.524036,0.372788,0.246218,0.18}};
 const pair<long double,long double> Vacuum_Spatial[7] = {pair<long double,long double>(13.5965519874368885,4.02179730192699146e-07),
 	pair<long double,long double>(0.0415680226812305554,1.1556052202630816e-08),pair<long double,long double>(0.0012012677483247847,3.32066969108868755e-10),
 	pair<long double,long double>(4.6499993403302829e-05,9.54353876931880564e-12),pair<long double,long double>(1.96859078869344768e-06,2.74386862111523716e-13),
-	pair<long double,long double>(8.66288828408022226e-08,7.89830973612391187e-15),pair<long double,long double>(3.89562525681864189e-09,2.62903068734599143e-16)};
+	pair<long double,long double>(8.66288828408022226e-08,7.89830973612391187e-15),pair<long double,long double>(3.89562525681864189e-09,2.62903068734599143e-16)};	//Pre-calculated vacuum spatial correlation function
 pair<long double,long double> Vacuum_Euclidean[4][2] = 
 	{{pair<long double,long double>(0.000264166718975248739,2.42154874798803876e-07),pair<long double,long double>(9.71945863898214921e-06,7.60261186227071115e-09)},
 	{pair<long double,long double>(0.00221555204564226004,1.75479630470614913e-06),pair<long double,long double>(0.000188270934911146417,1.19763944939391319e-07)},
 	{pair<long double,long double>(0.00824183567291781835,5.61577871796860943e-06),pair<long double,long double>(0.00116036845723485179,6.04705149983612623e-07)},
-	{pair<long double,long double>(0.0264511436195479036,1.47908592529210127e-05),pair<long double,long double>(0.00572333060820024838,2.32707330240952598e-06)}};
+	{pair<long double,long double>(0.0264511436195479036,1.47908592529210127e-05),pair<long double,long double>(0.00572333060820024838,2.32707330240952598e-06)}};	//Pre-calculated vacuum Euclidean correlation function at tau=T/2
+
+//Last set of parameters best fit found with output correlation ratios and chi-square
 /*{0.368086, 5.84079, 2.8583, 3.78829, 0.164964, 3.11216, 10.4412, 3.99002, 3.3651, 3.14992, 1.69037, 3.5005, 2.76392, 5.76324, 0.203643, 1.00306, 0.998653, 0.997516, 0.993842, 0.993545, 0.959483, 0.959417, 0.000334668}
 {0.378283, 4.47, 2.82, 3.96124, 0.167924, 5.37742, 9.18167, 5.4482, 2.92767, 2.24324, 1.6903, 3.23989, 2.52435, 5.636, 0.10448, 1.00779, 1.00778, 0.990376, 0.917411, 0.81403, 0.642586, 0.50978, 0.0919461}
 {0.461362, 3.66742, 2.66, 3.43781, 0.130115, 5.8359, 8.31204, 2.21144, 3.06073, 3.1593, 1.70367, 3.5127, 3.57602, 5.61959, 0.130149, 1.00427, 0.966525, 0.863795, 0.631734, 0.468957, 0.363493, 0.363489, 0.0753857}
@@ -87,16 +62,17 @@ int main(int argc, char* argv[])
 	Spectral_Inter* JPsi[5];
 	Spectral_Inter* Psi_Prime[5];
 	Spectral_Non* Non[5];
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < 5; i++)	//Create the function objects
 	{
 		JPsi[i] = new Spectral_Inter(JPsi_Parameters[i], i, !bool(i));
 		Psi_Prime[i] = new Spectral_Inter(Psi_Prime_Parameters[i], i, !bool(i));
 		Non[i] = new Spectral_Non(Non_Parameters[i], i, !bool(i));
 	}
 
-	pair<long double,long double> Medium_Spatial[7];
+	pair<long double,long double> Medium_Spatial[7];	//In-medium results
 	pair<long double,long double> Medium_Euclidean[2];
-	/*cout << setprecision(18);
+
+	/*cout << setprecision(18);	//Recalculate vacuum results
 	for(int i = 0; i < 7; i++)	//Superceeded by precalculated values, standing by if services required
 	{
 		Vacuum_Spatial[i] = JPsi[0]->Spatial_Lorentz((long double)(i)+.25)+Psi_Prime[0]->Spatial_Lorentz((long double)(i)+.25)+Non[0]->Spatial_Lorentz((long double)(i)+.25);
@@ -128,7 +104,7 @@ int main(int argc, char* argv[])
 	cout << Vacuum_Euclidean[2][1].first << "±" << Vacuum_Euclidean[2][1].second << endl;
 	cout << Vacuum_Euclidean[3][1].first << "±" << Vacuum_Euclidean[3][1].second << endl;*/
 
-	int Temp = atoi(argv[1]);
+	int Temp = atoi(argv[1]);	//Set the temprature to be optimised
 	long double T;
 	switch(Temp)
 	{
@@ -149,7 +125,7 @@ int main(int argc, char* argv[])
 	}
 
 	char File[70] = "data/Optimiser_Output.";
-	if(argc == 3)
+	if(argc == 3)	//Optimise the Temprature in the preassigned random ranges, ./Optimiser Temp ProcessID
 	{
 		strcat(File,argv[2]);
 		strcat(File,".");
@@ -159,14 +135,60 @@ int main(int argc, char* argv[])
 		if(!OutputFile.is_open())
 			return(1);
 	}
-	else if(argc == 16)
+	else if(argc == 4)	//Go through a file full of parameters and calculate the correlation ratios and chi-square and write resuts to file ./Optimizer ProcessID Temp InputFile
+	{
+		ifstream InputFile(argv[3]);
+
+		strcat(File,".");
+		strcat(File,argv[1]);
+		strcat(File,".");
+		strcat(File,argv[2]);
+		strcat(File,".csv");
+		OutputFile.open(File);
+		if(!OutputFile.is_open())
+			return(1);
+
+		int T = atoi(argv[2]);
+
+		do
+		{
+			for(int i = 0; i < 5; i++)
+				for(int j = 1; j < 3; j++)
+				{
+					long double holder;
+					InputFile >> holder;
+					JPsi[T]->Replace(holder, i, j);
+					if(i == 3)
+						Psi_Prime[T]->Replace(holder, i, j);
+				}
+			for(int i = 0; i < 2; i++)
+				for(int j = 1; j < 3; j++)
+				{
+					long double holder;
+					InputFile >> holder;
+					Non[T]->Replace(holder, i, j);
+				}
+
+			if(InputFile.eof())
+				break;
+
+			Medium_Euclidean[0] = JPsi[T]->Euclidean(.5, 0)+Psi_Prime[T]->Euclidean(.5,0)+Non[T]->Euclidean(.5,0);
+			Medium_Euclidean[1] = JPsi[T]->Euclidean(.5, 3)+Psi_Prime[T]->Euclidean(.5,3)+Non[T]->Euclidean(.5,3);
+			for(int j = 0; j < 7; j++)
+				Medium_Spatial[j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
+			Print(JPsi[T], Psi_Prime[T], Non[T], Medium_Euclidean, Medium_Spatial, T);
+		}while(!InputFile.eof());
+
+		return(0);
+	}
+	else if(argc == 16)	//Give the chi-square for a T and parameters, ./Optimiser Temp <14 parameters>
 	{
                 strcat(File,"API.");
                 strcat(File,argv[1]);
                 strcat(File,".csv");
                 OutputFile.open(File,ios::app);
 
-		JPsi[Temp]->Replace(atof(argv[2]),0,1);
+		JPsi[Temp]->Replace(atof(argv[2]),0,1);	//Insert the parameters into the function objects
 		JPsi[Temp]->Replace(atof(argv[3]),0,2);
 		JPsi[Temp]->Replace(atof(argv[4]),1,1);
 		JPsi[Temp]->Replace(atof(argv[5]),1,2);
@@ -183,7 +205,7 @@ int main(int argc, char* argv[])
 		Non[Temp]->Replace(atof(argv[14]),1,1);
 		Non[Temp]->Replace(atof(argv[15]),1,2);
 
-		Medium_Euclidean[0] = JPsi[Temp]->Euclidean(.5,0)+Psi_Prime[Temp]->Euclidean(.5,0)+Non[Temp]->Euclidean(.5,0);
+		Medium_Euclidean[0] = JPsi[Temp]->Euclidean(.5,0)+Psi_Prime[Temp]->Euclidean(.5,0)+Non[Temp]->Euclidean(.5,0);	//Calculate the results
 		Medium_Euclidean[1] = JPsi[Temp]->Euclidean(.5,3)+Psi_Prime[Temp]->Euclidean(.5,3)+Non[Temp]->Euclidean(.5,3);
 		for(int j = 0; j < 7; j++)
 			Medium_Spatial[j] = JPsi[Temp]->Spatial((long double)(j)+.25);
@@ -196,9 +218,9 @@ int main(int argc, char* argv[])
 		Print(JPsi[Temp], Psi_Prime[Temp], Non[Temp], Medium_Euclidean, Medium_Spatial, Temp);
 		for(int j = 0; j < 7; j++)
 			Medium_Spatial[j] = JPsi[Temp]->Spatial((long double)(j)+.25)+Psi_Prime[Temp]->Spatial((long double)(j)+.25)+Non[Temp]->Spatial((long double)(j)+.25);
-		cout << setprecision(18) << Print(JPsi[Temp], Psi_Prime[Temp], Non[Temp], Medium_Euclidean, Medium_Spatial, Temp) << endl;
+		cout << setprecision(18) << Print(JPsi[Temp], Psi_Prime[Temp], Non[Temp], Medium_Euclidean, Medium_Spatial, Temp) << endl;	//Return the chi-square and document the results
 #ifdef Ps
-		cout << setprecision(6) << "{" << flush;
+		cout << setprecision(6) << "{" << flush;	//print out the s-integrand of the full spatial correlation and the Lorentz kernel
 		for(int j = 0; j < 7; j++)
 		{
 			for(long double s = 0; s <= 49; s+=.01)
@@ -212,7 +234,7 @@ int main(int argc, char* argv[])
 #endif
 		return(0);
 	}
-	else if(argc == 31)
+	else if(argc == 31)	//Optimise the Temprature in a different set of random ranges, ./Optimiser Temp ProcessID <28 parameter extremes>
 	{
 		strcat(File,argv[2]);
 		strcat(File,".");
@@ -222,7 +244,7 @@ int main(int argc, char* argv[])
 		if(!OutputFile.is_open())
 			return(1);
 
-		Random_Range[0][0] = atof(argv[3]);
+		Random_Range[0][0] = atof(argv[3]);	//Overwrite the default random ranges
 		Random_Range[0][1] = atof(argv[4]);
 		Random_Range[1][0] = atof(argv[5]);
 		Random_Range[1][1] = atof(argv[6]);
@@ -251,7 +273,7 @@ int main(int argc, char* argv[])
 		Random_Range[13][0] = atof(argv[29]);
 		Random_Range[13][1] = atof(argv[30]);
 	}
-	else
+	else	//Calculate the chi-square for a grid for interpolation, ./Optimiser Temp ProcessID Num_Threads ProcessID <10 sets of parameters of start, stop, step>
 	{
 		strcat(File,argv[2]);
 		strcat(File,".");
@@ -269,7 +291,7 @@ int main(int argc, char* argv[])
 		int Dims[10];
 		int i;
 
-		for(i = 0; i < 10; i++)
+		for(i = 0; i < 10; i++)	//Import the parameter set, calcluate the array size
 		{
 			start[i] = atof(argv[5+3*i]);
 			finish[i] = atof(argv[6+3*i]);
@@ -279,7 +301,7 @@ int main(int argc, char* argv[])
 				return(2);
 		}
 
-		long double** Parameter_List = new long double*[Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]*Dims[6]*Dims[7]*Dims[8]*Dims[9]];
+		long double** Parameter_List = new long double*[Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]*Dims[6]*Dims[7]*Dims[8]*Dims[9]];	//Make the parameter list
 
 		i = 0;
 		for(long double A = start[0]; A <= finish[0]*1.0000000000001; A += step[0])
@@ -293,7 +315,7 @@ int main(int argc, char* argv[])
 						for(long double n = start[8]; n <= finish[8]*1.0000000000001; n += step[8])
 							for(long double Pn = start[9]; Pn <= finish[9]*1.0000000000001; Pn += step[9])
 							{
-								Parameter_List[i] = new long double[10];
+								Parameter_List[i] = new long double[10];	//Fill the parameter list
 								Parameter_List[i][0] = A;
 								Parameter_List[i][1] = PA;
 								Parameter_List[i][2] = M;
@@ -307,7 +329,7 @@ int main(int argc, char* argv[])
 								i++;
 							}
 
-		for(i = Thread_Num; i < Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]*Dims[6]*Dims[7]*Dims[8]*Dims[9]; i += Num_Threads)
+		for(i = Thread_Num; i < Dims[0]*Dims[1]*Dims[2]*Dims[3]*Dims[4]*Dims[5]*Dims[6]*Dims[7]*Dims[8]*Dims[9]; i += Num_Threads)	//Calculate and report out the results
 		{
 
 			JPsi[Temp]->Replace(Parameter_List[i][0],0,1);
@@ -326,7 +348,7 @@ int main(int argc, char* argv[])
 		return(0);
 	}
 
-	long double Best[15], Chi;
+	long double Best[15], Chi;	//Randomly initialize the minimization
 	OutputFile << "Random Search seed: " << time(NULL)+3*atoi(argv[1]) << endl;
 	srand(time(NULL)+3*atoi(argv[2]));
 	time_t start_time = time(NULL);
@@ -386,7 +408,7 @@ int main(int argc, char* argv[])
 		Medium_Spatial[j] = JPsi[Temp]->Spatial((long double)(j)+.25)+Psi_Prime[Temp]->Spatial((long double)(j)+.25)+Non[Temp]->Spatial((long double)(j)+.25);
 	Best[14] = Print(JPsi[Temp], Psi_Prime[Temp], Non[Temp], Medium_Euclidean, Medium_Spatial, Temp);
 
-	while(difftime(time(NULL), start_time) < 9000)
+	while(difftime(time(NULL), start_time) < 9000)	//Random walk toward the minimum for 2.5 hours
 	{
 		JPsi[Temp]->Replace(Protected_Uniform(Best[0],Random_Range[0][0],Random_Range[0][1],Best[14]),0,1);
 		JPsi[Temp]->Replace(Protected_Uniform(Best[1],Random_Range[1][0],Random_Range[1][1],Best[14]),0,2);
@@ -446,7 +468,7 @@ int main(int argc, char* argv[])
 	Non[Temp]->Replace(Best[12],1,1);
 	Non[Temp]->Replace(Best[13],1,2);
 
-	long double gradn_1[14], gradn[14], sn_1[14], sn[14];
+	long double gradn_1[14], gradn[14], sn_1[14], sn[14];	//conjugant gradiant search
 	long double betan = 0, betan_1;
 	start_time = time(NULL);
 
@@ -471,7 +493,7 @@ int main(int argc, char* argv[])
 			gradn_1[i] = gradn[i];
 			sn_1[i] = sn[i];
 		}
-	}while((abs(betan)>1e-12 || abs(betan_1)>1e-12) && time(NULL)-start_time < 9000);
+	}while((abs(betan)>1e-12 || abs(betan_1)>1e-12) && time(NULL)-start_time < 9000);	//attempt conjugate grandient search until converged on minimum or 2.5 hours expires. "(abs(betan)>1e-12 || abs(betan_1)>1e-12)" means it has taken 2 consecutive steepest descent steps and converged on minimum
 
 	OutputFile.close();
 
@@ -496,7 +518,7 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Prim
 				Non_Local[i][j] = Non->Read(i,j);
 		}
 
-	length[0][0] = (sn[0]>0)?(Random_Range[0][1]-JPsi_Local[0][1])/sn[0]:(Random_Range[0][0]-JPsi_Local[0][1])/sn[0];
+	length[0][0] = (sn[0]>0)?(Random_Range[0][1]-JPsi_Local[0][1])/sn[0]:(Random_Range[0][0]-JPsi_Local[0][1])/sn[0];	//Find distance to nearest edge in units of gradiant length
 	length[0][1] = (sn[0]>0)?(Random_Range[0][0]-JPsi_Local[0][1])/sn[0]:(Random_Range[0][1]-JPsi_Local[0][1])/sn[0];
 	length[1][0] = (sn[1]>0)?(Random_Range[1][1]-JPsi_Local[0][2])/sn[1]:(Random_Range[1][0]-JPsi_Local[0][2])/sn[1];
 	length[1][1] = (sn[1]>0)?(Random_Range[1][0]-JPsi_Local[0][2])/sn[1]:(Random_Range[1][1]-JPsi_Local[0][2])/sn[1];
@@ -555,7 +577,7 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Prim
 	long double a = 0, c = 1;
 	int Min_i;
 
-	OutputFile << "Line search" << endl;
+	OutputFile << "Line search" << endl;	//Examine everything from starting point to nearest edge and use smallest point for starting point
 	for(int i = 0; i <= 100; i++)
 	{
 		fz[i][0] = a+(c-a)*i/100.;
@@ -589,7 +611,7 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Prim
 	else if(Min_i == 200)
 		Min_i = 99;
 
-	OutputFile << "Brent's Method" << endl;
+	OutputFile << "Brent's Method" << endl;	//Brent's method starting with best found above, see Numerical Recipes, 3rd ed. for original alogrithm
 	const int ITMAX = 100;
 	const long double GOLDEN = (3.-sqrt(5.))/2.;
 	const long double ZEPS=LDBL_EPSILON*1e-3;
@@ -716,7 +738,7 @@ void Minimize(long double sn[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Prim
 	}
 }
 
-long double PolakRibiere(long double gradn_1[14], long double gradn[14])
+long double PolakRibiere(long double gradn_1[14], long double gradn[14])	//Dot product like thing that indicates how much to mix the last gradient with next gradient for the next direction of travel
 {
 	long double num = 0, den = 0;
 
@@ -729,7 +751,7 @@ long double PolakRibiere(long double gradn_1[14], long double gradn[14])
 	return(num/den);
 }
 
-void Gradient(long double grad[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Prime, Spectral_Non* Non, int T)
+void Gradient(long double grad[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Prime, Spectral_Non* Non, int T)	//linear approximation of gradient
 {
 	long double f0, f1, h = 1e-5;
 	pair<long double,long double> Reduce_Euclidean[3][2];
@@ -802,7 +824,7 @@ void Gradient(long double grad[14], Spectral_Inter* JPsi, Spectral_Inter* Psi_Pr
 	}
 }
 
-long double Print(Spectral_Inter* JPsi, Spectral_Inter* Psi_Prime, Spectral_Non* Non, pair<long double,long double> Medium_Euclidean[2], pair<long double,long double> Medium_Spatial[7], int T)
+long double Print(Spectral_Inter* JPsi, Spectral_Inter* Psi_Prime, Spectral_Non* Non, pair<long double,long double> Medium_Euclidean[2], pair<long double,long double> Medium_Spatial[7], int T)	//Output parameters, correlation ratios, and chi-square
 {
 	for(int j = 0; j < 5; j++)
 		OutputFile << JPsi->Read(j,1) << ", " << JPsi->Read(j,2) << ", " << flush;
@@ -820,7 +842,7 @@ long double Print(Spectral_Inter* JPsi, Spectral_Inter* Psi_Prime, Spectral_Non*
 
 long double Chi_Square(pair<long double,long double> Medium_Euclidean[2], pair<long double,long double> Medium_Spatial[7], int T)
 {
-	long double answer;
+	long double answer;	//Simple chi-square between results and target
 	answer = pow(Medium_Euclidean[1].first/Vacuum_Euclidean[T-1][1].first-Medium_Euclidean[0].first/Vacuum_Euclidean[T-1][0].first-.2,2)/.2;
 	for(int i = 0; i < 7; i++)
 	{
@@ -844,42 +866,4 @@ long double Protected_Uniform(long double x0, long double a, long double b, long
 long double Uniform(long double a, long double b)
 {
 	return((long double)(rand())/(long double)(RAND_MAX)*(b-a)+a);
-}
-
-void mergeSort(long double List[], int a, int b)
-{
-	int i, j, k;
-	long double Temp[(a+b)/2-a+1];
-
-	if(b-a > 1)	//Divide
-	{
-		mergeSort(List, a, (a+b)/2);
-		mergeSort(List, (a+b)/2+1, b);
-	}
-
-	for(i = 0; i <= (a+b)/2-a; i++)	//Copy out the lower half array in prep for copy over
-		Temp[i] = List[i+a];
-
-	j = 0;
-	k = (a+b)/2+1;
-	for(i = a; i <= b && j <= (a+b)/2-a && k <= b; i++)	//Merge/Conqure while both half lists have not been exhausted
-	{
-		if(Temp[j] <= List[k])
-		{
-			List[i] = Temp[j];
-			j++;
-		}
-		else
-		{
-			List[i] = List[k];
-			k++;
-		}
-	}
-	for(; i <= b && j <= (a+b)/2-a; i++)	//If the Temp list has not been exhausted, complete the job
-	{
-		List[i] = Temp[j];
-		j++;
-	}
-
-	return;
 }
