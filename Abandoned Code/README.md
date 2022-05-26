@@ -1,10 +1,18 @@
 # Abandoned Code
 
-"All hope abandon ye who enter here." Inferno by Dante Alighieri, translated by Henry Francis Cary
+"All hope abandon ye who enter here." - Inferno by Dante Alighieri, translated by Henry Francis Cary
 
 All right, it isn't quite that bleak in here. I just haven't touched most of this code in something like 5 years as of 5/26/2022 and some of it is extremely over thought for its purpose. The XMLScipt? series converts space seperated value files into XML files for Mathematica to import. I could have converted space seperated value files to comma seperated value files and Mathematica would have imported those without a second thought.
 
 The source code that produced something useful for this has been altered several times over. Basically, it no long has any valid input files, thus abandoned code. However, the bicubic and bilinear interpolation algorthms in here might be useful for recycling at some point.
+
+## Euclidean1D.cpp
+
+As I read through the code, it doesn't appear to be lost like the other code in here. That is why I rescued it from the dust bin. It appears to be here to do parameter searches for good potentials that corrispond to good P=0 Euclidean correlation functions.
+
+It compiles with `g++ Euclidean1D.cpp`. I recommend a program name option and optimiser options. It takes in data from "data/Tables/SpectralccArg1.Arg2.Arg3.csv". It sends output to "data/Tables/SpectralccArg1.Arg2.Arg3.m". It writes out a Mathematica file where the first element is a table of the data for the various contributions to the spectral functions and the next five elements are tables of the Euclidean correlation function for each part of the spectral function.
+
+Call it as `./program_name Arg1 Arg2 Arg3`.
 
 ## XMLScript
 
