@@ -33,11 +33,11 @@ Mathematica scripts to calculate the first derivative with respect to s and P or
 
 ## Dispersion.cpp
 
-Calculates the real contributions by dispersion relation. There should be a bicubic and bilinear interpolation give f, df/dx, df/dy, and d^2f/dxdy in here.
+Calculates the real contributions by dispersion relation. There should be a bicubic and bilinear interpolation given f, df/dx, df/dy, and d^2f/dxdy in here.
 
 ## Fourier.cpp
 
-Calculates the spatial correlation function. There should be a bicubic and bilinear interpolation give f, df/dx, df/dy, and d^2f/dxdy in here too. It problably uses my oldest technique for calculating the spatial correlation, keep going until it completes at something like 2001*pi/z and recycle the last wavelength of the spectral function.
+Calculates the spatial correlation function. There should be a bicubic and bilinear interpolation given f, df/dx, df/dy, and d^2f/dxdy in here too. It problably uses my oldest technique for calculating the spatial correlation, keep going until it completes at something like 2001*pi/z and recycle the last wavelength of the spectral function.
 
 ## Epsilon.m
 
