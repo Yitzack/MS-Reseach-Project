@@ -200,8 +200,8 @@ int main(int argc, char* argv[])
 		Psi_Prime[Temp]->Replace(atof(argv[9]),3,2);
 		JPsi[Temp]->Replace(atof(argv[10]),4,1);
 		JPsi[Temp]->Replace(atof(argv[11]),4,2);
-		//Non[Temp]->Replace(atof(argv[12]),0,1);
-		//Non[Temp]->Replace(atof(argv[13]),0,2);
+		Non[Temp]->Replace(atof(argv[12]),0,1);
+		Non[Temp]->Replace(atof(argv[13]),0,2);
 		Non[Temp]->Replace(atof(argv[14]),1,1);
 		Non[Temp]->Replace(atof(argv[15]),1,2);
 

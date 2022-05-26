@@ -7,6 +7,7 @@ Optimiser.cpp is looking for a best fit that also has all of its parameters on a
 ## Compile Directions
 
 g++ Optimiser.cpp \[-O3\] \[-o program_name\] -D \<Ps|sP\>= -D ORDER=\<16|37|64|97\>
+
 g++ Optimiser\ T.cpp \[-O3\] \[-o program_name\] -D \<Ps|sP\>= -D ORDER=\<16|37|64|97\>
 
 The program will compile correctly at all common levels of optimization, which are optional. So -O, -O1, -O2, -O3 all work and are optional and highly recommended.
@@ -37,6 +38,30 @@ Fourth mode: ./Optimiser Temprature ProcessID \<28 floating point numbers\>
 Fifth mode: ./Optimiser Temprature ProcessID Number\_of\_Threads Thread_number \<30 floating point numbers\>
 
 Temprature is an integer between 1 and 4 inclusive that represents T=194, 258, 320, and 400 MeV
+
+The first and fourth modes are best fit searches. The first mode uses a default bounding box for the search. The fourth mode overwrites that bounding box. The output is sent to ./data/Optimiser_Output.ProcessID.Temprature.csv. If ProcessID is low enough, it will start a random walk search from the last best known position which it has hardcoded. If ProcessID is high enough, it will start at a random position somewhere in the bounding box. It needs 14 pairs of upper and lower bounds.
+
+The second and third modes are roughly the same except the API hook can only do one at a time and is recorded in ./data/Optimiser\_Output.API.Temprature.csv and the file input can do it in bulk and records its result to ./data/Optimiser\_Output.ProcessID.Temprature.csv.
+
+The 14 parameters for the second and third modes or 14 pairs of bounds in the forth mode are:
+1. J/Psi amplitude at infinte momentum
+2. Momentum scale for 1)
+3. J/Psi mass at infinte momentum
+4. Momentum scale for 3)
+5. J/Psi width at infinte momentum
+6. Momentum scale for 5)
+7. Low energy width rate at infinte momentum
+8. Momentum scale for 7)
+9. Transition interval in energy from low energy exponential to high energy constant at infinte momentum
+10. Momentum scale for 9)
+11. Quark mass at infinte momentum
+12. Momentum scale for 11)
+13. Continuum power at infinte momentum
+14. Momentum scale for 13)
+
+You might need to futz with the schematic spectral function to understand what I mean by some of the names.
+
+The fifth mode is looking for 10 sets of starting points, stopping points, and steps. The data is recorded in ./data/Optimiser_Output.ProcessID.Temprature.csv. I was doing an array search so I could do an interpolation. I'm not going to say what the 10 sets of numbers are as you might want to examine some other set parameters than the 10 I had set out.
 
 ### Optimiser.cpp
 
