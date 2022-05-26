@@ -1,10 +1,8 @@
-Imaginary Contributions
-=======================
+# Imaginary Contributions
 
 The files contained here calculate the imaginary contributions to the spectral functions.
 
-Compile Directions
-------------------
+## Compile Directions
 
 g++ Spectral.cpp \[-O3\] \[-o program_name\] -D \<BB|CC\>= -D ORDER=\<37|97\> -D VERSION=\<22|24|42|EXP\> \[-D HALF=\]
 
@@ -20,7 +18,28 @@ You must select the potential version with the -D VERSION= macro. I do recommend
 
 You may select half of the in-medium self-energy with -D HALF=.
 
-Physics
--------
+## Execute Directions
+
+./program\_name ProcessID Number\_of\_Threads Temprature Fraction\_of\_Coupling\_Constant Debye\_Mass Quark\_Mass Starting\_Point Ending\_Point Momentum\_Scale Fraction\_to\_Vacuum
+
+The output will land in ./data/Spectral\*.Temprature.ProcessID as space seperated values. To collect all of the output I recommend using bash command `sort -unk2 -unk1 data/Spectral\*.Temprature.\* | sed 's/ /,/g' > data/Spectral\*.Temrature.csv`.
+
+The number of threads used should be between 1 and 616. I don't recommend going higher as that won't help anything even if you're lying to it. There are only 616 columns and you can use the starting and stopping points to break up the columns. Mod(ProcessID,Number\_of\_Threads) will tell you which processes are working on the same set of columns.
+
+Starting\_Point and Ending\_Point are see tin, the starting and ending points. What the exactly means in terms of invariant mass and center of mass momentum will have to reference from the code or an appendix in the thesis.
+
+Temprature is an integer between 1 and 4 inclusive that represents T=194, 258, 320, and 400 MeV.
+
+Fraction of coupling constant will tell it that the coupling constant should be the vacuum value times that number for P=0. It will remain there if the fraction to vacuum is 0.
+
+The Debye\_Mass is that number times the actual temprature, not the number to call for that temprature.
+
+Quark\_Mass is see tin, the quark mass.
+
+Fraction\_to\_Vacuum is how far to vacuum the system goes at infinite momentum. 0 is no change. 1 means the quark mass goes to 1.8 GeV, fraction of coupling constant goes to 1, and the Debye mass becomes 0.
+
+Momentum\_Scale is how fast the system goes the infinite momentum limit. At the momentum of the momentum scale, it is half way there.
+
+## Physics
 
 See paper and thesis repositories stored elsewhere.

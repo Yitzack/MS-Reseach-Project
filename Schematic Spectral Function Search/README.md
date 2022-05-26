@@ -8,7 +8,7 @@ Optimiser.cpp is looking for a best fit that also has all of its parameters on a
 
 g++ Optimiser.cpp \[-O3\] \[-o program_name\] -D \<Ps|sP\>= -D ORDER=\<16|37|64|97\>
 
-g++ Optimiser\ T.cpp \[-O3\] \[-o program_name\] -D \<Ps|sP\>= -D ORDER=\<16|37|64|97\>
+g++ Optimiser\ T.cpp \[-O3\] \[-o program\_name\] -D \<Ps|sP\>= -D ORDER=\<16|37|64|97\>
 
 The program will compile correctly at all common levels of optimization, which are optional. So -O, -O1, -O2, -O3 all work and are optional and highly recommended.
 
@@ -27,15 +27,15 @@ Optimiser T.cpp has 5 modes.
 4. Default behavior but in different bounding box
 5. Calculated list of parameters
 
-First mode: ./Optimiser Temprature ProcessID
+First mode: ./program\_name Temprature ProcessID
 
-Second mode: ./Optimiser Temprature ProcessID InputFile
+Second mode: ./program\_name Temprature ProcessID InputFile
 
-Third mode: ./Optimiser Temprature \<14 floating point numbers\>
+Third mode: ./program\_name Temprature \<14 floating point numbers\>
 
-Fourth mode: ./Optimiser Temprature ProcessID \<28 floating point numbers\>
+Fourth mode: ./program\_name Temprature ProcessID \<28 floating point numbers\>
 
-Fifth mode: ./Optimiser Temprature ProcessID Number\_of\_Threads Thread_number \<30 floating point numbers\>
+Fifth mode: ./program\_name Temprature ProcessID Number\_of\_Threads Thread_number \<30 floating point numbers\>
 
 Temprature is an integer between 1 and 4 inclusive that represents T=194, 258, 320, and 400 MeV
 
@@ -67,9 +67,9 @@ The fifth mode is looking for 10 sets of starting points, stopping points, and s
 
 Optimiser.cpp has 2 modes. The first the default behavior of searching for the best on a linear relation with the default bounding box. The second has the bounding box overwritten by the call from the command line.
 
-First mode: ./Optimiser ProcessID
+First mode: ./program\_name ProcessID
 
-Second mode: ./Optimiser ProcessID \<32 floating point numbers\>
+Second mode: ./program\_name ProcessID \<32 floating point numbers\>
 
 ProcessID is an integer. Output is sent to ./data/Optimiser_Output.ProcessID.csv
 
