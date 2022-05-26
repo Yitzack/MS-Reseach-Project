@@ -423,7 +423,7 @@ void Spectral_Inter::Spatial_PInt(long double z, long double s, long double werr
 	long double Max = 187.*M_PI/(2.*z);		//Upper limit of integration
 	long double holder;
 	long double Intervals = M_PI/z;		//Sub-interval spacing
-	int i, j, l;					//Counting varibles
+	int i, j;					//Counting varibles
 
 	if(Parameters[0][0]==0 && Parameters[0][1]==0)
 		return(pair<long double, long double>(0,0));
@@ -438,24 +438,24 @@ void Spectral_Inter::Spatial_PInt(long double z, long double s, long double werr
 			b = Max;
 
 #if ORDER == 16
-		for(l = 0; l < 5; l++) //Integrate the sub-interval
+		for(j = 0; j < 5; j++) //Integrate the sub-interval
 #elif ORDER == 37
-		for(l = 0; l < 12; l++)
+		for(j = 0; j < 12; j++)
 #elif ORDER == 64
-		for(l = 0; l < 21; l++)
+		for(j = 0; j < 21; j++)
 #elif ORDER == 97
-		for(l = 0; l < 32; l++)
+		for(j = 0; j < 32; j++)
 #endif
 		{
-			x1 = (b+a-Disp[l]*(b-a))/2.;
-			x2 = (b+a+Disp[l]*(b-a))/2.;
+			x1 = (b+a-Disp[j]*(b-a))/2.;
+			x2 = (b+a+Disp[j]*(b-a))/2.;
 
 			holder = SpatialGeneralKernel(s, x1, z)*Spectral(s, x1);
-			Intergral[i][erri] += w[l+1]*wint*holder*(b-a)/2.;	//Instead of storing the results of the sub-interval in local scope, store it in global array
-			Error[i][erri] += werr[l+1]*werri*holder*(b-a)/2.;
+			Intergral[i][erri] += w[j+1]*wint*holder*(b-a)/2.;	//Instead of storing the results of the sub-interval in local scope, store it in global array
+			Error[i][erri] += werr[j+1]*werri*holder*(b-a)/2.;
 			holder = SpatialGeneralKernel(s, x2, z)*Spectral(s, x2);
-			Intergral[i][erri] += w[l+1]*wint*holder*(b-a)/2.;
-			Error[i][erri] += werr[l+1]*werri*holder*(b-a)/2.;
+			Intergral[i][erri] += w[j+1]*wint*holder*(b-a)/2.;
+			Error[i][erri] += werr[j+1]*werri*holder*(b-a)/2.;
 		}
 		holder = SpatialGeneralKernel(s, a/2.+b/2., z)*Spectral(s, a/2.+b/2.);
 		Intergral[i][erri] += w[0]*wint*holder*(b-a)/2.;
@@ -548,7 +548,7 @@ void Spectral_Inter::Spatial_sInt(long double z, long double P, long double werr
 		a = b;
 	}while(a < Max);
 
-	return(Answer);
+	return;
 }
 
 pair<long double, long double> Spectral_Inter::Spatial_P0Int(long double z, long double P0)
@@ -580,7 +580,7 @@ pair<long double, long double> Spectral_Inter::Spatial_P0Int(long double z, long
 	pair<long double, long double> Answer(0,0);	//Results to be returned
 	pair<long double, long double> zero;		//Estimated pole of spectral function (zero of 1/f)
 	long double holder;
-	int i, j, l;					//Counting varibles
+	int i, j;					//Counting varibles
 
 	if(Q(P0, Parameters[0][0], Parameters[0][1], Parameters[0][2])==0)
 		return(pair<long double, long double>(0,0));
@@ -608,24 +608,24 @@ pair<long double, long double> Spectral_Inter::Spatial_P0Int(long double z, long
 		Ferr = 0;
 
 #if ORDER == 16
-		for(l = 0; l < 5; l++) //Integrate the sub-interval
+		for(j = 0; j < 5; j++) //Integrate the sub-interval
 #elif ORDER == 37
-		for(l = 0; l < 12; l++)
+		for(j = 0; j < 12; j++)
 #elif ORDER == 64
-		for(l = 0; l < 21; l++)
+		for(j = 0; j < 21; j++)
 #elif ORDER == 97
-		for(l = 0; l < 32; l++)
+		for(j = 0; j < 32; j++)
 #endif
 		{
-			x1 = (b+a-Disp[l]*(b-a))/2.;
-			x2 = (b+a+Disp[l]*(b-a))/2.;
+			x1 = (b+a-Disp[j]*(b-a))/2.;
+			x2 = (b+a+Disp[j]*(b-a))/2.;
 
 			holder = SpatialCutoffKernel(x1, P0, z)*Spectral(x1, P0);
-			F += w[l+1]*holder;
-			Ferr += werr[l+1]*holder;
+			F += w[j+1]*holder;
+			Ferr += werr[j+1]*holder;
 			holder = SpatialCutoffKernel(x2, P0, z)*Spectral(x2, P0);
-			F += w[l+1]*holder;
-			Ferr += werr[l+1]*holder;
+			F += w[j+1]*holder;
+			Ferr += werr[j+1]*holder;
 		}
 		holder = SpatialCutoffKernel(a/2.+b/2., P0, z)*Spectral(a/2.+b/2., P0);
 		F += w[0]*holder;
@@ -798,8 +798,8 @@ pair<long double, long double> Spectral_Inter::Euclidean(long double tau, long d
 		for(j = 0; j < 32; j++)
 #endif
 		{
-			x1 = (b+a-Disp[l]*(b-a))/2.;
-			x2 = (b+a+Disp[l]*(b-a))/2.;
+			x1 = (b+a-Disp[j]*(b-a))/2.;
+			x2 = (b+a+Disp[j]*(b-a))/2.;
 
 			holder = EuclideanKernel(x1, P, tau, T)*Spectral(x1, P);
 			F += w[j+1]*holder;
