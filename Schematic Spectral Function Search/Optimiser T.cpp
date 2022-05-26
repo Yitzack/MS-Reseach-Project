@@ -135,14 +135,14 @@ int main(int argc, char* argv[])
 		if(!OutputFile.is_open())
 			return(1);
 	}
-	else if(argc == 4)	//Go through a file full of parameters and calculate the correlation ratios and chi-square and write resuts to file ./Optimizer ProcessID Temp InputFile
+	else if(argc == 4)	//Go through a file full of parameters and calculate the correlation ratios and chi-square and write resuts to file ./Optimizer Temp ProcessID InputFile
 	{
 		ifstream InputFile(argv[3]);
 
 		strcat(File,".");
-		strcat(File,argv[1]);
-		strcat(File,".");
 		strcat(File,argv[2]);
+		strcat(File,".");
+		strcat(File,argv[1]);
 		strcat(File,".csv");
 		OutputFile.open(File);
 		if(!OutputFile.is_open())
