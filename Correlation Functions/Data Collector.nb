@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     59310,       1372]
-NotebookOptionsPosition[     58186,       1350]
-NotebookOutlinePosition[     58575,       1366]
-CellTagsIndexPosition[     58532,       1363]
+NotebookDataLength[     59331,       1372]
+NotebookOptionsPosition[     58207,       1350]
+NotebookOutlinePosition[     58596,       1366]
+CellTagsIndexPosition[     58553,       1363]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -1187,8 +1187,8 @@ Cell[BoxData[
       RowBox[{"EuclideanExt", "[", "\"\<22.1\>\"", "]"}]}], "}"}], "=", 
     RowBox[{
     "Import", "[", 
-     "\"\<~/Physics/Research/MS/data/Spectralcc24.97.Rapp_Half.1.Rev.m\>\"", 
-     "]"}]}], ";"}]}]], "Input",
+     "\"\<~/Physics/Research/MS/data/Spectralcc24.97.1.Rev.m\>\"", "]"}]}], 
+   ";"}]}]], "Input",
  CellChangeTimes->{
   3.8110072753820477`*^9, {3.8110073162007647`*^9, 3.811007318996007*^9}, 
    3.811780378043685*^9, 3.811780536161663*^9, 3.811780645911894*^9, 
@@ -1208,7 +1208,8 @@ Cell[BoxData[
    3.859587917781252*^9, 3.859898062303142*^9, 3.85989815045641*^9, 
    3.8598982910024347`*^9, {3.861975003909217*^9, 3.861975007391233*^9}, {
    3.862062719999152*^9, 3.86206275153948*^9}, {3.862586473936887*^9, 
-   3.8625865142209597`*^9}},ExpressionUUID->"a40758f6-49df-4ecd-8e5e-\
+   3.8625865142209597`*^9}, 
+   3.862586780295827*^9},ExpressionUUID->"a40758f6-49df-4ecd-8e5e-\
 d0a028fc28fe"],
 
 Cell[BoxData[
@@ -1219,8 +1220,7 @@ Cell[BoxData[
     "file"}], "*)"}], "\[IndentingNewLine]", 
   RowBox[{"Export", "[", 
    RowBox[{
-   "\"\<~/Physics/Research/MS/data/Spectralcc24.97.Rapp_Half.1.Rev.m\>\"", 
-    ",", 
+   "\"\<~/Physics/Research/MS/data/Spectralcc24.97.1.Rev.m\>\"", ",", 
     RowBox[{"{", 
      RowBox[{
       RowBox[{"parameters", "[", "\"\<curr\>\"", "]"}], ",", 
@@ -1344,8 +1344,8 @@ Cell[BoxData[
    3.8598980655475683`*^9, 3.8598981477556353`*^9, 3.8598982939254313`*^9, {
    3.861975013772255*^9, 3.861975017604348*^9}, {3.861975100515959*^9, 
    3.861975101794859*^9}, {3.862062759777156*^9, 3.86206277169615*^9}, {
-   3.86258651958449*^9, 
-   3.86258653476884*^9}},ExpressionUUID->"29c3b743-efd6-4c44-8922-\
+   3.86258651958449*^9, 3.86258653476884*^9}, 
+   3.862586785042036*^9},ExpressionUUID->"29c3b743-efd6-4c44-8922-\
 ce89f94638a9"]
 },
 WindowSize->{1600, 836},
@@ -1372,8 +1372,8 @@ Cell[15230, 308, 3250, 94, 163, "Input",ExpressionUUID->"79bbed33-34d4-49eb-890d
 Cell[18483, 404, 12317, 344, 361, "Input",ExpressionUUID->"6d1a10e7-9f41-4082-a016-ac15f2e57750"],
 Cell[30803, 750, 11254, 327, 295, "Input",ExpressionUUID->"c4d8109a-884e-47f3-9ee7-a93417c470c0"],
 Cell[42060, 1079, 3210, 56, 75, "Input",ExpressionUUID->"c063b596-ed04-44e8-bdc1-afef69db5579"],
-Cell[45273, 1137, 4171, 74, 141, "Input",ExpressionUUID->"a40758f6-49df-4ecd-8e5e-d0a028fc28fe"],
-Cell[49447, 1213, 8735, 135, 141, "Input",ExpressionUUID->"29c3b743-efd6-4c44-8922-ce89f94638a9"]
+Cell[45273, 1137, 4185, 75, 119, "Input",ExpressionUUID->"a40758f6-49df-4ecd-8e5e-d0a028fc28fe"],
+Cell[49461, 1214, 8742, 134, 141, "Input",ExpressionUUID->"29c3b743-efd6-4c44-8922-ce89f94638a9"]
 }
 ]
 *)
