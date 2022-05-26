@@ -15,9 +15,9 @@ class Spectral_Inter{
 		long double Spectral(long double s, long double P);	//return the spectral function sigma(s,P)
 
 		pair<long double, long double> Spatial(long double z);			//return the spatial correlation function for z
-		pair<long double, long double> Spatial_Lorentz(long double z);		//return the spatial correlation function for z using P=0 spectral function
 		pair<long double, long double> Spatial_PInt(long double z, long double s);	//return the s-integrand of the spatial correlation function for z and s
 		pair<long double, long double> Spatial_sInt(long double z, long double P);	//return the P-integrand of the spatial correlation function for z and P
+		pair<long double, long double> Spatial_Lorentz(long double z);		//return the spatial correlation function for z using P=0 spectral function
 		long double Spatial_LorentzInt(long double z, long double s);		//return the s-integrand of the spatial correlation function for z and s using spectral function P=0. No error as it is the spectral function times kernel
 
 		pair<long double, long double> Euclidean(long double tau, long double P);			//return the Euclidean correlation function for tau and P and temprature of the spectral function specified at the construction
@@ -364,6 +364,41 @@ pair<long double, long double> Spectral_Inter::Spatial(long double z)
 	return(pair<long double, long double>(Int_acculmate,Err_acculmate)+holder);
 }
 
+pair<long double, long double> Spectral_Inter::Spatial_PInt(long double z, long double s)
+{
+	pair<long double, long double> holder = pair<long double, long double> (0,0);
+	Spatial_PInt(z, s, 1, 1, 0);	//Evaluate the P-integral for s with weight of 1, error weight of 1, and store to column 0
+	for(int i = 0; i < 96; i++)	//Collect the results to be returned
+	{
+		holder.first += Intergral[i][0];
+		holder.second += abs(Error[i][0]);
+		Error[i][0] = 0;
+		Intergral[i][0] = 0;
+	}
+	return(holder);
+}
+
+pair<long double, long double> Spectral_Inter::Spatial_sInt(long double z, long double P)
+{
+	pair<long double, long double> holder = pair<long double, long double> (0,0);
+	Spatial_sInt(z, P, 1, 1, 0);	//Evaluate the s-integral for P with weight of 1, error weight of 1, and store to row 0
+	for(int i = 0; i < 36; i++)	//Collect the results to be returned
+	{
+		holder.first += Intergral[0][i];
+		holder.second += Error[0][i];
+		Error[0][i] = 0;
+		Intergral[0][i] = 0;
+	}
+	return(holder);
+}
+
+long double Spectral_Inter::Spatial_LorentzInt(long double z, long double s)
+{
+	if(s == 0)
+		return(0);
+	return(SpatialLorentzKernel(s, z)*Spectral(s, 0));
+}
+
 void Spectral_Inter::Spatial_PInt(long double z, long double s, long double werri, long double wint, int erri)
 {
 #if ORDER == 16
@@ -690,41 +725,6 @@ pair<long double, long double> Spectral_Inter::Spatial_Lorentz(long double z)
 	return(Answer);
 }
 
-pair<long double, long double> Spectral_Inter::Spatial_PInt(long double z, long double s)
-{
-	pair<long double, long double> holder = pair<long double, long double> (0,0);
-	Spatial_PInt(z, s, 1, 1, 0);	//Evaluate the P-integral for s with weight of 1, error weight of 1, and store to column 0
-	for(int i = 0; i < 96; i++)	//Collect the results to be returned
-	{
-		holder.first += Intergral[i][0];
-		holder.second += abs(Error[i][0]);
-		Error[i][0] = 0;
-		Intergral[i][0] = 0;
-	}
-	return(holder);
-}
-
-pair<long double, long double> Spectral_Inter::Spatial_sInt(long double z, long double P)
-{
-	pair<long double, long double> holder = pair<long double, long double> (0,0);
-	Spatial_sInt(z, P, 1, 1, 0);	//Evaluate the s-integral for P with weight of 1, error weight of 1, and store to row 0
-	for(int i = 0; i < 36; i++)	//Collect the results to be returned
-	{
-		holder.first += Intergral[0][i];
-		holder.second += Error[0][i];
-		Error[0][i] = 0;
-		Intergral[0][i] = 0;
-	}
-	return(holder);
-}
-
-long double Spectral_Inter::Spatial_LorentzInt(long double z, long double s)
-{
-	if(s == 0)
-		return(0);
-	return(SpatialLorentzKernel(s, z)*Spectral(s, 0));
-}
-
 pair<long double, long double> Spectral_Inter::Euclidean(long double tau, long double P)
 {
 	return(Euclidean(tau, P, Temp));	//Why have the same code twice if the T is only thing different
@@ -851,14 +851,14 @@ long double Spectral_Inter::SpatialGeneralKernel(long double s, long double P, l
 	return(cos(P*z)/(s+pow(P,2)));
 }
 
-long double Spectral_Inter::SpatialLorentzKernel(long double s, long double z)
-{
-	return(M_PI/(2.*sqrt(s))*exp(-sqrt(s)*z));
-}
-
 long double Spectral_Inter::SpatialCutoffKernel(long double s, long double P0, long double z)
 {
 	return(-((z*(-2.*P0*z*(12852.-5868.*pow(sqrt(s)*z,2)+1737.*pow(sqrt(s)*z,4)-78.*pow(sqrt(s)*z,6)+pow(P0*z,8)+pow(sqrt(s)*z,8)+3.*pow(P0*z,4)*(579.+26.*pow(sqrt(s)*z,2)+2.*pow(sqrt(s)*z,4))+pow(P0,6)*(78.*pow(z,6)+4.*s*pow(z,8))+pow(P0,2)*(5868.*pow(z,2)+2418.*s*pow(z,4)-78.*pow(s,2)*pow(z,6)+4.*pow(s,3)*pow(z,8)))*cos(P0*z)+(-5400.+33948.*pow(sqrt(s)*z,2)-16074.*pow(sqrt(s)*z,4)+2301.*pow(sqrt(s)*z,6)-88.*pow(sqrt(s)*z,8)+pow(P0*z,10)+pow(sqrt(s)*z,10)+pow(P0*z,8)*(84.+5.*pow(sqrt(s)*z,2))+pow(P0*z,6)*(2037.+164.*pow(sqrt(s)*z,2)+10.*pow(sqrt(s)*z,4))+pow(P0*z,4)*(10782.+3975.*pow(sqrt(s)*z,2)-12.*pow(sqrt(s)*z,4)+10.*pow(sqrt(s)*z,6))+pow(P0*z,2)*(27756.-4716.*pow(sqrt(s)*z,2)+4239.*pow(sqrt(s)*z,4)-180.*pow(sqrt(s)*z,6)+5.*pow(sqrt(s)*z,8)))*sin(P0*z)))/(pow(P0*z,12)+6.*pow(P0*z,10)*(15.+pow(sqrt(s)*z,2))+3.*pow(P0*z,8)*(819.+90.*pow(sqrt(s)*z,2)+5.*pow(sqrt(s)*z,4))+pow(-36.+216.*pow(sqrt(s)*z,2)-45.*pow(sqrt(s)*z,4)+pow(sqrt(s)*z,6),2)+4.*pow(P0*z,6)*(4878.+1593.*pow(sqrt(s)*z,2)+45.*pow(sqrt(s)*z,4)+5.*pow(sqrt(s)*z,6))+3.*pow(P0*z,4)*(16632.+6120.*pow(sqrt(s)*z,2)+2610.*pow(sqrt(s)*z,4)-60.*pow(sqrt(s)*z,6)+5.*pow(sqrt(s)*z,8))+6.*pow(P0*z,2)*(2592.+12312.*pow(sqrt(s)*z,2)-3060.*pow(sqrt(s)*z,4)+1062.*pow(sqrt(s)*z,6)-45.*pow(sqrt(s)*z,8)+pow(sqrt(s)*z,10)))));
+}
+
+long double Spectral_Inter::SpatialLorentzKernel(long double s, long double z)
+{
+	return(M_PI/(2.*sqrt(s))*exp(-sqrt(s)*z));
 }
 
 long double Spectral_Inter::EuclideanKernel(long double s, long double P, long double tau, long double T)
