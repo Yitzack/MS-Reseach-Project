@@ -1,4 +1,3 @@
-#include<fstream>
 #ifndef SPECTRAL_NON
 #define SPECTRAL_NON
 using namespace std;
@@ -266,24 +265,25 @@ pair<long double, long double> Spectral_Non::Spatial(long double z)
 		for(j = 0; j < 21; j++)
 #elif ORDER == 97
 		for(j = 0; j < 32; j++)
+#endif
 		{
-			x1 = (b+a-Disp[l]*(b-a))/2.;
-			x2 = (b+a+Disp[l]*(b-a))/2.;
+			x1 = (b+a-Disp[j]*(b-a))/2.;
+			x2 = (b+a+Disp[j]*(b-a))/2.;
 
 #ifdef Ps
-			Spatial_PInt(z, x1, werr[j+1]*(b-a)/2., w[l+1]*(b-a)/2., i-2);
-			Spatial_PInt(z, x2, werr[j+1]*(b-a)/2., w[l+1]*(b-a)/2., i-2);
+			Spatial_PInt(z, x1, werr[j+1]*(b-a)/2., w[j+1]*(b-a)/2., i-2);
+			Spatial_PInt(z, x2, werr[j+1]*(b-a)/2., w[j+1]*(b-a)/2., i-2);
 #endif
 #ifdef sP
-			Spatial_sInt(z, x1, werr[j+1]*(b-a)/2., w[l+1]*(b-a)/2., i-2);
-			Spatial_sInt(z, x2, werr[j+1]*(b-a)/2., w[l+1]*(b-a)/2., i-2);
+			Spatial_sInt(z, x1, werr[j+1]*(b-a)/2., w[j+1]*(b-a)/2., i-2);
+			Spatial_sInt(z, x2, werr[j+1]*(b-a)/2., w[j+1]*(b-a)/2., i-2);
 #endif
 		}
 #ifdef Ps
-		holder = Spatial_PInt(z, a/2.+b/2., werr[0]*(b-a)/2., w[0]*(b-a)/2., i-2);
+		Spatial_PInt(z, a/2.+b/2., werr[0]*(b-a)/2., w[0]*(b-a)/2., i-2);
 #endif
 #ifdef sP
-		holder = Spatial_sInt(z, a/2.+b/2., werr[0]*(b-a)/2., w[0]*(b-a)/2., i-2);
+		Spatial_sInt(z, a/2.+b/2., werr[0]*(b-a)/2., w[0]*(b-a)/2., i-2);
 #endif
 
 		a = b;
@@ -446,6 +446,7 @@ void Spectral_Non::Spatial_sInt(long double z, long double P, long double werri,
 	long double Max = 552.25;		//Upper limit of integration
 	long double x1, x2;			//Abscissa
 	pair<long double, long double> zero;	//Estimated pole of spectral function (zero of 1/f)
+	long double holder;
 	int i, j;				//Counting varibles
 
 	Stops[0] = pow(2.*Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2]),2);	//Record the first subinterval
@@ -789,6 +790,11 @@ void Spectral_Non::Replace(long double Value, int i, int j)
 long double Spectral_Non::Read(int i)			//Read a parameter
 {
 	return(Parameters[i/3][i%3]);
+}
+
+long double Spectral_Non::Read(int i, int j)
+{
+	return(Parameters[i][j]);
 }
 
 void Spectral_Non::Random(int i, long double Range0[2], long double Range1[2], bool uni_norm)

@@ -1,6 +1,3 @@
-#include<fstream>
-#include<cstdlib>
-#include<cmath>
 #ifndef SPECTRAL_INTER
 #define SPECTRAL_INTER
 using namespace std;
@@ -426,7 +423,7 @@ void Spectral_Inter::Spatial_PInt(long double z, long double s, long double werr
 	int i, j;					//Counting varibles
 
 	if(Parameters[0][0]==0 && Parameters[0][1]==0)
-		return(pair<long double, long double>(0,0));
+		return;
 
 	a = 0;
 	b = M_PI/(2.*z);
@@ -498,10 +495,11 @@ void Spectral_Inter::Spatial_sInt(long double z, long double P, long double werr
 	long double Max = 552.25;		//Upper limit of integration
 	long double x1, x2;			//Abscissa
 	pair<long double, long double> zero;	//Estimated pole of spectral function (zero of 1/f)
+	long double holder;
 	int i, j;				//Counting varibles
 
 	if(Q(P, Parameters[0][0], Parameters[0][1], Parameters[0][2])==0)
-		return(pair<long double, long double>(0,0));
+		return;
 
 	Characterize(P, zero);
 	for(i = 0; i < 17; i++)
