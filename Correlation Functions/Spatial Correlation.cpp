@@ -12,7 +12,7 @@ long double Basis2(long double);
 long double Basis3(long double);
 long double Basisn(long double);
 
-long double Interacting(long double, long double, long double, long double, long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259]);	//Returns the Interacting Spectral Function
+long double Interacting(long double, long double, long double, long double, long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259]);	//Returns the Interacting Spectral Function
 long double Non_interacting(long double, long double, long double[151][259]);						//Returns the Non-interacting Spectral Function
 
 void Import(char*, long double, long double, long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259]);
@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 
 	Import(argv[1], Coupling_Fraction, Vacuum_Coupling, ImG, ImGvC, ImGvL, ImGvQ, ImGV, ReGvC, ReGvL, ReGvQ, ReGV);
 
-	cout << "(s,P) = (-10 GeV^2,5 GeV), sigma_Inter(s,P) = " << Interacting(-10, 5, Coupling_Fraction, Vacuum_Coupling, ImGvC, ImGvL, ImGvQ, ImGV, ReGvC, ReGvL, ReGvQ, ReGV) << "sigma_Non(s,P) = " << Non_interacting(s, P, ImG) << endl;
+	cout << "(s,P) = (-10 GeV^2,5 GeV), sigma_Inter(s,P) = " << Interacting(-10, 5, Coupling_Fraction, Vacuum_Coupling, ImGvC, ImGvL, ImGvQ, ImGV, ReGvC, ReGvL, ReGvQ, ReGV) << "sigma_Non(s,P) = " << Non_interacting(-10, 5, ImG) << endl;
 
 	return(0);
 }
@@ -42,9 +42,9 @@ long double Interacting(long double s, long double P, long double Coupling_Fract
 	long double ReGV = Interpolation(s,P,ReGVf);
 
 	//Each of the 3 interacting spectral function contributions
-	long double sigmaC = 3./M_PI/4.*Coupling_Fraction*Vacuum_Coupling*(ImGV*pow(ReGvC,2)-pow(ImGvC,2)*ImGV-2.*(ReGV-1.)*ImGvC*ReGvC)/(pow((ReGV-1.,2)+pow(ImGV,2));
-	long double sigmaL = 3./M_PI*Coupling_Fraction*Vacuum_Coupling*(ImGV*pow(ReGvL,2)-pow(ImGvL,2)*ImGV-2.*(ReGV-1.)*ImGvL*ReGvL)/(pow((ReGV-1.,2)+pow(ImGV,2));
-	long double sigmaQ = 3./M_PI*Coupling_Fraction*Vacuum_Coupling*(ImGV*pow(ReGvQ,2)-pow(ImGvQ,2)*ImGV-2.*(ReGV-1.)*ImGvQ*ReGvQ)/(pow((ReGV-1.,2)+pow(ImGV,2));
+	long double sigmaC = 3./M_PI/4.*Coupling_Fraction*Vacuum_Coupling*(ImGV*pow(ReGvC,2)-pow(ImGvC,2)*ImGV-2.*(ReGV-1.)*ImGvC*ReGvC)/(pow(ReGV-1.,2)+pow(ImGV,2));
+	long double sigmaL = 3./M_PI*Coupling_Fraction*Vacuum_Coupling*(ImGV*pow(ReGvL,2)-pow(ImGvL,2)*ImGV-2.*(ReGV-1.)*ImGvL*ReGvL)/(pow(ReGV-1.,2)+pow(ImGV,2));
+	long double sigmaQ = 3./M_PI*Coupling_Fraction*Vacuum_Coupling*(ImGV*pow(ReGvQ,2)-pow(ImGvQ,2)*ImGV-2.*(ReGV-1.)*ImGvQ*ReGvQ)/(pow(ReGV-1.,2)+pow(ImGV,2));
 
 	return(sigmaC+sigmaL+sigmaQ);
 }
@@ -58,8 +58,8 @@ long double Interpolation(long double s, long double P, long double f[151][259])
 {
 	long double i = i_index(s,P);							//Index i
 	long double j = j_index(s,P);							//Index j
-	long double (*Basisi)(long double)[4] = {Basisn,Basisn,Basisn,Basisn};	//Basis Functions in the i direction
-	long double (*Basisj)(long double)[4] = {Basisn,Basisn,Basisn,Basisn};	//Basis Functions in the j direction
+	long double (*Basisi[4])(long double) = {Basisn,Basisn,Basisn,Basisn};	//Basis Functions in the i direction
+	long double (*Basisj[4])(long double) = {Basisn,Basisn,Basisn,Basisn};	//Basis Functions in the j direction
 	long double zx[4][4], zy[4][4];						//z from the x direction and y direction
 	long double answer = 0;							//Result
 
@@ -195,7 +195,7 @@ long double j_index(long double s, long double P)
 long double Basis0(long double x)
 {
 	if(0 <= x && x <= 2)
-		return(-pow((x-2.)/2.,3);
+		return(-pow((x-2.)/2.,3));
 	return(0);
 }
 
@@ -215,7 +215,7 @@ long double Basis2(long double x)
 	else if(0 <= x && x < 3)
 		return(23.*pow(x,3)/72.-2.5*pow(x,2)+6.*x-4.);
 	else if(0 <= x && x <= 4)
-		return(-pow((x-4.)/2.,3);
+		return(-pow((x-4.)/2.,3));
 	return(0);
 }
 
@@ -226,9 +226,9 @@ long double Basis3(long double x)
 	else if(0 <= x && x < 3)
 		return(-3.*pow(x/2.,3)+2.5*pow(x,2)-5.*x+10./3.);
 	else if(0 <= x && x < 4)
-		return(11.pow(x,3)/24.-5*pow(x,2)+17.5*x-115./6.);
+		return(11.*pow(x,3)/24.-5*pow(x,2)+17.5*x-115./6.);
 	else if(0 <= x && x <= 5)
-		return(-pow((x-5.),3)/6.;
+		return(-pow((x-5.),3)/6.);
 	return(0);
 }
 
@@ -241,13 +241,13 @@ long double Basisn(long double x)
 	else if(2 <= x && x < 5)
 		return(pow(x,3)/2.-7*pow(x,2)+32.*x-142./3.);
 	else if(2 <= x && x <= 6)
-		return(-pow((x-6.),3)/6.;
+		return(-pow((x-6.),3)/6.);
 	return(0);
 }
 
-void Import(char* File, long double Coupling Fraction, long double Vacuum_Coupling, long double ImG[151][259], long double ImGvC[151][259], long double ImGvL[151][259], long double ImGvQ[151][259], long double ImGV[151][259], long double ReGvC[151][259], long double ReGcL[151][259], long double ReGvQ[151][259], long double ReGV[151][259])
+void Import(char* File, long double Coupling_Fraction, long double Vacuum_Coupling, long double ImG[151][259], long double ImGvC[151][259], long double ImGvL[151][259], long double ImGvQ[151][259], long double ImGV[151][259], long double ReGvC[151][259], long double ReGvL[151][259], long double ReGvQ[151][259], long double ReGV[151][259])
 {
-	ifstream Input(char File);
+	ifstream Input(File);
 
 	Input >> Coupling_Fraction >> Vacuum_Coupling;
 
