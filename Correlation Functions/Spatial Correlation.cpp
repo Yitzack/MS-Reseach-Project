@@ -1,5 +1,4 @@
 #include<iostream>
-#include<iomanip>
 #include<fstream>
 #include<cmath>
 using namespace std;
@@ -14,7 +13,7 @@ long double Basis3(long double);
 long double Basisn(long double);
 
 long double Interacting(long double, long double, long double, long double, long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259]);	//Returns the Interacting Spectral Function
-long double Non_interacting(long double, long double, long double[151][259]);						//Returns the Non-interacting Spectral Function
+long double Non_interacting(long double, long double, long double[151][259]);			//Returns the Non-interacting Spectral Function
 
 void Import(char*, long double&, long double&, long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259]);
 
@@ -25,8 +24,6 @@ int main(int argc, char* argv[])
 	long double Coupling_Fraction, Vacuum_Coupling;							//Fraction of Vacuum Coupling Counstant, Vacuum Coupling Constant
 
 	Import(argv[1], Coupling_Fraction, Vacuum_Coupling, ImG, ImGvC, ImGvL, ImGvQ, ImGV, ReGvC, ReGvL, ReGvQ, ReGV);
-
-	cout << setprecision(18) << "(s,P) = (-2321.210625 GeV^2, 85.225 GeV), sigma_Non(s,P) = " << Non_interacting(-2321.210625, 85.225, ImG) << endl;//", sigma_Inter(s,P) = " << Interacting(-10, 5, Coupling_Fraction, Vacuum_Coupling, ImGvC, ImGvL, ImGvQ, ImGV, ReGvC, ReGvL, ReGvQ, ReGV) << endl;
 
 	return(0);
 }
@@ -162,7 +159,7 @@ long double Interpolation(long double s, long double P, long double f[151][259])
 	{
 		Basisj[3] = Basis3;
 	}
-cout << j << "," << i << endl;
+
 	for(int i_count = 0; i_count < 4; i_count++)	//Evaluate the Basis Functions
 		for(int j_count = 0; j_count < 4; j_count++)
 		{
@@ -183,7 +180,7 @@ cout << j << "," << i << endl;
 				zx[i_count][j_count] = Basisi[i_count](150-i);
 			else
 				zx[i_count][j_count] = Basisi[i_count](j-int(j)+i_count+2.);
-cout << i << " " << j << " " << i_count << " " << j_count << " " << zx[i_count][j_count] << " " << zy[i_count][j_count] << " " << int(j)+j_count+offset_j << " " << int(i)+i_count+offset_i << " " << f[int(i)+i_count+offset_i][int(j)+j_count+offset_j] << endl;
+
 			answer += zx[i_count][j_count]*zy[i_count][j_count]*f[int(i)+i_count+offset_i][int(j)+j_count+offset_j];
 		}
 
