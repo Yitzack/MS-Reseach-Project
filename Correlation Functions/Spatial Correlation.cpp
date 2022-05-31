@@ -1,4 +1,5 @@
 #include<iostream>
+#include<iomanip>
 #include<fstream>
 #include<cmath>
 using namespace std;
@@ -15,7 +16,7 @@ long double Basisn(long double);
 long double Interacting(long double, long double, long double, long double, long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259]);	//Returns the Interacting Spectral Function
 long double Non_interacting(long double, long double, long double[151][259]);						//Returns the Non-interacting Spectral Function
 
-void Import(char*, long double, long double, long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259]);
+void Import(char*, long double&, long double&, long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259], long double[151][259]);
 
 int main(int argc, char* argv[])
 {
@@ -25,7 +26,7 @@ int main(int argc, char* argv[])
 
 	Import(argv[1], Coupling_Fraction, Vacuum_Coupling, ImG, ImGvC, ImGvL, ImGvQ, ImGV, ReGvC, ReGvL, ReGvQ, ReGV);
 
-	cout << "(s,P) = (-10 GeV^2,5 GeV), sigma_Inter(s,P) = " << Interacting(-10, 5, Coupling_Fraction, Vacuum_Coupling, ImGvC, ImGvL, ImGvQ, ImGV, ReGvC, ReGvL, ReGvQ, ReGV) << "sigma_Non(s,P) = " << Non_interacting(-10, 5, ImG) << endl;
+	cout << setprecision(18) << "(s,P) = (-7 GeV^2, 7 GeV), sigma_Non(s,P) = " << Non_interacting(-7, 7, ImG) << endl;//", sigma_Inter(s,P) = " << Interacting(-10, 5, Coupling_Fraction, Vacuum_Coupling, ImGvC, ImGvL, ImGvQ, ImGV, ReGvC, ReGvL, ReGvQ, ReGV) << endl;
 
 	return(0);
 }
@@ -56,130 +57,140 @@ long double Non_interacting(long double s, long double P, long double ImG[151][2
 
 long double Interpolation(long double s, long double P, long double f[151][259])
 {
-	long double i = i_index(s,P);							//Index i
-	long double j = j_index(s,P);							//Index j
-	long double (*Basisi[4])(long double) = {Basisn,Basisn,Basisn,Basisn};	//Basis Functions in the i direction
-	long double (*Basisj[4])(long double) = {Basisn,Basisn,Basisn,Basisn};	//Basis Functions in the j direction
-	long double zx[4][4], zy[4][4];						//z from the x direction and y direction
-	long double answer = 0;							//Result
+	long double i = i_index(s,P);						  //Index i
+	long double j = j_index(s,P);						  //Index j
+	int offset_i = -1, offset_j = -1;					  //Index offsets in calling up control points, normally -1, but can be 0 or -2 on the ends
+	long double (*Basisi[4])(long double) = {Basisn,Basisn,Basisn,Basisn}; //Basis Functions in the i direction
+	long double (*Basisj[4])(long double) = {Basisn,Basisn,Basisn,Basisn}; //Basis Functions in the j direction
+	long double zx[4][4], zy[4][4];					  //z from the x direction and y direction
+	long double answer = 0;						  //Result
 
-	if(i < 2 || (i >= 208 && i <= 210))	//Reassign the function pointers
+	if(i < 2)	//Reassign the function pointers for the x/i direction
 	{
 		Basisi[0] = Basis0;
 		Basisi[1] = Basis1;
 		Basisi[2] = Basis2;
 		Basisi[3] = Basis3;
+		if(i < 0)
+			offset_i = 0;
 	}
-	else if(i < 3 || (i >= 210 && i < 211))
+	else if(i < 3)
 	{
 		Basisi[0] = Basis1;
 		Basisi[1] = Basis2;
 		Basisi[2] = Basis3;
 	}
-	else if(i < 4 || (i >= 211 && i < 212))
+	else if(i < 4)
 	{
 		Basisi[0] = Basis2;
 		Basisi[1] = Basis3;
 	}
-	else if(i < 5 || (i >= 212 && i < 213))
+	else if(i < 5)
 	{
 		Basisi[0] = Basis3;
 	}
-	else if((206 <= i && 208 < i) || 256 <= i)
+	else if(148 <= i)
 	{
 		Basisi[0] = Basis3;
 		Basisi[1] = Basis2;
 		Basisi[2] = Basis1;
 		Basisi[3] = Basis0;
+		if(149 >= i)
+			offset_i = -2;
 	}
-	else if((205 <= i && 207 < i) || 255 <= i)
+	else if(147 <= i)
 	{
 		Basisi[1] = Basis3;
 		Basisi[2] = Basis2;
 		Basisi[3] = Basis1;
 	}
-	else if((204 <= i && 206 < i) || 254 <= i)
+	else if(146 <= i)
 	{
 		Basisi[2] = Basis3;
 		Basisi[3] = Basis2;
 	}
-	else if((203 <= i && 205 < i) || 253 <= i)
+	else if(145 <= i)
 	{
 		Basisi[3] = Basis3;
 	}
-	if(j < 2)
+
+	if(j < 2 || (j >= 208 && j <= 210))	//Reassign the function pointers for the y/j direction
 	{
-		Basisi[0] = Basis0;
+		Basisj[0] = Basis0;
 		Basisj[1] = Basis1;
 		Basisj[2] = Basis2;
 		Basisj[3] = Basis3;
+		if(j < 1 || (j >= 208 && j < 209))
+			offset_j = 0;
 	}
-	else if(j < 3)
+	else if(j < 3 || (j >= 210 && j < 211))
 	{
 		Basisj[0] = Basis1;
 		Basisj[1] = Basis2;
 		Basisj[2] = Basis3;
 	}
-	else if(j < 4)
+	else if(j < 4 || (j >= 211 && j < 212))
 	{
 		Basisj[0] = Basis2;
 		Basisj[1] = Basis3;
 	}
-	else if(j < 5)
+	else if(j < 5 || (j >= 212 && j < 213))
 	{
 		Basisj[0] = Basis3;
 	}
-	else if(148 <= j)
+	else if((206 <= j && 208 < j) || 256 <= j)
 	{
-		Basisi[0] = Basis3;
+		Basisj[0] = Basis3;
 		Basisj[1] = Basis2;
 		Basisj[2] = Basis1;
 		Basisj[3] = Basis0;
+		if(257 <= i || (207 <= i && i < 208))
+			offset_j = -2;
 	}
-	else if(147 <= j)
+	else if((205 <= j && 207 < j) || 255 <= j)
 	{
 		Basisj[1] = Basis3;
 		Basisj[2] = Basis2;
 		Basisj[3] = Basis1;
 	}
-	else if(146 <= j)
+	else if((204 <= j && 206 < j) || 254 <= j)
 	{
 		Basisj[2] = Basis3;
 		Basisj[3] = Basis2;
 	}
-	else if(145 <= j)
+	else if((203 <= j && 205 < j) || 253 <= j)
 	{
 		Basisj[3] = Basis3;
 	}
-
+cout << j << "," << i << endl;
 	for(int i_count = 0; i_count < 4; i_count++)	//Evaluate the Basis Functions
 		for(int j_count = 0; j_count < 4; j_count++)
 		{
-			if(Basisi[i_count] != Basisn && i < 5)
-				zx[i_count][j_count] = Basisi[i_count](j);
-			else if(Basisi[i_count] != Basisn && (i >= 208 && i < 213))
-				zx[i_count][j_count] = Basisi[i_count](j-208);
-			else if(Basisi[i_count] != Basisn && (203 <= i && 208 < i))
-				zx[i_count][j_count] = Basisi[i_count](208-j);
-			else if(Basisi[i_count] != Basisn && 253 <= i)
-				zx[i_count][j_count] = Basisi[i_count](253-j);
+			if(Basisj[j_count] != Basisn && j < 5)
+				zy[i_count][j_count] = Basisj[j_count](j);
+			else if(Basisj[j_count] != Basisn && (j >= 208 && j < 213))
+				zy[i_count][j_count] = Basisj[j_count](j-208);
+			else if(Basisj[j_count] != Basisn && (203 <= j && 208 < j))
+				zy[i_count][j_count] = Basisj[j_count](208-j);
+			else if(Basisj[j_count] != Basisn && 253 <= j)
+				zy[i_count][j_count] = Basisj[j_count](253-j);
 			else
-				zx[i_count][j_count] = Basisi[i_count](j-j_count);
+				zy[i_count][j_count] = Basisj[j_count](i-int(i)+j_count+2.);
 
 			if(Basisi[i_count] != Basisn && i < 5)
-				zy[i_count][j_count] = Basisj[j_count](i);
+				zx[i_count][j_count] = Basisi[i_count](i);
 			else if(Basisi[i_count] != Basisn && 145 <= i)
-				zy[i_count][j_count] = Basisj[j_count](150-i);
+				zx[i_count][j_count] = Basisi[i_count](150-i);
 			else
-				zy[i_count][j_count] = Basisj[j_count](i-i_count);
-
-			answer += zx[i_count][j_count]*zy[i_count][j_count]*f[int(i)+i_count][int(j)+j_count];
+				zx[i_count][j_count] = Basisi[i_count](j-int(j)+i_count+2.);
+cout << i << " " << j << " " << i_count << " " << j_count << " " << zx[i_count][j_count] << " " << zy[i_count][j_count] << " " << int(j)+j_count+offset_j << " " << int(i)+i_count+offset_i << " " << f[int(i)+i_count+offset_i][int(j)+j_count+offset_j] << endl;
+			answer += zx[i_count][j_count]*zy[i_count][j_count]*f[int(i)+i_count+offset_i][int(j)+j_count+offset_j];
 		}
 
 	return(answer);
 }
 
-long double i_index(long double s, long double P)
+long double j_index(long double s, long double P)
 {
 	if(s+pow(P,2) <= 432.64)
 		return(10.*sqrt(s+pow(P,2)));
@@ -187,7 +198,7 @@ long double i_index(long double s, long double P)
 		return(187.2+sqrt(s+pow(P,2)));
 }
 
-long double j_index(long double s, long double P)
+long double i_index(long double s, long double P)
 {
 	return(10.*(P-sqrt(s+pow(P,2))));
 }
@@ -245,7 +256,7 @@ long double Basisn(long double x)
 	return(0);
 }
 
-void Import(char* File, long double Coupling_Fraction, long double Vacuum_Coupling, long double ImG[151][259], long double ImGvC[151][259], long double ImGvL[151][259], long double ImGvQ[151][259], long double ImGV[151][259], long double ReGvC[151][259], long double ReGvL[151][259], long double ReGvQ[151][259], long double ReGV[151][259])
+void Import(char* File, long double& Coupling_Fraction, long double& Vacuum_Coupling, long double ImG[151][259], long double ImGvC[151][259], long double ImGvL[151][259], long double ImGvQ[151][259], long double ImGV[151][259], long double ReGvC[151][259], long double ReGvL[151][259], long double ReGvQ[151][259], long double ReGV[151][259])
 {
 	ifstream Input(File);
 
