@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 
 	Import(argv[1], Coupling_Fraction, Vacuum_Coupling, ImG, ImGvC, ImGvL, ImGvQ, ImGV, ReGvC, ReGvL, ReGvQ, ReGV);
 
-	cout << setprecision(18) << "(s,P) = (-7 GeV^2, 7 GeV), sigma_Non(s,P) = " << Non_interacting(-7, 7, ImG) << endl;//", sigma_Inter(s,P) = " << Interacting(-10, 5, Coupling_Fraction, Vacuum_Coupling, ImGvC, ImGvL, ImGvQ, ImGV, ReGvC, ReGvL, ReGvQ, ReGV) << endl;
+	cout << setprecision(18) << "(s,P) = (-2321.210625 GeV^2, 85.225 GeV), sigma_Non(s,P) = " << Non_interacting(-2321.210625, 85.225, ImG) << endl;//", sigma_Inter(s,P) = " << Interacting(-10, 5, Coupling_Fraction, Vacuum_Coupling, ImGvC, ImGvL, ImGvQ, ImGV, ReGvC, ReGvL, ReGvQ, ReGV) << endl;
 
 	return(0);
 }
@@ -71,7 +71,7 @@ long double Interpolation(long double s, long double P, long double f[151][259])
 		Basisi[1] = Basis1;
 		Basisi[2] = Basis2;
 		Basisi[3] = Basis3;
-		if(i < 0)
+		if(i < 1)
 			offset_i = 0;
 	}
 	else if(i < 3)
@@ -95,7 +95,7 @@ long double Interpolation(long double s, long double P, long double f[151][259])
 		Basisi[1] = Basis2;
 		Basisi[2] = Basis1;
 		Basisi[3] = Basis0;
-		if(149 >= i)
+		if(149 <= i)
 			offset_i = -2;
 	}
 	else if(147 <= i)
@@ -138,27 +138,27 @@ long double Interpolation(long double s, long double P, long double f[151][259])
 	{
 		Basisj[0] = Basis3;
 	}
-	else if((206 <= j && 208 < j) || 256 <= j)
+	else if((206 <= j && j < 208) || 256 <= j)
 	{
 		Basisj[0] = Basis3;
 		Basisj[1] = Basis2;
 		Basisj[2] = Basis1;
 		Basisj[3] = Basis0;
-		if(257 <= i || (207 <= i && i < 208))
+		if((207 <= j && j < 208) || 257 <= j)
 			offset_j = -2;
 	}
-	else if((205 <= j && 207 < j) || 255 <= j)
+	else if((205 <= j && j < 208) || 255 <= j)
 	{
 		Basisj[1] = Basis3;
 		Basisj[2] = Basis2;
 		Basisj[3] = Basis1;
 	}
-	else if((204 <= j && 206 < j) || 254 <= j)
+	else if((204 <= j && j < 208) || 254 <= j)
 	{
 		Basisj[2] = Basis3;
 		Basisj[3] = Basis2;
 	}
-	else if((203 <= j && 205 < j) || 253 <= j)
+	else if((203 <= j && j < 208) || 253 <= j)
 	{
 		Basisj[3] = Basis3;
 	}
@@ -168,14 +168,14 @@ cout << j << "," << i << endl;
 		{
 			if(Basisj[j_count] != Basisn && j < 5)
 				zy[i_count][j_count] = Basisj[j_count](j);
-			else if(Basisj[j_count] != Basisn && (j >= 208 && j < 213))
+			else if(Basisj[j_count] != Basisn && (208 <= j && j < 213))
 				zy[i_count][j_count] = Basisj[j_count](j-208);
-			else if(Basisj[j_count] != Basisn && (203 <= j && 208 < j))
+			else if(Basisj[j_count] != Basisn && (203 <= j && j < 208))
 				zy[i_count][j_count] = Basisj[j_count](208-j);
 			else if(Basisj[j_count] != Basisn && 253 <= j)
-				zy[i_count][j_count] = Basisj[j_count](253-j);
+				zy[i_count][j_count] = Basisj[j_count](258-j);
 			else
-				zy[i_count][j_count] = Basisj[j_count](i-int(i)+j_count+2.);
+				zy[i_count][j_count] = Basisj[j_count](i-int(i)+j_count+2.);	//Some how the fractional part of the arguments were trading dimensions. Dispite trying to be careful and keeping x/i in the first argument and y/j in the second argument, I was ending up with f(int(i)+j-int(j),int(j)+i-int(i)) instead of f(int(i)+i-int(i),int(j)+j-int(j))=f(i,j)
 
 			if(Basisi[i_count] != Basisn && i < 5)
 				zx[i_count][j_count] = Basisi[i_count](i);
