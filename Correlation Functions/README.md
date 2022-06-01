@@ -18,9 +18,11 @@ The input file, output file, and Euclidean correlation function tempratures are 
 Mathematica was adding hours to days to the execute time for the space-like contributions to the spatial correlation function. So I wrote this to do it myself and faster.
 
 ### Compile directions
-g++ Spatial Correlation.cpp \<-O3\> \<-o program_name\>
+g++ Spatial Correlation.cpp \[-O3\] \[-o program_name\] -D ORDER=\<16|37|64|97\>
 
-Optimisation is recommended. Program name of your choice. Nothing fancy.
+Optimisation is recommended. Program name of your choice.
+
+The order of integration has a compile time option of 16th, 37th, 64th, or 97th order. You must pick one.
 
 ### Execute directions
 program\_name File\_name
