@@ -4,7 +4,7 @@
 using namespace std;
 
 pair<long double,long double> Integrate(long double, long double(*)(long double, long double));
-long double Kernel(long double, long double);
+long double Kernel(long double, long double, long double);
 
 long double Interpolation(long double, long double, long double[151][259]);	//(s,P) comes in, f(s,P) comes out
 long double i_index(long double, long double);				//Turns (s,P) into index variables
@@ -33,9 +33,9 @@ int main(int argc, char* argv[])
 	for(long double z = .25; z <= 6.25; z+=.25)
 	{
 		holder = Integrate(z, Non_interacting);
-		cout << z << " Around[" << holder.first << "," << holder.second << "] Around[" << flush;
+		cout << "{" << z << ",Around[" << holder.first << "," << holder.second << "],Around[" << flush;
 		holder = Integrate(z, Interacting);
-		cout << holder.first << "," << holder.second << "]" << endl;
+		cout << holder.first << "," << holder.second << "]}" << endl;
 	}
 
 	return(0);
@@ -62,22 +62,22 @@ pair<long double,long double> Integrate(long double z, long double(*sigma)(long 
 #endif
 
 	long double P1, P2, e1, e2;
-	long double P_interval = M_PI/z;
+	long double P_interval = M_PI/(4.*z);
 	long double a = 0, b = P_interval, c, d;
 	long double P_Max;
-	long double Answer, Partial_Answer;
-	long double Error, Partial_Error;
+	long double Answer = 0, Partial_Answer;
+	long double Error = 0, Partial_Error;
 	long double holder;
 	int i, j, k;
 
 	if(sigma == Interacting)
-		P_Max = 32.;
+		P_Max = int(32.*z/M_PI)*M_PI/z;
 	else
-		P_Max = 70.4;
+		P_Max = int(70.4*z/M_PI)*M_PI/z;
 
 	do
 	{
-		if(b < 15)
+		if(a < 15)
 		{
 			c = 0;
 			d = a;
@@ -85,7 +85,7 @@ pair<long double,long double> Integrate(long double z, long double(*sigma)(long 
 		else
 		{
 			c = 15;
-			d = 14;
+			d = 14.25;
 		}
 
 		do
@@ -102,8 +102,8 @@ pair<long double,long double> Integrate(long double z, long double(*sigma)(long 
 			for(i = 0; i < 32; i++)
 #endif
 			{
-				P1 = (b+a-Disp[j]*(b-a))/2.;
-				P2 = (b+a+Disp[j]*(b-a))/2.;
+				P1 = (b+a-Disp[i]*(b-a))/2.;
+				P2 = (b+a+Disp[i]*(b-a))/2.;
 #if ORDER == 16
 				for(j = 0; j < 5; j++) //Integrate the sub-interval
 #elif ORDER == 37
@@ -114,23 +114,23 @@ pair<long double,long double> Integrate(long double z, long double(*sigma)(long 
 				for(j = 0; j < 32; j++)
 #endif
 				{
-					if(c = 0)
+					if(c == 0)
 					{
 						e1 = (P1-c-Disp[j]*(P1-c))/2.;	//First for P1
 						e2 = (P1-c+Disp[j]*(P1-c))/2.;
 						holder = sigma(pow(e1,2)-pow(P1,2),P1)*Kernel(pow(e1,2)-pow(P1,2), P1, z);
-						Partial_Answer += w[i]*w[j]*holder;
-						Partial_Error += werr[i]*werr[j]*holder;
+						Partial_Answer += w[i]*w[j]*holder*(b-a)*(P1-c)/4.;
+						Partial_Error += werr[i]*werr[j]*holder*(b-a)*(P1-c)/4.;
 						holder = sigma(pow(e2,2)-pow(P1,2),P1)*Kernel(pow(e2,2)-pow(P1,2), P1, z);
-						Partial_Answer += w[i]*w[j]*holder;
-						Partial_Error += werr[i]*werr[j]*holder;
+						Partial_Answer += w[i]*w[j]*holder*(b-a)*(P1-c)/4.;
+						Partial_Error += werr[i]*werr[j]*holder*(b-a)*(P1-c)/4.;
 
 						e1 = (P2-c-Disp[j]*(P2-c))/2.;	//Second for P2
 						e2 = (P2-c+Disp[j]*(P2-c))/2.;
-						holder = sigma(pow(e1,2)-pow(P2,2),P2)*Kernel(pow(e1,2)-pow(P2,2), P2, z);
+						holder = sigma(pow(e1,2)-pow(P2,2),P2)*Kernel(pow(e1,2)-pow(P2,2), P2, z)*(b-a)*(P2-c)/4.;
 						Partial_Answer += w[i]*w[j]*holder;
 						Partial_Error += werr[i]*werr[j]*holder;
-						holder = sigma(pow(e2,2)-pow(P2,2),P2)*Kernel(pow(e2,2)-pow(P2,2), P2, z);
+						holder = sigma(pow(e2,2)-pow(P2,2),P2)*Kernel(pow(e2,2)-pow(P2,2), P2, z)*(b-a)*(P2-c)/4.;
 						Partial_Answer += w[i]*w[j]*holder;
 						Partial_Error += werr[i]*werr[j]*holder;
 					}
@@ -138,55 +138,55 @@ pair<long double,long double> Integrate(long double z, long double(*sigma)(long 
 					{
 						e1 = (2.*P1-c-d-Disp[j]*(c-d))/2.;	//First for P1
 						e2 = (2.*P1-c-d+Disp[j]*(c-d))/2.;
-						holder = sigma(pow(e1,2)-pow(P1,2),P1)*Kernel(pow(e1,2)-pow(P1,2), P1, z);
+						holder = sigma(pow(e1,2)-pow(P1,2),P1)*Kernel(pow(e1,2)-pow(P1,2), P1, z)*(b-a)*(d-c)/4.;
 						Partial_Answer += w[i]*w[j]*holder;
 						Partial_Error += werr[i]*werr[j]*holder;
-						holder = sigma(pow(e2,2)-pow(P1,2),P1)*Kernel(pow(e2,2)-pow(P1,2), P1, z);
+						holder = sigma(pow(e2,2)-pow(P1,2),P1)*Kernel(pow(e2,2)-pow(P1,2), P1, z)*(b-a)*(d-c)/4.;
 						Partial_Answer += w[i]*w[j]*holder;
 						Partial_Error += werr[i]*werr[j]*holder;
 
 						e1 = (2.*P2-c-d-Disp[j]*(c-d))/2.;	//Second for P2
 						e2 = (2.*P2-c-d+Disp[j]*(c-d))/2.;
-						holder = sigma(pow(e1,2)-pow(P2,2),P2)*Kernel(pow(e1,2)-pow(P2,2), P2, z);
+						holder = sigma(pow(e1,2)-pow(P2,2),P2)*Kernel(pow(e1,2)-pow(P2,2), P2, z)*(b-a)*(d-c)/4.;
 						Partial_Answer += w[i]*w[j]*holder;
 						Partial_Error += werr[i]*werr[j]*holder;
-						holder = sigma(pow(e2,2)-pow(P2,2),P2)*Kernel(pow(e2,2)-pow(P2,2), P2, z);
+						holder = sigma(pow(e2,2)-pow(P2,2),P2)*Kernel(pow(e2,2)-pow(P2,2), P2, z)*(b-a)*(d-c)/4.;
 						Partial_Answer += w[i]*w[j]*holder;
 						Partial_Error += werr[i]*werr[j]*holder;
 					}
 				}
-				if(c = 0)
+				if(c == 0)
 				{
-					holder = sigma(pow((P1-c)/2.,2)-pow(P1,2),P1)*Kernel(pow((P1-c)/2.,2)-pow(P1,2), P1, z);	//First for P1
+					holder = sigma(pow((P1-c)/2.,2)-pow(P1,2),P1)*Kernel(pow((P1-c)/2.,2)-pow(P1,2), P1, z)*(b-a)*(P1-c)/4.;	//First for P1
 					Partial_Answer += w[i]*w[j]*holder;
 					Partial_Error += werr[i]*werr[j]*holder;
 
-					holder = sigma(pow((P2-c)/2.,2)-pow(P2,2),P2)*Kernel(pow((P2-c)/2.,2)-pow(P2,2), P2, z);	//Second for P2
+					holder = sigma(pow((P2-c)/2.,2)-pow(P2,2),P2)*Kernel(pow((P2-c)/2.,2)-pow(P2,2), P2, z)*(b-a)*(P2-c)/4.;	//Second for P2
 					Partial_Answer += w[i]*w[j]*holder;
 					Partial_Error += werr[i]*werr[j]*holder;
 				}
 				else
 				{
-					holder = sigma(pow(P1-(c+d)/2.,2)-pow(P1,2),P1)*Kernel(pow(P1-(c+d)/2.,2)-pow(P1,2), P1, z);	//First for P1
+					holder = sigma(pow(P1-(c+d)/2.,2)-pow(P1,2),P1)*Kernel(pow(P1-(c+d)/2.,2)-pow(P1,2), P1, z)*(b-a)*(d-c)/4.;	//First for P1
 					Partial_Answer += w[i]*w[j]*holder;
 					Partial_Error += werr[i]*werr[j]*holder;
 
-					holder = sigma(pow(P2-(c+d)/2.,2)-pow(P2,2),P2)*Kernel(pow(P2-(c+d)/2.,2)-pow(P2,2), P2, z);	//Second for P2
+					holder = sigma(pow(P2-(c+d)/2.,2)-pow(P2,2),P2)*Kernel(pow(P2-(c+d)/2.,2)-pow(P2,2), P2, z)*(b-a)*(d-c)/4.;	//Second for P2
 					Partial_Answer += w[i]*w[j]*holder;
 					Partial_Error += werr[i]*werr[j]*holder;
 				}
 			}
-			if(c = 0)
+			if(c == 0)
 			{
-				P1 = (a+b)/2.
-				holder = sigma(pow((P1-c)/2.,2)-pow(P1,2),P1)*Kernel(pow((P1-c)/2.,2)-pow(P1,2), P1, z);
+				P2 = (a+b)/2.;
+				holder = sigma(pow((P2-c)/2.,2)-pow(P2,2),P2)*Kernel(pow((P2-c)/2.,2)-pow(P2,2), P2, z)*(b-a)*(P1-c)/4.;
 				Partial_Answer += w[i]*w[j]*holder;
 				Partial_Error += werr[i]*werr[j]*holder;
 			}
 			else
 			{
-				P1 = (a+b)/2.
-				holder = sigma(pow(P1-(c+d)/2.,2)-pow(P1,2),P1)*Kernel(pow(P1-(c+d)/2.,2)-pow(P1,2), P1, z);
+				P1 = (a+b)/2.;
+				holder = sigma(pow(P1-(c+d)/2.,2)-pow(P1,2),P1)*Kernel(pow(P1-(c+d)/2.,2)-pow(P1,2), P1, z)*(b-a)*(d-c)/4.;
 				Partial_Answer += w[i]*w[j]*holder;
 				Partial_Error += werr[i]*werr[j]*holder;
 			}
@@ -194,18 +194,23 @@ pair<long double,long double> Integrate(long double z, long double(*sigma)(long 
 			if(c == 0)
 			{
 				c = a;
-				d = int(a)+1.;
+				d = int(a)-.25;
+				if(d < 0)
+					d = 0;
 			}
 			else
 			{
-				c++;
-				d++;
+				c -= .25;
+				d -= .25;
+				if(d < 0)
+					d = 0;
 			}
 
 			Answer += Partial_Answer;
 			Error += abs(Partial_Error);
-		}while(d < 0);
+		}while(c > 0 && d >= 0);
 
+		a = b;
 		if(b+P_interval > 15 && b < 15)	//Be sure to drop a P-interval on P=15 GeV
 			b = 15;
 		else if(b == 15)	//And if b=15 is done, don't miss the next oscillation interval
@@ -214,8 +219,10 @@ pair<long double,long double> Integrate(long double z, long double(*sigma)(long 
 			b = P_interval*k;
 		}
 		else
-			b += P_intreval;
+			b += P_interval;
 	}while(b < P_Max);
+
+	return(pair<long double, long double>(Answer, Error));
 }
 
 long double Kernel(long double s, long double P, long double z)
@@ -249,13 +256,19 @@ long double Non_interacting(long double s, long double P)	//Returns the Non-inte
 
 long double Interpolation(long double s, long double P, long double f[151][259])
 {
-	long double i = i_index(s,P);						  //Index i
-	long double j = j_index(s,P);						  //Index j
-	int offset_i = -1, offset_j = -1;					  //Index offsets in calling up control points, normally -1, but can be 0 or -2 on the ends
+	long double i = i_index(s,P);			//Index i
+	long double j = j_index(s,P);			//Index j
+	if(i < 0 || i > 150 || j < 0 || j > 258)	//Prevent bad data returns
+	{
+		cerr << s << " " << s+pow(P,2) << " " << P << " " << i_index(s,P) << " " << j_index(s,P) << " " << endl;
+		return(0./0.);
+	}
+
+	int offset_i = -1, offset_j = -1;					 //Index offsets in calling up control points, normally -1, but can be 0 or -2 on the ends
 	long double (*Basisi[4])(long double) = {Basisn,Basisn,Basisn,Basisn}; //Basis Functions in the i direction
 	long double (*Basisj[4])(long double) = {Basisn,Basisn,Basisn,Basisn}; //Basis Functions in the j direction
-	long double zx[4][4], zy[4][4];					  //z from the x direction and y direction
-	long double answer = 0;						  //Result
+	long double zx[4][4], zy[4][4];					 //z from the x direction and y direction
+	long double answer = 0;						 //Result
 
 	if(i < 2)	//Reassign the function pointers for the x/i direction
 	{
