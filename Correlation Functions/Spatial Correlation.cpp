@@ -43,7 +43,11 @@ int main(int argc, char* argv[])
 
 pair<long double,long double> Integrate(long double z, long double(*sigma)(long double, long double))
 {
-#if ORDER == 16
+#if ORDER == 7
+	long double Disp[] = {0.5773502691896257645, 0.9258200997725514616};	//Displacement from center for 16th order Gauss-Kronrod integration from Mathematica
+	long double w[] = {28./45.,27./55.,98./495.};	//Weight of the function at Disp
+	long double werr[] = {28./45.,-28./55.,98./495.};	//Weight of the error estimate function at Disp
+#elif ORDER == 16
 	long double Disp[] = {0.27963041316178319341346652274898, 0.53846931010568309103631442070021, 0.75416672657084922044081716694612, 0.90617984593866399279762687829939, 0.98408536009484246449617293463614};	//Displacement from center for 16th order Gauss-Kronrod integration from Mathematica
 	long double w[] = {0.28298741785749121320425560137111, 0.272849801912558922340993264484456, 0.24104033922864758669994261122326, 0.186800796556492657467800026878486, 0.115233316622473394024626845880574, 0.0425820367510818328645094508476701};	//Weight of the function at Disp
 	long double werr[] = {0.272849801912558922340993264484456, -0.28590147103139767568463328751778, 0.272849801912558922340993264484456, -0.237588331270718881341348903612376, 0.186800796556492657467800026878486, -0.121693568433715693489637194839344, 0.0425820367510818328645094508476701};	//Weight of the error estimate function at Disp
@@ -61,9 +65,9 @@ pair<long double,long double> Integrate(long double z, long double(*sigma)(long 
 	long double werr[] = {0.0483263839865677583754454340005196, -0.04826989543895041496805275123058, 0.0481009691854577469278465438391581, -0.047819811342286387206818417546829, 0.0474260618738823823628799498539221, -0.046921430799100954535699524315602, 0.0463087567380257132403812984724432, -0.045588052131216814432293115148372, 0.0447586387497669372951991920753785, -0.043824548974264062095955310078004, 0.0427911155964467469336549254437386, -0.041657904241303703823902661306570, 0.0404234923703730966723492694215763, -0.039094475653763695264258791784071, 0.0376791306456133985148959737488490, -0.036176024633206206364440965175198, 0.0345821227447330341307263834168846, -0.032907145132458246574353586921383, 0.0311633255619737371711558486849664, -0.029347136788914885776668022714587, 0.0274520984222104037831477067959546, -0.025492363781481523381634344790214, 0.0234866596721633245920879128647720, -0.0214269848374047647011011285858944, 0.0192987714303268112944037397635239, -0.0171240577032371798466019060321402, 0.0149361036060860273850967513325094, -0.0127160105026076565963837063897218, 0.0104239873988068188280342507620158, -0.0081018906923740021908267570871021, 0.00584173707916669330394797663999954, -0.0035917912336977256648324881603283, 0.00122336081795147180029303715064886};	//Error weights for 97th order Gauss-Kronrod integration
 #endif
 
-	long double P1, P2, e1, e2;
+	long double e1, e2, P1, P2, c1, c2;
 	long double P_interval = M_PI/(4.*z);
-	long double a = 0, b = P_interval, c, d;
+	long double a = 0, b = .1, c, d;
 	long double P_Max;
 	long double Answer = 0, Partial_Answer;
 	long double Error = 0, Partial_Error;
@@ -77,23 +81,16 @@ pair<long double,long double> Integrate(long double z, long double(*sigma)(long 
 
 	do
 	{
-		if(a < 15)
-		{
-			c = 0;
-			d = a;
-		}
-		else
-		{
-			c = 15;
-			d = 14.25;
-		}
-
-		do
+		c = 0;
+		d = .1;
+		do	//General parallelogram
 		{
 			Partial_Answer = 0;
 			Partial_Error = 0;
-#if ORDER == 16
-			for(i = 0; i < 5; i++) //Integrate the sub-interval
+#if ORDER == 7
+			for(i = 0; i < 2; i++) //Integrate the sub-interval
+#elif ORDER == 16
+			for(i = 0; i < 5; i++)
 #elif ORDER == 37
 			for(i = 0; i < 12; i++)
 #elif ORDER == 64
@@ -102,10 +99,12 @@ pair<long double,long double> Integrate(long double z, long double(*sigma)(long 
 			for(i = 0; i < 32; i++)
 #endif
 			{
-				P1 = (b+a-Disp[i]*(b-a))/2.;
-				P2 = (b+a+Disp[i]*(b-a))/2.;
-#if ORDER == 16
-				for(j = 0; j < 5; j++) //Integrate the sub-interval
+				c1 = (b+a-Disp[i]*(b-a))/2.;
+				c2 = (b+a+Disp[i]*(b-a))/2.;
+#if ORDER == 7
+				for(j = 0; j < 2; j++) //Integrate the sub-interval
+#elif ORDER == 16
+				for(j = 0; j < 5; j++)
 #elif ORDER == 37
 				for(j = 0; j < 12; j++)
 #elif ORDER == 64
@@ -114,132 +113,203 @@ pair<long double,long double> Integrate(long double z, long double(*sigma)(long 
 				for(j = 0; j < 32; j++)
 #endif
 				{
-					if(c == 0)
-					{
-						e1 = (P1-c-Disp[j]*(P1-c))/2.;	//First for P1
-						e2 = (P1-c+Disp[j]*(P1-c))/2.;
-						holder = sigma(pow(e1,2)-pow(P1,2),P1)*Kernel(pow(e1,2)-pow(P1,2), P1, z);
-						Partial_Answer += w[i]*w[j]*holder*(b-a)*(P1-c)/4.;
-						Partial_Error += werr[i]*werr[j]*holder*(b-a)*(P1-c)/4.;
-						holder = sigma(pow(e2,2)-pow(P1,2),P1)*Kernel(pow(e2,2)-pow(P1,2), P1, z);
-						Partial_Answer += w[i]*w[j]*holder*(b-a)*(P1-c)/4.;
-						Partial_Error += werr[i]*werr[j]*holder*(b-a)*(P1-c)/4.;
+					e1 = (c+d-Disp[j]*(d-c))/2.;
+					e2 = (c+d+Disp[j]*(d-c))/2.;
 
-						e1 = (P2-c-Disp[j]*(P2-c))/2.;	//Second for P2
-						e2 = (P2-c+Disp[j]*(P2-c))/2.;
-						holder = sigma(pow(e1,2)-pow(P2,2),P2)*Kernel(pow(e1,2)-pow(P2,2), P2, z)*(b-a)*(P2-c)/4.;
-						Partial_Answer += w[i]*w[j]*holder;
-						Partial_Error += werr[i]*werr[j]*holder;
-						holder = sigma(pow(e2,2)-pow(P2,2),P2)*Kernel(pow(e2,2)-pow(P2,2), P2, z)*(b-a)*(P2-c)/4.;
-						Partial_Answer += w[i]*w[j]*holder;
-						Partial_Error += werr[i]*werr[j]*holder;
-					}
-					else
-					{
-						e1 = (2.*P1-c-d-Disp[j]*(c-d))/2.;	//First for P1
-						e2 = (2.*P1-c-d+Disp[j]*(c-d))/2.;
-						holder = sigma(pow(e1,2)-pow(P1,2),P1)*Kernel(pow(e1,2)-pow(P1,2), P1, z)*(b-a)*(d-c)/4.;
-						Partial_Answer += w[i]*w[j]*holder;
-						Partial_Error += werr[i]*werr[j]*holder;
-						holder = sigma(pow(e2,2)-pow(P1,2),P1)*Kernel(pow(e2,2)-pow(P1,2), P1, z)*(b-a)*(d-c)/4.;
-						Partial_Answer += w[i]*w[j]*holder;
-						Partial_Error += werr[i]*werr[j]*holder;
-
-						e1 = (2.*P2-c-d-Disp[j]*(c-d))/2.;	//Second for P2
-						e2 = (2.*P2-c-d+Disp[j]*(c-d))/2.;
-						holder = sigma(pow(e1,2)-pow(P2,2),P2)*Kernel(pow(e1,2)-pow(P2,2), P2, z)*(b-a)*(d-c)/4.;
-						Partial_Answer += w[i]*w[j]*holder;
-						Partial_Error += werr[i]*werr[j]*holder;
-						holder = sigma(pow(e2,2)-pow(P2,2),P2)*Kernel(pow(e2,2)-pow(P2,2), P2, z)*(b-a)*(d-c)/4.;
-						Partial_Answer += w[i]*w[j]*holder;
-						Partial_Error += werr[i]*werr[j]*holder;
-					}
-				}
-				if(c == 0)
-				{
-					holder = sigma(pow((P1-c)/2.,2)-pow(P1,2),P1)*Kernel(pow((P1-c)/2.,2)-pow(P1,2), P1, z)*(b-a)*(P1-c)/4.;	//First for P1
+					P1 = e1+c1;	//First for c1
+					P2 = e2+c1;
+					holder = sigma(e1, P1)*Kernel(e1, P1, z)*(b-a)*(d-c)/4.;
+					Partial_Answer += w[i]*w[j]*holder;
+					Partial_Error += werr[i]*werr[j]*holder;
+					holder = sigma(e2, P2)*Kernel(e2, P2, z)*(b-a)*(d-c)/4.;
 					Partial_Answer += w[i]*w[j]*holder;
 					Partial_Error += werr[i]*werr[j]*holder;
 
-					holder = sigma(pow((P2-c)/2.,2)-pow(P2,2),P2)*Kernel(pow((P2-c)/2.,2)-pow(P2,2), P2, z)*(b-a)*(P2-c)/4.;	//Second for P2
+					P1 = e1+c2;	//Second for c1
+					P2 = e2+c2;
+					holder = sigma(e1, P1)*Kernel(e1, P1, z)*(b-a)*(d-c)/4.;
+					Partial_Answer += w[i]*w[j]*holder;
+					Partial_Error += werr[i]*werr[j]*holder;
+					holder = sigma(e2, P2)*Kernel(e2, P2, z)*(b-a)*(d-c)/4.;
 					Partial_Answer += w[i]*w[j]*holder;
 					Partial_Error += werr[i]*werr[j]*holder;
 				}
-				else
-				{
-					holder = sigma(pow(P1-(c+d)/2.,2)-pow(P1,2),P1)*Kernel(pow(P1-(c+d)/2.,2)-pow(P1,2), P1, z)*(b-a)*(d-c)/4.;	//First for P1
-					Partial_Answer += w[i]*w[j]*holder;
-					Partial_Error += werr[i]*werr[j]*holder;
 
-					holder = sigma(pow(P2-(c+d)/2.,2)-pow(P2,2),P2)*Kernel(pow(P2-(c+d)/2.,2)-pow(P2,2), P2, z)*(b-a)*(d-c)/4.;	//Second for P2
-					Partial_Answer += w[i]*w[j]*holder;
-					Partial_Error += werr[i]*werr[j]*holder;
-				}
+				P1 = (c+d)/2.+c1;	//First for c1
+				P2 = (c+d)/2.+c2;	//Second for c2
+				holder = sigma((c+d)/2., P1)*Kernel((c+d)/2., P1, z)*(b-a)*(d-c)/4.;	//First for c1
+				Partial_Answer += w[i]*w[j]*holder;
+				Partial_Error += werr[i]*werr[j]*holder;
+
+				holder = sigma((c+d)/2., P2)*Kernel((c+d)/2., P2, z)*(b-a)*(d-c)/4.;	//Second for c2
+				Partial_Answer += w[i]*w[j]*holder;
+				Partial_Error += werr[i]*werr[j]*holder;
+
 			}
-			if(c == 0)
+
+#if ORDER == 7
+			for(j = 0; j < 2; j++) //Integrate the sub-interval
+#elif ORDER == 16
+			for(j = 0; j < 5; j++)
+#elif ORDER == 37
+			for(j = 0; j < 12; j++)
+#elif ORDER == 64
+			for(j = 0; j < 21; j++)
+#elif ORDER == 97
+			for(j = 0; j < 32; j++)
+#endif
 			{
-				P2 = (a+b)/2.;
-				holder = sigma(pow((P2-c)/2.,2)-pow(P2,2),P2)*Kernel(pow((P2-c)/2.,2)-pow(P2,2), P2, z)*(b-a)*(P1-c)/4.;
+				e1 = (c+d-Disp[j]*(d-c))/2.;
+				e2 = (c+d+Disp[j]*(d-c))/2.;
+
+				P1 = e1+(a+b)/2.;	//Second for c1
+				P2 = e2+(a+b)/2.;
+				holder = sigma(e1, P1)*Kernel(e1, P1, z)*(b-a)*(d-c)/4.;
+				Partial_Answer += w[i]*w[j]*holder;
+				Partial_Error += werr[i]*werr[j]*holder;
+				holder = sigma(e2, P2)*Kernel(e2, P2, z)*(b-a)*(d-c)/4.;
 				Partial_Answer += w[i]*w[j]*holder;
 				Partial_Error += werr[i]*werr[j]*holder;
 			}
-			else
-			{
-				P1 = (a+b)/2.;
-				holder = sigma(pow(P1-(c+d)/2.,2)-pow(P1,2),P1)*Kernel(pow(P1-(c+d)/2.,2)-pow(P1,2), P1, z)*(b-a)*(d-c)/4.;
-				Partial_Answer += w[i]*w[j]*holder;
-				Partial_Error += werr[i]*werr[j]*holder;
-			}
+			P1 = (a+b)/2.+(c+d)/2.;
+			holder = sigma((c+d)/2., P1)*Kernel((c+d)/2., P1, z)*(b-a)*(d-c)/4.;
+			Partial_Answer += w[i]*w[j]*holder;
+			Partial_Error += werr[i]*werr[j]*holder;
 			
-			if(c == 0)
-			{
-				c = a;
-				d = int(a)-.25;
-				if(d < 0)
-					d = 0;
-			}
+			c = d;
+			if(d < 20.8)
+				d += .1;
 			else
-			{
-				c -= .25;
-				d -= .25;
-				if(d < 0)
-					d = 0;
-			}
+				d += 1.;
+
+			if(d > P_Max-b)
+				d = P_Max-b;
 
 			Answer += Partial_Answer;
 			Error += abs(Partial_Error);
-		}while(c > 0 && d >= 0);
+		}while(c+b < P_Max);
+
+		Partial_Answer = 0;	//One last triangle to make the trapazoid
+		Partial_Error = 0;
+		c = P_Max-b;
+		d = P_Max-a;
+#if ORDER == 7
+		for(i = 0; i < 2; i++) //Integrate the sub-interval
+#elif ORDER == 16
+		for(i = 0; i < 5; i++)
+#elif ORDER == 37
+		for(i = 0; i < 12; i++)
+#elif ORDER == 64
+		for(i = 0; i < 21; i++)
+#elif ORDER == 97
+		for(i = 0; i < 32; i++)
+#endif
+		{
+			c1 = (b+a-Disp[i]*(b-a))/2.;
+			c2 = (b+a+Disp[i]*(b-a))/2.;
+#if ORDER == 7
+			for(j = 0; j < 2; j++) //Integrate the sub-interval
+#elif ORDER == 16
+			for(j = 0; j < 5; j++)
+#elif ORDER == 37
+			for(j = 0; j < 12; j++)
+#elif ORDER == 64
+			for(j = 0; j < 21; j++)
+#elif ORDER == 97
+			for(j = 0; j < 32; j++)
+#endif
+			{
+				e1 = (c+P_Max-c1-Disp[j]*(P_Max-c1-c))/2.;	//First for c1
+				e2 = (c+P_Max-c1+Disp[j]*(P_Max-c1-c))/2.;
+				P1 = e1+c1;
+				P2 = e2+c1;
+				holder = sigma(e1, P1)*Kernel(e1, P1, z)*(b-a)*(P_Max-c1-c)/4.;
+				Partial_Answer += w[i]*w[j]*holder;
+				Partial_Error += werr[i]*werr[j]*holder;
+				holder = sigma(e2, P2)*Kernel(e2, P2, z)*(b-a)*(P_Max-c1-c)/4.;
+				Partial_Answer += w[i]*w[j]*holder;
+				Partial_Error += werr[i]*werr[j]*holder;
+
+				e1 = (c+P_Max-c2-Disp[j]*(P_Max-c2-c))/2.;	//Second for c1
+				e2 = (c+P_Max-c2+Disp[j]*(P_Max-c2-c))/2.;
+				P1 = e1+c2;
+				P2 = e2+c2;
+				holder = sigma(e1, P1)*Kernel(e1, P1, z)*(b-a)*(P_Max-c2-c)/4.;
+				Partial_Answer += w[i]*w[j]*holder;
+				Partial_Error += werr[i]*werr[j]*holder;
+				holder = sigma(e2, P2)*Kernel(e2, P2, z)*(b-a)*(P_Max-c2-c)/4.;
+				Partial_Answer += w[i]*w[j]*holder;
+				Partial_Error += werr[i]*werr[j]*holder;
+			}
+
+			e1 = (c+P_Max-c1)/2.;	//First for c1
+			e2 = (c+P_Max-c2)/2.;	//Second for c2
+			P1 = e1+c1;
+			P2 = e2+c2;
+			holder = sigma(e1, P1)*Kernel(e1, P1, z)*(b-a)*(P_Max-c1-c)/4.;	//First for c1
+			Partial_Answer += w[i]*w[j]*holder;
+			Partial_Error += werr[i]*werr[j]*holder;
+
+			holder = sigma(e2, P2)*Kernel(e2, P2, z)*(b-a)*(P_Max-c2-c)/4.;	//Second for c2
+			Partial_Answer += w[i]*w[j]*holder;
+			Partial_Error += werr[i]*werr[j]*holder;
+		}
+#if ORDER == 7
+		for(j = 0; j < 2; j++) //Integrate the sub-interval
+#elif ORDER == 16
+		for(j = 0; j < 5; j++)
+#elif ORDER == 37
+		for(j = 0; j < 12; j++)
+#elif ORDER == 64
+		for(j = 0; j < 21; j++)
+#elif ORDER == 97
+		for(j = 0; j < 32; j++)
+#endif
+		{
+			e1 = (c+P_Max-(a+b)/2.-Disp[j]*(P_Max-(a+b)/2.-c))/2.;
+			e2 = (c+P_Max-(a+b)/2.+Disp[j]*(P_Max-(a+b)/2.-c))/2.;
+
+			P1 = e1+(a+b)/2.;	//Second for c1
+			P2 = e2+(a+b)/2.;
+			holder = sigma(e1, P1)*Kernel(e1, P1, z)*(b-a)*(P_Max-(a+b)/2.-c)/4.;
+			Partial_Answer += w[i]*w[j]*holder;
+			Partial_Error += werr[i]*werr[j]*holder;
+			holder = sigma(e2, P2)*Kernel(e2, P2, z)*(b-a)*(P_Max-(a+b)/2.-c)/4.;
+			Partial_Answer += w[i]*w[j]*holder;
+			Partial_Error += werr[i]*werr[j]*holder;
+		}
+		P1 = (a+b)/2.+(c+P_Max-(a+b)/2.)/2.;
+		holder = sigma((c+P_Max-(a+b)/2.)/2., P1)*Kernel((c+d)/2., P1, z)*(b-a)*(P_Max-(a+b)/2.-c)/4.;
+		Partial_Answer += w[i]*w[j]*holder;
+		Partial_Error += werr[i]*werr[j]*holder;
+
+		Answer += Partial_Answer;
+		Error += abs(Partial_Error);
 
 		a = b;
-		if(b+P_interval > 15 && b < 15)	//Be sure to drop a P-interval on P=15 GeV
+		b += .1;
+		if(b > 15)
 			b = 15;
-		else if(b == 15)	//And if b=15 is done, don't miss the next oscillation interval
-		{
-			k = 15./P_interval+1;
-			b = P_interval*k;
-		}
-		else
-			b += P_interval;
-	}while(b < P_Max);
+	}while(b < 15 && a != b);
 
 	return(pair<long double, long double>(Answer, Error));
 }
 
-long double Kernel(long double s, long double P, long double z)
+long double Kernel(long double e, long double P, long double z)
 {
-	return(cos(P*z)/(s+pow(P,2)));
+	return(2.*cos(P*z)/e);
 }
 
-long double Interacting(long double s, long double P)	//Returns the Interacting Spectral Function
+long double Interacting(long double e, long double P)	//Returns the Interacting Spectral Function
 {
-	long double ImGvC = Interpolation(s,P,ImGvCf);	//Get the interpolation of the contributions
-	long double ImGvL = sqrt(1.5)*Interpolation(s,P,ImGvCf);
-	long double ImGvQ = Interpolation(s,P,ImGvCf)/2.;
-	long double ImGV = Interpolation(s,P,ImGVf);
-	long double ReGvC = Interpolation(s,P,ReGvCf);
-	long double ReGvL = Interpolation(s,P,ReGvLf);
-	long double ReGvQ = Interpolation(s,P,ReGvQf);
-	long double ReGV = Interpolation(s,P,ReGVf);
+	long double ImGvC = Interpolation(e,P,ImGvCf);	//Get the interpolation of the contributions
+	long double ImGvL = sqrt(1.5)*Interpolation(e,P,ImGvCf);
+	long double ImGvQ = Interpolation(e,P,ImGvCf)/2.;
+	long double ImGV = Interpolation(e,P,ImGVf);
+	long double ReGvC = Interpolation(e,P,ReGvCf);
+	long double ReGvL = Interpolation(e,P,ReGvLf);
+	long double ReGvQ = Interpolation(e,P,ReGvQf);
+	long double ReGV = Interpolation(e,P,ReGVf);
 
 	//Each of the 3 interacting spectral function contributions
 	long double sigmaC = 3./M_PI/4.*Coupling_Fraction*Vacuum_Coupling*(ImGV*pow(ReGvC,2)-pow(ImGvC,2)*ImGV-2.*(ReGV-1.)*ImGvC*ReGvC)/(pow(ReGV-1.,2)+pow(ImGV,2));
@@ -249,18 +319,18 @@ long double Interacting(long double s, long double P)	//Returns the Interacting 
 	return(sigmaC+sigmaL+sigmaQ);
 }
 
-long double Non_interacting(long double s, long double P)	//Returns the Non-interacting Spectral Function
+long double Non_interacting(long double e, long double P)	//Returns the Non-interacting Spectral Function
 {
-	return(-3./M_PI*Interpolation(s, P, ImGf));
+	return(-3./M_PI*Interpolation(e, P, ImGf));
 }
 
-long double Interpolation(long double s, long double P, long double f[151][259])
+long double Interpolation(long double e, long double P, long double f[151][259])
 {
-	long double i = i_index(s,P);			//Index i
-	long double j = j_index(s,P);			//Index j
+	long double i = i_index(e,P);					//Index i
+	long double j = j_index(e,P);					//Index j
 	if(i < 0 || i > 150 || j < 0 || j > 258)	//Prevent bad data returns
 	{
-		cerr << s << " " << s+pow(P,2) << " " << P << " " << i_index(s,P) << " " << j_index(s,P) << " " << endl;
+		cerr << e << " " << pow(e,2)-pow(P,2) << " " << P << " " << i_index(e,P) << " " << j_index(e,P) << endl;
 		return(0./0.);
 	}
 
@@ -395,17 +465,17 @@ long double Interpolation(long double s, long double P, long double f[151][259])
 	return(answer);
 }
 
-long double j_index(long double s, long double P)
+long double j_index(long double e, long double P)
 {
-	if(s+pow(P,2) <= 432.64)
-		return(10.*sqrt(s+pow(P,2)));
+	if(e <= 20.8)
+		return(10.*e);
 	else
-		return(187.2+sqrt(s+pow(P,2)));
+		return(187.2+e);
 }
 
-long double i_index(long double s, long double P)
+long double i_index(long double e, long double P)
 {
-	return(10.*(P-sqrt(s+pow(P,2))));
+	return(10.*(P-e));
 }
 
 long double Basis0(long double x)
