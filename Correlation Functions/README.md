@@ -15,7 +15,14 @@ Correlation Function.\* takes the file outputted by Data Collector.\* and calcul
 The input file, output file, and Euclidean correlation function tempratures are hard coded. As written, the Euclidean correlation function will calcluate all tempratures simultanously.
 
 ## Spatial Correlation.cpp
-Mathematica was adding hours to days to the execute time for the space-like contributions to the spatial correlation function. So I wrote this to do it myself and faster.
+Mathematica was adding hours to days to the execute time for the space-like contributions to the spatial correlation function. So I wrote this to do it myself and faster. It is faster order for order, but it is not better (This should probably cause this code to be moved to the Abondoned Code directory, as it is). As far as I can tell, there is nothing interesting in the space-like region. Interesting meaning that extra attention is called for in one area or another. But I hit it with my biggest hammer on the smallest reasonable intervals and I still get garbage. I hit it with my 97th order integral on regions that are identical to interpolation cells and I got answers very different from Mathematica. What will probably be called for an adaptive alogrithm similar to the one used by Mathematica. You have the quadrature rule it uses here (16th order). What you need is a tree of sub-intervals with a priority queue of pointers pointing at the leaves sorted by absolute estimated error. Sub-divide the biggest contributor the to the error. Each sub-interval member of the tree should have the value and error estimate when it was evaluated, the value and error estimate total of its leaves, and pointers to its children sub-intervals or NULL. This should make it fairly easy to find "NIntegrate::slwcon" conditions where subdividing increases the estimated error instead of reducing it. It should make it fairly easy to find the other error states that Mathematica reports.
+
+For your consideration of runtime:
+- 7th order, ~6 minutes
+- 16th order, ~30 minutes
+- 37th order, ~2.75 hours
+- 64th order, ~8.9 hours
+- 97th order, ~20.2 hours
 
 ### Compile directions
 g++ Spatial Correlation.cpp \[-O3\] \[-o program_name\] -D ORDER=\<7|16|37|64|97\>
