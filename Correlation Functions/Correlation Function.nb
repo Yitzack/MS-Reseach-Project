@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    153917,       3677]
-NotebookOptionsPosition[    151807,       3645]
-NotebookOutlinePosition[    152196,       3661]
-CellTagsIndexPosition[    152153,       3658]
+NotebookDataLength[    139526,       3331]
+NotebookOptionsPosition[    137416,       3299]
+NotebookOutlinePosition[    137805,       3315]
+CellTagsIndexPosition[    137762,       3312]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -1661,41 +1661,9 @@ Cell[BoxData[
    RowBox[{
     RowBox[{
      RowBox[{"SpatialConstInter", "[", "\"\<24.1\>\"", "]"}], "=", 
-     RowBox[{"Table", "[", "\[IndentingNewLine]", 
+     RowBox[{"Table", "[", 
       RowBox[{
        RowBox[{
-        RowBox[{"\[Omega]Tab", "=", 
-         RowBox[{"Join", "[", 
-          RowBox[{
-           RowBox[{"Range", "[", 
-            RowBox[{"0", ",", "7", ",", ".25"}], "]"}], ",", 
-           RowBox[{"{", 
-            RowBox[{
-             RowBox[{
-              RowBox[{
-               RowBox[{"Select", "[", 
-                RowBox[{
-                 RowBox[{"Range", "[", 
-                  RowBox[{
-                   FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                   RowBox[{
-                    RowBox[{
-                    FractionBox["1", "z"], "2", " ", "32", "\[Pi]"}], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                   FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                 RowBox[{
-                  RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-               RowBox[{"[", 
-                RowBox[{"-", "1"}], "]"}], "]"}], "-", "15"}], ",", "23.5"}], 
-            "}"}]}], "]"}]}], ";", 
-        RowBox[{"(*", 
-         RowBox[{
-          RowBox[{
-          "How", " ", "to", " ", "devide", " ", "up", " ", "the", " ", 
-           "space"}], "-", 
-          RowBox[{"like", " ", "mesons"}]}], "*)"}], "\[IndentingNewLine]", 
         RowBox[{"Print", "[", 
          RowBox[{"{", 
           RowBox[{"Now", ",", "z"}], "}"}], "]"}], ";", 
@@ -1967,114 +1935,39 @@ Cell[BoxData[
            RowBox[{"time", "-", 
             RowBox[{"like", " ", "cutoff", " ", "contributions"}]}], "*)"}], 
           "\[IndentingNewLine]", 
-          RowBox[{"ParallelTable", "[", 
-           RowBox[{
-            RowBox[{"{", 
+          RowBox[{
+           RowBox[{"NIntegrate", "[", 
+            RowBox[{
              RowBox[{
-              RowBox[{"\[Omega]Tab", "[", 
-               RowBox[{"[", 
-                RowBox[{
-                 RowBox[{"Mod", "[", 
-                  RowBox[{"i", ",", "30"}], "]"}], "+", "1"}], "]"}], "]"}], 
-              ",", 
               RowBox[{
-               RowBox[{"\[Omega]Tab", "[", 
-                RowBox[{"[", 
-                 RowBox[{
-                  RowBox[{"Mod", "[", 
-                   RowBox[{"i", ",", "30"}], "]"}], "+", "1"}], "]"}], "]"}], 
-               "+", 
-               RowBox[{"Floor", "[", 
-                RowBox[{"i", "/", "30"}], "]"}]}], ",", 
-              RowBox[{"NIntegrate", "[", 
+               RowBox[{"Kernel", "[", "\"\<General Neg\>\"", "]"}], "[", 
+               RowBox[{"\[Omega]", ",", "z", ",", "P"}], "]"}], 
+              RowBox[{"\[Sigma]ConstInter", "[", 
                RowBox[{
                 RowBox[{
-                 RowBox[{
-                  RowBox[{"Kernel", "[", "\"\<General Neg\>\"", "]"}], "[", 
-                  RowBox[{"\[Omega]", ",", "z", ",", "P"}], "]"}], 
-                 RowBox[{"\[Sigma]TotalConst", "[", 
-                  RowBox[{
-                   RowBox[{
-                    SuperscriptBox["\[Omega]", "2"], "-", 
-                    SuperscriptBox["P", "2"]}], ",", "P", ",", 
-                   "\"\<24.1\>\""}], "]"}]}], ",", 
-                RowBox[{"{", 
-                 RowBox[{"\[Omega]", ",", 
-                  RowBox[{"\[Omega]Tab", "[", 
-                   RowBox[{"[", 
-                    RowBox[{
-                    RowBox[{"Mod", "[", 
-                    RowBox[{"i", ",", "30"}], "]"}], "+", "1"}], "]"}], "]"}],
-                   ",", 
-                  RowBox[{"\[Omega]Tab", "[", 
-                   RowBox[{"[", 
-                    RowBox[{
-                    RowBox[{"Mod", "[", 
-                    RowBox[{"i", ",", "30"}], "]"}], "+", "2"}], "]"}], 
-                   "]"}]}], "}"}], ",", 
-                RowBox[{"{", 
-                 RowBox[{"P", ",", 
-                  RowBox[{"Min", "[", 
-                   RowBox[{
-                    RowBox[{"\[Omega]", "+", 
-                    RowBox[{"Floor", "[", 
-                    RowBox[{"i", "/", "30"}], "]"}]}], ",", 
-                    RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
-                    RowBox[{
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                    RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}]}], "]"}], ",", 
-                  RowBox[{"Min", "[", 
-                   RowBox[{
-                    RowBox[{"\[Omega]", "+", 
-                    RowBox[{"Floor", "[", 
-                    RowBox[{"i", "/", "30"}], "]"}], "+", "1"}], ",", 
-                    RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
-                    RowBox[{
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                    RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}]}], "]"}]}], "}"}], ",", 
-                RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
-               "]"}]}], "}"}], ",", 
-            RowBox[{"{", 
-             RowBox[{"i", ",", "0", ",", 
-              RowBox[{
-               RowBox[{"30", " ", "15"}], "-", "1"}]}], "}"}]}], "]"}], ",", 
-          RowBox[{"(*", 
-           RowBox[{"space", "-", 
-            RowBox[{"like", " ", "contributions"}]}], "*)"}], 
-          "\[IndentingNewLine]", 
-          RowBox[{"ParallelTable", "[", 
-           RowBox[{
-            RowBox[{"{", 
+                 SuperscriptBox["\[Omega]", "2"], "-", 
+                 SuperscriptBox["P", "2"]}], ",", "P", ",", "\"\<24.1\>\""}], 
+               "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"P", ",", "0", ",", "15"}], "}"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"\[Omega]", ",", "0", ",", "P"}], "}"}], ",", 
+             RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
+            "]"}], "+", 
+           RowBox[{"NIntegrate", "[", 
+            RowBox[{
              RowBox[{
               RowBox[{
+               RowBox[{"Kernel", "[", "\"\<General Neg\>\"", "]"}], "[", 
+               RowBox[{"\[Omega]", ",", "z", ",", "P"}], "]"}], 
+              RowBox[{"\[Sigma]ConstInter", "[", 
+               RowBox[{
+                RowBox[{
+                 SuperscriptBox["\[Omega]", "2"], "-", 
+                 SuperscriptBox["P", "2"]}], ",", "P", ",", "\"\<24.1\>\""}], 
+               "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"P", ",", "15", ",", 
                RowBox[{
                 RowBox[{"Select", "[", 
                  RowBox[{
@@ -2091,35 +1984,23 @@ Cell[BoxData[
                   RowBox[{
                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
                 RowBox[{"[", 
-                 RowBox[{"-", "1"}], "]"}], "]"}], "-", "15", "+", "i"}], ",", 
+                 RowBox[{"-", "1"}], "]"}], "]"}]}], "}"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"\[Omega]", ",", 
+               RowBox[{"P", "-", "15"}], ",", "P"}], "}"}], ",", 
+             RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
+            "]"}], "+", 
+           RowBox[{"NIntegrate", "[", 
+            RowBox[{
+             RowBox[{"2", "\[Omega]", " ", 
               RowBox[{
-               RowBox[{"Select", "[", 
-                RowBox[{
-                 RowBox[{"Range", "[", 
-                  RowBox[{
-                   FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                   RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                   FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                 RowBox[{
-                  RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-               RowBox[{"[", 
-                RowBox[{"-", "1"}], "]"}], "]"}], ",", 
-              RowBox[{"NIntegrate", "[", 
+               RowBox[{"Kernel", "[", "\"\<Cutoff\>\"", "]"}], "[", 
                RowBox[{
-                RowBox[{"2", "\[Omega]", " ", 
-                 RowBox[{
-                  RowBox[{"Kernel", "[", "\"\<Cutoff\>\"", "]"}], "[", 
+                RowBox[{
+                 SuperscriptBox["\[Omega]", "2"], "-", 
+                 SuperscriptBox[
                   RowBox[{
-                   RowBox[{
-                    SuperscriptBox["\[Omega]", "2"], "-", 
-                    SuperscriptBox[
-                    RowBox[{
-                    RowBox[{"Select", "[", 
+                   RowBox[{"Select", "[", 
                     RowBox[{
                     RowBox[{"Range", "[", 
                     RowBox[{
@@ -2133,34 +2014,34 @@ Cell[BoxData[
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                     RowBox[{
                     RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
+                   
+                   RowBox[{"[", 
                     RowBox[{"-", "1"}], "]"}], "]"}], "2"]}], ",", "z", ",", 
-                   RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
-                    RowBox[{
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                    RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}]}], "]"}], 
-                 RowBox[{"\[Sigma]TotalConst", "[", 
+                RowBox[{
+                 RowBox[{"Select", "[", 
                   RowBox[{
-                   RowBox[{
-                    SuperscriptBox["\[Omega]", "2"], "-", 
-                    SuperscriptBox[
+                   RowBox[{"Range", "[", 
                     RowBox[{
-                    RowBox[{"Select", "[", 
+                    FractionBox["\[Pi]", 
+                    RowBox[{"2", "z"}]], ",", 
+                    RowBox[{
+                    FractionBox[
+                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    FractionBox["\[Pi]", 
+                    RowBox[{"2", "z"}]]}], ",", 
+                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
+                   RowBox[{
+                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
+                 
+                 RowBox[{"[", 
+                  RowBox[{"-", "1"}], "]"}], "]"}]}], "]"}], 
+              RowBox[{"\[Sigma]ConstInter", "[", 
+               RowBox[{
+                RowBox[{
+                 SuperscriptBox["\[Omega]", "2"], "-", 
+                 SuperscriptBox[
+                  RowBox[{
+                   RowBox[{"Select", "[", 
                     RowBox[{
                     RowBox[{"Range", "[", 
                     RowBox[{
@@ -2174,35 +2055,13 @@ Cell[BoxData[
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                     RowBox[{
                     RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
+                   
+                   RowBox[{"[", 
                     RowBox[{"-", "1"}], "]"}], "]"}], "2"]}], ",", 
-                   RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
-                    RowBox[{
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                    RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}], ",", "\"\<24.1\>\""}], 
-                  "]"}]}], ",", 
-                RowBox[{"{", 
-                 RowBox[{"\[Omega]", ",", 
+                RowBox[{
+                 RowBox[{"Select", "[", 
                   RowBox[{
-                   RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
+                   RowBox[{"Range", "[", 
                     RowBox[{
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]], ",", 
@@ -2212,17 +2071,19 @@ Cell[BoxData[
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
+                   RowBox[{
                     RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}], "-", "15", "+", "i"}], 
-                  ",", 
+                 
+                 RowBox[{"[", 
+                  RowBox[{"-", "1"}], "]"}], "]"}], ",", "\"\<24.1\>\""}], 
+               "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"\[Omega]", ",", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"Select", "[", 
                   RowBox[{
-                   RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
+                   RowBox[{"Range", "[", 
                     RowBox[{
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]], ",", 
@@ -2232,19 +2093,34 @@ Cell[BoxData[
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
+                   RowBox[{
                     RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}], "-", "14", "+", "i"}]}],
-                  "}"}], ",", 
-                RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
-               "]"}]}], "}"}], ",", 
-            RowBox[{"{", 
-             RowBox[{"i", ",", "0", ",", "14"}], "}"}]}], "]"}], ",", 
+                 
+                 RowBox[{"[", 
+                  RowBox[{"-", "1"}], "]"}], "]"}], "-", "15"}], ",", 
+               RowBox[{
+                RowBox[{"Select", "[", 
+                 RowBox[{
+                  RowBox[{"Range", "[", 
+                   RowBox[{
+                    FractionBox["\[Pi]", 
+                    RowBox[{"2", "z"}]], ",", 
+                    RowBox[{
+                    FractionBox[
+                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    FractionBox["\[Pi]", 
+                    RowBox[{"2", "z"}]]}], ",", 
+                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
+                  RowBox[{
+                   RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
+                RowBox[{"[", 
+                 RowBox[{"-", "1"}], "]"}], "]"}]}], "}"}], ",", 
+             RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
+            "]"}]}], ",", 
           RowBox[{"(*", 
            RowBox[{"space", "-", 
-            RowBox[{"like", " ", "cutoff", " ", "contributions"}]}], "*)"}], 
+            RowBox[{"like", " ", "contributions", " ", 
+             RowBox[{"w", "/", " ", "cutoff"}]}]}], "*)"}], 
           "\[IndentingNewLine]", 
           RowBox[{"ParallelTable", "[", 
            RowBox[{
@@ -2297,8 +2173,10 @@ Cell[BoxData[
   3.8619790565238323`*^9, 3.861979173563014*^9}, {3.861979266387919*^9, 
   3.861979270258526*^9}, {3.862584792653706*^9, 3.862584819156273*^9}, {
   3.862587286065298*^9, 3.862587292524901*^9}, {3.862587926047328*^9, 
-  3.862588186050838*^9}, {3.862588224320693*^9, 
-  3.862588226099325*^9}},ExpressionUUID->"6b92753f-554f-4616-bad2-\
+  3.862588186050838*^9}, {3.862588224320693*^9, 3.862588226099325*^9}, {
+  3.863301996509912*^9, 3.863302044339871*^9}, {3.8633021024018097`*^9, 
+  3.863302105955731*^9}, {3.863302207039933*^9, 
+  3.863302208076193*^9}},ExpressionUUID->"6b92753f-554f-4616-bad2-\
 40d0d720953b"],
 
 Cell[BoxData[
@@ -2316,32 +2194,6 @@ Cell[BoxData[
      RowBox[{"Table", "[", 
       RowBox[{
        RowBox[{
-        RowBox[{"\[Omega]Tab", "=", 
-         RowBox[{"Join", "[", 
-          RowBox[{
-           RowBox[{"Range", "[", 
-            RowBox[{"0", ",", "7", ",", ".25"}], "]"}], ",", 
-           RowBox[{"{", 
-            RowBox[{
-             RowBox[{
-              RowBox[{
-               RowBox[{"Select", "[", 
-                RowBox[{
-                 RowBox[{"Range", "[", 
-                  RowBox[{
-                   FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                   RowBox[{
-                    RowBox[{
-                    FractionBox["1", "z"], "2", " ", "32", "\[Pi]"}], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                   FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                 RowBox[{
-                  RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-               RowBox[{"[", 
-                RowBox[{"-", "1"}], "]"}], "]"}], "-", "15"}], ",", "23.5"}], 
-            "}"}]}], "]"}]}], ";", 
         RowBox[{"Print", "[", 
          RowBox[{"{", 
           RowBox[{"Now", ",", "z"}], "}"}], "]"}], ";", 
@@ -2603,110 +2455,39 @@ Cell[BoxData[
                    "]"}], "[", 
                   RowBox[{"[", "1", "]"}], "]"}], ")"}]}], "-", "1"}]}], 
              "}"}]}], "]"}], ",", 
-          RowBox[{"ParallelTable", "[", 
-           RowBox[{
-            RowBox[{"{", 
+          RowBox[{
+           RowBox[{"NIntegrate", "[", 
+            RowBox[{
              RowBox[{
-              RowBox[{"\[Omega]Tab", "[", 
-               RowBox[{"[", 
-                RowBox[{
-                 RowBox[{"Mod", "[", 
-                  RowBox[{"i", ",", "30"}], "]"}], "+", "1"}], "]"}], "]"}], 
-              ",", 
               RowBox[{
-               RowBox[{"\[Omega]Tab", "[", 
-                RowBox[{"[", 
-                 RowBox[{
-                  RowBox[{"Mod", "[", 
-                   RowBox[{"i", ",", "30"}], "]"}], "+", "1"}], "]"}], "]"}], 
-               "+", 
-               RowBox[{"Floor", "[", 
-                RowBox[{"i", "/", "30"}], "]"}]}], ",", 
-              RowBox[{"NIntegrate", "[", 
+               RowBox[{"Kernel", "[", "\"\<General Neg\>\"", "]"}], "[", 
+               RowBox[{"\[Omega]", ",", "z", ",", "P"}], "]"}], 
+              RowBox[{"\[Sigma]TotalInterRev", "[", 
                RowBox[{
                 RowBox[{
-                 RowBox[{
-                  RowBox[{"Kernel", "[", "\"\<General Neg\>\"", "]"}], "[", 
-                  RowBox[{"\[Omega]", ",", "z", ",", "P"}], "]"}], 
-                 RowBox[{"\[Sigma]TotalInter", "[", 
-                  RowBox[{
-                   RowBox[{
-                    SuperscriptBox["\[Omega]", "2"], "-", 
-                    SuperscriptBox["P", "2"]}], ",", "P", ",", 
-                   "\"\<24.1\>\""}], "]"}]}], ",", 
-                RowBox[{"{", 
-                 RowBox[{"\[Omega]", ",", 
-                  RowBox[{"\[Omega]Tab", "[", 
-                   RowBox[{"[", 
-                    RowBox[{
-                    RowBox[{"Mod", "[", 
-                    RowBox[{"i", ",", "30"}], "]"}], "+", "1"}], "]"}], "]"}],
-                   ",", 
-                  RowBox[{"\[Omega]Tab", "[", 
-                   RowBox[{"[", 
-                    RowBox[{
-                    RowBox[{"Mod", "[", 
-                    RowBox[{"i", ",", "30"}], "]"}], "+", "2"}], "]"}], 
-                   "]"}]}], "}"}], ",", 
-                RowBox[{"{", 
-                 RowBox[{"P", ",", 
-                  RowBox[{"Min", "[", 
-                   RowBox[{
-                    RowBox[{"\[Omega]", "+", 
-                    RowBox[{"Floor", "[", 
-                    RowBox[{"i", "/", "30"}], "]"}]}], ",", 
-                    RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
-                    RowBox[{
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                    RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}]}], "]"}], ",", 
-                  RowBox[{"Min", "[", 
-                   RowBox[{
-                    RowBox[{"\[Omega]", "+", 
-                    RowBox[{"Floor", "[", 
-                    RowBox[{"i", "/", "30"}], "]"}], "+", "1"}], ",", 
-                    RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
-                    RowBox[{
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                    RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}]}], "]"}]}], "}"}], ",", 
-                RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
-               "]"}]}], "}"}], ",", 
-            RowBox[{"{", 
-             RowBox[{"i", ",", "0", ",", 
-              RowBox[{
-               RowBox[{"30", " ", "15"}], "-", "1"}]}], "}"}]}], "]"}], ",", 
-          RowBox[{"ParallelTable", "[", 
-           RowBox[{
-            RowBox[{"{", 
+                 SuperscriptBox["\[Omega]", "2"], "-", 
+                 SuperscriptBox["P", "2"]}], ",", "P", ",", "\"\<24.1\>\""}], 
+               "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"P", ",", "0", ",", "15"}], "}"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"\[Omega]", ",", "0", ",", "P"}], "}"}], ",", 
+             RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
+            "]"}], "+", 
+           RowBox[{"NIntegrate", "[", 
+            RowBox[{
              RowBox[{
               RowBox[{
+               RowBox[{"Kernel", "[", "\"\<General Neg\>\"", "]"}], "[", 
+               RowBox[{"\[Omega]", ",", "z", ",", "P"}], "]"}], 
+              RowBox[{"\[Sigma]TotalInterRev", "[", 
+               RowBox[{
+                RowBox[{
+                 SuperscriptBox["\[Omega]", "2"], "-", 
+                 SuperscriptBox["P", "2"]}], ",", "P", ",", "\"\<24.1\>\""}], 
+               "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"P", ",", "15", ",", 
                RowBox[{
                 RowBox[{"Select", "[", 
                  RowBox[{
@@ -2723,35 +2504,23 @@ Cell[BoxData[
                   RowBox[{
                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
                 RowBox[{"[", 
-                 RowBox[{"-", "1"}], "]"}], "]"}], "-", "15", "+", "i"}], ",", 
+                 RowBox[{"-", "1"}], "]"}], "]"}]}], "}"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"\[Omega]", ",", 
+               RowBox[{"P", "-", "15"}], ",", "P"}], "}"}], ",", 
+             RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
+            "]"}], "+", 
+           RowBox[{"NIntegrate", "[", 
+            RowBox[{
+             RowBox[{"2", "\[Omega]", " ", 
               RowBox[{
-               RowBox[{"Select", "[", 
-                RowBox[{
-                 RowBox[{"Range", "[", 
-                  RowBox[{
-                   FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                   RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                   FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                 RowBox[{
-                  RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-               RowBox[{"[", 
-                RowBox[{"-", "1"}], "]"}], "]"}], ",", 
-              RowBox[{"NIntegrate", "[", 
+               RowBox[{"Kernel", "[", "\"\<Cutoff\>\"", "]"}], "[", 
                RowBox[{
-                RowBox[{"2", "\[Omega]", " ", 
-                 RowBox[{
-                  RowBox[{"Kernel", "[", "\"\<Cutoff\>\"", "]"}], "[", 
+                RowBox[{
+                 SuperscriptBox["\[Omega]", "2"], "-", 
+                 SuperscriptBox[
                   RowBox[{
-                   RowBox[{
-                    SuperscriptBox["\[Omega]", "2"], "-", 
-                    SuperscriptBox[
-                    RowBox[{
-                    RowBox[{"Select", "[", 
+                   RowBox[{"Select", "[", 
                     RowBox[{
                     RowBox[{"Range", "[", 
                     RowBox[{
@@ -2765,34 +2534,34 @@ Cell[BoxData[
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                     RowBox[{
                     RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
+                   
+                   RowBox[{"[", 
                     RowBox[{"-", "1"}], "]"}], "]"}], "2"]}], ",", "z", ",", 
-                   RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
-                    RowBox[{
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                    RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}]}], "]"}], 
-                 RowBox[{"\[Sigma]TotalInter", "[", 
+                RowBox[{
+                 RowBox[{"Select", "[", 
                   RowBox[{
-                   RowBox[{
-                    SuperscriptBox["\[Omega]", "2"], "-", 
-                    SuperscriptBox[
+                   RowBox[{"Range", "[", 
                     RowBox[{
-                    RowBox[{"Select", "[", 
+                    FractionBox["\[Pi]", 
+                    RowBox[{"2", "z"}]], ",", 
+                    RowBox[{
+                    FractionBox[
+                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    FractionBox["\[Pi]", 
+                    RowBox[{"2", "z"}]]}], ",", 
+                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
+                   RowBox[{
+                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
+                 
+                 RowBox[{"[", 
+                  RowBox[{"-", "1"}], "]"}], "]"}]}], "]"}], 
+              RowBox[{"\[Sigma]TotalInterRev", "[", 
+               RowBox[{
+                RowBox[{
+                 SuperscriptBox["\[Omega]", "2"], "-", 
+                 SuperscriptBox[
+                  RowBox[{
+                   RowBox[{"Select", "[", 
                     RowBox[{
                     RowBox[{"Range", "[", 
                     RowBox[{
@@ -2806,35 +2575,13 @@ Cell[BoxData[
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                     RowBox[{
                     RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
+                   
+                   RowBox[{"[", 
                     RowBox[{"-", "1"}], "]"}], "]"}], "2"]}], ",", 
-                   RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
-                    RowBox[{
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                    RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}], ",", "\"\<24.1\>\""}], 
-                  "]"}]}], ",", 
-                RowBox[{"{", 
-                 RowBox[{"\[Omega]", ",", 
+                RowBox[{
+                 RowBox[{"Select", "[", 
                   RowBox[{
-                   RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
+                   RowBox[{"Range", "[", 
                     RowBox[{
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]], ",", 
@@ -2844,17 +2591,19 @@ Cell[BoxData[
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
+                   RowBox[{
                     RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}], "-", "15", "+", "i"}], 
-                  ",", 
+                 
+                 RowBox[{"[", 
+                  RowBox[{"-", "1"}], "]"}], "]"}], ",", "\"\<24.1\>\""}], 
+               "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"\[Omega]", ",", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"Select", "[", 
                   RowBox[{
-                   RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
+                   RowBox[{"Range", "[", 
                     RowBox[{
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]], ",", 
@@ -2864,16 +2613,30 @@ Cell[BoxData[
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
+                   RowBox[{
                     RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}], "-", "14", "+", "i"}]}],
-                  "}"}], ",", 
-                RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
-               "]"}]}], "}"}], ",", 
-            RowBox[{"{", 
-             RowBox[{"i", ",", "0", ",", "14"}], "}"}]}], "]"}], ",", 
+                 
+                 RowBox[{"[", 
+                  RowBox[{"-", "1"}], "]"}], "]"}], "-", "15"}], ",", 
+               RowBox[{
+                RowBox[{"Select", "[", 
+                 RowBox[{
+                  RowBox[{"Range", "[", 
+                   RowBox[{
+                    FractionBox["\[Pi]", 
+                    RowBox[{"2", "z"}]], ",", 
+                    RowBox[{
+                    FractionBox[
+                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    FractionBox["\[Pi]", 
+                    RowBox[{"2", "z"}]]}], ",", 
+                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
+                  RowBox[{
+                   RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
+                RowBox[{"[", 
+                 RowBox[{"-", "1"}], "]"}], "]"}]}], "}"}], ",", 
+             RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
+            "]"}]}], ",", 
           RowBox[{"ParallelTable", "[", 
            RowBox[{
             RowBox[{"{", 
@@ -2918,7 +2681,9 @@ Cell[BoxData[
   3.8619790565238323`*^9, 3.861979173563014*^9}, {3.861979266387919*^9, 
   3.861979270258526*^9}, {3.862587075869993*^9, 3.862587139649212*^9}, {
   3.8625873092790623`*^9, 3.8625873140339403`*^9}, {3.8625881931718197`*^9, 
-  3.862588219575362*^9}},ExpressionUUID->"f9b3c8cd-60d5-4c94-8e8c-\
+  3.862588219575362*^9}, {3.863302063459013*^9, 3.863302084970132*^9}, {
+  3.863302209613653*^9, 
+  3.8633022126995296`*^9}},ExpressionUUID->"f9b3c8cd-60d5-4c94-8e8c-\
 d809dffbbd36"],
 
 Cell[BoxData[
@@ -2937,32 +2702,6 @@ Cell[BoxData[
      RowBox[{"Table", "[", 
       RowBox[{
        RowBox[{
-        RowBox[{"\[Omega]Tab", "=", 
-         RowBox[{"Join", "[", 
-          RowBox[{
-           RowBox[{"Range", "[", 
-            RowBox[{"0", ",", "7", ",", ".25"}], "]"}], ",", 
-           RowBox[{"{", 
-            RowBox[{
-             RowBox[{
-              RowBox[{
-               RowBox[{"Select", "[", 
-                RowBox[{
-                 RowBox[{"Range", "[", 
-                  RowBox[{
-                   FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                   RowBox[{
-                    RowBox[{
-                    FractionBox["1", "z"], "2", " ", "32", "\[Pi]"}], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                   FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                 RowBox[{
-                  RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-               RowBox[{"[", 
-                RowBox[{"-", "1"}], "]"}], "]"}], "-", "15"}], ",", "23.5"}], 
-            "}"}]}], "]"}]}], ";", 
         RowBox[{"Print", "[", 
          RowBox[{"{", 
           RowBox[{"Now", ",", "z"}], "}"}], "]"}], ";", 
@@ -2987,12 +2726,13 @@ Cell[BoxData[
                     RowBox[{"2", "z"}]], ",", 
                    RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                  RowBox[{
-                  RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
+                  RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], "[", 
+               
                RowBox[{"[", 
                 RowBox[{
                  RowBox[{"Floor", "[", 
@@ -3040,12 +2780,12 @@ Cell[BoxData[
                     RowBox[{"2", "z"}]], ",", 
                     RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                     RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}]}], 
+                    RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}]}], 
                     "]"}], "[", 
                    RowBox[{"[", 
                     RowBox[{
@@ -3061,13 +2801,13 @@ Cell[BoxData[
                     RowBox[{"2", "z"}]], ",", 
                     RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                     RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                   
+                    RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], 
+                   "[", 
                    RowBox[{"[", 
                     RowBox[{
                     RowBox[{"Floor", "[", 
@@ -3090,12 +2830,12 @@ Cell[BoxData[
                     RowBox[{"2", "z"}]], ",", 
                     RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                     RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], 
+                    RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], 
                    "]"}], "[", 
                   RowBox[{"[", "1", "]"}], "]"}], ")"}]}], "-", "1"}]}], 
              "}"}]}], "]"}], ",", 
@@ -3118,12 +2858,13 @@ Cell[BoxData[
                     RowBox[{"2", "z"}]], ",", 
                    RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                  RowBox[{
-                  RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
+                  RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], "[", 
+               
                RowBox[{"[", 
                 RowBox[{
                  RowBox[{"Floor", "[", 
@@ -3144,13 +2885,13 @@ Cell[BoxData[
                     RowBox[{"2", "z"}]], ",", 
                     RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                     RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
+                    RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], 
+                    "[", 
                     RowBox[{"[", 
                     RowBox[{
                     RowBox[{"Floor", "[", 
@@ -3169,13 +2910,13 @@ Cell[BoxData[
                     RowBox[{"2", "z"}]], ",", 
                     RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                     RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
+                    RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], 
+                    "[", 
                     RowBox[{"[", 
                     RowBox[{
                     RowBox[{"Floor", "[", 
@@ -3215,119 +2956,48 @@ Cell[BoxData[
                     RowBox[{"2", "z"}]], ",", 
                     RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                     RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], 
+                    RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], 
                    "]"}], "[", 
                   RowBox[{"[", "1", "]"}], "]"}], ")"}]}], "-", "1"}]}], 
              "}"}]}], "]"}], ",", 
-          RowBox[{"ParallelTable", "[", 
-           RowBox[{
-            RowBox[{"{", 
+          RowBox[{
+           RowBox[{"NIntegrate", "[", 
+            RowBox[{
              RowBox[{
-              RowBox[{"\[Omega]Tab", "[", 
-               RowBox[{"[", 
-                RowBox[{
-                 RowBox[{"Mod", "[", 
-                  RowBox[{"i", ",", "30"}], "]"}], "+", "1"}], "]"}], "]"}], 
-              ",", 
               RowBox[{
-               RowBox[{"\[Omega]Tab", "[", 
-                RowBox[{"[", 
-                 RowBox[{
-                  RowBox[{"Mod", "[", 
-                   RowBox[{"i", ",", "30"}], "]"}], "+", "1"}], "]"}], "]"}], 
-               "+", 
-               RowBox[{"Floor", "[", 
-                RowBox[{"i", "/", "30"}], "]"}]}], ",", 
-              RowBox[{"NIntegrate", "[", 
+               RowBox[{"Kernel", "[", "\"\<General Neg\>\"", "]"}], "[", 
+               RowBox[{"\[Omega]", ",", "z", ",", "P"}], "]"}], 
+              RowBox[{"\[Sigma]Non", "[", 
                RowBox[{
                 RowBox[{
-                 RowBox[{
-                  RowBox[{"Kernel", "[", "\"\<General Neg\>\"", "]"}], "[", 
-                  RowBox[{"\[Omega]", ",", "z", ",", "P"}], "]"}], 
-                 RowBox[{"\[Sigma]Non", "[", 
-                  RowBox[{
-                   RowBox[{
-                    SuperscriptBox["\[Omega]", "2"], "-", 
-                    SuperscriptBox["P", "2"]}], ",", "P", ",", 
-                   "\"\<24.1\>\""}], "]"}]}], ",", 
-                RowBox[{"{", 
-                 RowBox[{"\[Omega]", ",", 
-                  RowBox[{"\[Omega]Tab", "[", 
-                   RowBox[{"[", 
-                    RowBox[{
-                    RowBox[{"Mod", "[", 
-                    RowBox[{"i", ",", "30"}], "]"}], "+", "1"}], "]"}], "]"}],
-                   ",", 
-                  RowBox[{"\[Omega]Tab", "[", 
-                   RowBox[{"[", 
-                    RowBox[{
-                    RowBox[{"Mod", "[", 
-                    RowBox[{"i", ",", "30"}], "]"}], "+", "2"}], "]"}], 
-                   "]"}]}], "}"}], ",", 
-                RowBox[{"{", 
-                 RowBox[{"P", ",", 
-                  RowBox[{"Min", "[", 
-                   RowBox[{
-                    RowBox[{"\[Omega]", "+", 
-                    RowBox[{"Floor", "[", 
-                    RowBox[{"i", "/", "30"}], "]"}]}], ",", 
-                    RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
-                    RowBox[{
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                    RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}]}], "]"}], ",", 
-                  RowBox[{"Min", "[", 
-                   RowBox[{
-                    RowBox[{"\[Omega]", "+", 
-                    RowBox[{"Floor", "[", 
-                    RowBox[{"i", "/", "30"}], "]"}], "+", "1"}], ",", 
-                    RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
-                    RowBox[{
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                    RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}]}], "]"}]}], "}"}], ",", 
-                RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
-               "]"}]}], "}"}], ",", 
-            RowBox[{"{", 
-             RowBox[{"i", ",", "0", ",", 
-              RowBox[{
-               RowBox[{"30", " ", "15"}], "-", "1"}]}], "}"}]}], "]"}], ",", 
-          RowBox[{"ParallelTable", "[", 
-           RowBox[{
-            RowBox[{"{", 
+                 SuperscriptBox["\[Omega]", "2"], "-", 
+                 SuperscriptBox["P", "2"]}], ",", "P", ",", "\"\<24.1\>\""}], 
+               "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"P", ",", "0", ",", "15"}], "}"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"\[Omega]", ",", "0", ",", "P"}], "}"}], ",", 
+             RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
+            "]"}], "+", 
+           RowBox[{"NIntegrate", "[", 
+            RowBox[{
              RowBox[{
               RowBox[{
+               RowBox[{"Kernel", "[", "\"\<General Neg\>\"", "]"}], "[", 
+               RowBox[{"\[Omega]", ",", "z", ",", "P"}], "]"}], 
+              RowBox[{"\[Sigma]Non", "[", 
+               RowBox[{
+                RowBox[{
+                 SuperscriptBox["\[Omega]", "2"], "-", 
+                 SuperscriptBox["P", "2"]}], ",", "P", ",", "\"\<24.1\>\""}], 
+               "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"P", ",", "15", ",", 
                RowBox[{
                 RowBox[{"Select", "[", 
                  RowBox[{
@@ -3337,42 +3007,30 @@ Cell[BoxData[
                     RowBox[{"2", "z"}]], ",", 
                     RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                   RowBox[{
-                   RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
+                   RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], "[", 
                 RowBox[{"[", 
-                 RowBox[{"-", "1"}], "]"}], "]"}], "-", "15", "+", "i"}], ",", 
+                 RowBox[{"-", "1"}], "]"}], "]"}]}], "}"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"\[Omega]", ",", 
+               RowBox[{"P", "-", "15"}], ",", "P"}], "}"}], ",", 
+             RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
+            "]"}], "+", 
+           RowBox[{"NIntegrate", "[", 
+            RowBox[{
+             RowBox[{"2", "\[Omega]", " ", 
               RowBox[{
-               RowBox[{"Select", "[", 
-                RowBox[{
-                 RowBox[{"Range", "[", 
-                  RowBox[{
-                   FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                   RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                   FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                 RowBox[{
-                  RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-               RowBox[{"[", 
-                RowBox[{"-", "1"}], "]"}], "]"}], ",", 
-              RowBox[{"NIntegrate", "[", 
+               RowBox[{"Kernel", "[", "\"\<Cutoff\>\"", "]"}], "[", 
                RowBox[{
-                RowBox[{"2", "\[Omega]", " ", 
-                 RowBox[{
-                  RowBox[{"Kernel", "[", "\"\<Cutoff\>\"", "]"}], "[", 
+                RowBox[{
+                 SuperscriptBox["\[Omega]", "2"], "-", 
+                 SuperscriptBox[
                   RowBox[{
-                   RowBox[{
-                    SuperscriptBox["\[Omega]", "2"], "-", 
-                    SuperscriptBox[
-                    RowBox[{
-                    RowBox[{"Select", "[", 
+                   RowBox[{"Select", "[", 
                     RowBox[{
                     RowBox[{"Range", "[", 
                     RowBox[{
@@ -3380,40 +3038,40 @@ Cell[BoxData[
                     RowBox[{"2", "z"}]], ",", 
                     RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                     RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
+                    RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], 
+                   "[", 
+                   RowBox[{"[", 
                     RowBox[{"-", "1"}], "]"}], "]"}], "2"]}], ",", "z", ",", 
-                   RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
-                    RowBox[{
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                    RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}]}], "]"}], 
-                 RowBox[{"\[Sigma]Non", "[", 
+                RowBox[{
+                 RowBox[{"Select", "[", 
                   RowBox[{
-                   RowBox[{
-                    SuperscriptBox["\[Omega]", "2"], "-", 
-                    SuperscriptBox[
+                   RowBox[{"Range", "[", 
                     RowBox[{
-                    RowBox[{"Select", "[", 
+                    FractionBox["\[Pi]", 
+                    RowBox[{"2", "z"}]], ",", 
+                    RowBox[{
+                    FractionBox[
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
+                    FractionBox["\[Pi]", 
+                    RowBox[{"2", "z"}]]}], ",", 
+                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
+                   RowBox[{
+                    RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], 
+                 "[", 
+                 RowBox[{"[", 
+                  RowBox[{"-", "1"}], "]"}], "]"}]}], "]"}], 
+              RowBox[{"\[Sigma]Non", "[", 
+               RowBox[{
+                RowBox[{
+                 SuperscriptBox["\[Omega]", "2"], "-", 
+                 SuperscriptBox[
+                  RowBox[{
+                   RowBox[{"Select", "[", 
                     RowBox[{
                     RowBox[{"Range", "[", 
                     RowBox[{
@@ -3421,80 +3079,74 @@ Cell[BoxData[
                     RowBox[{"2", "z"}]], ",", 
                     RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
                     RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
+                    RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], 
+                   "[", 
+                   RowBox[{"[", 
                     RowBox[{"-", "1"}], "]"}], "]"}], "2"]}], ",", 
-                   RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
-                    RowBox[{
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]], ",", 
-                    RowBox[{
-                    FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
-                    FractionBox["\[Pi]", 
-                    RowBox[{"2", "z"}]]}], ",", 
-                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}], ",", "\"\<24.1\>\""}], 
-                  "]"}]}], ",", 
-                RowBox[{"{", 
-                 RowBox[{"\[Omega]", ",", 
+                RowBox[{
+                 RowBox[{"Select", "[", 
                   RowBox[{
-                   RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
+                   RowBox[{"Range", "[", 
                     RowBox[{
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]], ",", 
                     RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
-                    RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}], "-", "15", "+", "i"}], 
-                  ",", 
+                   RowBox[{
+                    RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], 
+                 "[", 
+                 RowBox[{"[", 
+                  RowBox[{"-", "1"}], "]"}], "]"}], ",", "\"\<24.1\>\""}], 
+               "]"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"\[Omega]", ",", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"Select", "[", 
                   RowBox[{
-                   RowBox[{
-                    RowBox[{"Select", "[", 
-                    RowBox[{
-                    RowBox[{"Range", "[", 
+                   RowBox[{"Range", "[", 
                     RowBox[{
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]], ",", 
                     RowBox[{
                     FractionBox[
-                    RowBox[{"2", " ", "32", "\[Pi]"}], "z"], "+", 
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
                     FractionBox["\[Pi]", 
                     RowBox[{"2", "z"}]]}], ",", 
                     FractionBox["\[Pi]", "z"]}], "]"}], ",", 
+                   RowBox[{
+                    RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], 
+                 "[", 
+                 RowBox[{"[", 
+                  RowBox[{"-", "1"}], "]"}], "]"}], "-", "15"}], ",", 
+               RowBox[{
+                RowBox[{"Select", "[", 
+                 RowBox[{
+                  RowBox[{"Range", "[", 
+                   RowBox[{
+                    FractionBox["\[Pi]", 
+                    RowBox[{"2", "z"}]], ",", 
                     RowBox[{
-                    RowBox[{"#", "\[LessEqual]", "32"}], "&"}]}], "]"}], "[", 
-                    
-                    RowBox[{"[", 
-                    RowBox[{"-", "1"}], "]"}], "]"}], "-", "14", "+", "i"}]}],
-                  "}"}], ",", 
-                RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
-               "]"}]}], "}"}], ",", 
-            RowBox[{"{", 
-             RowBox[{"i", ",", "0", ",", "14"}], "}"}]}], "]"}], ",", 
+                    FractionBox[
+                    RowBox[{"2", " ", "70.4", "\[Pi]"}], "z"], "+", 
+                    FractionBox["\[Pi]", 
+                    RowBox[{"2", "z"}]]}], ",", 
+                    FractionBox["\[Pi]", "z"]}], "]"}], ",", 
+                  RowBox[{
+                   RowBox[{"#", "\[LessEqual]", "70.4"}], "&"}]}], "]"}], "[", 
+                RowBox[{"[", 
+                 RowBox[{"-", "1"}], "]"}], "]"}]}], "}"}], ",", 
+             RowBox[{"Method", "\[Rule]", "\"\<GaussKronrodRule\>\""}]}], 
+            "]"}]}], ",", 
           RowBox[{"ParallelTable", "[", 
            RowBox[{
             RowBox[{"{", 
@@ -3540,7 +3192,9 @@ Cell[BoxData[
   3.8619790565238323`*^9, 3.861979173563014*^9}, {3.861979266387919*^9, 
   3.861979270258526*^9}, {3.862584901148384*^9, 3.862584916308999*^9}, {
   3.8625873280011683`*^9, 3.8625873444400263`*^9}, {3.862588203438158*^9, 
-  3.862588212501102*^9}},ExpressionUUID->"779fe3d2-27df-40e7-9442-\
+  3.862588212501102*^9}, {3.8633021711168737`*^9, 3.863302172787747*^9}, {
+  3.863302322392103*^9, 
+  3.863302387355073*^9}},ExpressionUUID->"779fe3d2-27df-40e7-9442-\
 fc94b8dad92c"],
 
 Cell[BoxData[
@@ -3673,12 +3327,12 @@ Cell[52532, 1338, 4407, 103, 166, "Input",ExpressionUUID->"c57d0c64-b3ef-4d61-84
 Cell[56942, 1443, 4234, 96, 195, "Input",ExpressionUUID->"967b09bf-c057-4a38-aa5c-974a3850d3a4"],
 Cell[61179, 1541, 4784, 79, 119, "Input",ExpressionUUID->"b462eed3-18b4-4e5f-af52-928b6b2f843a"],
 Cell[65966, 1622, 1240, 27, 55, "Input",ExpressionUUID->"86e699fe-531c-42eb-a447-aa5fa35c7f73"],
-Cell[67209, 1651, 27256, 650, 803, "Input",ExpressionUUID->"6b92753f-554f-4616-bad2-40d0d720953b"],
-Cell[94468, 2303, 25877, 618, 727, "Input",ExpressionUUID->"f9b3c8cd-60d5-4c94-8e8c-d809dffbbd36"],
-Cell[120348, 2923, 25852, 620, 727, "Input",ExpressionUUID->"779fe3d2-27df-40e7-9442-fc94b8dad92c"],
-Cell[146203, 3545, 4624, 77, 119, "Input",ExpressionUUID->"7207478e-c9a9-4a80-8577-2b7c8eb2d5ac"],
-Cell[150830, 3624, 649, 12, 53, "Input",ExpressionUUID->"e2773f15-1ce3-4817-8e96-a47d8dedaaf2"],
-Cell[151482, 3638, 321, 5, 75, "Input",ExpressionUUID->"69399492-d97e-4bc6-8ef7-634903a6e214"]
+Cell[67209, 1651, 22207, 528, 639, "Input",ExpressionUUID->"6b92753f-554f-4616-bad2-40d0d720953b"],
+Cell[89419, 2181, 21168, 505, 611, "Input",ExpressionUUID->"f9b3c8cd-60d5-4c94-8e8c-d809dffbbd36"],
+Cell[110590, 2688, 21219, 509, 611, "Input",ExpressionUUID->"779fe3d2-27df-40e7-9442-fc94b8dad92c"],
+Cell[131812, 3199, 4624, 77, 119, "Input",ExpressionUUID->"7207478e-c9a9-4a80-8577-2b7c8eb2d5ac"],
+Cell[136439, 3278, 649, 12, 53, "Input",ExpressionUUID->"e2773f15-1ce3-4817-8e96-a47d8dedaaf2"],
+Cell[137091, 3292, 321, 5, 75, "Input",ExpressionUUID->"69399492-d97e-4bc6-8ef7-634903a6e214"]
 }
 ]
 *)
