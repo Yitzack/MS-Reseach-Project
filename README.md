@@ -4,7 +4,7 @@ This is the code base for my MS and incomplete PhD in Theortical Nuclear Physics
 
 ## Abandoned Code
 
-Most of the code here no longer has a valid input and so can no longer perform its function. One script is completely unknown to me after 8 years. Euclidean1D.cpp still works but is only useful for parameter searches at P=0.
+Most of the code here no longer has a valid input and so can no longer perform its function. One script is completely unknown to me after 8 years. Euclidean1D.cpp still works but is only useful for parameter searches at P=0. Spatial Correlation.cpp was written to replace Mathematica and failed at the task. There are a couple of different bicubic splines in there that may be useful.
 
 ## Correlation Functions
 
