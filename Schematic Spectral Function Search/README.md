@@ -14,7 +14,7 @@ The program will compile correctly at all common levels of optimization, which a
 
 You must select the compile the order of integration for the full spatial correlation function of either P then s with -D Ps= or s then P with -D sP=
 
-You must select 16th, 37th, 64th, or 97th order Gauss-Kronrod integration with the -D ORDER= macro. I do recommend that you modify the program so that either you have one option permantly selected or you break up the order option for integral function. Before put the options in all of the integrating functions, I had 37th order for first level of the spatial (PInt, sInt), Lorentz, and P0_Int; 64th order for second level of the spatial (Spatial); and 97th order for Euclidean.
+You must select 16th, 37th, 64th, or 97th order Gauss-Kronrod integration with the -D ORDER= macro. I do recommend that you modify the program so that either you have one option permantly selected or you break up the order option for each integral function. Before I put the ORDER option in all of the integrating functions, I had 37th order for the first level of the spatial (PInt, sInt), Lorentz, and P0_Int; 64th order for the second level of the spatial (Spatial); and 97th order for the Euclidean.
 
 ## Execute Directions
 
