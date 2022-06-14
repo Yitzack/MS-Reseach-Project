@@ -1,6 +1,6 @@
 # Real Contribtions
 
-Mathematica used to be fast enough on the Cyclotron Institute's cluster to run this. The College of Science only has 40 licenses to share now. That's not enough to keep the cluster going. You'll probably want to convert this C++. Also C++ runs circles around Mathmatica anyways. Its a question of if you want to spend your time developing correct code or do you want spend your time waiting on correct code to complete.
+Mathematica used to be fast enough on the Cyclotron Institute's cluster to run this. The College of Science only has 40 licenses to share now. That's not enough to keep the cluster going. You'll probably want to convert this to C++. Also C++ usually runs circles around Mathmatica anyways. Its a question of if you want to spend your time developing correct code or do you want spend your time waiting on correct code to complete.
 
 ## Execute Directions
 
