@@ -28,7 +28,7 @@ The number of threads used should be between 1 and 616. I don't recommend going 
 
 Starting\_Point and Ending\_Point are see tin, the starting and ending points. What the exactly means in terms of invariant mass and center of mass momentum will have to reference from the code or an appendix in the thesis.
 
-Temprature is an integer between 1 and 4 inclusive that represents T=194, 258, 320, and 400 MeV.
+Temprature is an integer between 0 and 4 inclusive that represents vacuum, T=194, 258, 320, and 400 MeV.
 
 Fraction of coupling constant will tell it that the coupling constant should be the vacuum value times that number for P=0. It will remain there if the fraction to vacuum is 0.
 
