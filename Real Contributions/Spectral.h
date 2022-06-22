@@ -532,19 +532,19 @@ void Characterize_Dispersion(long double Par[], int Temp, long double k0, long d
 	else	//on-shell is in the negative energy region
 		sp_ID = 2;
 
-	if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sn[0])/2.+k0,2)+k*Par[3]*cos(theta))<1e-3 && sn[0] >= pow(2.*k0,2)-pow(Par[3],2))
+	if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sn[0])/2.-k0,2)-k*Par[3]*cos(theta))<1e-3 && sn[0] >= pow(2.*k0,2)-pow(Par[3],2))
 		sn_ID = 0;
-	else if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sn[1])/2.+k0,2)+k*Par[3]*cos(theta))<1e-3 && sn[1] >= pow(2.*k0,2)-pow(Par[3],2))
+	else if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sn[1])/2.-k0,2)-k*Par[3]*cos(theta))<1e-3 && sn[1] >= pow(2.*k0,2)-pow(Par[3],2))
 		sn_ID = 1;
 	else	//on-shell is in the negative energy region
 		sn_ID = 2;
 
-	if(sp_ID == 2)	//If sp is in the negative energy region, then sn can't be in the negative energy region
+	if(sp_ID == 2)			//If sp is in the negative energy region, then sn can't be in the negative energy region
 	{
 		zero[0] = sn[sn_ID];
 		Poles = 1;
 	}
-	else if(sn_ID == 2)
+	else if(sn_ID == 2)		//If sn is in the negative energy region, then sp can't be in the negative energy region
 	{
 		zero[0] = sp[sp_ID];
 		Poles = 1;
