@@ -528,7 +528,10 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	}while((a < Max && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
 
 	if(ImG12 != 0)
-		return((Answer+ImG12*log((a-Par[4])/(Par[4]-Min)))/M_PI);
+		if(Par[4] > Min)
+			return((Answer+ImG12*log((a-Par[4])/(Par[4]-Min)))/M_PI);
+		else
+			return((Answer+ImG12*log((a-Par[4])/(Min-Par[4])))/M_PI);
 	return(Answer/M_PI);
 }
 
