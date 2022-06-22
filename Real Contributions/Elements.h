@@ -13,6 +13,7 @@ class Elements
 		bool operator==(long double);		//This is looking for all components == 0, not any scalar. So, its actually looking for the 0 vector
 		bool operator>=(long double);		//This is about accuracy, so all components must pass
 		bool operator>(long double);		//This is about accuracy, so all components must pass
+		bool isnan();				//Equavalent to isnan(long double) but for vector but called as A.isnan instead of isnan(A)
 		Elements operator+(Elements);		//Sum of vectors
 		Elements operator-(Elements);		//Difference of vectors
 		Elements operator/(Elements);		//This is about accuracy, not the correct definition of division, so it is an element-wise division
@@ -95,6 +96,14 @@ bool Elements::operator>(long double A)
 		std::abs(Array[1]) > A ||
 		std::abs(Array[2]) > A ||
 		std::abs(Array[3]) > A);
+}
+
+bool Elements::isnan()
+{
+	return(std::isnan(Array[0]) ||
+		std::isnan(Array[1]) ||
+		std::isnan(Array[2]) ||
+		std::isnan(Array[3]));
 }
 
 Elements Elements::operator+(Elements A)

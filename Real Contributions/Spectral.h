@@ -154,6 +154,7 @@ Elements theta_Int(long double Par[], int Temp)
 			F += k_Int(Par, Temp, x2)*sin(x2)*w[j+1];
 		}
 		F += k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.)*w[0];
+
 		Answer += F*(b-a)/2.;	//Add the subinterval to total of the integral
 
 		a = b;	//Upper edge becomes lower edge
@@ -285,6 +286,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 			F += k0_Int(Par, Temp, x2, theta)*pow(x2,2)*w[l+1];
 		}
 		F += k0_Int(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w[0];
+
 		Partial = F*(b-a)/2.;	//Record the subinterval to total of the integral
 		Answer += Partial;	//Add the subinterval to total of the integral
 		a = b;
@@ -494,9 +496,9 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 			b += 3;
 		else if(i < Intervals)
 		{
-			while(a == b)
+			while(abs(a-b)<1e-14)
 			{
-				if(Stops[i]-b < 3)
+				if(Stops[i]-b < 3 && i < Intervals)
 				{
 					b = Stops[i];
 					i++;
@@ -527,77 +529,12 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		a = b;
 	}while((a < Max && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
 
+if(isnan(ImG12*log(abs((a-Par[4])/(Par[4]-Min)))))
+	cout << "dispersion PV correction " << theta << " " << k << " " << k0 << " " << ImG12 << " " << a << " " << Par[4] << " " << Min << endl;
+		
 	if(ImG12 != 0)
-		if(Par[4] > Min)
-			return((Answer+ImG12*log((a-Par[4])/(Par[4]-Min)))/M_PI);
-		else
-			return((Answer+ImG12*log((a-Par[4])/(Min-Par[4])))/M_PI);
+		return((Answer+ImG12*log(abs((a-Par[4])/(Par[4]-Min))))/M_PI);
 	return(Answer/M_PI);
-}
-
-void Characterize_Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta, long double zero[], long double gamma[], int &Poles)
-{
-	long double sp[2] = {4.*(pow(k,2)+pow(k0,2)+pow(Par[2],2)+k*Par[3]*cos(theta)-sqrt(pow(2.*k*k0,2)+pow(2.*k0*Par[2],2)+pow(k0*Par[3],2)+4.*k*pow(k0,2)*Par[3]*cos(theta))),4.*(pow(k,2)+pow(k0,2)+pow(Par[2],2)+k*Par[3]*cos(theta)+sqrt(pow(2.*k*k0,2)+pow(2.*k0*Par[2],2)+pow(k0*Par[3],2)+4.*k*pow(k0,2)*Par[3]*cos(theta)))}; //Both of the possible on-shell s using positive k^mu
-	long double sn[2] = {4.*(pow(k,2)+pow(k0,2)+pow(Par[2],2)-k*Par[3]*cos(theta)-sqrt(pow(2.*k*k0,2)+pow(2.*k0*Par[2],2)+pow(k0*Par[3],2)-4.*k*pow(k0,2)*Par[3]*cos(theta))),4.*(pow(k,2)+pow(k0,2)+pow(Par[2],2)-k*Par[3]*cos(theta)+sqrt(pow(2.*k*k0,2)+pow(2.*k0*Par[2],2)+pow(k0*Par[3],2)-4.*k*pow(k0,2)*Par[3]*cos(theta)))}; //Both of the possible on-shell s using negative k^mu
-	int sp_ID, sn_ID;	//Identifiers indicating which sp and sn are actully on-shell
-
-	//Set the identifiers of the on-shell
-	if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sp[0])/2.+k0,2)+k*Par[3]*cos(theta))<1e-3 && sp[0] >= pow(2.*k0,2)-pow(Par[3],2))
-		sp_ID = 0;
-	else if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sp[1])/2.+k0,2)+k*Par[3]*cos(theta))<1e-3 && sp[1] >= pow(2.*k0,2)-pow(Par[3],2))
-		sp_ID = 1;
-	else	//on-shell is in the negative energy region
-		sp_ID = 2;
-
-	if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sn[0])/2.-k0,2)-k*Par[3]*cos(theta))<1e-3 && sn[0] >= pow(2.*k0,2)-pow(Par[3],2))
-		sn_ID = 0;
-	else if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sn[1])/2.-k0,2)-k*Par[3]*cos(theta))<1e-3 && sn[1] >= pow(2.*k0,2)-pow(Par[3],2))
-		sn_ID = 1;
-	else	//on-shell is in the negative energy region
-		sn_ID = 2;
-
-	if(sp_ID == 2)			//If sp is in the negative energy region, then sn can't be in the negative energy region
-	{
-		zero[0] = sn[sn_ID];
-		Poles = 1;
-	}
-	else if(sn_ID == 2)		//If sn is in the negative energy region, then sp can't be in the negative energy region
-	{
-		zero[0] = sp[sp_ID];
-		Poles = 1;
-	}
-	else if(sp[sp_ID] < sn[sn_ID])	//list out in order
-	{
-		zero[0] = sp[sp_ID];
-		zero[1] = sn[sn_ID];
-		Poles = 2;
-	}
-	else
-	{
-		zero[0] = sn[sn_ID];
-		zero[1] = sp[sp_ID];
-		Poles = 2;
-	}
-
-	//Calcluate and record the widths of the peaks
-	Par[4] = zero[0];
-	gamma[0] = sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand);
-	if(Poles == 2)
-	{
-		Par[4] = zero[1];
-		gamma[1] = sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand);
-	}
-}
-
-long double sp_Width(long double Par[], long double k0, long double k, long double theta, int Temp, long double (*Folding)(long double[], long double, long double, long double, int))	//Breit-Wigner width of the peak
-{
-	long double y[3];
-	y[1] = Folding(Par, k0, k, theta, Temp);
-	Par[4] -= 1e-5;
-	y[0] = Folding(Par, k0, k, theta, Temp);
-	Par[4] += 2e-5;
-	y[2] = Folding(Par, k0, k, theta, Temp);
-	return(sqrt(abs(2e-10*y[1]/(y[0]-2.*y[1]+y[2]))));
 }
 
 void Characterize_k_Int(long double Par[], int Temp, long double theta, long double zero[], long double gamma[], int &Poles)
@@ -1016,6 +953,71 @@ long double Newton_Method_k0(long double k0, long double Par[], long double k, l
 long double omega_Width(long double zero, long double Par[], long double k, long double theta, int Temp, long double (*Folding)(long double[], long double, long double, long double, int))	//Breit-Wigner width of the peak
 {
 	return(sqrt(abs(2e-10*Folding(Par, zero, k, theta, Temp)/(Folding(Par, zero-1e-5, k, theta, Temp)-2.*Folding(Par, zero, k, theta, Temp)+Folding(Par, zero+1e-5, k, theta, Temp)))));
+}
+
+void Characterize_Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta, long double zero[], long double gamma[], int &Poles)
+{
+	long double sp[2] = {4.*(pow(k,2)+pow(k0,2)+pow(Par[2],2)+k*Par[3]*cos(theta)-sqrt(pow(2.*k*k0,2)+pow(2.*k0*Par[2],2)+pow(k0*Par[3],2)+4.*k*pow(k0,2)*Par[3]*cos(theta))),4.*(pow(k,2)+pow(k0,2)+pow(Par[2],2)+k*Par[3]*cos(theta)+sqrt(pow(2.*k*k0,2)+pow(2.*k0*Par[2],2)+pow(k0*Par[3],2)+4.*k*pow(k0,2)*Par[3]*cos(theta)))}; //Both of the possible on-shell s using positive k^mu
+	long double sn[2] = {4.*(pow(k,2)+pow(k0,2)+pow(Par[2],2)-k*Par[3]*cos(theta)-sqrt(pow(2.*k*k0,2)+pow(2.*k0*Par[2],2)+pow(k0*Par[3],2)-4.*k*pow(k0,2)*Par[3]*cos(theta))),4.*(pow(k,2)+pow(k0,2)+pow(Par[2],2)-k*Par[3]*cos(theta)+sqrt(pow(2.*k*k0,2)+pow(2.*k0*Par[2],2)+pow(k0*Par[3],2)-4.*k*pow(k0,2)*Par[3]*cos(theta)))}; //Both of the possible on-shell s using negative k^mu
+	int sp_ID, sn_ID;	//Identifiers indicating which sp and sn are actully on-shell
+
+	//Set the identifiers of the on-shell
+	if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sp[0])/2.+k0,2)+k*Par[3]*cos(theta))<1e-3 && sp[0] >= pow(2.*k0,2)-pow(Par[3],2))
+		sp_ID = 0;
+	else if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sp[1])/2.+k0,2)+k*Par[3]*cos(theta))<1e-3 && sp[1] >= pow(2.*k0,2)-pow(Par[3],2))
+		sp_ID = 1;
+	else	//on-shell is in the negative energy region
+		sp_ID = 2;
+
+	if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sn[0])/2.-k0,2)-k*Par[3]*cos(theta))<1e-3 && sn[0] >= pow(2.*k0,2)-pow(Par[3],2))
+		sn_ID = 0;
+	else if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sn[1])/2.-k0,2)-k*Par[3]*cos(theta))<1e-3 && sn[1] >= pow(2.*k0,2)-pow(Par[3],2))
+		sn_ID = 1;
+	else	//on-shell is in the negative energy region
+		sn_ID = 2;
+
+	if(sp_ID == 2)			//If sp is in the negative energy region, then sn can't be in the negative energy region
+	{
+		zero[0] = sn[sn_ID];
+		Poles = 1;
+	}
+	else if(sn_ID == 2)		//If sn is in the negative energy region, then sp can't be in the negative energy region
+	{
+		zero[0] = sp[sp_ID];
+		Poles = 1;
+	}
+	else if(sp[sp_ID] < sn[sn_ID])	//list out in order
+	{
+		zero[0] = sp[sp_ID];
+		zero[1] = sn[sn_ID];
+		Poles = 2;
+	}
+	else
+	{
+		zero[0] = sn[sn_ID];
+		zero[1] = sp[sp_ID];
+		Poles = 2;
+	}
+
+	//Calcluate and record the widths of the peaks
+	Par[4] = zero[0];
+	gamma[0] = sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand);
+	if(Poles == 2)
+	{
+		Par[4] = zero[1];
+		gamma[1] = sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand);
+	}
+}
+
+long double sp_Width(long double Par[], long double k0, long double k, long double theta, int Temp, long double (*Folding)(long double[], long double, long double, long double, int))	//Breit-Wigner width of the peak
+{
+	long double y[3];
+	y[1] = Folding(Par, k0, k, theta, Temp);
+	Par[4] -= 1e-5;
+	y[0] = Folding(Par, k0, k, theta, Temp);
+	Par[4] += 2e-5;
+	y[2] = Folding(Par, k0, k, theta, Temp);
+	return(sqrt(abs(2e-10*y[1]/(y[0]-2.*y[1]+y[2]))));
 }
 
 void ImSelf_Energy(long double M, long double omega[], long double k[], long double Par[], int Temp, long double Results[])	//Single quark self energy for both quarks
