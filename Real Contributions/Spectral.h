@@ -33,6 +33,7 @@ long double omega_Width(long double, long double[], long double, long double, in
 
 //Functions for finding points of interest in the dispersion integral
 void Characterize_Dispersion(long double[], int, long double, long double, long double, long double[], long double[], int&);
+long double sp_Width(long double[], long double, long double, long double, int, long double (*)(long double[], long double, long double, long double, int));	//Breit-Wigner width of the peak
 
 //Functions that return physics for the integrand
 void ImSelf_Energy(long double, long double, long double[], long double[],int, long double[]);			//Returns the imaginary single quark self-energies for both quarks, contains an alternate T=194 MeV solution
@@ -329,7 +330,7 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 	l = 0;
 	for(i = 0; i < Poles; i++)
 	{
-		if(isnan(gamma[i]))	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
+		if(!isnan(gamma[i]))	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
 			for(j = 0; j < 17; j++)
 			{
 				Stops[l] = zero[i]+gamma[i]*Range[j];	//Extra subintervals required by poles
@@ -429,6 +430,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight
 #endif
 	long double a, b;	//Sub-interval limits of integration
+	long double Min;	//Lower limit of integration
 	long double x1, x2;	//Abscissa
 	long double Max = 700;	//Upper limit of integration
 	long double ParLoc[5] = {Par[0],Par[1],Par[2],Par[3],Par[4]};	//Local copy of the parameters as Par[4] corrisponds to s and ParLoc[4] is s'
@@ -448,13 +450,13 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	int i, j, l;		//Counting varibles
 	int Intervals;		//Number of intervals required by poles and discontinuities
 
-	Characterize_Dispersion(Par, Temp, k0, k, theta, zero, gamma, Poles);
-	long double Stops[Poles*17+4];		//Extra stops to ensure correctness
+	Characterize_Dispersion(ParLoc, Temp, k0, k, theta, zero, gamma, Poles);
+	long double Stops[Poles*17+5];		//Extra stops to ensure correctness
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
 	{
-		if(isnan(gamma[i]))	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
+		if(!isnan(gamma[i]))	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
 			for(j = 0; j < 17; j++)
 			{
 				Stops[l] = zero[i]+gamma[i]*Range[j];	//Extra subintervals required by poles
@@ -466,32 +468,42 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 			l++;
 		}
 	}
-	a = Stops[l] = 4.*pow(k0,2)-pow(Par[3],2);	//Both quarks remain energy positive
+	Min = a = b = Stops[l] = 4.*pow(k0,2)-pow(Par[3],2);	//Both quarks remain energy positive
 	Stops[l+1] = 4.*pow(k,2)+4.*pow(k0,2)+3.*pow(Par[3],2)+4.*k*Par[3]*cos(theta)-8.*sqrt(pow(k*k0,2)+pow(k0*Par[3],2)+k*Par[3]*pow(k0,2)*cos(theta));	//Light-like quarks
 	Stops[l+2] = 4.*pow(k,2)+4.*pow(k0,2)+3.*pow(Par[3],2)-4.*k*Par[3]*cos(theta)+8.*sqrt(pow(k*k0,2)+pow(k0*Par[3],2)-k*Par[3]*pow(k0,2)*cos(theta));
 	Stops[l+3] = Par[4];	//Division by zero of dispersion relation
+	Stops[l+4] = Max;	//Adds the minimum end point to keep the integration going
 
-	mergeSort(Stops, 0, l+3);
+	mergeSort(Stops, 0, l+4);
 
 	i = 0;
 	while(Stops[i] < a)
 		i++;
-	Intervals = l+3-i;
+	Intervals = l+5;
+	i++;
 
 	do
 	{
-		if((i < Intervals && b+100 < Stops[i]) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
+		if((i < Intervals && b+100 < Stops[i] && b-Stops[i-1] > 100) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
-		else if((i < Intervals && b+50 < Stops[i]) || Stops[Intervals-1] < a-50)
+		else if((i < Intervals && 50 < Stops[i]-b && b-Stops[i-1] > 50) || Stops[Intervals-1] < a-50)
 			b += 50;
-		else if((i < Intervals && b+10 < Stops[i]) || Stops[Intervals-1] < a-10)
+		else if((i < Intervals && 10 < Stops[i]-b && b-Stops[i-1] > 10) || Stops[Intervals-1] < a-10)
 			b += 10;
-		else if((i < Intervals && b+3 < Stops[i]) || Stops[Intervals-1] < a-3)
+		else if((i < Intervals && 3 < Stops[i]-b) || Stops[Intervals-1] < a-3)
 			b += 3;
 		else if(i < Intervals)
 		{
-			b = Stops[i];
-			i++;
+			while(a == b)
+			{
+				if(Stops[i]-b < 3)
+				{
+					b = Stops[i];
+					i++;
+				}
+				else
+					b += 3;
+			}
 		}
 
 		F = 0;	//Zero out F for next sub-interval
@@ -515,7 +527,9 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		a = b;
 	}while((a < Max && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
 
-	return(Answer+ImG12*log((a-Par[4])/(Par[4]+pow(Par[3],2))));
+	if(ImG12 != 0)
+		return((Answer+ImG12*log((a-Par[4])/(Par[4]-Min)))/M_PI);
+	return(Answer/M_PI);
 }
 
 void Characterize_Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta, long double zero[], long double gamma[], int &Poles)
@@ -563,9 +577,24 @@ void Characterize_Dispersion(long double Par[], int Temp, long double k0, long d
 	}
 
 	//Calcluate and record the widths of the peaks
-	gamma[0] = omega_Width(zero[0], Par, k, theta, Temp, Imk0_Integrand);
+	Par[4] = zero[0];
+	gamma[0] = sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand);
 	if(Poles == 2)
-		gamma[1] = omega_Width(zero[1], Par, k, theta, Temp, Imk0_Integrand);
+	{
+		Par[4] = zero[1];
+		gamma[1] = sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand);
+	}
+}
+
+long double sp_Width(long double Par[], long double k0, long double k, long double theta, int Temp, long double (*Folding)(long double[], long double, long double, long double, int))	//Breit-Wigner width of the peak
+{
+	long double y[3];
+	y[1] = Folding(Par, k0, k, theta, Temp);
+	Par[4] -= 1e-5;
+	y[0] = Folding(Par, k0, k, theta, Temp);
+	Par[4] += 2e-5;
+	y[2] = Folding(Par, k0, k, theta, Temp);
+	return(sqrt(abs(2e-10*y[1]/(y[0]-2.*y[1]+y[2]))));
 }
 
 void Characterize_k_Int(long double Par[], int Temp, long double theta, long double zero[], long double gamma[], int &Poles)
