@@ -15,10 +15,10 @@ long double Set_C(long double, long double, long double, long double, long doubl
 int main(int argc, char* argv[])
 {
 #ifdef BB	//use option -D BB= to activate bottomium macro
-	char File[70] = "data/Spectralbb";  //Name of the file
+	char File[70] = "data/ReSpectralbb";  //Name of the file
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
-	char File[70] = "data/Spectralcc";
+	char File[70] = "data/ReSpectralcc";
 #endif
 
 #if VERSION == EXP	//use option -D VERSION={Exp,22,24,42} to select one of the potentials
