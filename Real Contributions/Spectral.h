@@ -31,6 +31,9 @@ void Characterize_k0_Int(long double[], int, long double, long double, long doub
 long double Newton_Method_k0(long double, long double[], long double, long double, int, long double (*)(long double[], long double, long double, long double, int));	//Returns the k0 of the on-shell peak using Newton's method on 1/f
 long double omega_Width(long double, long double[], long double, long double, int, long double (*)(long double[], long double, long double, long double, int));	//Returns the width of on-shell peak using the assumption of a breit-wigner peak 
 
+//Functions for finding points of interest in the dispersion integral
+void Characterize_Dispersion(long double[], int, long double, long double, long double, long double[], long double[], int&);
+
 //Functions that return physics for the integrand
 void ImSelf_Energy(long double, long double, long double[], long double[],int, long double[]);			//Returns the imaginary single quark self-energies for both quarks, contains an alternate T=194 MeV solution
 long double ImSelf_Energy(long double, long double, long double, long double[], int);				//Returns the imaginary single quark self-energies for one quark, contains an alternate T=194 MeV solution
@@ -431,20 +434,49 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	long double ParLoc[5] = {Par[0],Par[1],Par[2],Par[3],Par[4]};	//Local copy of the parameters as Par[4] corrisponds to s and ParLoc[4] is s'
 	long double ImG12 = Imk0_Integrand(Par,k0,k,theta,Temp);		//Holder of the ImG12 that belongs to the other half of G12 that is calculated here
 
+	//Extra boundaries that insert extra intervals around peaks. Used a machine learn algorithm of sorts to minimize error to pick these values.
+	long double Boundary_k_k0[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85};
+	long double Range[] = {-Boundary_k_k0[7], -Boundary_k_k0[6], -Boundary_k_k0[5], -Boundary_k_k0[4], -Boundary_k_k0[3], -Boundary_k_k0[2], -Boundary_k_k0[1], -Boundary_k_k0[0], 0, Boundary_k_k0[0], Boundary_k_k0[1], Boundary_k_k0[2], Boundary_k_k0[3], Boundary_k_k0[4], Boundary_k_k0[5], Boundary_k_k0[6], Boundary_k_k0[7]};	//Number of gamma from center
+
 	long double F;			//Sum of ordinates*weights
 	long double Answer = 0;	//Results to be returned
 	long double Partial;		//Partial results to examine convergance
-	long double Stops[6];		//Extra stops to ensure correctness
 
+	long double zero[2];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
+	long double gamma[2];	//Imaginary part of poles
+	int Poles;		//Number of poles with real parts between 0 and E
 	int i, j, l;		//Counting varibles
-	int Intervals = 6;	//Number of intervals required by poles and discontinuities
+	int Intervals;		//Number of intervals required by poles and discontinuities
 
-	Stops[0] = 4.*pow(k0,2)-pow(Par[3],2);	//Both quarks remain energy positive
-	Stops[1] = 4.*pow(k,2)+4.*pow(k0,2)+3.*pow(Par[3],2)+4.*k*Par[3]*cos(theta)-8.*sqrt(pow(k*k0,2)+pow(k0*Par[3],2)+k*Par[3]*pow(k0,2)*cos(theta));	//Light-like quarks
-	Stops[2] = 4.*pow(k,2)+4.*pow(k0,2)+3.*pow(Par[3],2)-4.*k*Par[3]*cos(theta)+8.*sqrt(pow(k*k0,2)+pow(k0*Par[3],2)-k*Par[3]*pow(k0,2)*cos(theta));
-	Stops[3] = 4.*pow(k,2)+4.*pow(k0,2)+4.*pow(Par[2],2)+3.*pow(Par[3],2)+4.*k*Par[3]*cos(theta)-8.*sqrt(pow(k*k0,2)+pow(Par[2]*k0,2)+pow(k0*Par[3],2)+k*Par[3]*pow(k0,2)*cos(theta));	//on-shell quarks
-	Stops[4] = 4.*pow(k,2)+4.*pow(k0,2)+4.*pow(Par[2],2)+3.*pow(Par[3],2)-4.*k*Par[3]*cos(theta)+8.*sqrt(pow(k*k0,2)+pow(Par[2]*k0,2)+pow(k0*Par[3],2)-k*Par[3]*pow(k0,2)*cos(theta));
-	Stops[5] = Par[4];	//Division by zero of dispersion relation
+	Characterize_Dispersion(Par, Temp, k0, k, theta, zero, gamma, Poles);
+	long double Stops[Poles*17+4];		//Extra stops to ensure correctness
+
+	l = 0;
+	for(i = 0; i < Poles; i++)
+	{
+		if(isnan(gamma[i]))	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
+			for(j = 0; j < 17; j++)
+			{
+				Stops[l] = zero[i]+gamma[i]*Range[j];	//Extra subintervals required by poles
+				l++;
+			}
+		else	//At lease insert the central point of the pole if the width isn't properly measured
+		{
+			Stops[l] = zero[i];
+			l++;
+		}
+	}
+	a = Stops[l] = 4.*pow(k0,2)-pow(Par[3],2);	//Both quarks remain energy positive
+	Stops[l+1] = 4.*pow(k,2)+4.*pow(k0,2)+3.*pow(Par[3],2)+4.*k*Par[3]*cos(theta)-8.*sqrt(pow(k*k0,2)+pow(k0*Par[3],2)+k*Par[3]*pow(k0,2)*cos(theta));	//Light-like quarks
+	Stops[l+2] = 4.*pow(k,2)+4.*pow(k0,2)+3.*pow(Par[3],2)-4.*k*Par[3]*cos(theta)+8.*sqrt(pow(k*k0,2)+pow(k0*Par[3],2)-k*Par[3]*pow(k0,2)*cos(theta));
+	Stops[l+3] = Par[4];	//Division by zero of dispersion relation
+
+	mergeSort(Stops, 0, l+3);
+
+	i = 0;
+	while(Stops[i] < a)
+		i++;
+	Intervals = l+3-i;
 
 	do
 	{
@@ -461,9 +493,6 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 			b = Stops[i];
 			i++;
 		}
-
-		if(b > Max)
-			b = Max;	//Don't exceed upper limit of integration
 
 		F = 0;	//Zero out F for next sub-interval
 
@@ -487,6 +516,56 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	}while((a < Max && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
 
 	return(Answer+ImG12*log((a-Par[4])/(Par[4]+pow(Par[3],2))));
+}
+
+void Characterize_Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta, long double zero[], long double gamma[], int &Poles)
+{
+	long double sp[2] = {4.*(pow(k,2)+pow(k0,2)+pow(Par[2],2)+k*Par[3]*cos(theta)-sqrt(pow(2.*k*k0,2)+pow(2.*k0*Par[2],2)+pow(k0*Par[3],2)+4.*k*pow(k0,2)*Par[3]*cos(theta))),4.*(pow(k,2)+pow(k0,2)+pow(Par[2],2)+k*Par[3]*cos(theta)+sqrt(pow(2.*k*k0,2)+pow(2.*k0*Par[2],2)+pow(k0*Par[3],2)+4.*k*pow(k0,2)*Par[3]*cos(theta)))}; //Both of the possible on-shell s using positive k^mu
+	long double sn[2] = {4.*(pow(k,2)+pow(k0,2)+pow(Par[2],2)-k*Par[3]*cos(theta)-sqrt(pow(2.*k*k0,2)+pow(2.*k0*Par[2],2)+pow(k0*Par[3],2)-4.*k*pow(k0,2)*Par[3]*cos(theta))),4.*(pow(k,2)+pow(k0,2)+pow(Par[2],2)-k*Par[3]*cos(theta)+sqrt(pow(2.*k*k0,2)+pow(2.*k0*Par[2],2)+pow(k0*Par[3],2)-4.*k*pow(k0,2)*Par[3]*cos(theta)))}; //Both of the possible on-shell s using negative k^mu
+	int sp_ID, sn_ID;	//Identifiers indicating which sp and sn are actully on-shell
+
+	//Set the identifiers of the on-shell
+	if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sp[0])/2.+k0,2)+k*Par[3]*cos(theta))<1e-3 && sp[0] >= pow(2.*k0,2)-pow(Par[3],2))
+		sp_ID = 0;
+	else if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sp[1])/2.+k0,2)+k*Par[3]*cos(theta))<1e-3 && sp[1] >= pow(2.*k0,2)-pow(Par[3],2))
+		sp_ID = 1;
+	else	//on-shell is in the negative energy region
+		sp_ID = 2;
+
+	if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sn[0])/2.+k0,2)+k*Par[3]*cos(theta))<1e-3 && sn[0] >= pow(2.*k0,2)-pow(Par[3],2))
+		sn_ID = 0;
+	else if(abs(pow(k,2)+pow(Par[2],2)+pow(Par[3]/2.,2)-pow(sqrt(pow(Par[3],2)+sn[1])/2.+k0,2)+k*Par[3]*cos(theta))<1e-3 && sn[1] >= pow(2.*k0,2)-pow(Par[3],2))
+		sn_ID = 1;
+	else	//on-shell is in the negative energy region
+		sn_ID = 2;
+
+	if(sp_ID == 2)	//If sp is in the negative energy region, then sn can't be in the negative energy region
+	{
+		zero[0] = sn[sn_ID];
+		Poles = 1;
+	}
+	else if(sn_ID == 2)
+	{
+		zero[0] = sp[sp_ID];
+		Poles = 1;
+	}
+	else if(sp[sp_ID] < sn[sn_ID])	//list out in order
+	{
+		zero[0] = sp[sp_ID];
+		zero[1] = sn[sn_ID];
+		Poles = 2;
+	}
+	else
+	{
+		zero[0] = sn[sn_ID];
+		zero[1] = sp[sp_ID];
+		Poles = 2;
+	}
+
+	//Calcluate and record the widths of the peaks
+	gamma[0] = omega_Width(zero[0], Par, k, theta, Temp, Imk0_Integrand);
+	if(Poles == 2)
+		gamma[1] = omega_Width(zero[1], Par, k, theta, Temp, Imk0_Integrand);
 }
 
 void Characterize_k_Int(long double Par[], int Temp, long double theta, long double zero[], long double gamma[], int &Poles)
