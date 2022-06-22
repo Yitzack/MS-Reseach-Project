@@ -472,9 +472,9 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	Stops[l+1] = 4.*pow(k,2)+4.*pow(k0,2)+3.*pow(Par[3],2)+4.*k*Par[3]*cos(theta)-8.*sqrt(pow(k*k0,2)+pow(k0*Par[3],2)+k*Par[3]*pow(k0,2)*cos(theta));	//Light-like quarks
 	Stops[l+2] = 4.*pow(k,2)+4.*pow(k0,2)+3.*pow(Par[3],2)-4.*k*Par[3]*cos(theta)+8.*sqrt(pow(k*k0,2)+pow(k0*Par[3],2)-k*Par[3]*pow(k0,2)*cos(theta));
 	Stops[l+3] = Par[4];	//Division by zero of dispersion relation
-	Stops[l+4] = Max;	//Adds the minimum end point to keep the integration going
 
-	mergeSort(Stops, 0, l+4);
+	mergeSort(Stops, 0, l+3);
+	Stops[l+4] = Stops[l+3]+100;	//Adds the minimum end point to keep the integration going
 
 	i = 0;
 	while(Stops[i] < a)
