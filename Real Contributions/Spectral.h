@@ -77,7 +77,7 @@ void mergeSort(pair<long double,bool> List[], int a, int b)
 		}
 		else
 		{
-			List[i].first = Temp[k].first;
+			List[i].first = List[k].first;
 			k++;
 		}
 	}
@@ -157,6 +157,9 @@ Elements theta_Int(long double Par[], int Temp)
 		}
 		F += k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.)*w[0];
 
+//if(F.isnan())
+//cout << "theta " << a << " " << b << " " << F[0] << " " << F[1] << " " << F[2] << " " << F[3] << endl;
+
 		Answer += F*(b-a)/2.;	//Add the subinterval to total of the integral
 
 		a = b;	//Upper edge becomes lower edge
@@ -204,7 +207,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 				l++;
 			}
 		else if(!isnan(gamma[i]))	//Prevents bad poles from getting in
-			for(j = 1; j < 14; j+=4)
+			for(j = 2; j < 15; j+=3)
 			{
 				Stops[l].first = zero[i]+gamma[i]*Range[j];	//Adds some intervals for other features
 				l++;
@@ -236,23 +239,23 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 
 	mergeSort(Stops, 0, l+10);	//Sort the list of sub-intervals
 
-	j = 0;
-	for(i = 0; i < l+10; i++)	//Step through each stop and determine if it is near an on-shell peak
-	{
-		if(zero[j]-gamma[j]*Boundary_k_k0[6] < Stops[i].first && Stops[i].first < zero[j]+gamma[j]*Boundary_k_k0[6])	//Is it near the current peak?
-			Stops[i].second = true;
-		else
-			Stops[i].second = false;
+	for(i = 0; i < l+10; i++)
+		Stops[i].second = false;
 
-		if(zero[j]-gamma[j]*Boundary_k_k0[6] < Stops[i].first && Stops[i].first < zero[j]+gamma[j]*Boundary_k_k0[6])	//Is it near the next peak?
+	for(j = 0; j < Poles; j++)
+		for(i = 0; i < l+10; i++)	//Step through each stop and determine if it is near an on-shell peak
 		{
-			Stops[i].second = true;
-			j++;
+			if(gamma[j]*Boundary_k_k0[4] < .5)
+			{
+				if(zero[j]-gamma[j]*Boundary_k_k0[4] <= Stops[i].first && Stops[i].first <= zero[j]+gamma[j]*Boundary_k_k0[4])	//Is it near the current peak?
+					Stops[i].second = true;
+			}
+			else
+			{
+				if(zero[j]-1. <= Stops[i].first && Stops[i].first <= zero[j]+1.)	//Is it near the current peak?
+					Stops[i].second = true;
+			}
 		}
-
-		if(i != 0 && Stops[i-1].second == true && Stops[i].second == false)	//Have I left previous peak? Won't double trigger as next peak has flagged current stop
-			j++;
-	}
 
 	i = 0;
 	j = 0;
@@ -320,6 +323,13 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 			F += k0_Int(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w37[0];
 		}
 
+/*if(F.isnan() && !isnan(theta))
+{
+	if(Close) cout << "97th " << flush;
+	else cout << "37th " << flush;
+	cout << "k " << theta << " " << a << " " << b << " " << F[0] << " " << F[1] << " " << F[2] << " " << F[3] << endl;
+}*/
+
 		Partial = F*(b-a)/2.;	//Record the subinterval to total of the integral
 		Answer += Partial;	//Add the subinterval to total of the integral
 		a = b;
@@ -382,23 +392,20 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 
 	mergeSort(Stops, 0, l+5);	//Sort the subintervals
 
-	j = 0;
-	for(i = 0; i < l+6; i++)	//Step through each stop and determine if it is near an on-shell peak
-	{
-		if(zero[j]-gamma[j]*Boundary_k_k0[6] < Stops[i].first && Stops[i].first < zero[j]+gamma[j]*Boundary_k_k0[6])	//Is it near the current peak?
-			Stops[i].second = true;
-		else
-			Stops[i].second = false;
-
-		if(zero[j]-gamma[j]*Boundary_k_k0[6] < Stops[i].first && Stops[i].first < zero[j]+gamma[j]*Boundary_k_k0[6])	//Is it near the next peak?
+	for(j = 0; j < Poles; j++)
+		for(i = 0; i < l+10; i++)	//Step through each stop and determine if it is near an on-shell peak
 		{
-			Stops[i].second = true;
-			j++;
+			if(gamma[j]*Boundary_k_k0[4] < .5)
+			{
+				if(zero[j]-gamma[j]*Boundary_k_k0[4] <= Stops[i].first && Stops[i].first <= zero[j]+gamma[j]*Boundary_k_k0[4])	//Is it near the current peak?
+					Stops[i].second = true;
+			}
+			else
+			{
+				if(zero[j]-1. <= Stops[i].first && Stops[i].first <= zero[j]+1.)	//Is it near the current peak?
+					Stops[i].second = true;
+			}
 		}
-
-		if(i != 0 && Stops[i-1].second == true && Stops[i].second == false)	//Have I left previous peak? Won't double trigger as next peak has flagged current stop
-			j++;
-	}
 
 	if(Temp != 0)
 	{
@@ -473,6 +480,12 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 			}
 			F += (Elements( Potential1(Par,(a+b)/2.,k), Interacting_Linear_Trace(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Interacting_Quad_Trace(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Dispersion(Par,Temp,(a+b)/2.,k,theta))*w37[0];
 		}
+/*if(F.isnan() && !isnan(k))
+{
+	if(Close) cout << "97th " << flush;
+	else cout << "37th " << flush;
+	cout << "k0 " << theta << " " << k << " " << a << " " << b << " " << F[0] << " " << F[1] << " " << F[2] << " " << F[3] << endl;
+}*/
 
 		Answer += F*(b-a)/2.;		//Add the subinterval to the total
 		a = b;
@@ -538,23 +551,20 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	mergeSort(Stops, 0, l+3);
 	Stops[l+4].first = Stops[l+3].first+100;	//Adds the minimum end point to keep the integration going
 
-	j = 0;
-	for(i = 0; i < l+5; i++)	//Step through each stop and determine if it is near an on-shell peak
-	{
-		if(zero[j]-gamma[j]*Boundary_k_k0[6] < Stops[i].first && Stops[i].first < zero[j]+gamma[j]*Boundary_k_k0[6])	//Is it near the current peak?
-			Stops[i].second = true;
-		else
-			Stops[i].second = false;
-
-		if(zero[j]-gamma[j]*Boundary_k_k0[6] < Stops[i].first && Stops[i].first < zero[j]+gamma[j]*Boundary_k_k0[6])	//Is it near the next peak?
+	for(j = 0; j < Poles; j++)
+		for(i = 0; i < l+10; i++)	//Step through each stop and determine if it is near an on-shell peak
 		{
-			Stops[i].second = true;
-			j++;
+			if(gamma[j]*Boundary_k_k0[4] < .5)
+			{
+				if(zero[j]-gamma[j]*Boundary_k_k0[4] <= Stops[i].first && Stops[i].first <= zero[j]+gamma[j]*Boundary_k_k0[4])	//Is it near the current peak?
+					Stops[i].second = true;
+			}
+			else
+			{
+				if(zero[j]-1. <= Stops[i].first && Stops[i].first <= zero[j]+1.)	//Is it near the current peak?
+					Stops[i].second = true;
+			}
 		}
-
-		if(i != 0 && Stops[i-1].second == true && Stops[i].second == false)	//Have I left previous peak? Won't double trigger as next peak has flagged current stop
-			j++;
-	}
 
 	i = 0;
 	while(Stops[i].first < a)
@@ -613,6 +623,12 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 			ParLoc[4] = (b+a)/2.;
 			F += (Imk0_Integrand(ParLoc,k0,k,theta,Temp)-ImG12)*w37[0]/(ParLoc[4]-Par[4]);
 		}
+/*if(isnan(F) && !isnan(k0))
+{
+	if(Close) cout << "97th " << flush;
+	else cout << "37th " << flush;
+	cout << "dispersion " << theta << " " << k << " " << k0 << " " << a << " " << b << " " << F << endl;
+}*/
 
 		Partial = F*(b-a)/2.;
 		Answer += Partial;		//Add the subinterval to the total
@@ -620,8 +636,8 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		Close = false;
 	}while((a < Max && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
 
-if(isnan(ImG12*log(abs((a-Par[4])/(Par[4]-Min)))))
-	cout << "dispersion PV correction " << theta << " " << k << " " << k0 << " " << ImG12 << " " << a << " " << Par[4] << " " << Min << endl;
+//if(isnan(ImG12*log(abs((a-Par[4])/(Par[4]-Min)))) && !isnan(k0))
+//	cout << "dispersion PV correction " << theta << " " << k << " " << k0 << " " << ImG12 << " " << a << " " << Par[4] << " " << Min << endl;
 		
 	if(ImG12 != 0)
 		return((Answer+ImG12*log(abs((a-Par[4])/(Par[4]-Min))))/M_PI);
@@ -802,8 +818,11 @@ void Characterize_k_Int(long double Par[], int Temp, long double theta, long dou
 		Poles++;
 	}
 
-	for(i = 0; i < Poles; i++)	//Move negative results to positive result. Should probably drop it, but might have ben missed or otherwise caught a feature that is interesting, just with the wrong sign
+	for(i = 0; i < Poles; i++)	//Move negative results to positive result. Should probably drop it, but might have been missed or otherwise caught a feature that is interesting, just with the wrong sign
+	{
 		zero[i] = abs(zero[i]);
+		gamma[i] = abs(gamma[i]);
+	}
 
 	for(i = Poles-1; i >= 0; i--)	//Bubble sort of a self-written pair object
 	{
@@ -1092,11 +1111,11 @@ void Characterize_Dispersion(long double Par[], int Temp, long double k0, long d
 
 	//Calcluate and record the widths of the peaks
 	Par[4] = zero[0];
-	gamma[0] = sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand);
+	gamma[0] = abs(sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand));
 	if(Poles == 2)
 	{
 		Par[4] = zero[1];
-		gamma[1] = sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand);
+		gamma[1] = abs(sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand));
 	}
 }
 
