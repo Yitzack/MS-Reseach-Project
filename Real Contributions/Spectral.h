@@ -442,7 +442,6 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 			F += (Elements(Potential1(Par,x2,k), Interacting_Linear_Trace(Par, x2, k, theta)*Potential1(Par,x2,k), Interacting_Quad_Trace(Par, x2, k, theta)*Potential1(Par,x2,k), Potential2(Par,x2,k))*Dispersion(Par,Temp,x2,k,theta))*w197[l+1];
 			}
 		F += (Elements( Potential1(Par,(a+b)/2.,k), Interacting_Linear_Trace(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Interacting_Quad_Trace(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Dispersion(Par,Temp,(a+b)/2.,k,theta))*w197[0];
-		}
 
 		Answer += F*(b-a)/2.;		//Add the subinterval to the total
 		a = b;
