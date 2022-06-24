@@ -182,8 +182,8 @@ Spectral_Non::Spectral_Non(long double Parm[6], int T, bool Vac)
 
 long double Spectral_Non::Spectral(long double s, long double P)
 {
-	if(Vacuum)
-		P = 0;
+	//if(Vacuum)
+	//	P = 0;
 
 	static long double old_P = P;
 	static long double M = Q(P,Parameters[0][0],Parameters[0][1],Parameters[0][2]);

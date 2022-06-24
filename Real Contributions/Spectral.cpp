@@ -32,9 +32,9 @@ int main(int argc, char* argv[])
 #endif
 
 #if ORDER == 37	//use option -D ORDER={37,97} to select 37th order or 97th order Gauss-Legendre integration
-	strcat(File, "37.");
+	strcat(File, "37M.");
 #elif ORDER == 97
-	strcat(File, "97.");
+	strcat(File, "97M.");
 #endif
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half

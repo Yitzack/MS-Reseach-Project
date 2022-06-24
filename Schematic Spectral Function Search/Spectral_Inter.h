@@ -186,9 +186,6 @@ Spectral_Inter::Spectral_Inter(long double Parm[15], int T, bool Vac)
 
 long double Spectral_Inter::Spectral(long double s, long double P)
 {
-	if(Vacuum)
-		P = 0;
-
 	static long double old_P = P;	//Static varibles are global between instances of the same class, careful
 	static Spectral_Inter* old_this = this;
 	if(0 == Q(P,Parameters[0][0],Parameters[0][1],Parameters[0][2]))
@@ -205,14 +202,14 @@ long double Spectral_Inter::Spectral(long double s, long double P)
 		A = 2.*M*Q(P,Parameters[0][0],Parameters[0][1],Parameters[0][2]);
 	}
 
+	if(Vacuum)
+		P = 0;
+
 	return((A*Gamma*M*sqrt((s+pow(P,2))/(pow(M,2)+pow(P,2))))/(M_PI*(pow(s-pow(M,2),2)+pow(Gamma*M*sqrt((s+pow(P,2))/(pow(M,2)+pow(P,2))),2))));
 }
 
 long double Spectral_Inter::Width(long double E, long double P)
 {
-	if(Vacuum)
-		P = 0;
-
 	static long double old_P = P;
 	static Spectral_Inter* old_this = this;
 	static long double M = Q(P,Parameters[1][0],Parameters[1][1],Parameters[1][2]);
@@ -229,6 +226,9 @@ long double Spectral_Inter::Width(long double E, long double P)
 		b = Q(P,Parameters[4][0],Parameters[4][1],Parameters[4][2]);
 		E0 = M-2.*Q(P,Parameters[2][0],Parameters[2][1],Parameters[2][2]);
 	}
+
+	if(Vacuum)
+		P = 0;
 
 	return(exp(a*(sqrt(pow(sqrt(pow(E,2)+pow(P,2))-sqrt(pow(E0,2)+pow(P,2)),2)+pow(b,2))-sqrt(pow(E,2)+pow(P,2))+sqrt(pow(E0,2)+pow(P,2)))/(2.*(sqrt(pow(sqrt(pow(M,2)+pow(P,2))-sqrt(pow(E0,2)+pow(P,2)),2)+pow(b,2))-sqrt(pow(M,2)+pow(P,2))+sqrt(pow(E0,2)+pow(P,2))))*(M-E0-sqrt(pow(M-E0,2)+pow(b,2)))+a/2.*(E0-M+sqrt(pow(b,2)+pow(M-E0,2)))));
 }

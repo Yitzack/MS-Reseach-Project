@@ -108,6 +108,9 @@ int main(int argc, char* argv[])
 	long double T;
 	switch(Temp)
 	{
+		case 0:
+			T = 0;
+			break;
 		case 1:
 			T = .194;
 			break;
@@ -177,6 +180,15 @@ int main(int argc, char* argv[])
 			for(int j = 0; j < 7; j++)
 				Medium_Spatial[j] = JPsi[T]->Spatial((long double)(j)+.25)+Psi_Prime[T]->Spatial((long double)(j)+.25)+Non[T]->Spatial((long double)(j)+.25);
 			Print(JPsi[T], Psi_Prime[T], Non[T], Medium_Euclidean, Medium_Spatial, T);
+
+			OutputFile << "{" << flush;
+			for(long double z = .25; z <= 6.25; z++)
+			{
+				for(long double s = 0; s <= 25; s+=.1)
+					OutputFile << "{{" << z << "," << s << "},{" << JPsi[T]->Spatial_PInt(z,s) << "," << Psi_Prime[T]->Spatial_PInt(z,s) << "," << Non[T]->Spatial_PInt(z,s) << "}}," << flush;
+				OutputFile << endl;
+			}
+			OutputFile << "}" << endl;
 		}while(!InputFile.eof());
 
 		return(0);
