@@ -443,18 +443,18 @@ cout << setprecision(18);
 
 		for(l = 0; l < 9; l++)
 		{
-			x1 = (b+a-Disp97[l]*(b-a))/2.;
-			x2 = (b+a+Disp97[l]*(b-a))/2.;
+			x1 = (b+a-Disp37[l]*(b-a))/2.;
+			x2 = (b+a+Disp37[l]*(b-a))/2.;
 			Holder = (Elements(Potential1(Par,x1,k), Interacting_Linear_Trace(Par, x1, k, theta)*Potential1(Par,x1,k), Interacting_Quad_Trace(Par, x1, k, theta)*Potential1(Par,x1,k), Potential2(Par,x1,k))*Dispersion(Par,Temp,x1,k,theta));
 //cout << "1 " << x1 << " " << k << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
-			F += Holder*w97[l+1];
+			F += Holder*w37[l+1];
 			Holder = (Elements(Potential1(Par,x2,k), Interacting_Linear_Trace(Par, x2, k, theta)*Potential1(Par,x2,k), Interacting_Quad_Trace(Par, x2, k, theta)*Potential1(Par,x2,k), Potential2(Par,x2,k))*Dispersion(Par,Temp,x2,k,theta));
 //cout << "2 " << x2 << " " << k << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
-			F += Holder*w97[l+1];
+			F += Holder*w37[l+1];
 			}
 		Holder = (Elements(Potential1(Par,(a+b)/2.,k), Interacting_Linear_Trace(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Interacting_Quad_Trace(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Dispersion(Par,Temp,(a+b)/2.,k,theta));
 //cout << "3 " << (a+b)/2. << " " << k << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
-		F += Holder*w97[0];
+		F += Holder*w37[0];
 
 		Answer += F*(b-a)/2.;		//Add the subinterval to the total
 		a = b;
