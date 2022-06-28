@@ -308,7 +308,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 		Answer += Partial;	//Add the subinterval to total of the integral
 		a = b;
 		//Close = false;
-	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && ((Temp == 0 && a < Max) && a <= 20.*sqrt(Par[4]+pow(Par[3],2)))); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
+	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a <= 20.*sqrt(Par[4]+pow(Par[3],2))); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }
@@ -370,8 +370,9 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 	Stops[l+3].first = sqrt(Par[4]+pow(Par[3],2))/2.+Energy(0,Par[3]/2.,-k,theta);	//Pretty sure this is the negative energy solution of the upper light-like edge
 	Stops[l+4].first = sqrt(Par[4]+pow(Par[3],2))/2.;					//Upper energy boundary (E/2)
 	Stops[l+5].first = -sqrt(Par[4]+pow(Par[3],2))/2.;					//Lower energy boundary (-E/2)
+	Stops[l+6].first = (Stops[l+2].first+Stops[l+3].first)/2.;
 
-	mergeSort(Stops, 0, l+5);	//Sort the subintervals
+	mergeSort(Stops, 0, l+6);	//Sort the subintervals
 
 	/*for(i = 0; i < l+6; i++)
 		Stops[i].second = false;
@@ -391,7 +392,7 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 			}
 		}*/
 cout << setprecision(18);
-	if(Temp != 0)
+	if(true)//Temp != 0)
 	{
 		a = b = -sqrt(Par[4]+pow(Par[3],2))/2.;	//Lower edge for non-vacuum
 		Max = sqrt(Par[4]+pow(Par[3],2))/2.;		//Upper edge for non-vacuum
@@ -514,7 +515,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	Min = a = b = Stops[l].first = 4.*pow(k0,2)-pow(Par[3],2);	//Both quarks remain energy positive
 	Stops[l+1].first = 4.*pow(k,2)+4.*pow(k0,2)+3.*pow(Par[3],2)+4.*k*Par[3]*cos(theta)-8.*sqrt(pow(k*k0,2)+pow(k0*Par[3],2)+k*Par[3]*pow(k0,2)*cos(theta));	//Light-like quarks
 	Stops[l+2].first = 4.*pow(k,2)+4.*pow(k0,2)+3.*pow(Par[3],2)-4.*k*Par[3]*cos(theta)+8.*sqrt(pow(k*k0,2)+pow(k0*Par[3],2)-k*Par[3]*pow(k0,2)*cos(theta));
-	if(Temp == 0)
+	/*if(Temp == 0)
 	{
 		if(Stops[l+1].first < Stops[l+2].first)
 			Min = a = b = Stops[l+2].first;
@@ -916,7 +917,7 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 	long double holder;
 	int i, j;
 
-	if(Temp != 0)
+	if(true)//Temp != 0)
 	{
 		Lower = -sqrt(Par[4]+pow(Par[3],2))/2.;
 		Upper = sqrt(Par[4]+pow(Par[3],2))/2.;	//Integrate from -E/2 to E/2
