@@ -187,6 +187,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	//bool Close = false;	//Close to pole?
 	int i, j, l;		//Counters, would use 'k', but 'k' is occupied by relative 3-momenta in other parts of program
 	int Intervals;		//Number of intervals recorded in Stops
+	long double Max;
 
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);	//Find the location of the complex poles
 	pair<long double,bool> Stops[Poles*17+12];				//List of pre-determined subintervals
@@ -214,7 +215,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	}
 
 	//More intervals from features not already considered
-	Stops[l].first = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//k for which quarks are simultanous light-like, highest k needed for vacuum
+	Max = Stops[l].first = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//k for which quarks are simultanous light-like, highest k needed for vacuum
 	if(isnan(Stops[l].first))	//If meson is space-like, keep absolute value of it anyways even though it probably does nothing
 		Stops[l].first = .5*sqrt(-Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
 	Stops[l+1].first = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]-pow(2.*Par[2],2)+pow(Par[3]*cos(theta),2)));	//On-shells leaving the positive energy range
@@ -307,7 +308,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 		Answer += Partial;	//Add the subinterval to total of the integral
 		a = b;
 		//Close = false;
-	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a <= 20.*sqrt(Par[4]+pow(Par[3],2))); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
+	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && ((Temp == 0 && a < Max) && a <= 20.*sqrt(Par[4]+pow(Par[3],2)))); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }
@@ -398,7 +399,7 @@ cout << setprecision(18);
 	else
 	{
 		a = b = Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.;	//Lower edge for vacuum
-		Max = sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta)/2.;	//Upper edge for vacuum
+		Max = sqrt(Par[4]+pow(Par[3],2))/2.-Energy(0,Par[3]/2.,-k,theta);	//Upper edge for vacuum
 	}
 
 	i = 0;
@@ -513,6 +514,13 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	Min = a = b = Stops[l].first = 4.*pow(k0,2)-pow(Par[3],2);	//Both quarks remain energy positive
 	Stops[l+1].first = 4.*pow(k,2)+4.*pow(k0,2)+3.*pow(Par[3],2)+4.*k*Par[3]*cos(theta)-8.*sqrt(pow(k*k0,2)+pow(k0*Par[3],2)+k*Par[3]*pow(k0,2)*cos(theta));	//Light-like quarks
 	Stops[l+2].first = 4.*pow(k,2)+4.*pow(k0,2)+3.*pow(Par[3],2)-4.*k*Par[3]*cos(theta)+8.*sqrt(pow(k*k0,2)+pow(k0*Par[3],2)-k*Par[3]*pow(k0,2)*cos(theta));
+	if(Temp == 0)
+	{
+		if(Stops[l+1].first < Stops[l+2].first)
+			Min = a = b = Stops[l+2].first;
+		else
+			Min = a = b = Stops[l+1].first;
+	}*/
 	Stops[l+3].first = Par[4];	//Division by zero of dispersion relation
 
 	mergeSort(Stops, 0, l+3);
