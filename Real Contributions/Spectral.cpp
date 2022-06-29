@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 			Par[2] = atof(argv[6]);
 
 			holder = theta_Int(Par, Temp);
-			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << endl;
+			cout << i << "\t" << j << "\t" << Par[3] << "\t" << Par[4] << "\t" << holder[0] << "\t" << holder[1] << "\t" << holder[2] << "\t" << holder[3] << endl;
 		}
 		TPlot << endl;
 	}
