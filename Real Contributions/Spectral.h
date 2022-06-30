@@ -14,10 +14,10 @@ long double Dispersion(long double[], int, long double, long double, long double
 
 //Functions for finding points of interest in the k integral
 void Characterize_k_Int(long double[], int, long double, long double[], long double[], int&);	//Returns the poles of the k integral's integrands
-bool Newton_Method_k(long double&, long double, long double, long double, long double, long double, long double(*)(long double, long double, long double, long double), long double(*)(long double, long double, long double, long double, long double));			//Returns the k-intesection of two features of interest: potential peak, on-shell peak, light-like boundaries
-long double V_Plus(long double, long double, long double, long double);			//Potiential peaks, matches a potential not in use
-long double V_Minus(long double, long double, long double, long double);
-long double Emm(long double, long double, long double, long double, long double);		//on-shell peaks
+bool Newton_Method_k(long double&, long double, long double, long double, long double, long double, long double(*)(long double, long double), long double(*)(long double, long double, long double, long double, long double));	//Returns the k-intesection of two features of interest: potential peak, on-shell peak, light-like boundaries
+long double V_Plus(long double, long double);			//Potiential peaks, matches a potential not in use
+long double V_Minus(long double, long double);
+long double Emm(long double, long double, long double, long double, long double);	//on-shell peaks
 long double Epm(long double, long double, long double, long double, long double);
 long double mEmp(long double, long double, long double, long double, long double);
 long double Emp(long double, long double, long double, long double, long double);
@@ -36,17 +36,17 @@ void Characterize_Dispersion(long double[], int, long double, long double, long 
 long double sp_Width(long double[], long double, long double, long double, int, long double (*)(long double[], long double, long double, long double, int));	//Breit-Wigner width of the peak
 
 //Functions that return physics for the integrand
-void ImSelf_Energy(long double, long double, long double[], long double[], int, long double[]);			//Returns the imaginary single quark self-energies for both quarks, contains an alternate T=194 MeV solution
-long double ImSelf_Energy(long double, long double, long double, long double[], int);				//Returns the imaginary single quark self-energies for one quark, contains an alternate T=194 MeV solution
+void ImSelf_Energy(long double, long double, long double[], int, long double[]);			//Returns the imaginary single quark self-energies for both quarks, contains an alternate T=194 MeV solution
+long double ImSelf_Energy(long double, long double, long double, int);				//Returns the imaginary single quark self-energies for one quark, contains an alternate T=194 MeV solution
 void ReSelf_Energy(long double, long double, long double[], int, long double[]);					//Returns the real single quark self-energies for both quarks, contains an alternate T=194 MeV solution
-void Self_Energy(long double, long double, long double[], long double[], int, long double[], long double[]);	//Returns the complex single quark self-energies for both quarks, is a simple Breit-Wigner self-energy and alternate to those above
+void Self_Energy(long double, long double, long double[], int, long double[], long double[]);	//Returns the complex single quark self-energies for both quarks, is a simple Breit-Wigner self-energy and alternate to those above
 long double Energy(long double, long double, long double, long double);						//Single quark energy, also used to return total momentum by setting M=0
 long double Fermi(long double, int);											//Fermi function
 long double Set_Temp(int);												//Decodes 0-4 into numeric temprature for Fermi factor
 long double Potential1(long double[], long double, long double);							//One vertex of the potiential
 long double Potential2(long double[], long double, long double);							//Two vertices of the potiential
-long double Interacting_Linear_Trace(long double[], long double, long double, long double);				//Linear (linear in sqrt(s)) contribution to the interacting trace
-long double Interacting_Quad_Trace(long double[], long double, long double, long double);				//Quadratic contribution to the interacting trace
+long double Interacting_Linear_Trace(long double[]);									//Linear (linear in sqrt(s)) contribution to the interacting trace
+long double Interacting_Quad_Trace(long double[], long double, long double);						//Quadratic contribution to the interacting trace
 long double Imk0_Integrand(long double[], long double, long double, long double, int);				//Integrand of the k0 integral for positive energy
 
 //Merge Sort. There are a number of semi-sorted lists that need sorting. This will probably beat quick sort under similar conditions. Don't worry about the second element. It doesn't need sorting as either they don't matter or they will be assigned after sorting.
@@ -99,19 +99,14 @@ Elements theta_Int(long double Par[], int Temp)
 	if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
 		return(k_Int(Par, Temp, M_PI/2.)/pow(2.*M_PI, 2)*2.);
 
-#if ORDER == 37	//37th order Gauss-Legendre integration
+//37th order Gauss-Legendre integration
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight
-#elif ORDER == 97	//97th order Gauss-Legendre integration
-	long double Disp[] = {0.06342068498268678602883, 0.1265859972696720510680, 0.1892415924618135864853, 0.2511351786125772735072, 0.3120175321197487622079, 0.3716435012622848888637, 0.4297729933415765246586, 0.4861719414524920421770, 0.5406132469917260665582, 0.5928776941089007124559, 0.6427548324192376640569, 0.6900438244251321135048, 0.7345542542374026962137, 0.7761068943454466350181, 0.8145344273598554315395, 0.8496821198441657010349, 0.8814084455730089100370, 0.9095856558280732852130, 0.9341002947558101490590, 0.9548536586741372335552, 0.9717622009015553801400, 0.9847578959142130043593, 0.9937886619441677907601, 0.9988201506066353793618};	//Displacement from center
-	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight
-#endif
 	long double x1, x2;					//Abscissa
 	long double a = 0, b;					//Sub-interval limits of integration
 	long double Boundary_theta[] = {1./17., 0.3, 0.08};	//Extra boundary values
 	Elements F;						//Sum of ordinate*weights
 	Elements Answer(0, 0, 0, 0);				//Answer to be returned
-	Elements holder;
 	int i, j;						//Counters
 
 	if(Par[4] > 0 && Par[3] > sqrt(Par[4]/2.)) //Where the maximum of the theta integral ought to land. It might only be correct for BbS reduction, but is close enough for all other cases. Only valid for s>0 and P>sqrt(s/2)
@@ -145,11 +140,8 @@ Elements theta_Int(long double Par[], int Temp)
 		b = Range[i].first;	//Upper edge
 		F.null();	//Zero out F for a new round
 
-#if ORDER == 37	//Count through points away from center
+		//Count through points away from center
 		for(j = 0; j < 9; j++)
-#elif ORDER == 97
-		for(j = 0; j < 24; j++)
-#endif
 		{
 			x1 = (b+a-Disp[j]*(b-a))/2.;
 			x2 = (b+a+Disp[j]*(b-a))/2.;
@@ -191,7 +183,6 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	//bool Close = false;	//Close to pole?
 	int i, j, l;		//Counters, would use 'k', but 'k' is occupied by relative 3-momenta in other parts of program
 	int Intervals;		//Number of intervals recorded in Stops
-	long double Max;
 
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);	//Find the location of the complex poles
 	pair<long double, bool> Stops[Poles*17+12];				//List of pre-determined subintervals
@@ -219,7 +210,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	}
 
 	//More intervals from features not already considered
-	Max = Stops[l].first = .5*sqrt(Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));	//k for which quarks are simultanous light-like, highest k needed for vacuum
+	Stops[l].first = .5*sqrt(Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));	//k for which quarks are simultanous light-like, highest k needed for vacuum
 	if(isnan(Stops[l].first))	//If meson is space-like, keep absolute value of it anyways even though it probably does nothing
 		Stops[l].first = .5*sqrt(-Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));
 	Stops[l+1].first = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]-pow(2.*Par[2], 2)+pow(Par[3]*cos(theta), 2)));	//On-shells leaving the positive energy range
@@ -236,7 +227,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 		if(isnan(Stops[i].first))
 			Stops[i].first = -1;
 
-	mergeSort(Stops, 0, l+10);	//Sort the list of sub-intervals
+	mergeSort(Stops, 0, l+9);	//Sort the list of sub-intervals
 
 	/*for(i = 0; i < l+10; i++)
 		Stops[i].second = false;
@@ -298,7 +289,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 
 		F.null();	//Zero out F for next subinterval
 
-		if(b-a < .25)	//use a higher order when the interval is large
+		if(b-a < 1)	//use a higher order when the interval is large
 		{
 			for(l = 0; l < 9; l++) //Count through points away from center
 			{
@@ -334,22 +325,9 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 {
 	if(Par[4]+pow(Par[3], 2) < 0)	//Bad data trap and time saver. The point is supposed to zero energy anyways but got evaluated to non-zero
 		return(Elements(0, 0, 0, 0));
-
-//37th order Gauss-Legendre integration
-	long double Disp37[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center
-	long double w37[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight
-//69th order Gauss-Legendre integration
-	long double Disp69[] = {0.0883713432756592636009, 0.176051061165989569974, 0.262352941209296057971, 0.346601554430813945877, 0.428137541517814254188, 0.506322773241488615024, 0.580545344749764509935, 0.650224364665890388676, 0.714814501556628783264, 0.773810252286912555267, 0.826749899092225406834, 0.873219125025222331523, 0.912854261359317614465, 0.945345148207827329539, 0.970437616039229833215, 0.987935764443851498035, 0.997706569099600297260};	//Displacement from center
-	long double w69[] = {0.0884867949071042906382, 0.0881405304302754629707, 0.0871044469971835342433, 0.0853866533920991252259, 0.0830005937288565883799, 0.0799649422423242629327, 0.0763034571554420535387, 0.0720447947725600646655, 0.0672222852690869039643, 0.0618736719660801888870, 0.0560408162123701285783, 0.0497693704013535298052, 0.0431084223261702187823, 0.0361101158634633805327, 0.0288292601088942540487, 0.0213229799114835808834, 0.0136508283483614922664, 0.00588343342044308497575};	//Weight
-//97th order Gauss-Legendre integration
-	long double Disp97[] = {0.06342068498268678602883, 0.1265859972696720510680, 0.1892415924618135864853, 0.2511351786125772735072, 0.3120175321197487622079, 0.3716435012622848888637, 0.4297729933415765246586, 0.4861719414524920421770, 0.5406132469917260665582, 0.5928776941089007124559, 0.6427548324192376640569, 0.6900438244251321135048, 0.7345542542374026962137, 0.7761068943454466350181, 0.8145344273598554315395, 0.8496821198441657010349, 0.8814084455730089100370, 0.9095856558280732852130, 0.9341002947558101490590, 0.9548536586741372335552, 0.9717622009015553801400, 0.9847578959142130043593, 0.9937886619441677907601, 0.9988201506066353793618};	//Displacement from center
-	long double w97[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight
-//197th order Gauss-Legendre integration
-	long double Disp197[] = {0.0315681512097722652035, 0.0631048346000262402065, 0.0945786137190520318764, 0.125958114819488461718, 0.157212058132358394384, 0.188309289047424476422, 0.219218809168784070389, 0.249909807214746539359, 0.280351689731191267178, 0.310514111587790736324, 0.340367006226699443041, 0.369880615633556193729, 0.399025520000924152379, 0.427772667054599621755, 0.456093401013556637293, 0.483959491154659700177, 0.511343159953671014219, 0.538217110774501032545, 0.564554555079101550743, 0.590329239130878564217, 0.615515470165007177051, 0.640088141999562525103, 0.664022760061938457558, 0.687295465805609097501, 0.709883060492896858207, 0.731763028320043522181, 0.752913558861538118255, 0.773313568811336145198, 0.792942722999308893908, 0.811781454661989134683, 0.829810984947430565029, 0.847013341634774147299, 0.863371377049917044435, 0.878868785159513850270, 0.893490117826414215002, 0.907220800210573568238, 0.920047145300500218715, 0.931956367561496964362, 0.942936595688479410295, 0.952976884453373502576, 0.962067225640901942739, 0.970198558074290215481, 0.977362776750705944570, 0.983552741156280012966, 0.988762282989873612510, 0.992986214133112277330, 0.996220338673088608563, 0.998461493835841338973, 0.999707943952169355864}; //Displacement from center
-	long double w197[] = {0.0315733968921756530514, 0.0315576603679112288581, 0.0315104664816283477132, 0.0314318622772215461615, 0.0313219261090751801282, 0.0311807675639581583703, 0.0310085273517855953583, 0.0308053771653562794992, 0.0305715195092057799922, 0.0303071874977458039796, 0.0300126446228910344719, 0.0296881844914050984480, 0.0293341305322275034764, 0.0289508356740733104037, 0.0285386819936269497266, 0.0280980803346809112659, 0.0276294698985990123221, 0.0271333178065125509264, 0.0266101186336858513018, 0.0260603939165154825409, 0.0254846916326547546506, 0.0248835856547819464460, 0.0242576751785570782316, 0.0236075841253378940466, 0.0229339605202510552841, 0.0222374758462393715844, 0.0215188243747302238182, 0.0207787224735942112074, 0.0200179078930865662079, 0.0192371390304871847987, 0.0184371941741784992710, 0.0176188707279243805068, 0.0167829844161387070895, 0.0159303684709608497110, 0.0150618728019902333130, 0.0141783631495794460661, 0.0132807202226572834800, 0.0123698388221751621034, 0.0114466269514982537611, 0.0105120049155247454057, 0.00956690441132613635690, 0.00861226761547888899173, 0.00764904627933525793539, 0.00667820086057509816518, 0.00570069977339592687515, 0.00471751903752083007969, 0.00372964348724303474920, 0.00273807587362687809132, 0.00174390695821924493864, 0.000749473646737405363375};	//Weight
-//241st order Gauss-Legendre integration
-	long double Disp241[] = {0.0258536296727778863319, 0.0516899753352805346417, 0.0774917645321680177992, 0.103241747910246176111, 0.128922710750232529589, 0.154517484475368281373, 0.180008958129182527218, 0.205380089814735409076, 0.230613918087692703993, 0.255693573295615205372, 0.280602288855882211756, 0.305323412464709464402, 0.329840417229767941931, 0.354136912718960997256, 0.378196655917973374910, 0.402003562089266638368, 0.425541715525261426304, 0.448795380188517700083, 0.471749010231799695015, 0.494387260390992594804, 0.516694996243922958708, 0.538657304328224587971, 0.560259502111485762483, 0.581487147807012548363, 0.602326050028646106947, 0.622762277278179558053, 0.642782167259031895135, 0.662372336009952644672, 0.681519686852651332836, 0.700211419147370293185, 0.718435036850547843783, 0.736178356868851304226, 0.753429517203995638111, 0.770176984882903623655, 0.786409563667907310487, 0.802116401541838062690, 0.817286997963003685603, 0.831911210885205989360, 0.845979263538110713940, 0.859481750963444179896, 0.872409646302657643919, 0.884754306831871706507, 0.896507479740090290300, 0.907661307646858581939, 0.918208333855735377092, 0.928141507340163947066, 0.937454187458569210933, 0.946140148395807082145, 0.954193583328494642291, 0.961609108312365661180, 0.968381765890871546419, 0.974507028426380811369, 0.979980801160081695872, 0.984799425018521553772, 0.988959679217834239586, 0.992458783823107620835, 0.995294402827884517860, 0.997464650309389017936, 0.998968116332750097798, 0.999804129976068750662}; //Displacement from center
-	long double w241[] = {0.0258565107263767887618, 0.0258478677581991278236, 0.0258219446317776244029, 0.0257787586775838590833, 0.0257183387668635233368, 0.0256407252923350422761, 0.0255459701411857143084, 0.0254341366603834210069, 0.0253052996143270979353, 0.0251595451348642790832, 0.0249969706637091305996, 0.0248176848872994702182, 0.0246218076641363237874, 0.0244094699446545962616, 0.0241808136836784280458, 0.0239359917455197653819, 0.0236751678017835922346, 0.0233985162219481476196, 0.0231062219567932832846, 0.0227984804147548989391, 0.0224754973312881226847, 0.0221374886313265798563, 0.0217846802849297111397, 0.0214173081562146576419, 0.0210356178456737237373, 0.0206398645259828552809, 0.0202303127714109286121, 0.0198072363809439323368, 0.0193709181952423370923, 0.0189216499075540866981, 0.0184597318687097061359, 0.0179854728863300073332, 0.0174991900183807835556, 0.0170012083612127198561, 0.0164918608322285156664, 0.0159714879473229254609, 0.0154404375932450901677, 0.0148990647950361816339, 0.0143477314786990578887, 0.0137868062292603992570, 0.0132166640443897835914, 0.0126376860837445654071, 0.0120502594142145994233, 0.0114547767512474160161, 0.0108516361964435459222, 0.0102412409716254223295, 0.00962399914960575480486, 0.00900032338192067644526, 0.00837063062386643369611, 0.00773534185732331010871, 0.00709488181215288042291, 0.00644967868762470868216, 0.00580016387691646287680, 0.00514677170180119313411, 0.00448993917609385059777, 0.00383010585264893346209, 0.00316771394136392888174, 0.00250320947649875087185, 0.00183704878010225189500, 0.00116974583104372321807, 0.000502649323393766167452};	//Weight
+//9th order Gauss-Legendre integration
+	long double Disp[] = {sqrt(5.-2.*sqrt(10./7.))/3., sqrt(5.+2.*sqrt(10./7.))/3.};	//Displacement from center
+	long double w[] = {128./225., (322.+13.*sqrt(70.))/900., (322.-13.*sqrt(70.))/900.};	//Weight
 	long double a, b;	//Sub-interval limits of integration
 	long double x1, x2;	//Abscissa
 	long double Max;	//Upper limit of integration
@@ -360,6 +338,7 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 
 	Elements F;			//Sum of ordinates*weights
 	Elements Answer(0, 0, 0, 0);	//Results to be returned
+	Elements holder;
 
 	long double zero[12];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[12];	//Imaginary part of poles
@@ -413,7 +392,7 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 					Stops[i].second = true;
 			}
 		}*/
-cout << setprecision(18);
+
 	if(true)//Temp != 0)
 	{
 		a = b = -sqrt(Par[4]+pow(Par[3], 2))/2.;	//Lower edge for non-vacuum
@@ -442,6 +421,7 @@ cout << setprecision(18);
 	}
 	Intervals = i;	//Record the number of intervals
 
+
 	i = 1;	//The first point should be the lower limit of integration. That's where we start. Next subinterval is what we need to be looking for
 	do
 	{
@@ -465,28 +445,16 @@ cout << setprecision(18);
 
 		F.null();	//Zero out F for next sub-interval
 
-		if(true)
+		//Count through points away from center
+		for(j = 0; j < 2; j++)
 		{
-			for(l = 0; l < 9; l++)
-			{
-				x1 = (b+a-Disp37[l]*(b-a))/2.;
-				x2 = (b+a+Disp37[l]*(b-a))/2.;
-				F += (Elements(Potential1(Par, x1, k), Interacting_Linear_Trace(Par, x1, k, theta)*Potential1(Par, x1, k), Interacting_Quad_Trace(Par, x1, k, theta)*Potential1(Par, x1, k), Potential2(Par, x1, k))*Dispersion(Par, Temp, x1, k, theta))*w37[l+1];
-				F += (Elements(Potential1(Par, x2, k), Interacting_Linear_Trace(Par, x2, k, theta)*Potential1(Par, x2, k), Interacting_Quad_Trace(Par, x2, k, theta)*Potential1(Par, x2, k), Potential2(Par, x2, k))*Dispersion(Par, Temp, x2, k, theta))*w37[l+1];
-			}
-			F += (Elements(Potential1(Par, (a+b)/2., k), Interacting_Linear_Trace(Par, (a+b)/2., k, theta)*Potential1(Par, (a+b)/2., k), Interacting_Quad_Trace(Par, (a+b)/2., k, theta)*Potential1(Par, (a+b)/2., k), Potential2(Par, (a+b)/2., k))*Dispersion(Par, Temp, (a+b)/2., k, theta))*w37[0];
+			x1 = (b+a-Disp[j]*(b-a))/2.;
+			x2 = (b+a+Disp[j]*(b-a))/2.;
+;
+			F += (Elements(Potential1(Par, x1, k), Interacting_Linear_Trace(Par)*Potential1(Par, x1, k), Interacting_Quad_Trace(Par, x1, k)*Potential1(Par, x1, k), Potential2(Par, x1, k))*Dispersion(Par, Temp, x1, k, theta))*w[j+1];
+			F += (Elements(Potential1(Par, x2, k), Interacting_Linear_Trace(Par)*Potential1(Par, x2, k), Interacting_Quad_Trace(Par, x2, k)*Potential1(Par, x2, k), Potential2(Par, x2, k))*Dispersion(Par, Temp, x2, k, theta))*w[j+1];
 		}
-		else
-		{
-			for(l = 0; l < 24; l++)
-			{
-				x1 = (b+a-Disp97[l]*(b-a))/2.;
-				x2 = (b+a+Disp97[l]*(b-a))/2.;
-				F += (Elements(Potential1(Par, x1, k), Interacting_Linear_Trace(Par, x1, k, theta)*Potential1(Par, x1, k), Interacting_Quad_Trace(Par, x1, k, theta)*Potential1(Par, x1, k), Potential2(Par, x1, k))*Dispersion(Par, Temp, x1, k, theta))*w97[l+1];
-				F += (Elements(Potential1(Par, x2, k), Interacting_Linear_Trace(Par, x2, k, theta)*Potential1(Par, x2, k), Interacting_Quad_Trace(Par, x2, k, theta)*Potential1(Par, x2, k), Potential2(Par, x2, k))*Dispersion(Par, Temp, x2, k, theta))*w97[l+1];
-			}
-			F += (Elements(Potential1(Par, (a+b)/2., k), Interacting_Linear_Trace(Par, (a+b)/2., k, theta)*Potential1(Par, (a+b)/2., k), Interacting_Quad_Trace(Par, (a+b)/2., k, theta)*Potential1(Par, (a+b)/2., k), Potential2(Par, (a+b)/2., k))*Dispersion(Par, Temp, (a+b)/2., k, theta))*w97[0];
-		}
+		F += (Elements(Potential1(Par, (a+b)/2., k), Interacting_Linear_Trace(Par)*Potential1(Par, (a+b)/2., k), Interacting_Quad_Trace(Par, (a+b)/2., k)*Potential1(Par, (a+b)/2., k), Potential2(Par, (a+b)/2., k))*Dispersion(Par, Temp, (a+b)/2., k, theta))*w[0];
 
 		Answer += F*(b-a)/2.;		//Add the subinterval to the total
 		a = b;
@@ -503,7 +471,6 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	long double w[] = {128./225., (322.+13.*sqrt(70.))/900., (322.-13.*sqrt(70.))/900.};	//Weight
 	long double a, b;	//Sub-interval limits of integration
 	long double Min;	//Lower limit of integration
-	long double x1, x2;	//Abscissa
 	long double Max = 700;	//Upper limit of integration
 	long double ParLoc[5] = {Par[0], Par[1], Par[2], Par[3], Par[4]};	//Local copy of the parameters as Par[4] corrisponds to s and ParLoc[4] is s'
 	long double ImG12 = Imk0_Integrand(Par, k0, k, theta, Temp);		//Holder of the ImG12 that belongs to the other half of G12 that is calculated here
@@ -624,7 +591,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 void Characterize_k_Int(long double Par[], int Temp, long double theta, long double zero[], long double gamma[], int &Poles)
 {
 	long double holder;	//Holder for bubble sort at the end
-	int i, j, l;		//Counter
+	int i, j;		//Counter
 
 	Poles = 2;	//Two hard coded poles
 	zero[0] = .5*Par[3]*abs(cos(theta));	//Supposedly this is near intersection of 2 on-shells. I don't recongize it, lines 430-435 does that
@@ -635,163 +602,163 @@ void Characterize_k_Int(long double Par[], int Temp, long double theta, long dou
 	if(Par[4]-pow(2.*Par[2], 2) > 0.)
 	{
 		zero[Poles] = .5*sqrt((Par[4]-pow(2.*Par[2], 2))*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));	//relative 3-momentum for which both quarks are on-shell
-		gamma[Poles] = 2.*ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp);	//Twice the self-energy of the quarks. Should be sum of self-energy of the two quarks as I don't think the self-energy of both quarks are equal to each other for P!=0.
+		gamma[Poles] = 2.*ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp);	//Twice the self-energy of the quarks. Should be sum of self-energy of the two quarks as I don't think the self-energy of both quarks are equal to each other for P!=0.
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];	//Use Newtons's method to find intersection of features of interest. This one is the positive pole of the potential and one of the peaks of the propagator, I think its the negative pole of the anti-aligned quark.
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;	//Try again with a different seed in case the first missed
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEmp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEmp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEpp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEpp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEmp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEmp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEpp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEpp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Par, Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
@@ -834,25 +801,25 @@ void Characterize_k_Int(long double Par[], int Temp, long double theta, long dou
 	return;
 }
 
-bool Newton_Method_k(long double& k, long double s, long double P, long double theta, long double M, long double Lambda, long double(*V)(long double, long double, long double, long double), long double(*k0)(long double, long double, long double, long double, long double))	//Returns the k-intesection of a potiential and on-shell peak
+bool Newton_Method_k(long double& k, long double s, long double P, long double theta, long double M, long double Lambda, long double(*V)(long double, long double), long double(*k0)(long double, long double, long double, long double, long double))	//Returns the k-intesection of a potiential and on-shell peak
 {
 	long double newk;
 	const long double h = 1e-4;	//Size of finite difference
 	bool Success = true;
 	int i = 0;
 
-	newk = k - 2.*h*(V(s, M, k, Lambda)-k0(s, P, k, theta, M))/(k0(s, P, k-h, theta, M)-V(s, M, k-h, Lambda)+V(s, M, k+h, Lambda)-k0(s, P, k+h, theta, M));	//First iteration of Newton's method with finite differences for derivatives
+	newk = k - 2.*h*(V(k, Lambda)-k0(s, P, k, theta, M))/(k0(s, P, k-h, theta, M)-V(k-h, Lambda)+V(k+h, Lambda)-k0(s, P, k+h, theta, M));	//First iteration of Newton's method with finite differences for derivatives
 
 	while(abs(1.-newk/k) > 1e-5 && i <= 10)	//Allow up to 12 iteration steps, but stop early if last step was small
 	{
 		k = newk;
-		newk = k - 2.*h*(V(s, M, k, Lambda)-k0(s, P, k, theta, M))/(k0(s, P, k-h, theta, M)-V(s, M, k-h, Lambda)+V(s, M, k+h, Lambda)-k0(s, P, k+h, theta, M));
+		newk = k - 2.*h*(V(k, Lambda)-k0(s, P, k, theta, M))/(k0(s, P, k-h, theta, M)-V(k-h, Lambda)+V(k+h, Lambda)-k0(s, P, k+h, theta, M));
 		i++;
 	}
 
 	if(abs(1.-newk/k) > 1e-2 || newk < 0 || newk != newk)	//Soundness of value (positive and not NaN) and degree of improvement on last interation (last iteration should have been small)
 		Success = false;
-	if(abs(1.-V(s, M, newk, Lambda)/k0(s, P, newk, theta, M)) > 1e-2)	//Closeness to solution
+	if(abs(1.-V(newk, Lambda)/k0(s, P, newk, theta, M)) > 1e-2)	//Closeness to solution
 		Success = false;
 
 	k = newk;
@@ -860,7 +827,7 @@ bool Newton_Method_k(long double& k, long double s, long double P, long double t
 	return(Success);	//Note success or failure of solution find
 }
 
-long double V_Plus(long double s, long double M, long double k, long double Lambda)
+long double V_Plus(long double k, long double Lambda)
 {
 #if VERSION == EXP	//use option -D VERSION={Exp, 22, 24, 42} to select one of the potentials
 	return(k);
@@ -873,7 +840,7 @@ long double V_Plus(long double s, long double M, long double k, long double Lamb
 #endif
 }
 
-long double V_Minus(long double s, long double M, long double k, long double Lambda)
+long double V_Minus(long double k, long double Lambda)
 {
 #if VERSION == EXP	//use option -D VERSION={Exp, 22, 24, 42} to select one of the potentials
 	return(-k);
@@ -991,8 +958,8 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 	}
 
 	if(!isnan(zero[6]))
-		gamma[6] = ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.+zero[6], Energy(0, Par[3], k, theta), Par, Temp)+ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.-zero[6], Energy(0, Par[3], -k, theta), Par, Temp);
-	gamma[7] = ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.+zero[7], Energy(0, Par[3], k, theta), Par, Temp)+ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.-zero[7], Energy(0, Par[3], -k, theta), Par, Temp)-GAMMA;
+		gamma[6] = ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.+zero[6], Energy(0, Par[3], k, theta), Temp)+ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.-zero[6], Energy(0, Par[3], -k, theta), Temp);
+	gamma[7] = ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.+zero[7], Energy(0, Par[3], k, theta), Temp)+ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.-zero[7], Energy(0, Par[3], -k, theta), Temp)-GAMMA;
 
 	for(i = 7; i >= 0; i--)	//Bubble sort
 	{
@@ -1113,7 +1080,7 @@ long double sp_Width(long double Par[], long double k0, long double k, long doub
 	return(sqrt(abs(2e-10*y[1]/(y[0]-2.*y[1]+y[2]))));
 }
 
-void ImSelf_Energy(long double M, long double omega[], long double k[], long double Par[], int Temp, long double Results[])	//Single quark self energy for both quarks
+void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp, long double Results[])	//Single quark self energy for both quarks
 {
 	static long double omega0[2];		//Location of central peak
 	static long double Sigma[2];		//Amplitude of energy dependance
@@ -1210,6 +1177,12 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], long dou
 				knee[0] = 3.06296*pow(k[0]+1., (long double)-.917081)+.394833*(tanh((k[0]-19.5932)/12.0494)+1);
 				knee[1] = 3.06296*pow(k[1]+1., (long double)-.917081)+.394833*(tanh((k[1]-19.5932)/12.0494)+1);
 				break;
+			default:
+				omega0[0]=omega0[1]=1.74727;
+				Sigma[0]=Sigma[1]=.344006;
+				a[0]=a[1]=9.70298;
+				b[0]=b[1]=2.11338;
+				knee[0]=knee[1]=3.78966;
 		}
 	}
 
@@ -1238,14 +1211,14 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], long dou
 	return;
 }
 
-long double ImSelf_Energy(long double M, long double omega, long double k, long double Par[], int Temp)	//Single quark self energy
+long double ImSelf_Energy(long double M, long double omega, long double k, int Temp)	//Single quark self energy
 {
 
 	long double omega0;	//location of central peak
 	long double Sigma;	//size of energy dependance
 	long double a, b;	//slope of exponential decrease to left and right
 	long double knee;	//space to change from left to right side of peak
-	long double M_T, Shift;
+	long double M_T, Shift=0;
 	long double answer;
 
 	if(pow(omega, 2)>=pow(k, 2))
@@ -1311,6 +1284,13 @@ long double ImSelf_Energy(long double M, long double omega, long double k, long 
 			b = 2.8;
 			omega0 = sqrt(pow(1.53+Shift, 2)+pow(k, 2));
 			knee = .56;
+			break;
+		default:
+			omega0=1.74727;
+			Sigma=.344006;
+			a=9.70298;
+			b=2.11338;
+			knee=3.78966;
 			break;
 	}
 
@@ -1412,6 +1392,11 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 				gamma[0] = .862629/sqrt(pow(k[0], 2)+pow(2.67193, 2))+.189598;
 				gamma[1] = .862629/sqrt(pow(k[1], 2)+pow(2.67193, 2))+.189598;
 				break;
+			default:
+				Sigma[0] = Sigma[1] = .188045;
+				x0[0] = x0[1] = 1.83451;
+				x1[0] = x1[1] = 1.72447;
+				gamma[0] = gamma[1] = .244282;
 		}
 	}
 
@@ -1425,7 +1410,7 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	return;
 }
 
-void Self_Energy(long double M, long double omega[], long double k[], long double Par[], int Temp, long double ImSelf[], long double ReSelf[])	//Single quark self energy for both quarks. This one has both imaginary and real parts. It is a simple Breit-Wigner peak and simplier than the other provisioned version
+void Self_Energy(long double M, long double omega[], long double k[], int Temp, long double ImSelf[], long double ReSelf[])	//Single quark self energy for both quarks. This one has both imaginary and real parts. It is a simple Breit-Wigner peak and simplier than the other provisioned version
 {
 	static long double omega0[2];	//location of central peak
 	static long double Sigma[2];	//size of energy dependance
@@ -1563,21 +1548,14 @@ long double Potential2(long double Par[], long double k0, long double k)	//Two v
 #endif
 }
 
-long double Interacting_Linear_Trace(long double Par[], long double k0, long double k , long double theta)
+long double Interacting_Linear_Trace(long double Par[])
 {
-	if(Par[4] >= pow(2.*Par[2], 2))
-		return(sqrt(3.*Par[4]/(8.*pow(Par[2], 2))));
-	else
-		return(sqrt(1.5));	//Transition to constant below threshold to avoid negative contributions
+	return(sqrt(3.*Par[4]/(8.*pow(Par[2], 2))));
 }
 
-long double Interacting_Quad_Trace(long double Par[], long double k0, long double k , long double theta)
+long double Interacting_Quad_Trace(long double Par[], long double k0, long double k)
 {
-	if(Par[4] >= pow(2.*Par[2], 2))
-		return(Par[4]/4.-pow(k0, 2)+pow(k, 2))/(2.*pow(Par[2], 2));
-	else
-		return(.5);	//Transition to constant below threshold to avoid negative contributions
-
+	return(Par[4]/4.-pow(k0, 2)+pow(k, 2))/(2.*pow(Par[2], 2));
 }
 
 long double Imk0_Integrand(long double Par[], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for positive energy
@@ -1596,8 +1574,8 @@ long double Imk0_Integrand(long double Par[], long double k0, long double k, lon
 		q[1] = Energy(0, Par[3]/2., -k, theta);
 	}
 
-	//Self_Energy(Par[2], omega, q, Par, Temp, ImSelf, ReSelf);
-	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
+	//Self_Energy(Par[2], omega, q, Temp, ImSelf, ReSelf);
+	ImSelf_Energy(Par[2], omega, q, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
 	return(-((4.*ImSelf[0]*ImSelf[1]*pow(Par[2], 2)*(1.-fermi[0]-fermi[1]))/((pow(pow(omega[0], 2)-pow(q[0], 2)-pow(Par[2], 2)-2.*Par[2]*ReSelf[0], 2)+pow(ImSelf[0], 2))*(pow(pow(omega[1], 2)-pow(q[1], 2)-pow(Par[2], 2)-2.*Par[2]*ReSelf[1], 2)+pow(ImSelf[1], 2)))));

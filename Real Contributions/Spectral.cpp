@@ -10,7 +10,7 @@ int Start_Point(int, char[70]);						//Find highest line calculated and returns 
 bool Restart_Check(char[70], char*, char*, char*, char*, char*);		//Checks to see if file header matches input parameters and clears it if not
 long double Set_Mq(long double, long double, long double);			//Momentum dependence for the quark mass, <number> 0 causes it to be constant
 long double Set_Lambda(long double, long double, long double, long double, int);//Momentum dependence for the potential cutoff, <number> 0 causes it to be constant
-long double Set_C(long double, long double, long double, long double, long double, int);//Momentum dependence for the coupling constant, <number> 0 causes it to be constant
+long double Set_C(long double, long double, long double, long double, long double);//Momentum dependence for the coupling constant, <number> 0 causes it to be constant
 
 int main(int argc, char* argv[])
 {
@@ -68,7 +68,6 @@ int main(int argc, char* argv[])
 	const int iProcess = atoi(argv[1]) % atoi(argv[2]);	//Assigned column(s)
 	const int Total = atoi(argv[2]);			//Number of concurent threads
 	const int Temp = atoi(argv[3]);			//Temprature enumeration
-	long double Table[616][5];				//Table of calculated values
 	long double Par[5];					//Parameters to be used in calculation {Coupling constant, potential cutoff, quark mass, P, s}
 	Elements holder;					//Calculated value before distribution to Table
 
@@ -117,11 +116,11 @@ int main(int argc, char* argv[])
 			}
 
 			Par[1] = Set_Lambda(atof(argv[5]), Par[3], atof(argv[9]), atof(argv[10]), Temp);
-			Par[0] = -Set_C(atof(argv[4]), Par[3], atof(argv[9]), Par[1], atof(argv[10]), Temp);
+			Par[0] = -Set_C(atof(argv[4]), Par[3], atof(argv[9]), Par[1], atof(argv[10]));
 			Par[2] = atof(argv[6]);
 
 			holder = theta_Int(Par, Temp);
-			cout << i << "\t" << j << "\t" << Par[3] << "\t" << Par[4] << "\t" << holder[0] << "\t" << holder[1] << "\t" << holder[2] << "\t" << holder[3] << endl;
+			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << endl;
 		}
 		TPlot << endl;
 	}
@@ -210,11 +209,9 @@ long double Set_Lambda(long double G0, long double P, long double P0, long doubl
 #endif
 }
 
-long double Set_C(long double f0, long double P, long double P0, long double Lambda, long double fraction, int T)
+long double Set_C(long double f0, long double P, long double P0, long double Lambda, long double fraction)
 {
 	long double f = (f0*pow(P0,2)+(fraction*(1-f0)+f0)*pow(P,2))/(pow(P0,2)+pow(P,2));
-	long double TempList[] = {0,.194,.258,.32,.4};
-	long double Temp = TempList[T];
 
 #if VERSION == Exp
 	return(50.3627*f);
