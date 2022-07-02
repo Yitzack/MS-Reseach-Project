@@ -107,6 +107,7 @@ Elements theta_Int(long double Par[], int Temp)
 	long double Boundary_theta[] = {1./17., 0.3, 0.08};	//Extra boundary values
 	Elements F;						//Sum of ordinate*weights
 	Elements Answer(0, 0, 0, 0);				//Answer to be returned
+	Elements Holder;
 	int i, j;						//Counters
 
 	if(Par[4] > 0 && Par[3] > sqrt(Par[4]/2.)) //Where the maximum of the theta integral ought to land. It might only be correct for BbS reduction, but is close enough for all other cases. Only valid for s>0 and P>sqrt(s/2)
@@ -145,10 +146,16 @@ Elements theta_Int(long double Par[], int Temp)
 		{
 			x1 = (b+a-Disp[j]*(b-a))/2.;
 			x2 = (b+a+Disp[j]*(b-a))/2.;
-			F += k_Int(Par, Temp, x1)*sin(x1)*w[j+1];
-			F += k_Int(Par, Temp, x2)*sin(x2)*w[j+1];
+			Holder = k_Int(Par, Temp, x1)*sin(x1);
+			F += Holder*w[j+1];
+cout << Par[3] << " " << Par[4] << " " << x1 << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
+			Holder = k_Int(Par, Temp, x2)*sin(x2);
+			F += Holder*w[j+1];
+cout << Par[3] << " " << Par[4] << " " << x2 << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
 		}
-		F += k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.)*w[0];
+		Holder = k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.);
+		F += Holder*w[0];
+cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
 
 		Answer += F*(b-a)/2.;	//Add the subinterval to total of the integral
 
@@ -450,11 +457,17 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 		{
 			x1 = (b+a-Disp[j]*(b-a))/2.;
 			x2 = (b+a+Disp[j]*(b-a))/2.;
-;
-			F += (Elements(Potential1(Par, x1, k), Interacting_Linear_Trace(Par)*Potential1(Par, x1, k), Interacting_Quad_Trace(Par, x1, k)*Potential1(Par, x1, k), Potential2(Par, x1, k))*Dispersion(Par, Temp, x1, k, theta))*w[j+1];
-			F += (Elements(Potential1(Par, x2, k), Interacting_Linear_Trace(Par)*Potential1(Par, x2, k), Interacting_Quad_Trace(Par, x2, k)*Potential1(Par, x2, k), Potential2(Par, x2, k))*Dispersion(Par, Temp, x2, k, theta))*w[j+1];
+
+holder = (Elements(Potential1(Par, x1, k), Interacting_Linear_Trace(Par)*Potential1(Par, x1, k), Interacting_Quad_Trace(Par, x1, k)*Potential1(Par, x1, k), Potential2(Par, x1, k))*Dispersion(Par, Temp, x1, k, theta));
+cout << Par[3] << " " << Par[4] << " " << x1 << " " << k << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << Dispersion(Par, Temp, x1, k, theta) << endl;
+			F += holder*w[j+1];
+holder = (Elements(Potential1(Par, x2, k), Interacting_Linear_Trace(Par)*Potential1(Par, x2, k), Interacting_Quad_Trace(Par, x2, k)*Potential1(Par, x2, k), Potential2(Par, x2, k))*Dispersion(Par, Temp, x2, k, theta));
+cout << Par[3] << " " << Par[4] << " " << x2 << " " << k << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << Dispersion(Par, Temp, x2, k, theta) << endl;
+			F += holder*w[j+1];
 		}
-		F += (Elements(Potential1(Par, (a+b)/2., k), Interacting_Linear_Trace(Par)*Potential1(Par, (a+b)/2., k), Interacting_Quad_Trace(Par, (a+b)/2., k)*Potential1(Par, (a+b)/2., k), Potential2(Par, (a+b)/2., k))*Dispersion(Par, Temp, (a+b)/2., k, theta))*w[0];
+holder = (Elements(Potential1(Par, (a+b)/2., k), Interacting_Linear_Trace(Par)*Potential1(Par, (a+b)/2., k), Interacting_Quad_Trace(Par, (a+b)/2., k)*Potential1(Par, (a+b)/2., k), Potential2(Par, (a+b)/2., k))*Dispersion(Par, Temp, (a+b)/2., k, theta));
+cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << k << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << Dispersion(Par, Temp, x1, k, theta) << endl;
+		F += holder*w[0];
 
 		Answer += F*(b-a)/2.;		//Add the subinterval to the total
 		a = b;
@@ -936,8 +949,8 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 	zero[3] = .5*(sqrt(Par[4]+pow(Par[3], 2))+real(sqrt(complex<long double>(4.*(pow(k, 2)+pow(Par[2], 2)-k*Par[3]*cos(theta))+pow(Par[3], 2)-2.*pow(GAMMA, 2), 2.*sqrt(4.*pow(Par[2]*GAMMA, 2)-pow(GAMMA, 4))))));
 	zero[4] = .5*(-sqrt(Par[4]+pow(Par[3], 2))-real(sqrt(complex<long double>(4.*(pow(k, 2)+pow(Par[2], 2)+k*Par[3]*cos(theta))+pow(Par[3], 2)-2.*pow(GAMMA, 2), 2.*sqrt(4.*pow(Par[2]*GAMMA, 2)-pow(GAMMA, 4))))));
 	zero[5] = .5*(-sqrt(Par[4]+pow(Par[3], 2))+real(sqrt(complex<long double>(4.*(pow(k, 2)+pow(Par[2], 2)+k*Par[3]*cos(theta))+pow(Par[3], 2)-2.*pow(GAMMA, 2), 2.*sqrt(4.*pow(Par[2]*GAMMA, 2)-pow(GAMMA, 4))))));
-	zero[6] = cos(theta)*Par[3]/2.*sqrt((Par[4]-pow(2.*Par[2], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));
-	zero[7] = k*Par[3]*cos(theta)/(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta));
+	zero[6] = k*Par[3]*cos(theta)/(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta));
+	zero[7] = cos(theta)*Par[3]/2.*sqrt((Par[4]-pow(2.*Par[2], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));
 
 	if(Temp != 0)	//media estimate
 	{
@@ -957,9 +970,9 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 		gamma[4] = gamma[5] = abs(.5*imag(sqrt(complex<long double>(4.*(pow(k, 2)+pow(Par[2], 2)+k*Par[3]*cos(theta))+pow(Par[3], 2)-2.*pow(GAMMA, 2), 2.*sqrt(4.*pow(Par[2]*GAMMA, 2)-pow(GAMMA, 4))))));
 	}
 
-	if(!isnan(zero[6]))
-		gamma[6] = ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.+zero[6], Energy(0, Par[3], k, theta), Temp)+ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.-zero[6], Energy(0, Par[3], -k, theta), Temp);
-	gamma[7] = ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.+zero[7], Energy(0, Par[3], k, theta), Temp)+ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.-zero[7], Energy(0, Par[3], -k, theta), Temp)-GAMMA;
+	gamma[6] = ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.+zero[6], Energy(0, Par[3], k, theta), Temp)+ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.-zero[6], Energy(0, Par[3], -k, theta), Temp)-GAMMA;
+	if(!isnan(zero[7]))
+		gamma[7] = ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.+zero[7], Energy(0, Par[3], k, theta), Temp)+ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.-zero[7], Energy(0, Par[3], -k, theta), Temp);
 
 	for(i = 7; i >= 0; i--)	//Bubble sort
 	{
