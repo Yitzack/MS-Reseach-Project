@@ -652,14 +652,30 @@ bool Newton_Method_k(long double& k, long double s, long double P, long double t
 	return(Success);	//Note success or failure of solution find
 }
 
-long double V_Plus(long double s, long double M, long double k, long double Lambda)	//One of the poles to (Lambda^4/(Lambda^4+16(k0^2-k^2-M^2)^2)), should actually match the pole or cusp of the potential that actually being used.
+long double V_Plus(long double k, long double Lambda)
 {
-	return(.5*sqrt(complex<long double>(4.*(pow(k,2)+pow(M,2)),pow(Lambda,2))).real());
+#if VERSION == EXP	//use option -D VERSION={Exp, 22, 24, 42} to select one of the potentials
+	return(k);
+#elif VERSION == 22
+	return(k);
+#elif VERSION == 24
+	return(k);
+#elif VERSION == 42
+	return(.5*sqrt(complex<long double>(4.*(pow(k, 2)), pow(Lambda, 2))).real());
+#endif
 }
 
-long double V_Minus(long double s, long double M, long double k, long double Lambda)
+long double V_Minus(long double k, long double Lambda)
 {
-	return(-.5*sqrt(complex<long double>(4.*(pow(k,2)+pow(M,2)),pow(Lambda,2))).real());
+#if VERSION == EXP	//use option -D VERSION={Exp, 22, 24, 42} to select one of the potentials
+	return(-k);
+#elif VERSION == 22
+	return(-k);
+#elif VERSION == 24
+	return(-k);
+#elif VERSION == 42
+	return(-.5*sqrt(complex<long double>(4.*(pow(k, 2)), pow(Lambda, 2))).real());
+#endif
 }
 
 long double Emm(long double s, long double P, long double k, long double theta, long double M)	//peak of the vacuum on-shells
@@ -719,10 +735,27 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 		Upper = sqrt(Par[4]+pow(Par[3],2))/2.-Energy(0,Par[3]/2.,-k,theta);
 	}
 
-	zero[0] = .5*sqrt(complex<long double>(4.*pow(k,2),pow(Par[1],2))).real();	//Potential poles, I know exactly where these are at. These are for Lambda^4/(Lambda^4+(4k0^2-4k^2)^2, should probably match the actual potential
-	zero[1] = -.5*sqrt(complex<long double>(4.*pow(k,2),pow(Par[1],2))).real();
-	gamma[0] = abs(.5*sqrt(complex<long double>(4.*pow(k,2),pow(Par[1],2))).imag());
-	gamma[1] = abs(-.5*sqrt(complex<long double>(4.*pow(k,2),pow(Par[1],2))).imag());
+#if VERSION == EXP	//use option -D VERSION={Exp, 22, 24, 42} to select one of the potentials
+	zero[0] = k;	//Potential poles, I know exactly where these are at.
+	zero[1] = -k;
+	gamma[0] = Par[1];
+	gamma[1] = Par[1];
+#elif VERSION == 22
+	zero[0] = k;	//Potential poles, I know exactly where these are at.
+	zero[1] = -k;
+	gamma[0] = k-.5*sqrt(abs(pow(2.*k, 2)-pow(Par[1], 2)));
+	gamma[1] = k-.5*sqrt(abs(pow(2.*k, 2)-pow(Par[1], 2)));
+#elif VERSION == 24
+	zero[0] = k;	//Potential poles, I know exactly where these are at.
+	zero[1] = -k;
+	gamma[0] = k-sqrt(abs(pow(k, 2)-pow(Par[1], 2)/2));
+	gamma[1] = k-sqrt(abs(pow(k, 2)-pow(Par[1], 2)/2));
+#elif VERSION == 42
+	zero[0] = .5*sqrt(complex<long double>(4.*pow(k, 2), pow(Par[1], 2))).real();	//Potential poles, I know exactly where these are at.
+	zero[1] = -.5*sqrt(complex<long double>(4.*pow(k, 2), pow(Par[1], 2))).real();
+	gamma[0] = abs(.5*sqrt(complex<long double>(4.*pow(k, 2), pow(Par[1], 2))).imag());
+	gamma[1] = abs(-.5*sqrt(complex<long double>(4.*pow(k, 2), pow(Par[1], 2))).imag());
+#endif
 
 	zero[2] = .5*(sqrt(Par[4]+pow(Par[3],2))-real(sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)-k*Par[3]*cos(theta))+pow(Par[3],2)-2.*pow(GAMMA,2),2.*sqrt(4.*pow(Par[2]*GAMMA,2)-pow(GAMMA,4))))));	//Exact vacuum poles
 	zero[3] = .5*(sqrt(Par[4]+pow(Par[3],2))+real(sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)-k*Par[3]*cos(theta))+pow(Par[3],2)-2.*pow(GAMMA,2),2.*sqrt(4.*pow(Par[2]*GAMMA,2)-pow(GAMMA,4))))));

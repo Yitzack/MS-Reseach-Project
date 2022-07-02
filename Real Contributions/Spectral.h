@@ -258,7 +258,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	j = 0;
 	while(Stops[j].first <= 0)	//Skip past negative sub-intervals and form NaN
 		j++;
-	for(; j < l+11; j++)
+	for(; j < l+10; j++)
 	{
 		if((i > 0 && Stops[i-1].first != Stops[j].first) || i == 0)	//Removes duplicates, faster to remove duplicates than to evaluate zero width interval
 		{
