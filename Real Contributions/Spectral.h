@@ -148,14 +148,14 @@ Elements theta_Int(long double Par[], int Temp)
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 			Holder = k_Int(Par, Temp, x1)*sin(x1);
 			F += Holder*w[j+1];
-cout << Par[3] << " " << Par[4] << " " << x1 << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
+//cout << Par[3] << " " << Par[4] << " " << x1 << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
 			Holder = k_Int(Par, Temp, x2)*sin(x2);
 			F += Holder*w[j+1];
-cout << Par[3] << " " << Par[4] << " " << x2 << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
+//cout << Par[3] << " " << Par[4] << " " << x2 << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
 		}
 		Holder = k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.);
 		F += Holder*w[0];
-cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
+//cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
 
 		Answer += F*(b-a)/2.;	//Add the subinterval to total of the integral
 
@@ -183,6 +183,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	Elements F;			//Sum of ordinates*weights
 	Elements Answer(0, 0, 0, 0);	//Answer to be returned
 	Elements Partial;		//Answer for sub-interval for determining completeness
+	Elements holder;
 
 	int Poles;		//Number of poles
 	long double zero[26];	//The real part of the signular pole
@@ -302,10 +303,16 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 			{
 				x1 = (b+a-Disp37[l]*(b-a))/2.;
 				x2 = (b+a+Disp37[l]*(b-a))/2.;
-				F += k0_Int(Par, Temp, x1, theta)*pow(x1, 2)*w37[l+1];
-				F += k0_Int(Par, Temp, x2, theta)*pow(x2, 2)*w37[l+1];
+				holder = k0_Int(Par, Temp, x1, theta)*pow(x1, 2);
+//cout << Par[3] << " " << Par[4] << " " << x1 << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << endl;
+				F += holder*w37[l+1];
+				holder = k0_Int(Par, Temp, x2, theta)*pow(x2, 2);
+//cout << Par[3] << " " << Par[4] << " " << x2 << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << endl;
+				F += holder*w37[l+1];
 			}
-			F += k0_Int(Par, Temp, (a+b)/2., theta)*pow((a+b)/2., 2)*w37[0];
+			holder = k0_Int(Par, Temp, (a+b)/2., theta)*pow((a+b)/2., 2);
+//cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << endl;
+			F += holder*w37[0];
 		}
 		else
 		{
@@ -313,10 +320,16 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 			{
 				x1 = (b+a-Disp97[l]*(b-a))/2.;
 				x2 = (b+a+Disp97[l]*(b-a))/2.;
-				F += k0_Int(Par, Temp, x1, theta)*pow(x1, 2)*w97[l+1];
-				F += k0_Int(Par, Temp, x2, theta)*pow(x2, 2)*w97[l+1];
+				holder = k0_Int(Par, Temp, x1, theta)*pow(x1, 2);
+//cout << Par[3] << " " << Par[4] << " " << x1 << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << endl;
+				F += holder*w97[l+1];
+				holder = k0_Int(Par, Temp, x2, theta)*pow(x2, 2);
+//cout << Par[3] << " " << Par[4] << " " << x2 << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << endl;
+				F += holder*w97[l+1];
 			}
-			F += k0_Int(Par, Temp, (a+b)/2., theta)*pow((a+b)/2., 2)*w97[0];
+			holder = k0_Int(Par, Temp, (a+b)/2., theta)*pow((a+b)/2., 2);
+//cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << endl;
+			F += holder*w97[0];
 		}
 
 		Partial = F*(b-a)/2.;	//Record the subinterval to total of the integral
@@ -345,6 +358,7 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 
 	Elements F;			//Sum of ordinates*weights
 	Elements Answer(0, 0, 0, 0);	//Results to be returned
+	Elements Partial;		//Partial sum to determine continuation
 	Elements holder;
 
 	long double zero[12];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
@@ -400,16 +414,8 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 			}
 		}*/
 
-	if(true)//Temp != 0)
-	{
-		a = b = -sqrt(Par[4]+pow(Par[3], 2))/2.;	//Lower edge for non-vacuum
-		Max = sqrt(Par[4]+pow(Par[3], 2))/2.;		//Upper edge for non-vacuum
-	}
-	else
-	{
-		a = b = Energy(0, Par[3]/2., k, theta)-sqrt(Par[4]+pow(Par[3], 2))/2.;	//Lower edge for vacuum
-		Max = sqrt(Par[4]+pow(Par[3], 2))/2.-Energy(0, Par[3]/2., -k, theta);	//Upper edge for vacuum
-	}
+	a = b = -sqrt(Par[4]+pow(Par[3], 2))/2.;	//Lower edge
+	Max = sqrt(Par[4]+pow(Par[3], 2))/2.;		//Upper edge before doubling up
 
 	i = 0;
 	j = 0;
@@ -417,7 +423,7 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 		j++;
 	for(; j < l+6; j++)
 	{
-		if(((i > 0 && Stops[i-1].first != Stops[j].first) || i == 0) && Stops[j].first <= Max)	//Remove dublicates and intervals above the upper edge
+		if((i > 0 && Stops[i-1].first != Stops[j].first) || i == 0)	//Remove dublicates
 		{
 			Stops[i].first = Stops[j].first;
 			//Stops[i].second = Stops[j].second;
@@ -447,8 +453,8 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 			i++;
 		}
 
-		if(b > Max)
-			b = Max;	//Don't exceed upper limit of integration
+		if(b > Max && a < Max)
+			b = Max;	//Be sure E/2 is and sub-interval boundary
 
 		F.null();	//Zero out F for next sub-interval
 
@@ -459,20 +465,40 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 
 holder = (Elements(Potential1(Par, x1, k), Interacting_Linear_Trace(Par)*Potential1(Par, x1, k), Interacting_Quad_Trace(Par, x1, k)*Potential1(Par, x1, k), Potential2(Par, x1, k))*Dispersion(Par, Temp, x1, k, theta));
-cout << Par[3] << " " << Par[4] << " " << x1 << " " << k << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << Dispersion(Par, Temp, x1, k, theta) << endl;
 			F += holder*w[j+1];
+//cout << Par[3] << " " << Par[4] << " " << x1 << " " << k << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << Dispersion(Par, Temp, x1, k, theta) << endl;
 holder = (Elements(Potential1(Par, x2, k), Interacting_Linear_Trace(Par)*Potential1(Par, x2, k), Interacting_Quad_Trace(Par, x2, k)*Potential1(Par, x2, k), Potential2(Par, x2, k))*Dispersion(Par, Temp, x2, k, theta));
-cout << Par[3] << " " << Par[4] << " " << x2 << " " << k << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << Dispersion(Par, Temp, x2, k, theta) << endl;
 			F += holder*w[j+1];
+//cout << Par[3] << " " << Par[4] << " " << x2 << " " << k << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << Dispersion(Par, Temp, x2, k, theta) << endl;
 		}
 holder = (Elements(Potential1(Par, (a+b)/2., k), Interacting_Linear_Trace(Par)*Potential1(Par, (a+b)/2., k), Interacting_Quad_Trace(Par, (a+b)/2., k)*Potential1(Par, (a+b)/2., k), Potential2(Par, (a+b)/2., k))*Dispersion(Par, Temp, (a+b)/2., k, theta));
-cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << k << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << Dispersion(Par, Temp, x1, k, theta) << endl;
 		F += holder*w[0];
+//cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << k << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << Dispersion(Par, Temp, x1, k, theta) << endl;
 
-		Answer += F*(b-a)/2.;		//Add the subinterval to the total
+		if(a >= Max)
+		{
+			for(j = 0; j < 2; j++)
+			{
+				x1 = -(b+a-Disp[j]*(b-a))/2.;
+				x2 = -(b+a+Disp[j]*(b-a))/2.;
+
+holder = (Elements(Potential1(Par, x1, k), Interacting_Linear_Trace(Par)*Potential1(Par, x1, k), Interacting_Quad_Trace(Par, x1, k)*Potential1(Par, x1, k), Potential2(Par, x1, k))*Dispersion(Par, Temp, x1, k, theta));
+			F += holder*w[j+1];
+//cout << Par[3] << " " << Par[4] << " " << x1 << " " << k << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << Dispersion(Par, Temp, x1, k, theta) << endl;
+holder = (Elements(Potential1(Par, x2, k), Interacting_Linear_Trace(Par)*Potential1(Par, x2, k), Interacting_Quad_Trace(Par, x2, k)*Potential1(Par, x2, k), Potential2(Par, x2, k))*Dispersion(Par, Temp, x2, k, theta));
+			F += holder*w[j+1];
+//cout << Par[3] << " " << Par[4] << " " << x2 << " " << k << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << Dispersion(Par, Temp, x2, k, theta) << endl;
+		}
+holder = (Elements(Potential1(Par, -(a+b)/2., k), Interacting_Linear_Trace(Par)*Potential1(Par, -(a+b)/2., k), Interacting_Quad_Trace(Par, -(a+b)/2., k)*Potential1(Par, -(a+b)/2., k), Potential2(Par, -(a+b)/2., k))*Dispersion(Par, Temp, -(a+b)/2., k, theta));
+		F += holder*w[0];
+//cout << Par[3] << " " << Par[4] << " " << -(a+b)/2. << " " << k << " " << theta << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << Dispersion(Par, Temp, x1, k, theta) << endl;
+		}
+
+		Partial = F*(b-a)/2.;
+		Answer += Partial;		//Add the subinterval to the total
 		a = b;
 		//Close = false;
-	}while(a < Max && i < Intervals);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded
+	}while((!(Partial == 0) || a < Max) && (i < Intervals || abs(Partial/Answer) >= .0001));	//Keep going while intervals aren't exhausted and the last interval added is too much
 
 	return(Answer/M_PI);
 }
@@ -495,6 +521,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	long double F;			//Sum of ordinates*weights
 	long double Answer = 0;	//Results to be returned
 	long double Partial;		//Partial results to examine convergance
+	long double holder;
 
 	long double zero[2];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[2];	//Imaginary part of poles
@@ -521,7 +548,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 			l++;
 		}
 	}
-	Min = a = b = Stops[l].first = 4.*pow(k0, 2)-pow(Par[3], 2);	//Both quarks remain energy positive
+	Stops[l].first = 4.*pow(k0, 2)-pow(Par[3], 2);	//Both quarks remain energy positive, should be the center of the fermi functions, (1-f-f)=.5
 	Stops[l+1].first = 4.*pow(k, 2)+4.*pow(k0, 2)+3.*pow(Par[3], 2)+4.*k*Par[3]*cos(theta)-8.*sqrt(pow(k*k0, 2)+pow(k0*Par[3], 2)+k*Par[3]*pow(k0, 2)*cos(theta));	//Light-like quarks
 	Stops[l+2].first = 4.*pow(k, 2)+4.*pow(k0, 2)+3.*pow(Par[3], 2)-4.*k*Par[3]*cos(theta)+8.*sqrt(pow(k*k0, 2)+pow(k0*Par[3], 2)-k*Par[3]*pow(k0, 2)*cos(theta));
 	Stops[l+3].first = Par[4];	//Division by zero of dispersion relation
@@ -547,11 +574,12 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 			}
 		}*/
 
+	Min = a = b = -pow(Par[3], 2);	//Start from s'=-P^2
+
 	i = 0;
 	while(Stops[i].first < a)
 		i++;
 	Intervals = l+5;
-	i++;
 
 	do
 	{
@@ -561,7 +589,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 			b += 50;
 		else if((i < Intervals && 10 < Stops[i].first-b && b-Stops[i-1].first > 10) || Stops[Intervals-1].first < a-10)
 			b += 10;
-		else if((i < Intervals && 3 < Stops[i].first-b) || Stops[Intervals-1].first < a-3)
+		else if((i < Intervals && 3 < Stops[i].first-b && b-Stops[i-1].first > 3) || Stops[Intervals-1].first < a-3)
 			b += 3;
 		else if(i < Intervals)
 		{
@@ -583,12 +611,18 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		for(l = 0; l < 2; l++) //Count through points away from center
 		{
 			ParLoc[4] = (b+a-Disp[l]*(b-a))/2.;
-			F += (Imk0_Integrand(ParLoc, k0, k, theta, Temp)-ImG12)/(ParLoc[4]-Par[4])*w[l+1];
+			holder = (Imk0_Integrand(ParLoc, k0, k, theta, Temp)-ImG12)/(ParLoc[4]-Par[4]);
+//cerr << Par[3] << " " << Par[4] << " " << ParLoc[4] << " " << k0 << " " << k << " " << theta << " " << holder << endl;
+			F += holder*w[l+1];
 			ParLoc[4] = (b+a+Disp[l]*(b-a))/2.;
-			F += (Imk0_Integrand(ParLoc, k0, k, theta, Temp)-ImG12)/(ParLoc[4]-Par[4])*w[l+1];
+			holder = (Imk0_Integrand(ParLoc, k0, k, theta, Temp)-ImG12)/(ParLoc[4]-Par[4]);
+//cerr << Par[3] << " " << Par[4] << " " << ParLoc[4] << " " << k0 << " " << k << " " << theta << " " << holder << endl;
+			F += holder*w[l+1];
 		}
 		ParLoc[4] = (b+a)/2.;
-		F += (Imk0_Integrand(ParLoc, k0, k, theta, Temp)-ImG12)/(ParLoc[4]-Par[4])*w[0];
+		holder = (Imk0_Integrand(ParLoc, k0, k, theta, Temp)-ImG12)/(ParLoc[4]-Par[4]);
+//cerr << Par[3] << " " << Par[4] << " " << ParLoc[4] << " " << k0 << " " << k << " " << theta << " " << holder << endl;
+		F += holder*w[0];
 
 		Partial = F*(b-a)/2.;
 		Answer += Partial;		//Add the subinterval to the total
@@ -974,6 +1008,13 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 	if(!isnan(zero[7]))
 		gamma[7] = ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.+zero[7], Energy(0, Par[3], k, theta), Temp)+ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.-zero[7], Energy(0, Par[3], -k, theta), Temp);
 
+	i = 0;
+	while(zero[i] < Lower)
+	{
+		zero[i] = abs(zero[i]);
+		i++;
+	}
+
 	for(i = 7; i >= 0; i--)	//Bubble sort
 	{
 		for(j = 0; j < i; j++)
@@ -990,17 +1031,10 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 		}
 	}
 
-	i = j = 0;	//Find the first zero greater than lower bound
-	while(zero[i] < Lower) i++;
-
-	while(zero[i] <= Upper && i < 7)	//Move zeroes up to front of array, count off poles within the limits of integration
-	{
-		zero[j] = zero[i];
-		gamma[j] = abs(gamma[i]);
-		i++;
-		j++;
-	}
-	Poles = j;
+	if(isnan(zero[6]))
+		Poles = 6;
+	else
+		Poles = 7;
 
 	return;
 }
