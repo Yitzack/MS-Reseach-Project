@@ -315,7 +315,6 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 	Elements F;			//Sum of ordinates*weights
 	Elements Answer(0,0,0,0,0);	//Results to be returned
 	Elements Partial;		//Partial sum to determine continuation
-	long double Holder;
 
 	long double zero[12];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[12];	//Imaginary part of poles
@@ -363,7 +362,7 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 
 	i = 0;
 	j = 0;
-	while(Stops[j] < a || Stops[j] == Stops[j]+1.)	//Remove subintervals that duplicates or below the lower edge
+	while(Stops[j] == Stops[j]+1.)	//Remove subintervals that duplicates or below the lower edge
 		j++;
 	for(; j < l+6; j++)
 	{
@@ -372,8 +371,6 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 			Stops[i] = Stops[j];
 			i++;
 		}
-		else if(Stops[j] > Max)
-			break;
 	}
 	Intervals = i;	//Record the number of intervals
 
@@ -407,12 +404,10 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 		{
 			x1 = (b+a-Disp[l]*(b-a))/2.;
 			x2 = (b+a+Disp[l]*(b-a))/2.;
-cerr << Par[3] << " " << Par[4] << " " << x1 << " " << k << " " << theta << " " << Non_Interacting_Trace(Par, x1, k, theta)*Imk0_Integrand(Par,x1,k,theta,Temp) << endl;
+
 			F += (Elements(Non_Interacting_Trace(Par, x1, k, theta), Potential1(Par,x1,k), Interacting_Linear_Trace(Par, x1, k, theta)*Potential1(Par,x1,k), Interacting_Quad_Trace(Par, x1, k, theta)*Potential1(Par,x1,k), Potential2(Par,x1,k))*Imk0_Integrand(Par,x1,k,theta,Temp))*w[l+1];
-cerr << Par[3] << " " << Par[4] << " " << x2 << " " << k << " " << theta << " " << Non_Interacting_Trace(Par, x2, k, theta)*Imk0_Integrand(Par,x2,k,theta,Temp) << endl;
 			F += (Elements(Non_Interacting_Trace(Par, x2, k, theta), Potential1(Par,x2,k), Interacting_Linear_Trace(Par, x2, k, theta)*Potential1(Par,x2,k), Interacting_Quad_Trace(Par, x2, k, theta)*Potential1(Par,x2,k), Potential2(Par,x2,k))*Imk0_Integrand(Par,x2,k,theta,Temp))*w[l+1];
 		}
-cerr << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << k << " " << theta << " " << Non_Interacting_Trace(Par, (a+b)/2., k, theta)*Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp) << endl;
 		F += (Elements(Non_Interacting_Trace(Par, (a+b)/2., k, theta), Potential1(Par,(a+b)/2.,k), Interacting_Linear_Trace(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Interacting_Quad_Trace(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp))*w[0];
 
 		if(a >= Max && Temp != 0)
@@ -425,12 +420,10 @@ cerr << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << k << " " << theta <
 			{
 				x1 = -(b+a-Disp[l]*(b-a))/2.;
 				x2 = -(b+a+Disp[l]*(b-a))/2.;
-cerr << Par[3] << " " << Par[4] << " " << x1 << " " << k << " " << theta << " " << Non_Interacting_Trace(Par, x1, k, theta)*Imk0_Integrand(Par,x1,k,theta,Temp) << endl;
+
 				F += (Elements(Non_Interacting_Trace(Par, x1, k, theta), Potential1(Par,x1,k), Interacting_Linear_Trace(Par, x1, k, theta)*Potential1(Par,x1,k), Interacting_Quad_Trace(Par, x1, k, theta)*Potential1(Par,x1,k), Potential2(Par,x1,k))*Imk0_Integrand(Par,x1,k,theta,Temp))*w[l+1];
-cerr << Par[3] << " " << Par[4] << " " << x2 << " " << k << " " << theta << " " << Non_Interacting_Trace(Par, x2, k, theta)*Imk0_Integrand(Par,x2,k,theta,Temp) << endl;
 				F += (Elements(Non_Interacting_Trace(Par, x2, k, theta), Potential1(Par,x2,k), Interacting_Linear_Trace(Par, x2, k, theta)*Potential1(Par,x2,k), Interacting_Quad_Trace(Par, x2, k, theta)*Potential1(Par,x2,k), Potential2(Par,x2,k))*Imk0_Integrand(Par,x2,k,theta,Temp))*w[l+1];
 			}
-cerr << Par[3] << " " << Par[4] << " " << -(a+b)/2. << " " << k << " " << theta << " " << Non_Interacting_Trace(Par, -(a+b)/2., k, theta)*Imk0_Integrand(Par,-(a+b)/2.,k,theta,Temp) << endl;
 			F += (Elements(Non_Interacting_Trace(Par, -(a+b)/2., k, theta), Potential1(Par,-(a+b)/2.,k), Interacting_Linear_Trace(Par, -(a+b)/2., k, theta)*Potential1(Par,-(a+b)/2.,k), Interacting_Quad_Trace(Par, -(a+b)/2., k, theta)*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*Imk0_Integrand(Par,-(a+b)/2.,k,theta,Temp))*w[0];
 		}
 
