@@ -3,7 +3,7 @@
 #include<iomanip>
 #include<fstream>
 #include<cstring>
-#include<ctime>
+#include<chrono>
 #include"Spectral.h"
 using namespace std;
 
@@ -122,10 +122,10 @@ int main(int argc, char* argv[])
 			Par[0] = -Set_C(atof(argv[4]), Par[3], atof(argv[9]), Par[1], atof(argv[10]), Temp);
 			Par[2] = atof(argv[6]);
 
-			Start_Time = time(NULL);
+			auto Start_Time = chrono::system_clock::now();
 			holder = theta_Int(Par, Temp);
-			End_Time = time(NULL);
-			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << holder[4] << " " << difftime(End_Time, Start_Time) << endl;
+			auto End_Time = chrono::system_clock::now();
+			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << holder[4] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
 		}
 		TPlot << endl;
 	}
