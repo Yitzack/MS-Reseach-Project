@@ -171,8 +171,6 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	long double a, b;	//Sub-interval limits of integration
 
 	//Extra boundaries that insert extra intervals around peaks. Used a machine learn algorithm of sorts to minimize error to pick these values.
-	long double Boundary_k_k0[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85};
-	long double Range[] = {-Boundary_k_k0[7], -Boundary_k_k0[6], -Boundary_k_k0[5], -Boundary_k_k0[4], -Boundary_k_k0[3], -Boundary_k_k0[2], -Boundary_k_k0[1], -Boundary_k_k0[0], 0, Boundary_k_k0[0], Boundary_k_k0[1], Boundary_k_k0[2], Boundary_k_k0[3], Boundary_k_k0[4], Boundary_k_k0[5], Boundary_k_k0[6], Boundary_k_k0[7]};	//Number of gamma from center
 
 	Elements F;			//Sum of ordinates*weights
 	Elements Answer(0, 0, 0, 0);	//Answer to be returned
@@ -187,28 +185,11 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	int Intervals;		//Number of intervals recorded in Stops
 
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);	//Find the location of the complex poles
-	pair<long double, bool> Stops[Poles*17+12];				//List of pre-determined subintervals
+	pair<long double, bool> Stops[Poles+12];				//List of pre-determined subintervals
 
-	l = 0;
-	for(i = 0; i < Poles; i++)	//Counting through the poles
+	for(l = 0; l < Poles; l++)	//Counting through the poles
 	{
-		if(zero[i] == .5*sqrt((Par[4]-pow(2.*Par[2], 2))*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2))))
-			for(j = 0; j < 17; j++)
-			{
-				Stops[l].first = zero[i]+gamma[i]*Range[j];	//Add all intervals for simultanous on-shell
-				l++;
-			}
-		else if(!isnan(gamma[i]))	//Prevents bad poles from getting in
-			for(j = 2; j < 15; j+=3)
-			{
-				Stops[l].first = zero[i]+gamma[i]*Range[j];	//Adds some intervals for other features
-				l++;
-			}
-		else	//If a bad pole, at least get the central value for it
-		{
-			Stops[l].first = zero[i];
-			l++;
-		}
+		Stops[l].first = zero[l];
 	}
 
 	//More intervals from features not already considered
@@ -338,8 +319,8 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 	long double Max;	//Upper limit of integration
 
 	//Extra boundaries that insert extra intervals around peaks. Used a machine learn algorithm of sorts to minimize error to pick these values.
-	long double Boundary_k_k0[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85};
-	long double Range[] = {-Boundary_k_k0[7], -Boundary_k_k0[6], -Boundary_k_k0[5], -Boundary_k_k0[4], -Boundary_k_k0[3], -Boundary_k_k0[2], -Boundary_k_k0[1], -Boundary_k_k0[0], 0, Boundary_k_k0[0], Boundary_k_k0[1], Boundary_k_k0[2], Boundary_k_k0[3], Boundary_k_k0[4], Boundary_k_k0[5], Boundary_k_k0[6], Boundary_k_k0[7]};	//Number of gamma from center
+	long double Boundary_k_k0[] = {.421, 4.85};
+	long double Range[] = {-Boundary_k_k0[1], -Boundary_k_k0[0], 0, Boundary_k_k0[0], Boundary_k_k0[1]};	//Number of gamma from center
 
 	Elements F;			//Sum of ordinates*weights
 	Elements Answer(0, 0, 0, 0);	//Results to be returned
@@ -353,13 +334,13 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 	int Intervals;		//Number of intervals required by poles and discontinuities
 
 	Characterize_k0_Int(Par, Temp, k, theta, zero, gamma, Poles);	//Get the poles that I have to be concerned about
-	pair<long double, bool>  Stops[Poles*17+6];					//Intervals that are required by integrating near poles
+	pair<long double, bool>  Stops[Poles*5+6];					//Intervals that are required by integrating near poles
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
 	{
 		if(!isnan(gamma[i]))	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
-			for(j = 0; j < 17; j++)
+			for(j = 0; j < 5; j++)
 			{
 				Stops[l].first = zero[i]+gamma[i]*Range[j];	//Extra subintervals required by poles
 				l++;
@@ -379,7 +360,7 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 	Stops[l+6].first = (Stops[l+2].first+Stops[l+3].first)/2.;
 
 	for(i = 0; i < l+7; i++)
-		if(Stops[i].first < a) Stops[i].first = -Stops[i].first;
+		if(Stops[i].first < -sqrt(Par[4]+pow(Par[3], 2))/2.) Stops[i].first = -Stops[i].first;
 
 	mergeSort(Stops, 0, l+6);	//Sort the subintervals
 
@@ -406,7 +387,7 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 
 	i = 0;
 	j = 0;
-	while(Stops[j].first == Stops[j].first+1.)	//Remove subintervals that duplicates or below the lower edge
+	while(Stops[j].first == Stops[j].first+1.)	//Remove subintervals that duplicates
 		j++;
 	for(; j < l+6; j++)
 	{
@@ -488,8 +469,8 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	long double ImG12 = Imk0_Integrand(Par, k0, k, theta, Temp);		//Holder of the ImG12 that belongs to the other half of G12 that is calculated here
 
 	//Extra boundaries that insert extra intervals around peaks. Used a machine learn algorithm of sorts to minimize error to pick these values.
-	long double Boundary_k_k0[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85};
-	long double Range[] = {-Boundary_k_k0[7], -Boundary_k_k0[6], -Boundary_k_k0[5], -Boundary_k_k0[4], -Boundary_k_k0[3], -Boundary_k_k0[2], -Boundary_k_k0[1], -Boundary_k_k0[0], 0, Boundary_k_k0[0], Boundary_k_k0[1], Boundary_k_k0[2], Boundary_k_k0[3], Boundary_k_k0[4], Boundary_k_k0[5], Boundary_k_k0[6], Boundary_k_k0[7]};	//Number of gamma from center
+	long double Boundary_k_k0 = 4.85;
+	long double Range[] = {-Boundary_k_k0, 0, Boundary_k_k0};	//Number of gamma from center
 
 	long double F;			//Sum of ordinates*weights
 	long double Answer = 0;	//Results to be returned
@@ -503,13 +484,13 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	int Intervals;		//Number of intervals required by poles and discontinuities
 
 	Characterize_Dispersion(ParLoc, Temp, k0, k, theta, zero, gamma, Poles);
-	pair<long double, bool> Stops[Poles*17+5];		//Extra stops to ensure correctness
+	pair<long double, bool> Stops[Poles*3+5];		//Extra stops to ensure correctness
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
 	{
 		if(!isnan(gamma[i]))	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
-			for(j = 0; j < 17; j++)
+			for(j = 0; j < 3; j++)
 			{
 				Stops[l].first = zero[i]+gamma[i]*Range[j];	//Extra subintervals required by poles
 				l++;
@@ -608,177 +589,177 @@ void Characterize_k_Int(long double Par[], int Temp, long double theta, long dou
 
 	Poles = 2;	//Two hard coded poles
 	zero[0] = .5*Par[3]*abs(cos(theta));	//Supposedly this is near intersection of 2 on-shells. I don't recongize it, lines 430-435 does that
-	gamma[0] = .05;
+	//gamma[0] = .05;
 	zero[1] = Par[2];
-	gamma[1] = Par[1];
+	//gamma[1] = Par[1];
 
 	if(Par[4]-pow(2.*Par[2], 2) > 0.)
 	{
 		zero[Poles] = .5*sqrt((Par[4]-pow(2.*Par[2], 2))*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));	//relative 3-momentum for which both quarks are on-shell
-		gamma[Poles] = 2.*ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp);	//Twice the self-energy of the quarks. Should be sum of self-energy of the two quarks as I don't think the self-energy of both quarks are equal to each other for P!=0.
+		//gamma[Poles] = 2.*ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp);	//Twice the self-energy of the quarks. Should be sum of self-energy of the two quarks as I don't think the self-energy of both quarks are equal to each other for P!=0.
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];	//Use Newtons's method to find intersection of features of interest. This one is the positive pole of the potential and one of the peaks of the propagator, I think its the negative pole of the anti-aligned quark.
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;	//Try again with a different seed in case the first missed
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEmp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEmp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Emp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEpp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, mEpp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Plus, Epp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epm))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEmp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEmp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Emp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEpp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, mEpp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	zero[Poles] = Par[2];
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 	zero[Poles] = 10;
 	if(Newton_Method_k(zero[Poles], Par[4], Par[3], theta, Par[2], Par[1], V_Minus, Epp))
 	{
-		gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
+		//gamma[Poles] = ImSelf_Energy(Par[2], Energy(Par[2], Par[3]/2., zero[Poles], theta), zero[Poles], Temp)+sqrt(complex<long double>(pow(2.*zero[Poles], 2), pow(Par[2], 2))).imag();
 		Poles++;
 	}
 
 	for(i = 0; i < Poles; i++)	//Move negative results to positive result. Should probably drop it, but might have been missed or otherwise caught a feature that is interesting, just with the wrong sign
 	{
 		zero[i] = abs(zero[i]);
-		gamma[i] = abs(gamma[i]);
+		//gamma[i] = abs(gamma[i]);
 	}
 
 	for(i = Poles-1; i >= 0; i--)	//Bubble sort of a self-written pair object
@@ -790,9 +771,9 @@ void Characterize_k_Int(long double Par[], int Temp, long double theta, long dou
 				holder = zero[j+1];
 				zero[j+1] = zero[j];
 				zero[j] = holder;
-				holder = gamma[j+1];
+				/*holder = gamma[j+1];
 				gamma[j+1] = gamma[j];
-				gamma[j] = holder;
+				gamma[j] = holder;*/
 			}
 		}
 	}
@@ -802,7 +783,7 @@ void Characterize_k_Int(long double Par[], int Temp, long double theta, long dou
 	{
 		if(((i > 0 && zero[i-1] != zero[j]) || i == 0) && !isnan(zero[j]))	//Remove duplicates and NaN
 		{
-			zero[i] = zero[j];
+			//zero[i] = zero[j];
 			gamma[i] = gamma[j];
 			i++;
 		}
