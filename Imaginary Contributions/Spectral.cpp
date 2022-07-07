@@ -11,7 +11,7 @@ int Start_Point(int, char[70]);						//Find highest line calculated and returns 
 bool Restart_Check(char[70], char*, char*, char*, char*, char*);		//Checks to see if file header matches input parameters and clears it if not
 long double Set_Mq(long double, long double, long double);			//Momentum dependence for the quark mass, <number> 0 causes it to be constant
 long double Set_Lambda(long double, long double, long double, long double, int);//Momentum dependence for the potential cutoff, <number> 0 causes it to be constant
-long double Set_C(long double, long double, long double, long double, long double, int);//Momentum dependence for the coupling constant, <number> 0 causes it to be constant
+long double Set_C(long double, long double, long double, long double, long double);//Momentum dependence for the coupling constant, <number> 0 causes it to be constant
 
 int main(int argc, char* argv[])
 {
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
 			}
 
 			Par[1] = Set_Lambda(atof(argv[5]), Par[3], atof(argv[9]), atof(argv[10]), Temp);
-			Par[0] = -Set_C(atof(argv[4]), Par[3], atof(argv[9]), Par[1], atof(argv[10]), Temp);
+			Par[0] = -Set_C(atof(argv[4]), Par[3], atof(argv[9]), Par[1], atof(argv[10]));
 			Par[2] = atof(argv[6]);
 
 			auto Start_Time = chrono::system_clock::now();
@@ -214,11 +214,9 @@ long double Set_Lambda(long double G0, long double P, long double P0, long doubl
 #endif
 }
 
-long double Set_C(long double f0, long double P, long double P0, long double Lambda, long double fraction, int T)
+long double Set_C(long double f0, long double P, long double P0, long double Lambda, long double fraction)
 {
 	long double f = (f0*pow(P0,2)+(fraction*(1-f0)+f0)*pow(P,2))/(pow(P0,2)+pow(P,2));
-	long double TempList[] = {0,.194,.258,.32,.4};
-	long double Temp = TempList[T];
 
 #if VERSION == Exp
 	return(91.3897394072305438*f);

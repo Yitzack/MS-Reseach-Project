@@ -206,11 +206,9 @@ long double Set_Lambda(long double G0, long double P, long double P0, long doubl
 #endif
 }
 
-long double Set_C(long double f0, long double P, long double P0, long double Lambda, long double fraction, int T)
+long double Set_C(long double f0, long double P, long double P0, long double Lambda, long double fraction)
 {
 	long double f = (f0*pow(P0,2)+(fraction*(1-f0)+f0)*pow(P,2))/(pow(P0,2)+pow(P,2));
-	long double TempList[] = {0,.194,.258,.32,.4};
-	long double Temp = TempList[T];
 
 #if VERSION == Exp
 	return(91.3897394072305438*f);
