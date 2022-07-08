@@ -224,17 +224,17 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	Stops[l+8] = .5*abs(Par[3]*cos(theta)+sqrt(3.*pow(Par[3],2)+4.*Par[4]+pow(Par[3]*cos(theta),2)));
 	Stops[l+9] = .5*abs(Par[3]*cos(theta)-sqrt(3.*pow(Par[3],2)+4.*Par[4]+pow(Par[3]*cos(theta),2)));
 
-	for(i = 0; i < l+11; i++)	//Removes stops that are NaN
+	for(i = 0; i < l+10; i++)	//Removes stops that are NaN
 		if(isnan(Stops[i]))
 			Stops[i] = -1;
 
-	mergeSort(Stops, 0, l+10);	//Sort the list of sub-intervals
+	mergeSort(Stops, 0, l+9);	//Sort the list of sub-intervals
 
 	i = 0;
 	j = 0;
 	while(Stops[j] <= 0)	//Skip past negative sub-intervals and form NaN
 		j++;
-	for(; j < l+11; j++)
+	for(; j < l+10; j++)
 	{
 		if((i > 0 && Stops[i-1] != Stops[j]) || i == 0)	//Removes duplicates, faster to remove duplicates than to evaluate zero width interval
 		{
