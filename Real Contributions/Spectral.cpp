@@ -213,10 +213,10 @@ long double Set_C(long double f0, long double P, long double P0, long double Lam
 #if VERSION == Exp
 	return(91.3897394072305438*f);
 #elif VERSION == 22
-	return(303.487268228235033*f*pow(1.47132/Lambda,4));
+	return(303.487268228235033*f*pow(1.01149967677284562/Lambda,4));
 #elif VERSION == 24
-	return(131.303726940957758*f*pow(2.29444/Lambda,8));
+	return(131.303726940957758*f*pow(1.76515260901108671/Lambda,8));
 #elif VERSION == 42
-	return(69.532138701560774*f*pow(2.7/Lambda,8));
+	return(69.532138701560774*f*pow(2.16218435462064683/Lambda,8));
 #endif
 }

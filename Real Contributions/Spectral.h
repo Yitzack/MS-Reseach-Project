@@ -49,11 +49,14 @@ long double Interacting_Linear_Trace(long double[]);									//Linear (linear in
 long double Interacting_Quad_Trace(long double[], long double, long double);						//Quadratic contribution to the interacting trace
 long double Imk0_Integrand(long double[], long double, long double, long double, int);				//Integrand of the k0 integral for positive energy
 
+auto Start_Time = chrono::system_clock::now();
+int Allotment = 90;
+
 //Merge Sort. There are a number of semi-sorted lists that need sorting. This will probably beat quick sort under similar conditions. Don't worry about the second element. It doesn't need sorting as either they don't matter or they will be assigned after sorting.
-void mergeSort(pair<long double, bool> List[], int a, int b)
+void mergeSort(long double List[], int a, int b)
 {
 	int i, j, k;
-	pair<long double, bool> Temp[(a+b)/2-a+1];
+	long double Temp[(a+b)/2-a+1];
 
 	if(b-a > 1)	//Divide...
 	{
@@ -63,27 +66,27 @@ void mergeSort(pair<long double, bool> List[], int a, int b)
 
 	for(i = 0; i <= (a+b)/2-a; i++)	//Copy out the lower half array in prep for copy over
 	{
-		Temp[i].first = List[i+a].first;
+		Temp[i] = List[i+a];
 	}
 
 	j = 0;
 	k = (a+b)/2+1;
 	for(i = a; i <= b && j <= (a+b)/2-a && k <= b; i++)	//... and conqure while both half lists have not been exhausted
 	{
-		if(Temp[j].first <= List[k].first)
+		if(Temp[j] <= List[k])
 		{
-			List[i].first = Temp[j].first;
+			List[i] = Temp[j];
 			j++;
 		}
 		else
 		{
-			List[i].first = List[k].first;
+			List[i] = List[k];
 			k++;
 		}
 	}
 	for(; i <= b && j <= (a+b)/2-a; i++)	//If the Temp list has not been exhausted, complete the job
 	{
-		List[i].first = Temp[j].first;
+		List[i] = Temp[j];
 		j++;
 	}
 
@@ -119,25 +122,25 @@ Elements theta_Int(long double Par[], int Temp)
 		x1 = M_PI/10.;
 
 	//List of boundaries between subintervals
-	pair<long double, bool> Range[] = {pair<long double, bool>(x1*Boundary_theta[0], false), pair<long double, bool>(x1*Boundary_theta[1], false), pair<long double, bool>(x1, false), pair<long double, bool>(x1*(2.-Boundary_theta[1]), false), pair<long double, bool>(x1*(2.-Boundary_theta[1])*(1.-Boundary_theta[2])+M_PI/2.*Boundary_theta[2], false), pair<long double, bool>(M_PI/2., false), pair<long double, bool>(asin(sqrt(-Par[4])/Par[3]), false), pair<long double, bool>(0, false), pair<long double, bool>(0, false)};
+	long double Range[] = {x1*Boundary_theta[0], x1*Boundary_theta[1], x1, x1*(2.-Boundary_theta[1]), x1*(2.-Boundary_theta[1])*(1.-Boundary_theta[2])+M_PI/2.*Boundary_theta[2], M_PI/2., asin(sqrt(-Par[4])/Par[3]), 0, 0};
 
 	//Some kind of intersection, probably between the simultanous on-shell and potential peak, don't rightly remember
-	Range[7].first = sqrt(4.*pow(Par[3], 4)+8.*pow(Par[3], 2)*Par[4]+4.*pow(Par[4], 2)-pow(Par[1], 4))/pow(256.*pow(Par[3], 4)+512.*pow(Par[3], 2)*Par[4]+256.*pow(Par[4], 2), (long double).25);
-	Range[7].first = acos((pow(Range[7].first, 2)+pow(Par[2], 2)-Par[4]-(long double).75*pow(Par[3], 2))/(Range[7].first*Par[3]));
-	Range[8].first = sqrt(4.*pow(Par[3], 4)+8.*pow(Par[3], 2)*Par[4]+4.*pow(Par[4], 2)-pow(Par[1], 4))/pow(256.*pow(Par[3], 4)+512.*pow(Par[3], 2)*Par[4]+256.*pow(Par[4], 2), (long double).25);
-	Range[8].first = acos((pow(Range[8].first, 2)+pow(Par[2], 2)-Par[4]-(long double).75*pow(Par[3], 2))/(-Range[8].first*Par[3]));
+	Range[7] = sqrt(4.*pow(Par[3], 4)+8.*pow(Par[3], 2)*Par[4]+4.*pow(Par[4], 2)-pow(Par[1], 4))/pow(256.*pow(Par[3], 4)+512.*pow(Par[3], 2)*Par[4]+256.*pow(Par[4], 2), (long double).25);
+	Range[7] = acos((pow(Range[7], 2)+pow(Par[2], 2)-Par[4]-(long double).75*pow(Par[3], 2))/(Range[7]*Par[3]));
+	Range[8] = sqrt(4.*pow(Par[3], 4)+8.*pow(Par[3], 2)*Par[4]+4.*pow(Par[4], 2)-pow(Par[1], 4))/pow(256.*pow(Par[3], 4)+512.*pow(Par[3], 2)*Par[4]+256.*pow(Par[4], 2), (long double).25);
+	Range[8] = acos((pow(Range[8], 2)+pow(Par[2], 2)-Par[4]-(long double).75*pow(Par[3], 2))/(-Range[8]*Par[3]));
 
 	//Bad data trap for NaN and negative boundaries. These are only ones that can NaN or return negative numbers
-	if(isnan(Range[6].first) || Range[6].first < 0) Range[6].first = M_PI;
-	if(isnan(Range[7].first)) Range[7].first = M_PI;
-	if(isnan(Range[8].first)) Range[8].first = M_PI;
+	if(isnan(Range[6]) || Range[6] < 0) Range[6] = M_PI;
+	if(isnan(Range[7])) Range[7] = M_PI;
+	if(isnan(Range[8])) Range[8] = M_PI;
 
 	//Put in asending order
 	mergeSort(Range, 0, 8);
 
-	for(i = 0; i < 8 && Range[i].first <= M_PI/2.; i++)	//Count through pre-determined intervals
+	for(i = 0; i < 8 && Range[i] <= M_PI/2.; i++)	//Count through pre-determined intervals
 	{
-		b = Range[i].first;	//Upper edge
+		b = Range[i];	//Upper edge
 		F.null();	//Zero out F for a new round
 
 		//Count through points away from center
@@ -180,73 +183,53 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	long double zero[26];	//The real part of the signular pole
 	long double gamma[26];	//The distance to the singular, maybe
 	long double Max;
-	//bool Close = false;	//Close to pole?
 	int i, j, l;		//Counters, would use 'k', but 'k' is occupied by relative 3-momenta in other parts of program
 	int Intervals;		//Number of intervals recorded in Stops
 
 	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);	//Find the location of the complex poles
-	pair<long double, bool> Stops[Poles+12];				//List of pre-determined subintervals
+	long double Stops[Poles+12];				//List of pre-determined subintervals
 
 	for(l = 0; l < Poles; l++)	//Counting through the poles
 	{
-		Stops[l].first = zero[l];
+		Stops[l] = zero[l];
 	}
 
 	//More intervals from features not already considered
-	Stops[l].first = .5*sqrt(Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));	//k for which quarks are simultanous light-like, highest k needed for vacuum
-	if(isnan(Stops[l].first))	//If meson is space-like, keep absolute value of it anyways even though it probably does nothing
-		Stops[l].first = .5*sqrt(-Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));
-	Stops[l+1].first = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]-pow(2.*Par[2], 2)+pow(Par[3]*cos(theta), 2)));	//On-shells leaving the positive energy range
-	Stops[l+2].first = .5*abs(Par[3]*cos(theta)-sqrt(Par[4]-pow(2.*Par[2], 2)+pow(Par[3]*cos(theta), 2)));
-	Stops[l+3].first = sqrt(4.*pow(Par[3], 4)+8.*pow(Par[3], 2)*Par[4]+4.*pow(Par[4], 2)-pow(Par[1], 4))/pow(256.*pow(Par[3], 4)+512.*pow(Par[3], 2)*Par[4]+256.*pow(Par[4], 2), (long double).25);	//Potiential leaving the positive energy range
-	Stops[l+4].first = abs((pow(Par[2], 2)*Par[3]*cos(theta)+sqrt((Par[4]+pow(Par[3], 2))*(pow(Par[2], 4)+(Par[4]+pow(Par[3]*sin(theta), 2))*(Par[4]-2.*pow(Par[2], 2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta), 2))));	//On-shell leaving the time-like range
-	Stops[l+5].first = abs((pow(Par[2], 2)*Par[3]*cos(theta)-sqrt((Par[4]+pow(Par[3], 2))*(pow(Par[2], 4)+(Par[4]+pow(Par[3]*sin(theta), 2))*(Par[4]-2.*pow(Par[2], 2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta), 2))));
-	Stops[l+6].first = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]+pow(Par[3]*cos(theta), 2)));	//Photon point leaving positive energy range. Not sure what photon point
-	Stops[l+7].first = .5*abs(Par[3]*cos(theta)-sqrt(Par[4]+pow(Par[3]*cos(theta), 2)));
-	Stops[l+8].first = .5*abs(Par[3]*cos(theta)+sqrt(3.*pow(Par[3], 2)+4.*Par[4]+pow(Par[3]*cos(theta), 2)));
-	Stops[l+9].first = .5*abs(Par[3]*cos(theta)-sqrt(3.*pow(Par[3], 2)+4.*Par[4]+pow(Par[3]*cos(theta), 2)));
+	Stops[l] = .5*sqrt(Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));	//k for which quarks are simultanous light-like, highest k needed for vacuum
+	if(isnan(Stops[l]))	//If meson is space-like, keep absolute value of it anyways even though it probably does nothing
+		Stops[l] = .5*sqrt(-Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));
+	Stops[l+1] = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]-pow(2.*Par[2], 2)+pow(Par[3]*cos(theta), 2)));	//On-shells leaving the positive energy range
+	Stops[l+2] = .5*abs(Par[3]*cos(theta)-sqrt(Par[4]-pow(2.*Par[2], 2)+pow(Par[3]*cos(theta), 2)));
+	Stops[l+3] = sqrt(4.*pow(Par[3], 4)+8.*pow(Par[3], 2)*Par[4]+4.*pow(Par[4], 2)-pow(Par[1], 4))/pow(256.*pow(Par[3], 4)+512.*pow(Par[3], 2)*Par[4]+256.*pow(Par[4], 2), (long double).25);	//Potiential leaving the positive energy range
+	Stops[l+4] = abs((pow(Par[2], 2)*Par[3]*cos(theta)+sqrt((Par[4]+pow(Par[3], 2))*(pow(Par[2], 4)+(Par[4]+pow(Par[3]*sin(theta), 2))*(Par[4]-2.*pow(Par[2], 2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta), 2))));	//On-shell leaving the time-like range
+	Stops[l+5] = abs((pow(Par[2], 2)*Par[3]*cos(theta)-sqrt((Par[4]+pow(Par[3], 2))*(pow(Par[2], 4)+(Par[4]+pow(Par[3]*sin(theta), 2))*(Par[4]-2.*pow(Par[2], 2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta), 2))));
+	Stops[l+6] = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]+pow(Par[3]*cos(theta), 2)));	//Photon point leaving positive energy range. Not sure what photon point
+	Stops[l+7] = .5*abs(Par[3]*cos(theta)-sqrt(Par[4]+pow(Par[3]*cos(theta), 2)));
+	Stops[l+8] = .5*abs(Par[3]*cos(theta)+sqrt(3.*pow(Par[3], 2)+4.*Par[4]+pow(Par[3]*cos(theta), 2)));
+	Stops[l+9] = .5*abs(Par[3]*cos(theta)-sqrt(3.*pow(Par[3], 2)+4.*Par[4]+pow(Par[3]*cos(theta), 2)));
 
 	for(i = 0; i < l+10; i++)	//Removes stops that are NaN
-		if(isnan(Stops[i].first))
-			Stops[i].first = -1;
+		if(isnan(Stops[i]))
+			Stops[i] = -1;
 
 	mergeSort(Stops, 0, l+9);	//Sort the list of sub-intervals
 
-	/*for(i = 0; i < l+10; i++)
-		Stops[i].second = false;
-
-	for(j = 0; j < Poles; j++)
-		for(i = 0; i < l+10; i++)	//Step through each stop and determine if it is near an on-shell peak
-		{
-			if(gamma[j]*Boundary_k_k0[4] < .5)
-			{
-				if(zero[j]-gamma[j]*Boundary_k_k0[4] <= Stops[i].first && Stops[i].first <= zero[j]+gamma[j]*Boundary_k_k0[4])	//Is it near the current peak?
-					Stops[i].second = true;
-			}
-			else
-			{
-				if(zero[j]-.5 <= Stops[i].first && Stops[i].first <= zero[j]+.5)	//Is it near the current peak?
-					Stops[i].second = true;
-			}
-		}*/
-
 	i = 0;
 	j = 0;
-	while(Stops[j].first <= 0)	//Skip past negative sub-intervals and form NaN
+	while(Stops[j] <= 0)	//Skip past negative sub-intervals and form NaN
 		j++;
 	for(; j < l+10; j++)
 	{
-		if((i > 0 && Stops[i-1].first != Stops[j].first) || i == 0)	//Removes duplicates, faster to remove duplicates than to evaluate zero width interval
+		if((i > 0 && Stops[i-1] != Stops[j]) || i == 0)	//Removes duplicates, faster to remove duplicates than to evaluate zero width interval
 		{
-			Stops[i].first = Stops[j].first;
-			//Stops[i].second = Stops[j].second;
+			Stops[i] = Stops[j];
 			i++;
 		}
-		else if(Stops[j].first != Stops[j].first)
+		else if(Stops[j] != Stops[j])
 			break;
 	}
 	Intervals = i;	//Record number of intervals in Stops
-	Max = Stops[i-1].first;
+	Max = Stops[i-1];
 
 	if(j == 0)
 		Intervals = 1;
@@ -254,18 +237,17 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	a = b = i = 0;
 	do
 	{
-		if((i < Intervals && b+100 < Stops[i].first && b-Stops[i-1].first > 100) || Stops[Intervals-1].first < a-100)	//Middle of nowhere intervals not specified by Stops
+		if((i < Intervals && b+100 < Stops[i] && b-Stops[i-1] > 100) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
-		else if((i < Intervals && 50 < Stops[i].first-b && b-Stops[i-1].first > 50) || Stops[Intervals-1].first < a-50)
+		else if((i < Intervals && 50 < Stops[i]-b && b-Stops[i-1] > 50) || Stops[Intervals-1] < a-50)
 			b += 50;
-		else if((i < Intervals && 10 < Stops[i].first-b && b-Stops[i-1].first > 10) || Stops[Intervals-1].first < a-10)
+		else if((i < Intervals && 10 < Stops[i]-b && b-Stops[i-1] > 10) || Stops[Intervals-1] < a-10)
 			b += 10;
-		else if((i < Intervals && 3 < Stops[i].first-b) || Stops[Intervals-1].first < a-3)
+		else if((i < Intervals && 3 < Stops[i]-b) || Stops[Intervals-1] < a-3)
 			b += 3;
 		else if(i < Intervals)
 		{
-			b = Stops[i].first;
-			//Close = Stops[i].second;
+			b = Stops[i];
 			i++;
 		}
 		else
@@ -301,7 +283,6 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 		Partial = F*(b-a)/2.;	//Record the subinterval to total of the integral
 		Answer += Partial;	//Add the subinterval to total of the integral
 		a = b;
-		//Close = false;
 	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && (a <= Max || a <= 20.*sqrt(Par[4]+pow(Par[3], 2)))); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
@@ -314,6 +295,9 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 //9th order Gauss-Legendre integration
 	long double Disp9[] = {sqrt(5.-2.*sqrt(10./7.))/3., sqrt(5.+2.*sqrt(10./7.))/3.};	//Displacement from center
 	long double w9[] = {128./225., (322.+13.*sqrt(70.))/900., (322.-13.*sqrt(70.))/900.};	//Weight
+//41st order Gauss-Legendre integration
+	long double w41[] = {0.146081133649690427192, 0.144524403989970059064, 0.139887394791073154722, 0.132268938633337461781, 0.121831416053728534195, 0.108797299167148377663, 0.0934444234560338615533, 0.0761001136283793020171, 0.0571344254268572082836, 0.0369537897708524938000, 0.0160172282577743333242};
+	long double Disp41[] = {0.145561854160895090937, 0.288021316802401096601, 0.424342120207438783574, 0.551618835887219807059, 0.667138804197412319306, 0.768439963475677908616, 0.853363364583317283647, 0.920099334150400828790, 0.967226838566306294317, 0.993752170620389500260};
 //37th order Gauss-Legendre integration
 	long double Disp37[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center
 	long double w37[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight
@@ -331,17 +315,17 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 	Elements F;			//Sum of ordinates*weights
 	Elements Answer(0, 0, 0, 0);	//Results to be returned
 	Elements Partial;		//Partial sum to determine continuation
+	Elements Holder;
 
 	long double zero[12];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[12];	//Imaginary part of poles
 	long double Caution = k*Par[3]*cos(theta)/(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2., -k, theta));
-	//bool Close = false;	//Close to pole?
 	int Poles = 0;		//Number of poles with real parts between 0 and E
 	int i, j, l;		//Counting varibles
 	int Intervals;		//Number of intervals required by poles and discontinuities
 
 	Characterize_k0_Int(Par, Temp, k, theta, zero, gamma, Poles);	//Get the poles that I have to be concerned about
-	pair<long double, bool>  Stops[Poles*5+6];					//Intervals that are required by integrating near poles
+	long double  Stops[Poles*5+6];					//Intervals that are required by integrating near poles
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
@@ -349,59 +333,40 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 		if(!isnan(gamma[i]))	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
 			for(j = 0; j < 5; j++)
 			{
-				Stops[l].first = zero[i]+gamma[i]*Range[j];	//Extra subintervals required by poles
+				Stops[l] = zero[i]+gamma[i]*Range[j];	//Extra subintervals required by poles
 				l++;
 			}
 		else	//At lease insert the central point of the pole if the width isn't properly measured
 		{
-			Stops[l].first = zero[i];
+			Stops[l] = zero[i];
 			l++;
 		}
 	}
-	Stops[l].first = Energy(0, Par[3]/2., k, theta)-sqrt(Par[4]+pow(Par[3], 2))/2.;	//Lower light-like edge
-	Stops[l+1].first = sqrt(Par[4]+pow(Par[3], 2))/2.-Energy(0, Par[3]/2., -k, theta);	//Upper light-like edge
-	Stops[l+2].first = -Energy(0, Par[3]/2., k, theta)-sqrt(Par[4]+pow(Par[3], 2))/2.;	//Pretty sure this is the negative energy solution of the lower light-like edge
-	Stops[l+3].first = sqrt(Par[4]+pow(Par[3], 2))/2.+Energy(0, Par[3]/2., -k, theta);	//Pretty sure this is the negative energy solution of the upper light-like edge
-	Stops[l+4].first = sqrt(Par[4]+pow(Par[3], 2))/2.;					//Upper energy boundary (E/2)
-	Stops[l+5].first = -sqrt(Par[4]+pow(Par[3], 2))/2.;					//Lower energy boundary (-E/2)
-	Stops[l+6].first = (Stops[l+2].first+Stops[l+3].first)/2.;
+	Stops[l] = Energy(0, Par[3]/2., k, theta)-sqrt(Par[4]+pow(Par[3], 2))/2.;	//Lower light-like edge
+	Stops[l+1] = sqrt(Par[4]+pow(Par[3], 2))/2.-Energy(0, Par[3]/2., -k, theta);	//Upper light-like edge
+	Stops[l+2] = -Energy(0, Par[3]/2., k, theta)-sqrt(Par[4]+pow(Par[3], 2))/2.;	//Pretty sure this is the negative energy solution of the lower light-like edge
+	Stops[l+3] = sqrt(Par[4]+pow(Par[3], 2))/2.+Energy(0, Par[3]/2., -k, theta);	//Pretty sure this is the negative energy solution of the upper light-like edge
+	Stops[l+4] = sqrt(Par[4]+pow(Par[3], 2))/2.;					//Upper energy boundary (E/2)
+	Stops[l+5] = -sqrt(Par[4]+pow(Par[3], 2))/2.;					//Lower energy boundary (-E/2)
+	Stops[l+6] = (Stops[l+2]+Stops[l+3])/2.;
 
 	for(i = 0; i < l+7; i++)
-		if(Stops[i].first < -sqrt(Par[4]+pow(Par[3], 2))/2.) Stops[i].first = -Stops[i].first;
+		if(Stops[i] < -sqrt(Par[4]+pow(Par[3], 2))/2.) Stops[i] = -Stops[i];
 
 	mergeSort(Stops, 0, l+6);	//Sort the subintervals
-
-	/*for(i = 0; i < l+6; i++)
-		Stops[i].second = false;
-
-	for(j = 0; j < Poles; j++)
-		for(i = 0; i < l+6; i++)	//Step through each stop and determine if it is near an on-shell peak
-		{
-			if(gamma[j]*Boundary_k_k0[4] < .5)
-			{
-				if(zero[j]-gamma[j]*Boundary_k_k0[4] <= Stops[i].first && Stops[i].first <= zero[j]+gamma[j]*Boundary_k_k0[4])	//Is it near the current peak?
-					Stops[i].second = true;
-			}
-			else
-			{
-				if(zero[j]-.5 <= Stops[i].first && Stops[i].first <= zero[j]+.5)	//Is it near the current peak?
-					Stops[i].second = true;
-			}
-		}*/
 
 	a = b = -sqrt(Par[4]+pow(Par[3], 2))/2.;	//Lower edge
 	Max = sqrt(Par[4]+pow(Par[3], 2))/2.;		//Upper edge before doubling up
 
 	i = 0;
 	j = 0;
-	while(Stops[j].first == Stops[j].first+1.)	//Remove subintervals that duplicates
+	while(Stops[j] == Stops[j]+1.)	//Remove subintervals that duplicates
 		j++;
 	for(; j < l+6; j++)
 	{
-		if((i > 0 && Stops[i-1].first != Stops[j].first) || i == 0)	//Remove dublicates
+		if((i > 0 && Stops[i-1] != Stops[j]) || i == 0)	//Remove dublicates
 		{
-			Stops[i].first = Stops[j].first;
-			//Stops[i].second = Stops[j].second;
+			Stops[i] = Stops[j];
 			i++;
 		}
 	}
@@ -411,18 +376,17 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 	i = 1;	//The first point should be the lower limit of integration. That's where we start. Next subinterval is what we need to be looking for
 	do
 	{
-		if((i < Intervals && b+100 < Stops[i].first && b-Stops[i-1].first > 100) || Stops[Intervals-1].first < a-100)	//Middle of nowhere intervals not specified by Stops
+		if((i < Intervals && b+100 < Stops[i] && b-Stops[i-1] > 100) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
-		else if((i < Intervals && 50 < Stops[i].first-b && b-Stops[i-1].first > 50) || Stops[Intervals-1].first < a-50)
+		else if((i < Intervals && 50 < Stops[i]-b && b-Stops[i-1] > 50) || Stops[Intervals-1] < a-50)
 			b += 50;
-		else if((i < Intervals && 10 < Stops[i].first-b && b-Stops[i-1].first > 10) || Stops[Intervals-1].first < a-10)
+		else if((i < Intervals && 10 < Stops[i]-b && b-Stops[i-1] > 10) || Stops[Intervals-1] < a-10)
 			b += 10;
-		else if((i < Intervals && 3 < Stops[i].first-b) || Stops[Intervals-1].first < a-3)
+		else if((i < Intervals && 3 < Stops[i]-b) || Stops[Intervals-1] < a-3)
 			b += 3;
 		else if(i < Intervals)
 		{
-			b = Stops[i].first;
-			//Close = Stops[i].second;
+			b = Stops[i];
 			i++;
 		}
 
@@ -446,15 +410,15 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 		}
 		else if(abs(a-Caution)<.5 || abs(b-Caution)<.5 || (.25 < b-a && b-a < 1))	//Within .5 GeV of the double on-shell or the interval is between .25 and 1 GeV (bigger than .25 GeV and 9th order isn't good enough, more than 1 GeV and it doesn't matter)
 		{
-			for(j = 0; j < 9; j++)
+			for(j = 0; j < 10; j++)
 			{
-				x1 = (b+a-Disp37[j]*(b-a))/2.;
-				x2 = (b+a+Disp37[j]*(b-a))/2.;
+				x1 = (b+a-Disp41[j]*(b-a))/2.;
+				x2 = (b+a+Disp41[j]*(b-a))/2.;
 
-				F += (Elements(Potential1(Par, x1, k), Interacting_Linear_Trace(Par)*Potential1(Par, x1, k), Interacting_Quad_Trace(Par, x1, k)*Potential1(Par, x1, k), Potential2(Par, x1, k))*Dispersion(Par, Temp, x1, k, theta))*w37[j+1];
-				F += (Elements(Potential1(Par, x2, k), Interacting_Linear_Trace(Par)*Potential1(Par, x2, k), Interacting_Quad_Trace(Par, x2, k)*Potential1(Par, x2, k), Potential2(Par, x2, k))*Dispersion(Par, Temp, x2, k, theta))*w37[j+1];
+				F += (Elements(Potential1(Par, x1, k), Interacting_Linear_Trace(Par)*Potential1(Par, x1, k), Interacting_Quad_Trace(Par, x1, k)*Potential1(Par, x1, k), Potential2(Par, x1, k))*Dispersion(Par, Temp, x1, k, theta))*w41[j+1];
+				F += (Elements(Potential1(Par, x2, k), Interacting_Linear_Trace(Par)*Potential1(Par, x2, k), Interacting_Quad_Trace(Par, x2, k)*Potential1(Par, x2, k), Potential2(Par, x2, k))*Dispersion(Par, Temp, x2, k, theta))*w41[j+1];
 			}
-			F += (Elements(Potential1(Par, (a+b)/2., k), Interacting_Linear_Trace(Par)*Potential1(Par, (a+b)/2., k), Interacting_Quad_Trace(Par, (a+b)/2., k)*Potential1(Par, (a+b)/2., k), Potential2(Par, (a+b)/2., k))*Dispersion(Par, Temp, (a+b)/2., k, theta))*w37[0];
+			F += (Elements(Potential1(Par, (a+b)/2., k), Interacting_Linear_Trace(Par)*Potential1(Par, (a+b)/2., k), Interacting_Quad_Trace(Par, (a+b)/2., k)*Potential1(Par, (a+b)/2., k), Potential2(Par, (a+b)/2., k))*Dispersion(Par, Temp, (a+b)/2., k, theta))*w41[0];
 		}
 		else
 		{
@@ -471,21 +435,35 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 
 		if(a >= Max)	//If you're in this region, the above conditions don't apply
 		{
-			for(j = 0; j < 2; j++)
+			if(abs(a-Caution)<.5 || abs(b-Caution)<.5 || (.25 < b-a && b-a < 1))	//Within .5 GeV of the double on-shell or the interval is between .25 and 1 GeV (bigger than .25 GeV and 9th order isn't good enough, more than 1 GeV and it doesn't matter)
 			{
-				x1 = -(b+a-Disp9[j]*(b-a))/2.;
-				x2 = -(b+a+Disp9[j]*(b-a))/2.;
+				for(j = 0; j < 10; j++)
+				{
+					x1 = -(b+a-Disp41[j]*(b-a))/2.;
+					x2 = -(b+a+Disp41[j]*(b-a))/2.;
+
+				F += (Elements(Potential1(Par, x1, k), Interacting_Linear_Trace(Par)*Potential1(Par, x1, k), Interacting_Quad_Trace(Par, x1, k)*Potential1(Par, x1, k), Potential2(Par, x1, k))*Dispersion(Par, Temp, x1, k, theta))*w41[j+1];
+				F += (Elements(Potential1(Par, x2, k), Interacting_Linear_Trace(Par)*Potential1(Par, x2, k), Interacting_Quad_Trace(Par, x2, k)*Potential1(Par, x2, k), Potential2(Par, x2, k))*Dispersion(Par, Temp, x2, k, theta))*w41[j+1];
+			}
+			F += (Elements(Potential1(Par, (a+b)/2., k), Interacting_Linear_Trace(Par)*Potential1(Par, (a+b)/2., k), Interacting_Quad_Trace(Par, (a+b)/2., k)*Potential1(Par, (a+b)/2., k), Potential2(Par, (a+b)/2., k))*Dispersion(Par, Temp, (a+b)/2., k, theta))*w41[0];
+			}
+			else
+			{
+				for(j = 0; j < 2; j++)
+				{
+					x1 = -(b+a-Disp9[j]*(b-a))/2.;
+					x2 = -(b+a+Disp9[j]*(b-a))/2.;
 
 				F += (Elements(Potential1(Par, x1, k), Interacting_Linear_Trace(Par)*Potential1(Par, x1, k), Interacting_Quad_Trace(Par, x1, k)*Potential1(Par, x1, k), Potential2(Par, x1, k))*Dispersion(Par, Temp, x1, k, theta))*w9[j+1];
 				F += (Elements(Potential1(Par, x2, k), Interacting_Linear_Trace(Par)*Potential1(Par, x2, k), Interacting_Quad_Trace(Par, x2, k)*Potential1(Par, x2, k), Potential2(Par, x2, k))*Dispersion(Par, Temp, x2, k, theta))*w9[j+1];
 			}
-			F += (Elements(Potential1(Par, -(a+b)/2., k), Interacting_Linear_Trace(Par)*Potential1(Par, -(a+b)/2., k), Interacting_Quad_Trace(Par, -(a+b)/2., k)*Potential1(Par, -(a+b)/2., k), Potential2(Par, -(a+b)/2., k))*Dispersion(Par, Temp, -(a+b)/2., k, theta))*w9[0];
+			F += (Elements(Potential1(Par, (a+b)/2., k), Interacting_Linear_Trace(Par)*Potential1(Par, (a+b)/2., k), Interacting_Quad_Trace(Par, (a+b)/2., k)*Potential1(Par, (a+b)/2., k), Potential2(Par, (a+b)/2., k))*Dispersion(Par, Temp, (a+b)/2., k, theta))*w9[0];
+			}
 		}
 
 		Partial = F*(b-a)/2.;
 		Answer += Partial;		//Add the subinterval to the total
 		a = b;
-		//Close = false;
 	}while((!(Partial == 0) || a < Max) && (i < Intervals || abs(Partial/Answer) >= .0001));	//Keep going while intervals aren't exhausted and the last interval added is too much
 
 	return(Answer/M_PI);
@@ -512,13 +490,12 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 
 	long double zero[2];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[2];	//Imaginary part of poles
-	//bool Close = false;	//Is it close to on-shell
 	int Poles;		//Number of poles with real parts between 0 and E
 	int i, j, l;		//Counting varibles
 	int Intervals;		//Number of intervals required by poles and discontinuities
 
 	Characterize_Dispersion(ParLoc, Temp, k0, k, theta, zero, gamma, Poles);
-	pair<long double, bool> Stops[Poles*3+5];		//Extra stops to ensure correctness
+	long double Stops[Poles*3+5];		//Extra stops to ensure correctness
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
@@ -526,66 +503,47 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		if(!isnan(gamma[i]))	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
 			for(j = 0; j < 3; j++)
 			{
-				Stops[l].first = zero[i]+gamma[i]*Range[j];	//Extra subintervals required by poles
+				Stops[l] = zero[i]+gamma[i]*Range[j];	//Extra subintervals required by poles
 				l++;
 			}
 		else	//At lease insert the central point of the pole if the width isn't properly measured
 		{
-			Stops[l].first = zero[i];
+			Stops[l] = zero[i];
 			l++;
 		}
 	}
-	Stops[l].first = 4.*pow(k0, 2)-pow(Par[3], 2);	//Both quarks remain energy positive, should be the center of the fermi functions, (1-f-f)=.5
-	Stops[l+1].first = 4.*pow(k, 2)+4.*pow(k0, 2)+3.*pow(Par[3], 2)+4.*k*Par[3]*cos(theta)-8.*sqrt(pow(k*k0, 2)+pow(k0*Par[3], 2)+k*Par[3]*pow(k0, 2)*cos(theta));	//Light-like quarks
-	Stops[l+2].first = 4.*pow(k, 2)+4.*pow(k0, 2)+3.*pow(Par[3], 2)-4.*k*Par[3]*cos(theta)+8.*sqrt(pow(k*k0, 2)+pow(k0*Par[3], 2)-k*Par[3]*pow(k0, 2)*cos(theta));
-	Stops[l+3].first = Par[4];	//Division by zero of dispersion relation
+	Stops[l] = 4.*pow(k0, 2)-pow(Par[3], 2);	//Both quarks remain energy positive, should be the center of the fermi functions, (1-f-f)=.5
+	Stops[l+1] = 4.*pow(k, 2)+4.*pow(k0, 2)+3.*pow(Par[3], 2)+4.*k*Par[3]*cos(theta)-8.*sqrt(pow(k*k0, 2)+pow(k0*Par[3], 2)+k*Par[3]*pow(k0, 2)*cos(theta));	//Light-like quarks
+	Stops[l+2] = 4.*pow(k, 2)+4.*pow(k0, 2)+3.*pow(Par[3], 2)-4.*k*Par[3]*cos(theta)+8.*sqrt(pow(k*k0, 2)+pow(k0*Par[3], 2)-k*Par[3]*pow(k0, 2)*cos(theta));
+	Stops[l+3] = Par[4];	//Division by zero of dispersion relation
 
 	mergeSort(Stops, 0, l+3);
-	Stops[l+4].first = Stops[l+3].first+100;	//Adds the minimum end point to keep the integration going
-
-	/*for(i = 0; i < l+5; i++)
-		Stops[i].second = false;
-
-	for(j = 0; j < Poles; j++)
-		for(i = 0; i < l+10; i++)	//Step through each stop and determine if it is near an on-shell peak
-		{
-			if(gamma[j]*Boundary_k_k0[4] < .5)
-			{
-				if(zero[j]-gamma[j]*Boundary_k_k0[4] <= Stops[i].first && Stops[i].first <= zero[j]+gamma[j]*Boundary_k_k0[4])	//Is it near the current peak?
-					Stops[i].second = true;
-			}
-			else
-			{
-				if(zero[j]-.5 <= Stops[i].first && Stops[i].first <= zero[j]+.5)	//Is it near the current peak?
-					Stops[i].second = true;
-			}
-		}*/
+	Stops[l+4] = Stops[l+3]+100;	//Adds the minimum end point to keep the integration going
 
 	Min = a = b = -pow(Par[3], 2);	//Start from s'=-P^2
 
 	i = 0;
-	while(Stops[i].first < a)
+	while(Stops[i] < a)
 		i++;
 	Intervals = l+5;
 
 	do
 	{
-		if((i < Intervals && b+100 < Stops[i].first && b-Stops[i-1].first > 100) || Stops[Intervals-1].first < a-100)	//Middle of nowhere intervals not specified by Stops
+		if((i < Intervals && b+100 < Stops[i] && b-Stops[i-1] > 100) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
-		else if((i < Intervals && 50 < Stops[i].first-b && b-Stops[i-1].first > 50) || Stops[Intervals-1].first < a-50)
+		else if((i < Intervals && 50 < Stops[i]-b && b-Stops[i-1] > 50) || Stops[Intervals-1] < a-50)
 			b += 50;
-		else if((i < Intervals && 10 < Stops[i].first-b && b-Stops[i-1].first > 10) || Stops[Intervals-1].first < a-10)
+		else if((i < Intervals && 10 < Stops[i]-b && b-Stops[i-1] > 10) || Stops[Intervals-1] < a-10)
 			b += 10;
-		else if((i < Intervals && 3 < Stops[i].first-b && b-Stops[i-1].first > 3) || Stops[Intervals-1].first < a-3)
+		else if((i < Intervals && 3 < Stops[i]-b && b-Stops[i-1] > 3) || Stops[Intervals-1] < a-3)
 			b += 3;
 		else if(i < Intervals)
 		{
 			while(abs(a-b)<1e-14)
 			{
-				if(Stops[i].first-b < 3 && i < Intervals)
+				if(Stops[i]-b < 3 && i < Intervals)
 				{
-					b = Stops[i].first;
-					//Close = Stops[i].second;
+					b = Stops[i];
 					i++;
 				}
 				else
@@ -594,6 +552,11 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		}
 
 		F = 0;	//Zero out F for next sub-interval
+
+		/*if(chrono::duration_cast<chrono::seconds>(chrono::system_clock::now()-Start_Time).count() > Allotment)
+		{
+			throw(chrono::duration_cast<chrono::seconds>(chrono::system_clock::now()-Start_Time).count());
+		}*/
 
 		for(l = 0; l < 2; l++) //Count through points away from center
 		{
@@ -608,7 +571,6 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		Partial = F*(b-a)/2.;
 		Answer += Partial;		//Add the subinterval to the total
 		a = b;
-		//Close = false;
 	}while((a < Max && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
 		
 	if(ImG12 != 0)
@@ -796,7 +758,7 @@ void Characterize_k_Int(long double Par[], int Temp, long double theta, long dou
 		//gamma[i] = abs(gamma[i]);
 	}
 
-	for(i = Poles-1; i >= 0; i--)	//Bubble sort of a self-written pair object
+	for(i = Poles-1; i >= 0; i--)	//Bubble sort
 	{
 		for(j = 0; j < i; j++)
 		{
@@ -815,14 +777,14 @@ void Characterize_k_Int(long double Par[], int Temp, long double theta, long dou
 	i = 0;
 	for(j = 0; j < Poles; j++)
 	{
+		if(zero[j] > 1000)	//Don't bother with points beyond 1 TeV. All integrals should end well before then
+			break;
 		if(((i > 0 && zero[i-1] != zero[j]) || i == 0) && !isnan(zero[j]))	//Remove duplicates and NaN
 		{
 			//zero[i] = zero[j];
 			gamma[i] = gamma[j];
 			i++;
 		}
-		else if(zero[j] > 1000)	//Don't bother with points beyond 1 TeV. All integrals should end well before then
-			break;
 	}
 	Poles = i;
 
@@ -996,7 +958,7 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 		i++;
 	}
 
-	for(i = 7; i >= 0; i--)	//Bubble sort
+	for(i = 8; i >= 0; i--)	//Bubble sort
 	{
 		for(j = 0; j < i; j++)
 		{
@@ -1013,9 +975,9 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 	}
 
 	if(isnan(zero[6]))
-		Poles = 6;
-	else
 		Poles = 7;
+	else
+		Poles = 8;
 
 	return;
 }

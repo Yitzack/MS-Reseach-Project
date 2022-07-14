@@ -5,8 +5,8 @@ class Elements
 {
 	public:
 		Elements();				//Default constructor
-		Elements(long double, long double, long double, long double, long double);	//Constructor from 5 elements
-		Elements(long double[5]);		//Array constructor
+		Elements(long double, long double, long double, long double, long double, long double);	//Constructor from 5 elements
+		Elements(long double[6]);		//Array constructor
 		Elements(const Elements&);		//Copy constructor
 		void operator=(const Elements&);	//Assignment
 		void operator+=(const Elements &);	//Accumalate and assign
@@ -20,9 +20,9 @@ class Elements
 		Elements operator/(long double);	//Scalar divide
 		Elements abs();			//Absolute value of all components
 		void null();				//Make the element the zero vector
-		long double operator[](int);		//Returns the element at int. This is not the correct way to do this as it should return a pointer to the component so it can be altered. I can get away with it as I'm only printing the the contents to an output stream.
+		long double operator[](int);		//Returns the element at int. This is not the correct way to do this as it should return a pointer to the component so it can be altered. I can get away with it as I'm only printing the contents to an output stream.
 	private:
-		long double Array[5];			//The vector itself
+		long double Array[6];			//The vector itself
 };
 
 Elements::Elements()
@@ -32,24 +32,27 @@ Elements::Elements()
 	Array[2] = 0;
 	Array[3] = 0;
 	Array[4] = 0;
+	Array[5] = 0;
 }
 
-Elements::Elements(long double A, long double B, long double C, long double D, long double E)
+Elements::Elements(long double A, long double B, long double C, long double D, long double E, long double F)
 {
 	Array[0] = A;
 	Array[1] = B;
 	Array[2] = C;
 	Array[3] = D;
 	Array[4] = E;
+	Array[5] = F;
 }
 
-Elements::Elements(long double A[4])
+Elements::Elements(long double A[6])
 {
 	Array[0] = A[0];
 	Array[1] = A[1];
 	Array[2] = A[2];
 	Array[3] = A[3];
 	Array[4] = A[4];
+	Array[5] = A[5];
 }
 
 Elements::Elements(const Elements &A)
@@ -59,6 +62,7 @@ Elements::Elements(const Elements &A)
 	Array[2] = A.Array[2];
 	Array[3] = A.Array[3];
 	Array[4] = A.Array[4];
+	Array[5] = A.Array[5];
 }
 
 void Elements::operator=(const Elements &A)
@@ -68,6 +72,7 @@ void Elements::operator=(const Elements &A)
 	Array[2] = A.Array[2];
 	Array[3] = A.Array[3];
 	Array[4] = A.Array[4];
+	Array[5] = A.Array[5];
 }
 
 void Elements::operator+=(const Elements &A)
@@ -77,6 +82,7 @@ void Elements::operator+=(const Elements &A)
 	Array[2] += A.Array[2];
 	Array[3] += A.Array[3];
 	Array[4] += A.Array[4];
+	Array[5] += A.Array[5];
 }
 
 bool Elements::operator==(long double A)
@@ -85,7 +91,8 @@ bool Elements::operator==(long double A)
 		Array[1] == A &&
 		Array[2] == A &&
 		Array[3] == A &&
-		Array[4] == A);
+		Array[4] == A &&
+		Array[5] == A);
 }
 
 bool Elements::operator>=(long double A)
@@ -94,7 +101,8 @@ bool Elements::operator>=(long double A)
 		std::abs(Array[1]) >= A ||
 		std::abs(Array[2]) >= A ||
 		std::abs(Array[3]) >= A ||
-		std::abs(Array[4]) >= A);
+		std::abs(Array[4]) >= A ||
+		std::abs(Array[5]) >= A);
 }
 
 bool Elements::operator>(long double A)
@@ -103,7 +111,8 @@ bool Elements::operator>(long double A)
 		std::abs(Array[1]) > A ||
 		std::abs(Array[2]) > A ||
 		std::abs(Array[3]) > A ||
-		std::abs(Array[4]) > A);
+		std::abs(Array[4]) > A ||
+		std::abs(Array[5]) > A);
 }
 
 Elements Elements::operator+(Elements A)
@@ -114,6 +123,7 @@ Elements Elements::operator+(Elements A)
 	B.Array[2] = Array[2] + A.Array[2];
 	B.Array[3] = Array[3] + A.Array[3];
 	B.Array[4] = Array[4] + A.Array[4];
+	B.Array[5] = Array[5] + A.Array[5];
 	return(B);
 }
 
@@ -125,6 +135,7 @@ Elements Elements::operator-(Elements A)
 	B.Array[2] = Array[2] - A.Array[2];
 	B.Array[3] = Array[3] - A.Array[3];
 	B.Array[4] = Array[4] - A.Array[4];
+	B.Array[5] = Array[5] - A.Array[5];
 	return(B);
 }
 
@@ -136,6 +147,7 @@ Elements Elements::operator/(Elements A)
 	B.Array[2] = Array[2] / A.Array[2];
 	B.Array[3] = Array[3] / A.Array[3];
 	B.Array[4] = Array[4] / A.Array[4];
+	B.Array[5] = Array[5] / A.Array[5];
 	return(B);
 }
 
@@ -147,6 +159,7 @@ Elements Elements::operator*(long double A)
 	B.Array[2] = Array[2] * A;
 	B.Array[3] = Array[3] * A;
 	B.Array[4] = Array[4] * A;
+	B.Array[5] = Array[5] * A;
 	return(B);
 }
 
@@ -158,6 +171,7 @@ Elements Elements::operator/(long double A)
 	B.Array[2] = Array[2] / A;
 	B.Array[3] = Array[3] / A;
 	B.Array[4] = Array[4] / A;
+	B.Array[5] = Array[5] / A;
 	return(B);
 }
 
@@ -174,6 +188,7 @@ Elements Elements::abs()
 	B.Array[2] = std::abs(Array[2]);
 	B.Array[3] = std::abs(Array[3]);
 	B.Array[4] = std::abs(Array[4]);
+	B.Array[5] = std::abs(Array[5]);
 	return(B);
 }
 
@@ -184,6 +199,7 @@ void Elements::null()
 	Array[2] = 0;
 	Array[3] = 0;
 	Array[4] = 0;
+	Array[5] = 0;
 }
 
 long double Elements::operator[](int i)
