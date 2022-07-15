@@ -330,13 +330,13 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 	l = 0;
 	for(i = 0; i < Poles; i++)
 	{
-		if(!isnan(gamma[i]))	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
+		if(!isnan(gamma[i]) && !isnan(zero[i]))	//Prevents bad poles from getting in (It would be better to find the source of bad poles and eliminate it)
 			for(j = 0; j < 5; j++)
 			{
 				Stops[l] = zero[i]+gamma[i]*Range[j];	//Extra subintervals required by poles
 				l++;
 			}
-		else	//At lease insert the central point of the pole if the width isn't properly measured
+		else if(!isnan(zero[i]))	//At lease insert the central point of the pole if the width isn't properly measured
 		{
 			Stops[l] = zero[i];
 			l++;
@@ -488,14 +488,14 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	long double Answer = 0;	//Results to be returned
 	long double Partial;		//Partial results to examine convergance
 
-	long double zero[2];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
-	long double gamma[2];	//Imaginary part of poles
+	long double zero[4];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
+	long double gamma[4];	//Imaginary part of poles
 	int Poles;		//Number of poles with real parts between 0 and E
 	int i, j, l;		//Counting varibles
 	int Intervals;		//Number of intervals required by poles and discontinuities
 
 	Characterize_Dispersion(ParLoc, Temp, k0, k, theta, zero, gamma, Poles);
-	long double Stops[Poles*3+5];		//Extra stops to ensure correctness
+	long double Stops[Poles*3+7];		//Extra stops to ensure correctness
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
@@ -516,9 +516,11 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	Stops[l+1] = 4.*pow(k, 2)+4.*pow(k0, 2)+3.*pow(Par[3], 2)+4.*k*Par[3]*cos(theta)-8.*sqrt(pow(k*k0, 2)+pow(k0*Par[3], 2)+k*Par[3]*pow(k0, 2)*cos(theta));	//Light-like quarks
 	Stops[l+2] = 4.*pow(k, 2)+4.*pow(k0, 2)+3.*pow(Par[3], 2)-4.*k*Par[3]*cos(theta)+8.*sqrt(pow(k*k0, 2)+pow(k0*Par[3], 2)-k*Par[3]*pow(k0, 2)*cos(theta));
 	Stops[l+3] = Par[4];	//Division by zero of dispersion relation
+	Stops[l+4] = 4.*(pow(k, 2)+pow(Par[2], 2)+k*Par[3]*cos(theta));
+	Stops[l+5] = 4.*(pow(k, 2)+pow(Par[2], 2)-k*Par[3]*cos(theta));
 
-	mergeSort(Stops, 0, l+3);
-	Stops[l+4] = Stops[l+3]+100;	//Adds the minimum end point to keep the integration going
+	mergeSort(Stops, 0, l+5);
+	Stops[l+6] = Stops[l+5]+100;	//Adds the minimum end point to keep the integration going
 
 	Min = a = b = -pow(Par[3], 2);	//Start from s'=-P^2
 
@@ -572,8 +574,8 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		Answer += Partial;		//Add the subinterval to the total
 		a = b;
 	}while((a < Max && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
-		
-	if(ImG12 != 0)
+
+	if(abs(ImG12) >= 1e-20)
 		return((Answer+ImG12*log(abs((a-Par[4])/(Par[4]-Min))))/M_PI);
 	return(Answer/M_PI);
 }
@@ -951,14 +953,25 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 	if(!isnan(zero[7]))
 		gamma[7] = ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.+zero[7], Energy(0, Par[3], k, theta), Temp)+ImSelf_Energy(Par[2], sqrt(Par[4]+pow(Par[3], 2))/2.-zero[7], Energy(0, Par[3], -k, theta), Temp);
 
-	i = 0;
-	while(zero[i] < Lower)
+	j = i = 0;
+	while(j < 8)
 	{
-		zero[i] = abs(zero[i]);
+		while(isnan(zero[j]) && j < 8)	//remove nan
+			j++;
+
+		if(zero[j] < Lower)	//move pole from below Lower to above Upper
+			zero[i] = abs(zero[j]);
+		else
+			zero[i] = zero[j];
+
+		gamma[i] = abs(gamma[j]);
 		i++;
+		j++;
 	}
 
-	for(i = 8; i >= 0; i--)	//Bubble sort
+	Poles = i-1;
+
+	for(i = Poles-1; i >= 0; i--)	//Bubble sort
 	{
 		for(j = 0; j < i; j++)
 		{
@@ -974,30 +987,38 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 		}
 	}
 
-	if(isnan(zero[6]))
-		Poles = 7;
-	else
-		Poles = 8;
-
 	return;
 }
 
 long double Newton_Method_k0(long double k0, long double Par[], long double k, long double theta, int Temp, long double (*Folding)(long double[], long double, long double, long double, int))	//Newton's method for finding poles of f by looking for zeros of 1/f, much more stable to the point of absolute confidence
 {
 	long double new_k0;
-	const long double h = 1e-4;	//Finite difference
+	long double h;	//Finite difference
+	long double Exit;
 	int i = 0;
+	long double Danger[] = {.5*(sqrt(Par[4]+pow(Par[3],2))+real(sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)-k*Par[3]*cos(theta))+pow(Par[3],2)-2.*pow(GAMMA,2),2.*sqrt(4.*pow(Par[2]*GAMMA,2)-pow(GAMMA,4)))))),.5*(-sqrt(Par[4]+pow(Par[3],2))-real(sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)+k*Par[3]*cos(theta))+pow(Par[3],2)-2.*pow(GAMMA,2),2.*sqrt(4.*pow(Par[2]*GAMMA,2)-pow(GAMMA,4))))))};
+
+	if(abs(k0-Danger[0]) < 1e-6 || abs(k0-Danger[1]) < 1e-6)
+	{
+		h = 1e-10;
+		Exit = 1e-9;
+	}
+	else
+	{
+		h = 1e-4;
+		Exit = 1e-5;
+	}
 
 	new_k0 = k0 - .5*h*(1./Folding(Par, k0+h, k, theta, Temp)-1./Folding(Par, k0-h, k, theta, Temp))/((1./Folding(Par, k0-h, k, theta, Temp)-2./Folding(Par, k0, k, theta, Temp)+1./Folding(Par, k0+h, k, theta, Temp)));	//First iteration of Netwon's method using finite differences
 
-	while(abs(1.-new_k0/k0) > 1e-5 && i <= 10)	//Allow up to 12 iterations to find the pole
+	while(abs(1.-new_k0/k0) > Exit && i < 10 && !isnan(new_k0))	//Allow up to 12 iterations to find the pole
 	{
 		k0 = new_k0;
 		new_k0 = k0 - .5*h*(1./Folding(Par, k0+h, k, theta, Temp)-1./Folding(Par, k0-h, k, theta, Temp))/((1./Folding(Par, k0-h, k, theta, Temp)-2./Folding(Par, k0, k, theta, Temp)+1./Folding(Par, k0+h, k, theta, Temp)));
 		i++;
 	}
 
-	return(k0);
+	return(new_k0);
 }
 
 long double omega_Width(long double zero, long double Par[], long double k, long double theta, int Temp, long double (*Folding)(long double[], long double, long double, long double, int))	//Breit-Wigner width of the peak
@@ -1007,56 +1028,22 @@ long double omega_Width(long double zero, long double Par[], long double k, long
 
 void Characterize_Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta, long double zero[], long double gamma[], int &Poles)
 {
-	long double sp[2] = {4.*(pow(k, 2)+pow(k0, 2)+pow(Par[2], 2)+k*Par[3]*cos(theta)-sqrt(pow(2.*k*k0, 2)+pow(2.*k0*Par[2], 2)+pow(k0*Par[3], 2)+4.*k*pow(k0, 2)*Par[3]*cos(theta))), 4.*(pow(k, 2)+pow(k0, 2)+pow(Par[2], 2)+k*Par[3]*cos(theta)+sqrt(pow(2.*k*k0, 2)+pow(2.*k0*Par[2], 2)+pow(k0*Par[3], 2)+4.*k*pow(k0, 2)*Par[3]*cos(theta)))}; //Both of the possible on-shell s using positive k^mu
-	long double sn[2] = {4.*(pow(k, 2)+pow(k0, 2)+pow(Par[2], 2)-k*Par[3]*cos(theta)-sqrt(pow(2.*k*k0, 2)+pow(2.*k0*Par[2], 2)+pow(k0*Par[3], 2)-4.*k*pow(k0, 2)*Par[3]*cos(theta))), 4.*(pow(k, 2)+pow(k0, 2)+pow(Par[2], 2)-k*Par[3]*cos(theta)+sqrt(pow(2.*k*k0, 2)+pow(2.*k0*Par[2], 2)+pow(k0*Par[3], 2)-4.*k*pow(k0, 2)*Par[3]*cos(theta)))}; //Both of the possible on-shell s using negative k^mu
-	int sp_ID, sn_ID;	//Identifiers indicating which sp and sn are actully on-shell
-
-	//Set the identifiers of the on-shell
-	if(abs(pow(k, 2)+pow(Par[2], 2)+pow(Par[3]/2., 2)-pow(sqrt(pow(Par[3], 2)+sp[0])/2.+k0, 2)+k*Par[3]*cos(theta))<1e-3 && sp[0] >= pow(2.*k0, 2)-pow(Par[3], 2))
-		sp_ID = 0;
-	else if(abs(pow(k, 2)+pow(Par[2], 2)+pow(Par[3]/2., 2)-pow(sqrt(pow(Par[3], 2)+sp[1])/2.+k0, 2)+k*Par[3]*cos(theta))<1e-3 && sp[1] >= pow(2.*k0, 2)-pow(Par[3], 2))
-		sp_ID = 1;
-	else	//on-shell is in the negative energy region
-		sp_ID = 2;
-
-	if(abs(pow(k, 2)+pow(Par[2], 2)+pow(Par[3]/2., 2)-pow(sqrt(pow(Par[3], 2)+sn[0])/2.-k0, 2)-k*Par[3]*cos(theta))<1e-3 && sn[0] >= pow(2.*k0, 2)-pow(Par[3], 2))
-		sn_ID = 0;
-	else if(abs(pow(k, 2)+pow(Par[2], 2)+pow(Par[3]/2., 2)-pow(sqrt(pow(Par[3], 2)+sn[1])/2.-k0, 2)-k*Par[3]*cos(theta))<1e-3 && sn[1] >= pow(2.*k0, 2)-pow(Par[3], 2))
-		sn_ID = 1;
-	else	//on-shell is in the negative energy region
-		sn_ID = 2;
-
-	if(sp_ID == 2)			//If sp is in the negative energy region, then sn can't be in the negative energy region
-	{
-		zero[0] = sn[sn_ID];
-		Poles = 1;
-	}
-	else if(sn_ID == 2)		//If sn is in the negative energy region, then sp can't be in the negative energy region
-	{
-		zero[0] = sp[sp_ID];
-		Poles = 1;
-	}
-	else if(sp[sp_ID] < sn[sn_ID])	//list out in order
-	{
-		zero[0] = sp[sp_ID];
-		zero[1] = sn[sn_ID];
-		Poles = 2;
-	}
-	else
-	{
-		zero[0] = sn[sn_ID];
-		zero[1] = sp[sp_ID];
-		Poles = 2;
-	}
+	zero[0] = 4.*(pow(k, 2)+pow(k0, 2)+pow(Par[2], 2)+k*Par[3]*cos(theta)-sqrt(pow(2.*k*k0, 2)+pow(2.*k0*Par[2], 2)+pow(k0*Par[3], 2)+4.*k*pow(k0, 2)*Par[3]*cos(theta)));
+	zero[1] = 4.*(pow(k, 2)+pow(k0, 2)+pow(Par[2], 2)+k*Par[3]*cos(theta)+sqrt(pow(2.*k*k0, 2)+pow(2.*k0*Par[2], 2)+pow(k0*Par[3], 2)+4.*k*pow(k0, 2)*Par[3]*cos(theta))); //Both of the possible on-shell s using positive k^mu
+	zero[2] = 4.*(pow(k, 2)+pow(k0, 2)+pow(Par[2], 2)-k*Par[3]*cos(theta)-sqrt(pow(2.*k*k0, 2)+pow(2.*k0*Par[2], 2)+pow(k0*Par[3], 2)-4.*k*pow(k0, 2)*Par[3]*cos(theta)));
+	zero[3] = 4.*(pow(k, 2)+pow(k0, 2)+pow(Par[2], 2)-k*Par[3]*cos(theta)+sqrt(pow(2.*k*k0, 2)+pow(2.*k0*Par[2], 2)+pow(k0*Par[3], 2)-4.*k*pow(k0, 2)*Par[3]*cos(theta))); //Both of the possible on-shell s using negative k^mu
 
 	//Calcluate and record the widths of the peaks
 	Par[4] = zero[0];
 	gamma[0] = abs(sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand));
-	if(Poles == 2)
-	{
-		Par[4] = zero[1];
-		gamma[1] = abs(sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand));
-	}
+	Par[4] = zero[1];
+	gamma[1] = abs(sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand));
+	Par[4] = zero[2];
+	gamma[2] = abs(sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand));
+	Par[4] = zero[3];
+	gamma[3] = abs(sp_Width(Par, k0, k, theta, Temp, Imk0_Integrand));
+
+	Poles = 4;
 }
 
 long double sp_Width(long double Par[], long double k0, long double k, long double theta, int Temp, long double (*Folding)(long double[], long double, long double, long double, int))	//Breit-Wigner width of the peak
@@ -1079,11 +1066,11 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	static long double M_T, Shift;	//Default quark mass, shfift from default quark mass to given quark mass
 	static long double k_old[2];		//Previous value of k to know if the parmeters need to recalculated
 
-	if(pow(omega[0], 2)>=pow(k[0], 2))	//Vacuum width
+	if(pow(omega[0], 2)>=pow(k[0], 2) && omega[0] >= 0)	//Vacuum width
 		Results[0] = sqrt(pow(omega[0], 2)-pow(k[0], 2))*GAMMA;
 	else
 		Results[0] = 0;
-	if(pow(omega[1], 2)>=pow(k[1], 2))
+	if(pow(omega[1], 2)>=pow(k[1], 2) && omega[1] >= 0)
 		Results[1] = sqrt(pow(omega[1], 2)-pow(k[1], 2))*GAMMA;
 	else
 		Results[1] = 0;
@@ -1211,7 +1198,7 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	long double M_T, Shift=0;
 	long double answer;
 
-	if(pow(omega, 2)>=pow(k, 2))
+	if(pow(omega, 2)>=pow(k, 2) && omega >= 0)
 		answer = sqrt(pow(omega, 2)-pow(k, 2))*GAMMA;
 	else
 		answer = 0;
