@@ -880,11 +880,11 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], long dou
 	static long double M_T, Shift;	//Default quark mass, shfift from default quark mass to given quark mass
 	static long double k_old[2];		//Previous value of k to know if the parmeters need to recalculated
 
-	if(pow(omega[0],2)>=pow(k[0],2) && omega[0] > 0)	//Vacuum width
+	if(pow(omega[0],2)>=pow(k[0],2) && omega[0] >= 0)	//Vacuum width
 		Results[0] = sqrt(pow(omega[0],2)-pow(k[0],2))*GAMMA;
 	else
 		Results[0] = 0;
-	if(pow(omega[1],2)>=pow(k[1],2) && omega[0] > 0)
+	if(pow(omega[1],2)>=pow(k[1],2) && omega[1] >= 0)
 		Results[1] = sqrt(pow(omega[1],2)-pow(k[1],2))*GAMMA;
 	else
 		Results[1] = 0;
