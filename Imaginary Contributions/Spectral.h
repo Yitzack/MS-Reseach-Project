@@ -256,6 +256,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	a = b = i = 0;
 	do
 	{
+		a = b;
 		if((i < Intervals && b+100 < Stops[i]) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
 		else if((i < Intervals && b+50 < Stops[i]) || Stops[Intervals-1] < a-50)
@@ -289,8 +290,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 
 		Partial = F*(b-a)/2.;	//Record the subinterval to total of the integral
 		Answer += Partial;	//Add the subinterval to total of the integral
-		a = b;
-	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a <= 20.*sqrt(Par[4]+pow(Par[3],2)) && ((Temp == 0 && a < Max) || Temp != 0)); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
+	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer)/(b-a) >= .0001) && a <= 20.*sqrt(Par[4]+pow(Par[3],2)) && ((Temp == 0 && a < Max) || Temp != 0)); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }
