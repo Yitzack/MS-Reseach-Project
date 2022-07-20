@@ -208,9 +208,13 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	Stops[l+8] = .5*abs(Par[3]*cos(theta)+sqrt(3.*pow(Par[3], 2)+4.*Par[4]+pow(Par[3]*cos(theta), 2)));
 	Stops[l+9] = .5*abs(Par[3]*cos(theta)-sqrt(3.*pow(Par[3], 2)+4.*Par[4]+pow(Par[3]*cos(theta), 2)));
 
-	for(i = 0; i < l+10; i++)	//Removes stops that are NaN
+	for(i = 0; i < l+10; i++)	//Removes stops that are NaN or bigger than necessary
+	{
 		if(isnan(Stops[i]))
 			Stops[i] = -1;
+		else if(isinf(Stops[i]) || Stops[i] > 100)
+			Stops[i] = 100;
+	}
 
 	mergeSort(Stops, 0, l+9);	//Sort the list of sub-intervals
 
