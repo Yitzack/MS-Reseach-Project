@@ -138,7 +138,7 @@ Elements theta_Int(long double Par[], int Temp)
 	//Put in asending order
 	mergeSort(Range, 0, 8);
 
-	for(i = 0; i < 8 && Range[i] <= M_PI/2.; i++)	//Count through pre-determined intervals
+	for(i = 0; i < 8 && a < M_PI/2.; i++)	//Count through pre-determined intervals
 	{
 		b = Range[i];	//Upper edge
 		F.null();	//Zero out F for a new round
