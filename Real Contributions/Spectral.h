@@ -101,7 +101,6 @@ Elements theta_Int(long double Par[], int Temp)
 {
 	if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
 		return(k_Int(Par, Temp, M_PI/2.)/pow(2.*M_PI, 2)*2.);
-
 //37th order Gauss-Legendre integration
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center
 	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight
@@ -294,8 +293,6 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 
 Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 {
-	if(Par[4]+pow(Par[3], 2) < 0)	//Bad data trap and time saver. The point is supposed to zero energy anyways but got evaluated to non-zero
-		return(Elements(0, 0, 0, 0));
 //9th order Gauss-Legendre integration
 	long double Disp9[] = {sqrt(5.-2.*sqrt(10./7.))/3., sqrt(5.+2.*sqrt(10./7.))/3.};	//Displacement from center
 	long double w9[] = {128./225., (322.+13.*sqrt(70.))/900., (322.-13.*sqrt(70.))/900.};	//Weight
@@ -531,7 +528,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	i = 0;
 	while(Stops[i] < a)
 		i++;
-	Intervals = l+5;
+	Intervals = l+7;
 
 	do
 	{
@@ -545,15 +542,10 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 			b += 3;
 		else if(i < Intervals)
 		{
-			while(abs(a-b)<1e-14)
+			while(a==b)
 			{
-				if(Stops[i]-b < 3 && i < Intervals)
-				{
-					b = Stops[i];
-					i++;
-				}
-				else
-					b += 3;
+				b = Stops[i];
+				i++;
 			}
 		}
 
@@ -578,8 +570,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		Answer += Partial;		//Add the subinterval to the total
 		a = b;
 	}while((a < Max && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
-
-	if(abs(ImG12) >= 1e-20)
+	if(abs(ImG12) >= 1e-17)
 		return((Answer+ImG12*log(abs((a-Par[4])/(Par[4]-Min))))/M_PI);
 	return(Answer/M_PI);
 }
