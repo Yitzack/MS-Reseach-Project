@@ -525,9 +525,19 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 
 	Min = a = b = -pow(Par[3], 2);	//Start from s'=-P^2
 
-	i = 0;
+	i = j = 0;
 	while(Stops[i] < a)
 		i++;
+	while(i < l+6)
+	{
+		while(Stops[i+1]/Stops[i]-1. <= LDBL_EPSILON && i < l+6)
+		{
+			i++;
+		}
+		Stops[j] = Stops[i];
+		i++;
+		j++;
+	}
 	Intervals = l+7;
 
 	do
@@ -542,11 +552,8 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 			b += 3;
 		else if(i < Intervals)
 		{
-			while(a==b)
-			{
-				b = Stops[i];
-				i++;
-			}
+			b = Stops[i];
+			i++;
 		}
 
 		F = 0;	//Zero out F for next sub-interval
