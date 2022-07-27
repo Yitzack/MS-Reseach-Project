@@ -528,7 +528,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	i = j = 0;
 	while(Stops[i] < a)
 		i++;
-	while(i < l+6)
+	while(i < l+7)
 	{
 		while(Stops[i+1]/Stops[i]-1. <= LDBL_EPSILON && i < l+6)
 		{
@@ -538,8 +538,9 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		i++;
 		j++;
 	}
-	Intervals = l+7;
+	Intervals = j;
 
+	i = 0;
 	do
 	{
 		if((i < Intervals && b+100 < Stops[i] && b-Stops[i-1] > 100) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
