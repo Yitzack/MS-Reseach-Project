@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = Start; i <= Finish; i++)
 	{
-		for(j = iProcess; j < 567; j+=Total)	//Does the subset of j that has been assigned to this process
+		for(j = iProcess; j < 576; j+=Total)	//Does the subset of j that has been assigned to this process
 		{
 			if(j <= 150)
 			{
@@ -98,12 +98,14 @@ int main(int argc, char* argv[])
 				if(i < 0)
 					Par[3] = ((long double)(i%7)/8.-.125-floor((long double)(i)/7.))*.8;
 #ifndef BB
-				if(j <= 181)
-					Par[4] = pow((j-151.)/10.,2);
-				else if(j <= 381)
-					Par[4] = pow((j-181.)/100.+3.,2);
+				if(j <= 161)
+					Par[4] = pow((j-151.)/100.,2);
+				else if(j <= 190)
+					Par[4] = pow((j-161.)/10.+.1,2);
+				else if(j <= 390)
+					Par[4] = pow((j-190.)/100.+3.,2);
 				else
-					Par[4] = pow((j-381.)/10.+5.,2);
+					Par[4] = pow((j-390.)/10.+5.,2);
 #else
 				if(j <= 251)
 					Par[4] = pow((j-151.)/10.,2);
