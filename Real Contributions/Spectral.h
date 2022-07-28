@@ -241,13 +241,13 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	do
 	{
 		a = b;
-		if((i < Intervals && b+100 < Stops[i]) || (i > 0 && b-Stops[i-1] > 100) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
+		if((i < Intervals && b+100 < Stops[i]) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 100) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
-		else if((i < Intervals && 50 < Stops[i]-b) || (i > 0 && b-Stops[i-1] > 50) || Stops[Intervals-1] < a-50)
+		else if((i < Intervals && 50 < Stops[i]-b) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 50) || Stops[Intervals-1] < a-50)
 			b += 50;
-		else if((i < Intervals && 10 < Stops[i]-b) || (i > 0 && b-Stops[i-1] > 10) || Stops[Intervals-1] < a-10)
+		else if((i < Intervals && 10 < Stops[i]-b) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 10) || Stops[Intervals-1] < a-10)
 			b += 10;
-		else if((i < Intervals && 3 < Stops[i]-b) || (i > 0 && b-Stops[i-1] > 3) || Stops[Intervals-1] < a-3)
+		else if((i < Intervals && 3 < Stops[i]-b) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 3) || Stops[Intervals-1] < a-3)
 			b += 3;
 		else if(i < Intervals)
 		{
@@ -377,13 +377,13 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 	i = 1;	//The first point should be the lower limit of integration. That's where we start. Next subinterval is what we need to be looking for
 	do
 	{
-		if((i < Intervals && b+100 < Stops[i]) || (i > 0 && b-Stops[i-1] > 100) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
+		if((i < Intervals && b+100 < Stops[i]) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 100) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
-		else if((i < Intervals && 50 < Stops[i]-b) || (i > 0 && b-Stops[i-1] > 50) || Stops[Intervals-1] < a-50)
+		else if((i < Intervals && 50 < Stops[i]-b) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 50) || Stops[Intervals-1] < a-50)
 			b += 50;
-		else if((i < Intervals && 10 < Stops[i]-b) || (i > 0 && b-Stops[i-1] > 10) || Stops[Intervals-1] < a-10)
+		else if((i < Intervals && 10 < Stops[i]-b) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 10) || Stops[Intervals-1] < a-10)
 			b += 10;
-		else if((i < Intervals && 3 < Stops[i]-b) || (i > 0 && b-Stops[i-1] > 3) || Stops[Intervals-1] < a-3)
+		else if((i < Intervals && 3 < Stops[i]-b) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 3) || Stops[Intervals-1] < a-3)
 			b += 3;
 		else if(i < Intervals)
 		{
@@ -532,13 +532,13 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 
 	do
 	{
-		if((i < Intervals && b+100 < Stops[i]) || (i > 0 && b-Stops[i-1] > 100) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
+		if((i < Intervals && b+100 < Stops[i]) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 100) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
-		else if((i < Intervals && 50 < Stops[i]-b) || (i > 0 && b-Stops[i-1] > 50) || Stops[Intervals-1] < a-50)
+		else if((i < Intervals && 50 < Stops[i]-b) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 50) || Stops[Intervals-1] < a-50)
 			b += 50;
-		else if((i < Intervals && 10 < Stops[i]-b) || (i > 0 && b-Stops[i-1] > 10) || Stops[Intervals-1] < a-10)
+		else if((i < Intervals && 10 < Stops[i]-b) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 10) || Stops[Intervals-1] < a-10)
 			b += 10;
-		else if((i < Intervals && 3 < Stops[i]-b) || (i > 0 && b-Stops[i-1] > 3) || Stops[Intervals-1] < a-3)
+		else if((i < Intervals && 3 < Stops[i]-b) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 3) || Stops[Intervals-1] < a-3)
 			b += 3;
 		else if(i < Intervals)
 		{
