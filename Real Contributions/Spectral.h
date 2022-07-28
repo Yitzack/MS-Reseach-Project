@@ -530,7 +530,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		i++;
 	while(i < l+7)
 	{
-		while(Stops[i+1]/Stops[i]-1. <= LDBL_EPSILON && i < l+6)
+		while(((i!=j && Stops[i]/Stops[j]-1. <= LDBL_EPSILON*10.) || (Stops[i+1]/Stops[i]-1. <= LDBL_EPSILON*10.)) && i < l+6)
 		{
 			i++;
 		}
