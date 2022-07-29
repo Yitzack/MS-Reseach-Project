@@ -471,6 +471,7 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 	return(Answer/M_PI);
 }
 
+priority_queue<long double, vector<long double>, greater<long double>> Limits;	//Limits of integration, top() is smallest values, made global so that it never has to free memory. Deques never release memory regaurdless of location. Vectors don't either, but a new vector doesn't get created with each call to dispersion when it is global
 long double Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta)
 {
 //9th order Gauss-Legendre integration
@@ -498,7 +499,6 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 
 	Characterize_Dispersion(ParLoc, Temp, k0, k, theta, zero, gamma, Poles);
 	long double Stops[Poles*3+8];		//Extra stops to ensure correctness
-	priority_queue<long double, deque<long double>, greater<long double>> Limits;	//Limits of integration, top() is smallest values
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
