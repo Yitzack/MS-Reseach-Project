@@ -565,7 +565,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	{
 		if(!Limits.empty())
 		{
-			while((abs(b/a-(long double)(1.)) <= LDBL_EPSILON*10. || b==Min) && !Limits.empty())	//work through the elements of the priority queue skipping small intervals (that may be at s'==s). b==Min is for when a==0 and the first condition might return false.
+			while((abs(b/a-(long double)(1.)) <= LDBL_EPSILON*1000. || b==Min) && !Limits.empty())	//Work through the elements of the priority queue skipping small intervals (that may be at s'==s). b==Min is for when a==0 and the first condition might return false.
 			{
 				b = Limits.top();
 				Limits.pop();
