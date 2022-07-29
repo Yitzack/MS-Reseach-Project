@@ -3,6 +3,7 @@
 #include<cstdlib>
 #include<cfloat>
 #include<complex>
+#include<queue>
 #include"Elements.h"
 using namespace std;
 
@@ -496,7 +497,8 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	int Intervals;		//Number of intervals required by poles and discontinuities
 
 	Characterize_Dispersion(ParLoc, Temp, k0, k, theta, zero, gamma, Poles);
-	long double Stops[Poles*3+7];		//Extra stops to ensure correctness
+	long double Stops[Poles*3+8];		//Extra stops to ensure correctness
+	priority_queue<long double, deque<long double>, greater<long double>> Limits;	//Limits of integration, top() is smallest values
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
@@ -519,35 +521,66 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	Stops[l+3] = Par[4];	//Division by zero of dispersion relation
 	Stops[l+4] = 4.*(pow(k, 2)+pow(Par[2], 2)+k*Par[3]*cos(theta));
 	Stops[l+5] = 4.*(pow(k, 2)+pow(Par[2], 2)-k*Par[3]*cos(theta));
+	Stops[l+6] = -pow(Par[3], 2);
 
-	mergeSort(Stops, 0, l+5);
-	Stops[l+6] = Stops[l+5]+100;	//Adds the minimum end point to keep the integration going
+	mergeSort(Stops, 0, l+6);
+	Stops[l+7] = Stops[l+6]+100;	//Adds the minimum end point to keep the integration going
 
 	Min = a = b = -pow(Par[3], 2);	//Start from s'=-P^2
 
-	i = j = 0;
-	while(Stops[i] < a)
+	i = 0;
+	while(Stops[i] < Min+3)	//Remove any stops below the minimum of the limit of integration. Faster to illiminate here than by popping
 		i++;
-	Intervals = l+7;
+
+	for(; i < l+8; i++)	//Go through the list of stops and push extra limits of integration into the priority queue
+	{
+		Limits.push(Stops[i]);
+		for(j = 1; Stops[i]+j*3. < (Stops[i+1]+Stops[i])/2. && j < 4; j++)
+		{
+			Limits.push(Stops[i]+j*3.);
+			Limits.push(Stops[i+1]-j*3.);
+		}
+		for(j = 1; Stops[i]+9.+j*10. < (Stops[i+1]+Stops[i])/2. && j < 5; j++)
+		{
+			Limits.push(Stops[i]+9.+j*10.);
+			Limits.push(Stops[i+1]-9.-j*10.);
+		}
+		if(Stops[i]+99. < (Stops[i+1]+Stops[i])/2.)
+		{
+			Limits.push(Stops[i]+99.);
+			Limits.push(Stops[i]-99.);
+		}
+		for(j = 1; Stops[i]+99.+j*100. < (Stops[i+1]+Stops[i])/2.; j++)
+		{
+			Limits.push(Stops[i]+99.+j*100.);
+			Limits.push(Stops[i+1]-99.-j*100.);
+		}
+	}
+	Limits.push(Stops[l+7]);
+
+	while(Limits.top() < Min)	//Remove any values below the minimum of the limit of integration. Causes quearies to s<-P^2 and nan
+		Limits.pop();
 
 	do
 	{
-		if((i < Intervals && b+100 < Stops[i]) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 100) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
-			b += 100;
-		else if((i < Intervals && 50 < Stops[i]-b) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 50) || Stops[Intervals-1] < a-50)
-			b += 50;
-		else if((i < Intervals && 10 < Stops[i]-b) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 10) || Stops[Intervals-1] < a-10)
-			b += 10;
-		else if((i < Intervals && 3 < Stops[i]-b) || (i > 0 && Stops[i-1] >= a && b-Stops[i-1] > 3) || Stops[Intervals-1] < a-3)
-			b += 3;
-		else if(i < Intervals)
+		if(!Limits.empty())
 		{
-			while((abs(b/a-(long double)(1.)) <= LDBL_EPSILON || b == 0) && i < Intervals)
+			while((abs(b/a-(long double)(1.)) <= LDBL_EPSILON*10. || b==Min) && !Limits.empty())	//work through the elements of the priority queue skipping small intervals (that may be at s'==s). b==Min is for when a==0 and the first condition might return false.
 			{
-				b = Stops[i];
-				i++;
+				b = Limits.top();
+				Limits.pop();
 			}
+			if(Limits.empty())
+				Max = b;
 		}
+		else if(b < Max+9.1)	//Intervals above the last element in the priority queue
+			b += 3;
+		else if(b < Max+49.1)
+			b += 10;
+		else if(b < Max+99.1)
+			b += 50;
+		else
+			b += 100;
 
 		F = 0;	//Zero out F for next sub-interval
 
@@ -569,7 +602,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		Partial = F*(b-a)/2.;
 		Answer += Partial;		//Add the subinterval to the total
 		a = b;
-	}while((a < Max && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
+	}while((a < 700 && !Limits.empty()) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
 	if(abs(ImG12) >= 1e-17)
 		return((Answer+ImG12*log(abs((a-Par[4])/(Par[4]-Min))))/M_PI);
 	return(Answer/M_PI);
