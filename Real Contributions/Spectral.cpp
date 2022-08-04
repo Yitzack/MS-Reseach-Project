@@ -113,7 +113,11 @@ int main(int argc, char* argv[])
 			Par[2] = atof(argv[6]);
 
 			auto Start_Time = chrono::system_clock::now();
+			try{
 			holder = theta_Int(Par, Temp);
+			}
+			catch(...)
+			{return(0);}
 			auto End_Time = chrono::system_clock::now();
 			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
 		}

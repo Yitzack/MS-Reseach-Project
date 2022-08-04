@@ -168,6 +168,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	long double w[] = {0.06346328140479059771825, 0.06333550929649174859084, 0.06295270746519569947440, 0.06231641732005726740108, 0.06142920097919293629683, 0.06029463095315201730311, 0.05891727576002726602453, 0.05730268153018747548516, 0.05545734967480358869043, 0.05338871070825896852794, 0.05110509433014459067462, 0.04861569588782824027765, 0.04593053935559585354250, 0.04306043698125959798835, 0.04001694576637302136861, 0.03681232096300068981947, 0.03345946679162217434249, 0.02997188462058382535069, 0.02636361892706601696095, 0.02264920158744667649877, 0.01884359585308945844445, 0.01496214493562465102958, 0.01102055103159358049751, 0.007035099590086451473451, 0.003027278988922905077481};	//Weight
 #endif
 	long double x1, x2;	//Abscissa
+	long double k01, k02;	//On-shell relative energy at the abscissa
 	long double a, b;	//Sub-interval limits of integration
 	long double Max;
 
@@ -257,20 +258,20 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	do
 	{
 		a = b;
-		if((i < Intervals && b+100 < Stops[i]) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
+		if(((i < Intervals && b+100 < Stops[i]) && (i > 0 && b-Stops[i-1] > 100)) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
-		else if((i < Intervals && b+50 < Stops[i]) || Stops[Intervals-1] < a-50)
+		else if(((i < Intervals && 50 < Stops[i]-b) && (i > 0 && b-Stops[i-1] > 50)) || Stops[Intervals-1] < a-50)
 			b += 50;
-		else if((i < Intervals && b+10 < Stops[i]) || Stops[Intervals-1] < a-10)
+		else if(((i < Intervals && 10 < Stops[i]-b) && (i > 0 && b-Stops[i-1] > 10)) || Stops[Intervals-1] < a-10)
 			b += 10;
-		else if((i < Intervals && b+3 < Stops[i]) || Stops[Intervals-1] < a-3)
+		else if(((i < Intervals && 3 < Stops[i]-b) && (i > 0 && b-Stops[i-1] > 3)) || Stops[Intervals-1] < a-3)
 			b += 3;
-		else if(i < Intervals)	//Next interval is closer than 3 GeV away
+		else if(i < Intervals)
 		{
 			b = Stops[i];
 			i++;
 		}
-		else
+n		else
 			b += 3;
 
 		F.null();	//Zero out F for next subinterval
@@ -283,10 +284,15 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 		{
 			x1 = (b+a-Disp[l]*(b-a))/2.;
 			x2 = (b+a+Disp[l]*(b-a))/2.;
-			F += k0_Int(Par, Temp, x1, theta)*pow(x1,2)*w[l+1];
-			F += k0_Int(Par, Temp, x2, theta)*pow(x2,2)*w[l+1];
+
+			k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
+			k02 = (Energy(0, Par[3]/2., x2, theta)-Energy(0, Par[3]/2., -x2, theta))/2.;
+
+			F += (Elements(2., Non_Interacting_Trace(Par, k01, x1, theta), Potential1(Par,k01, x1), Interacting_Linear_Trace(Par, k01, x1, theta)*Potential1(Par,k01, x1), Interacting_Quad_Trace(Par, k01, x1, theta)*Potential1(Par,k01, x1), Potential2(Par,k01, x1))*k0_Int(Par, Temp, x1, theta)*pow(x1,2)*w[l+1];
+			F += (Elements(2., Non_Interacting_Trace(Par, k02, x2, theta), Potential1(Par,k02, x2), Interacting_Linear_Trace(Par, k02, x2, theta)*Potential1(Par,k02, x2), Interacting_Quad_Trace(Par, k02, x2, theta)*Potential1(Par,k02, x2), Potential2(Par,k02, x2))*k0_Int(Par, Temp, x2, theta)*pow(x2,2)*w[l+1];
 		}
-		F += k0_Int(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w[0];
+			k01 = (Energy(0, Par[3]/2., (a+b)/2., theta)-Energy(0, Par[3]/2., -(a+b)/2., theta))/2.;
+		F += (Elements(2., Non_Interacting_Trace(Par, k01,(a+b)/2., theta), Potential1(Par,k01,(a+b)/2.), Interacting_Linear_Trace(Par, k01,(a+b)/2., theta)*Potential1(Par,k01,(a+b)/2.), Interacting_Quad_Trace(Par, k01,(a+b)/2., theta)*Potential1(Par,k01,(a+b)/2.), Potential2(Par,k01,(a+b)/2.))*k0_Int(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w[0];
 
 		Partial = F*(b-a)/2.;	//Record the subinterval to total of the integral
 		Answer += Partial;	//Add the subinterval to total of the integral
@@ -295,12 +301,12 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 	return(Answer);
 }
 
-Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
+long double k0_Int(long double Par[], int Temp, long double k, long double theta)
 {
 	if(Temp == 0 && abs(sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta)-Energy(0,Par[3]/2.,k,theta)) < 1e-12)	//Vacuum and interval is going to be approximently zero
-		return(Elements(0,0,0,0,0,0));
+		return(0);
 	else if(Par[4]+pow(Par[3],2) < 0)	//Bad data trap and time saver. The point is supposed to zero energy anyways but got evaluated to non-zero
-		return(Elements(0,0,0,0,0,0));
+		return(0);
 
 #if ORDER == 37	//37th order Gauss-Legendre integration
 	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center
@@ -388,20 +394,20 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 	i = 1;	//The first point should be the lower limit of integration. That's where we start. Next subinterval is what we need to be looking for
 	do
 	{
-		if((i < Intervals && b+100 < Stops[i]) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
+		if(((i < Intervals && b+100 < Stops[i]) && (i > 0 && b-Stops[i-1] > 100)) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
 			b += 100;
-		else if((i < Intervals && b+50 < Stops[i]) || Stops[Intervals-1] < a-50)
+		else if(((i < Intervals && 50 < Stops[i]-b) && (i > 0 && b-Stops[i-1] > 50)) || Stops[Intervals-1] < a-50)
 			b += 50;
-		else if((i < Intervals && b+10 < Stops[i]) || Stops[Intervals-1] < a-10)
+		else if(((i < Intervals && 10 < Stops[i]-b) && (i > 0 && b-Stops[i-1] > 10)) || Stops[Intervals-1] < a-10)
 			b += 10;
-		else if((i < Intervals && b+3 < Stops[i]) || Stops[Intervals-1] < a-3)
+		else if(((i < Intervals && 3 < Stops[i]-b) && (i > 0 && b-Stops[i-1] > 3)) || Stops[Intervals-1] < a-3)
 			b += 3;
 		else if(i < Intervals)
 		{
 			b = Stops[i];
 			i++;
 		}
-
+n
 		if(b > Max && a < Max)
 			b = Max;	//Be sure E/2 is and sub-interval boundary
 
@@ -416,12 +422,12 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 			x1 = (b+a-Disp[l]*(b-a))/2.;
 			x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			F += (Elements(2., Non_Interacting_Trace(Par, x1, k, theta), Potential1(Par,x1,k), Interacting_Linear_Trace(Par, x1, k, theta)*Potential1(Par,x1,k), Interacting_Quad_Trace(Par, x1, k, theta)*Potential1(Par,x1,k), Potential2(Par,x1,k))*Imk0_Integrand(Par,x1,k,theta,Temp, 0))*w[l+1];
-			F += (Elements(2., Non_Interacting_Trace(Par, x2, k, theta), Potential1(Par,x2,k), Interacting_Linear_Trace(Par, x2, k, theta)*Potential1(Par,x2,k), Interacting_Quad_Trace(Par, x2, k, theta)*Potential1(Par,x2,k), Potential2(Par,x2,k))*Imk0_Integrand(Par,x2,k,theta,Temp, 0))*w[l+1];
+			F += Imk0_Integrand(Par,x1,k,theta,Temp, 0))*w[l+1];
+			F += Imk0_Integrand(Par,x2,k,theta,Temp, 0))*w[l+1];
 		}
-		F += (Elements(2., Non_Interacting_Trace(Par, (a+b)/2., k, theta), Potential1(Par,(a+b)/2.,k), Interacting_Linear_Trace(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Interacting_Quad_Trace(Par, (a+b)/2., k, theta)*Potential1(Par,(a+b)/2.,k), Potential2(Par,(a+b)/2.,k))*Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0))*w[0];
+		F += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0))*w[0];
 
-		if(a >= Max && Temp != 0)
+		/*if(a >= Max && Temp != 0)
 		{
 #if ORDER == 37
 			for(l = 0; l < 9; l++) //Count through points away from center
@@ -432,16 +438,16 @@ Elements k0_Int(long double Par[], int Temp, long double k, long double theta)
 				x1 = -(b+a-Disp[l]*(b-a))/2.;
 				x2 = -(b+a+Disp[l]*(b-a))/2.;
 
-				F += (Elements(2., Non_Interacting_Trace(Par, x1, k, theta), Potential1(Par,x1,k), Interacting_Linear_Trace(Par, x1, k, theta)*Potential1(Par,x1,k), Interacting_Quad_Trace(Par, x1, k, theta)*Potential1(Par,x1,k), Potential2(Par,x1,k))*Imk0_Integrand(Par,x1,k,theta,Temp, 0))*w[l+1];
-				F += (Elements(2., Non_Interacting_Trace(Par, x2, k, theta), Potential1(Par,x2,k), Interacting_Linear_Trace(Par, x2, k, theta)*Potential1(Par,x2,k), Interacting_Quad_Trace(Par, x2, k, theta)*Potential1(Par,x2,k), Potential2(Par,x2,k))*Imk0_Integrand(Par,x2,k,theta,Temp, 0))*w[l+1];
+				F += Imk0_Integrand(Par,x1,k,theta,Temp, 0))*w[l+1];
+				F += Imk0_Integrand(Par,x2,k,theta,Temp, 0))*w[l+1];
 			}
-			F += (Elements(2., Non_Interacting_Trace(Par, -(a+b)/2., k, theta), Potential1(Par,-(a+b)/2.,k), Interacting_Linear_Trace(Par, -(a+b)/2., k, theta)*Potential1(Par,-(a+b)/2.,k), Interacting_Quad_Trace(Par, -(a+b)/2., k, theta)*Potential1(Par,-(a+b)/2.,k), Potential2(Par,-(a+b)/2.,k))*Imk0_Integrand(Par,-(a+b)/2.,k,theta,Temp, 0))*w[0];
-		}
+			F += Imk0_Integrand(Par,-(a+b)/2.,k,theta,Temp, 0))*w[0];
+		}*/
 
 		Partial = F*(b-a)/2.;
 		Answer += Partial;		//Add the subinterval to the total
 		a = b;
-	}while((!(Partial == 0) || a < Max) && (i < Intervals || abs(Partial/Answer) >= .0001) && ((Temp == 0 && a < Max) || Temp != 0));	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded
+	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a < Max);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded
 
 	return(Answer/M_PI);
 }
@@ -1348,6 +1354,8 @@ long double Imk0_Integrand(long double Par[], long double k0, long double k, lon
 	long double fermi[2] = {Fermi(omega[0], Temp),Fermi(omega[1], Temp)};
 	long double ImSelf[2];
 	long double ReSelf[2];
+	complex<long double> M(Par[2],0);
+	complex<long double> gamma(GAMMA,0);
 
 	if(k_old != k)
 	{
@@ -1371,7 +1379,7 @@ long double Imk0_Integrand(long double Par[], long double k0, long double k, lon
 		break;
 	case 2:
 		return(ImSelf[1]/(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2)+pow(ImSelf[1],2)));
-		break;
+		break;//*/
 	}
 }
 
