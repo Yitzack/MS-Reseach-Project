@@ -9,7 +9,7 @@ using namespace std;
 //Integrals that define results
 Elements theta_Int(long double[], int);				//Theta integral
 Elements k_Int(long double[], int, long double);			//k integral
-Elements k0_Int(long double[], int, long double, long double);	//k0 integral aka energy integral
+long double k0_Int(long double[], int, long double, long double);	//k0 integral aka energy integral
 
 //Functions for finding points of interest in the k integral
 void Characterize_k_Int(long double[], int, long double, long double[], long double[], int&);	//Returns the poles of the k integral's integrands
@@ -271,7 +271,7 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 			b = Stops[i];
 			i++;
 		}
-n		else
+		else
 			b += 3;
 
 		F.null();	//Zero out F for next subinterval
@@ -288,11 +288,11 @@ n		else
 			k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
 			k02 = (Energy(0, Par[3]/2., x2, theta)-Energy(0, Par[3]/2., -x2, theta))/2.;
 
-			F += (Elements(2., Non_Interacting_Trace(Par, k01, x1, theta), Potential1(Par,k01, x1), Interacting_Linear_Trace(Par, k01, x1, theta)*Potential1(Par,k01, x1), Interacting_Quad_Trace(Par, k01, x1, theta)*Potential1(Par,k01, x1), Potential2(Par,k01, x1))*k0_Int(Par, Temp, x1, theta)*pow(x1,2)*w[l+1];
-			F += (Elements(2., Non_Interacting_Trace(Par, k02, x2, theta), Potential1(Par,k02, x2), Interacting_Linear_Trace(Par, k02, x2, theta)*Potential1(Par,k02, x2), Interacting_Quad_Trace(Par, k02, x2, theta)*Potential1(Par,k02, x2), Potential2(Par,k02, x2))*k0_Int(Par, Temp, x2, theta)*pow(x2,2)*w[l+1];
+			F += (Elements(2., Non_Interacting_Trace(Par, k01, x1, theta), Potential1(Par,k01, x1), Interacting_Linear_Trace(Par, k01, x1, theta)*Potential1(Par,k01, x1), Interacting_Quad_Trace(Par, k01, x1, theta)*Potential1(Par,k01, x1), Potential2(Par,k01, x1)))*k0_Int(Par, Temp, x1, theta)*pow(x1,2)*w[l+1];
+			F += (Elements(2., Non_Interacting_Trace(Par, k02, x2, theta), Potential1(Par,k02, x2), Interacting_Linear_Trace(Par, k02, x2, theta)*Potential1(Par,k02, x2), Interacting_Quad_Trace(Par, k02, x2, theta)*Potential1(Par,k02, x2), Potential2(Par,k02, x2)))*k0_Int(Par, Temp, x2, theta)*pow(x2,2)*w[l+1];
 		}
-			k01 = (Energy(0, Par[3]/2., (a+b)/2., theta)-Energy(0, Par[3]/2., -(a+b)/2., theta))/2.;
-		F += (Elements(2., Non_Interacting_Trace(Par, k01,(a+b)/2., theta), Potential1(Par,k01,(a+b)/2.), Interacting_Linear_Trace(Par, k01,(a+b)/2., theta)*Potential1(Par,k01,(a+b)/2.), Interacting_Quad_Trace(Par, k01,(a+b)/2., theta)*Potential1(Par,k01,(a+b)/2.), Potential2(Par,k01,(a+b)/2.))*k0_Int(Par, Temp, (a+b)/2., theta)*pow((a+b)/2.,2)*w[0];
+		k01 = (Energy(0, Par[3]/2., (a+b)/2., theta)-Energy(0, Par[3]/2., -(a+b)/2., theta))/2.;
+		F += (Elements(2., Non_Interacting_Trace(Par, k01, (a+b)/2., theta), Potential1(Par,k01, (a+b)/2.), Interacting_Linear_Trace(Par, k01, (a+b)/2., theta)*Potential1(Par,k01, (a+b)/2.), Interacting_Quad_Trace(Par, k01, (a+b)/2., theta)*Potential1(Par,k01, (a+b)/2.), Potential2(Par,k01, (a+b)/2.)))*k0_Int(Par, Temp, x2, theta)*pow(x2,2)*w[0];
 
 		Partial = F*(b-a)/2.;	//Record the subinterval to total of the integral
 		Answer += Partial;	//Add the subinterval to total of the integral
@@ -323,9 +323,9 @@ long double k0_Int(long double Par[], int Temp, long double k, long double theta
 	long double Boundary_k_k0[] = {0.00865, 0.0267, 0.0491, 0.0985, .421, .802, 1.01, 4.85};
 	long double Range[] = {-Boundary_k_k0[7], -Boundary_k_k0[6], -Boundary_k_k0[5], -Boundary_k_k0[4], -Boundary_k_k0[3], -Boundary_k_k0[2], -Boundary_k_k0[1], -Boundary_k_k0[0], 0, Boundary_k_k0[0], Boundary_k_k0[1], Boundary_k_k0[2], Boundary_k_k0[3], Boundary_k_k0[4], Boundary_k_k0[5], Boundary_k_k0[6], Boundary_k_k0[7]};	//Number of gamma from center
 
-	Elements F;			//Sum of ordinates*weights
-	Elements Answer(0,0,0,0,0,0);	//Results to be returned
-	Elements Partial;		//Partial sum to determine continuation
+	long double F;			//Sum of ordinates*weights
+	long double Answer = 0;	//Results to be returned
+	long double Partial;		//Partial sum to determine continuation
 
 	long double zero[12];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[12];	//Imaginary part of poles
@@ -407,11 +407,11 @@ long double k0_Int(long double Par[], int Temp, long double k, long double theta
 			b = Stops[i];
 			i++;
 		}
-n
+
 		if(b > Max && a < Max)
 			b = Max;	//Be sure E/2 is and sub-interval boundary
 
-		F.null();	//Zero out F for next sub-interval
+		F = 0;	//Zero out F for next sub-interval
 
 #if ORDER == 37
 		for(l = 0; l < 9; l++) //Count through points away from center
@@ -422,10 +422,10 @@ n
 			x1 = (b+a-Disp[l]*(b-a))/2.;
 			x2 = (b+a+Disp[l]*(b-a))/2.;
 
-			F += Imk0_Integrand(Par,x1,k,theta,Temp, 0))*w[l+1];
-			F += Imk0_Integrand(Par,x2,k,theta,Temp, 0))*w[l+1];
+			F += Imk0_Integrand(Par,x1,k,theta,Temp, 0)*w[l+1];
+			F += Imk0_Integrand(Par,x2,k,theta,Temp, 0)*w[l+1];
 		}
-		F += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0))*w[0];
+		F += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0)*w[0];
 
 		/*if(a >= Max && Temp != 0)
 		{
