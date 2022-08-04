@@ -536,8 +536,8 @@ long double k0_Int(long double Par[], int Temp, long double k, long double theta
 
 		for(j = 0; j < 2; j++)
 		{
-			x1 = (b+a-Disp9[j]*(b-a))/2.;
-			x2 = (b+a+Disp9[j]*(b-a))/2.;
+			x1 = (b+a-Disp[j]*(b-a))/2.;
+			x2 = (b+a+Disp[j]*(b-a))/2.;
 
 			F += Imk0_Integrand(Par,x1,k,theta,Temp)*w[j+1];
 			F += Imk0_Integrand(Par,x2,k,theta,Temp)*w[j+1];
