@@ -3,14 +3,15 @@
 #include<cstdlib>
 #include<cfloat>
 #include<complex>
+#include"Around.h"
 #include"Elements.h"
 using namespace std;
 
 //Integrals that define results
-Elements theta_Int(long double[], int);						//Theta integral
-Elements k_Int(long double[], int, long double);					//k integral
-long double Dispersion(long double[], int, long double, long double, long double);	//Dispersion relation for turning ImG_12 into ReG_12
-long double k0_Int(long double[], int, long double, long double);			//k0 integral aka energy integral
+Elements<Around> theta_Int(long double[], int);						//Theta integral
+Elements<Around> k_Int(long double[], int, long double);					//k integral
+Around Dispersion(long double[], int, long double, long double, long double);	//Dispersion relation for turning ImG_12 into ReG_12
+Around k0_Int(long double[], int, long double, long double);			//k0 integral aka energy integral
 
 //Functions for finding points of interest in the k integral
 void Characterize_k_Int(long double[], int, long double, long double[], long double[], int&);	//Returns the poles of the k integral's integrands
@@ -97,20 +98,22 @@ void mergeSort(long double List[], int a, int b)
 #define GAMMA -.015	//Width of single quark propagator
 #endif
 
-Elements theta_Int(long double Par[], int Temp)
+Elements<Around> theta_Int(long double Par[], int Temp)
 {
 cout << setprecision(18);
 cerr << setprecision(18);
 	if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
 		return(k_Int(Par, Temp, M_PI/2.)/pow(2.*M_PI, 2)*2.);
 //37th order Gauss-Legendre integration
-	long double Disp[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center
-	long double w[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight
+//37th order Gauss-Legendre/58th order Gauss-Kronrod integration
+	long double Disp[] = {0.0804519227440113300278426, 0.1603586456402253758680961, 0.2392249283182414137341001, 0.3165640999636298319901173, 0.3918512308715201737953652, 0.4645707413759609457172671, 0.5342756325305535151963640, 0.6005453046616810234696382, 0.6629230657449078453411830, 0.7209661773352293786170959, 0.7743288590095347616463579, 0.8227146565371428249789225, 0.8657735426853351916579563, 0.9031559036148179016426609, 0.9346640001655193071885072, 0.9602081521348300308527788, 0.9795723007892632815580528, 0.9924068438435844031890177, 0.9987380120803145295920133};	//Displacement from center
+	long double w37[] = {8589934592./53335593025., 0., 0.1589688433939543476499564, 0., 0.1527660420658596667788554, 0., 0.1426067021736066117757461, 0., 0.1287539625393362276755158, 0., 0.1115666455473339947160239, 0., 0.09149002162244999946446209, 0., 0.06904454273764122658070826, 0., 0.04481422676569960033283816, 0., 0.01946178822972647703631204, 0.};	//37th order Gauss-Legendre weight
+	long double w58[] = {0.0805456032929981728198301, 0.080266216020850392581194275, 0.07946568358535507086009278, 0.078186910685741706047047342, 0.07640286193981625364079455, 0.074084074533738661445711554, 0.07128142476492939246412251, 0.068059780498133280356049360, 0.06440235226192880106950109, 0.060277411503208184144744010, 0.05575220103348140735879073, 0.050926225506244325100178813, 0.04578597308792229909269676, 0.040270023249514782733911164, 0.03446235286288098470562495, 0.028544238117114997898531094, 0.02250869575220427112238233, 0.016153414369091354277746989, 0.009499205461710044490552534, 0.0033981531196347042004121253};	//58th order Gauss-Kronrod weight
 	long double x1, x2;					//Abscissa
 	long double a = 0, b;					//Sub-interval limits of integration
 	long double Boundary_theta[] = {1./17., 0.3, 0.08};	//Extra boundary values
-	Elements F;						//Sum of ordinate*weights
-	Elements Answer(0, 0, 0, 0);				//Answer to be returned
+	Elements<Around> F[2];						//Sum of ordinate*weights
+	Elements<Around> Answer(0, 0, 0, 0);				//Answer to be returned
 	int i, j;						//Counters
 
 	if(Par[4] > 0 && Par[3] > sqrt(Par[4]/2.)) //Where the maximum of the theta integral ought to land. It might only be correct for BbS reduction, but is close enough for all other cases. Only valid for s>0 and P>sqrt(s/2)
@@ -142,7 +145,8 @@ cerr << setprecision(18);
 	for(i = 0; i < 8 && a < M_PI/2.; i++)	//Count through pre-determined intervals
 	{
 		b = Range[i];	//Upper edge
-		F.null();	//Zero out F for a new round
+		F[0].null();	//Zero out F for a new round
+		F[1].null();	//Zero out F for a new round
 
 		//Count through points away from center
 		for(j = 0; j < 9; j++)
@@ -150,12 +154,15 @@ cerr << setprecision(18);
 			x1 = (b+a-Disp[j]*(b-a))/2.;
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			F += k_Int(Par, Temp, x1)*sin(x1)*w[j+1];
-			F += k_Int(Par, Temp, x2)*sin(x2)*w[j+1];
+			F[0] += k_Int(Par, Temp, x1)*sin(x1)*w37[j+1];
+			F[1] += k_Int(Par, Temp, x1)*sin(x1)*w58[j+1];
+			F[0] += k_Int(Par, Temp, x2)*sin(x2)*w37[j+1];
+			F[1] += k_Int(Par, Temp, x2)*sin(x2)*w58[j+1];
 		}
-		F += k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.)*w[0];
+		F[0] += k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.)*w37[0];
+		F[1] += k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.)*w58[0];
 
-		Answer += F*(b-a)/2.;	//Add the subinterval to total of the integral
+		Answer += Elements<Around>(Around(F[1][0],abs(F[0][0]-F[1][0])),Around(F[1][1],abs(F[0][1]-F[1][1])),Around(F[1][2],abs(F[0][2]-F[1][2])),Around(F[1][3],abs(F[0][3]-F[1][3])))*(b-a)/2.;	//Add the subinterval to total of the integral
 
 		a = b;	//Upper edge becomes lower edge
 	}
@@ -163,26 +170,26 @@ cerr << setprecision(18);
 	return(Answer/pow(2.*M_PI, 2)*2.);
 }
 
-Elements k_Int(long double Par[], int Temp, long double theta)
+Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 {
 //37th order Gauss-Legendre/58th order Gauss-Kronrod integration
 	long double Disp37[] = {0.0804519227440113300278426, 0.1603586456402253758680961, 0.2392249283182414137341001, 0.3165640999636298319901173, 0.3918512308715201737953652, 0.4645707413759609457172671, 0.5342756325305535151963640, 0.6005453046616810234696382, 0.6629230657449078453411830, 0.7209661773352293786170959, 0.7743288590095347616463579, 0.8227146565371428249789225, 0.8657735426853351916579563, 0.9031559036148179016426609, 0.9346640001655193071885072, 0.9602081521348300308527788, 0.9795723007892632815580528, 0.9924068438435844031890177, 0.9987380120803145295920133};	//Displacement from center
 	long double w37[] = {8589934592./53335593025., 0., 0.1589688433939543476499564, 0., 0.1527660420658596667788554, 0., 0.1426067021736066117757461, 0., 0.1287539625393362276755158, 0., 0.1115666455473339947160239, 0., 0.09149002162244999946446209, 0., 0.06904454273764122658070826, 0., 0.04481422676569960033283816, 0., 0.01946178822972647703631204, 0.};	//37th order Gauss-Legendre weight
-	//long double w58[] = {0.0805456032929981728198301, 0.080266216020850392581194275, 0.07946568358535507086009278, 0.078186910685741706047047342, 0.07640286193981625364079455, 0.074084074533738661445711554, 0.07128142476492939246412251, 0.068059780498133280356049360, 0.06440235226192880106950109, 0.060277411503208184144744010, 0.05575220103348140735879073, 0.050926225506244325100178813, 0.04578597308792229909269676, 0.040270023249514782733911164, 0.03446235286288098470562495, 0.028544238117114997898531094, 0.02250869575220427112238233, 0.016153414369091354277746989, 0.009499205461710044490552534, 0.0033981531196347042004121253};	//58th order Gauss-Kronrod weight
+	long double w58[] = {0.0805456032929981728198301, 0.080266216020850392581194275, 0.07946568358535507086009278, 0.078186910685741706047047342, 0.07640286193981625364079455, 0.074084074533738661445711554, 0.07128142476492939246412251, 0.068059780498133280356049360, 0.06440235226192880106950109, 0.060277411503208184144744010, 0.05575220103348140735879073, 0.050926225506244325100178813, 0.04578597308792229909269676, 0.040270023249514782733911164, 0.03446235286288098470562495, 0.028544238117114997898531094, 0.02250869575220427112238233, 0.016153414369091354277746989, 0.009499205461710044490552534, 0.0033981531196347042004121253};	//58th order Gauss-Kronrod weight
 //97th order Gauss-Legendre/148th order Gauss-Kronrod integration
 	long double Disp97[] = {0.0317258634590731536308194, 0.0634206849826867860288348, 0.0950516499861233756600351, 0.1265859972696720510679853, 0.1579928776643683586660037, 0.1892415924618135864853102, 0.2202997655098053353242634, 0.2511351786125772735071559, 0.2817177082410294178774691, 0.3120175321197487622078607, 0.3420031959918559601078364, 0.3716435012622848888637345, 0.4009095739292798809373224, 0.4297729933415765246585841, 0.4582036915390298548495609, 0.4861719414524920421769761, 0.5136506284017343823111009, 0.5406132469917260665582255, 0.5670315494953917328631078, 0.5928776941089007124558643, 0.6181268178008792991611467, 0.6427548324192376640568569, 0.6667357008415716678661165, 0.6900438244251321135047518, 0.7126570667050088308474206, 0.7345542542374026962136742, 0.7557118903695143082456547, 0.7761068943454466350181428, 0.7957203207625248381360568, 0.8145344273598554315395008, 0.8325285014874601685172633, 0.8496821198441657010348819, 0.8659800043151457264442524, 0.8814084455730089100370315, 0.8959496245835934207352332, 0.9095856558280732852130196, 0.9223054754539361687554290, 0.9341002947558101490589825, 0.9449550592213294731558351, 0.9548536586741372335552437, 0.9637900181363554282611096, 0.9717622009015553801399724, 0.9787573030312066845298589, 0.9847578959142130043592990, 0.9897642384140644710631683, 0.9937886619441677907601139, 0.9968198142998264694012840, 0.9988201506066353793618313, 0.9998041996856387279949740};	//Displacement from center
 	long double w97[] = {0.06346328140479059771825, 0., 0.06333550929649174859084, 0., 0.06295270746519569947440, 0., 0.06231641732005726740108, 0., 0.06142920097919293629683, 0., 0.06029463095315201730311, 0., 0.05891727576002726602453, 0., 0.05730268153018747548516, 0., 0.05545734967480358869043, 0., 0.05338871070825896852794, 0., 0.05110509433014459067462, 0., 0.04861569588782824027765, 0., 0.04593053935559585354250, 0., 0.04306043698125959798835, 0., 0.04001694576637302136861, 0., 0.03681232096300068981947, 0., 0.03345946679162217434249, 0., 0.02997188462058382535069, 0., 0.02636361892706601696095, 0., 0.02264920158744667649877, 0., 0.01884359585308945844445, 0., 0.01496214493562465102958, 0., 0.01102055103159358049751, 0., 0.007035099590086451473451, 0., 0.003027278988922905077481, 0.};	//97th order Gauss-Legendre weight
-	//long double w148[] = {0.03173093139852189440905271, 0.031715664503973344041013897, 0.03166846605661171584461641, 0.031587959458685973161423850, 0.03147563582699890351851665, 0.031333052591231059758861443, 0.03115893749659741586964716, 0.030951992615566392527522287, 0.03071385585773908339196312, 0.030446279739685887738563390, 0.03014808106679993314543067, 0.029817997323710752189647702, 0.02945784540564207340755868, 0.029069614012150475693087672, 0.02865216671090199984955208, 0.028204220570029200521357750, 0.02772780755086887283813379, 0.027225205808796711996001598, 0.02669527310715803774272137, 0.026136629572717056199681859, 0.02555156762989839679623681, 0.024942731211638013780600885, 0.02430890292981194970869050, 0.023648494373863135027606738, 0.02296412163116801662980325, 0.022258913930129946635993785, 0.02153148180778168675381817, 0.020779853519856169333661766, 0.02000706438592749292653939, 0.019216932982655644211676316, 0.01840775385198258202811838, 0.017576872641244826238446232, 0.01672789855377731868231284, 0.015865723698872893130368151, 0.014988098934680295659297187, 0.014091111047270544037748385, 0.013179206821207936605655756, 0.012259174879947358907650473, 0.011327843857878022879468973, 0.010378732924116607706968357, 0.009417572229686206676231693, 0.0084551856397750456701145584, 0.007486910276414044519817546, 0.0064998725321664845168498302, 0.005501420399338078204040470, 0.0045141331625998620836358421, 0.003532955701483259989186770, 0.0025218765731496496845136331, 0.0014779639281743620208556758, 0.00052747696837833231426392217};	//148th order Gauss-Kronrod weight
+	long double w148[] = {0.03173093139852189440905271, 0.031715664503973344041013897, 0.03166846605661171584461641, 0.031587959458685973161423850, 0.03147563582699890351851665, 0.031333052591231059758861443, 0.03115893749659741586964716, 0.030951992615566392527522287, 0.03071385585773908339196312, 0.030446279739685887738563390, 0.03014808106679993314543067, 0.029817997323710752189647702, 0.02945784540564207340755868, 0.029069614012150475693087672, 0.02865216671090199984955208, 0.028204220570029200521357750, 0.02772780755086887283813379, 0.027225205808796711996001598, 0.02669527310715803774272137, 0.026136629572717056199681859, 0.02555156762989839679623681, 0.024942731211638013780600885, 0.02430890292981194970869050, 0.023648494373863135027606738, 0.02296412163116801662980325, 0.022258913930129946635993785, 0.02153148180778168675381817, 0.020779853519856169333661766, 0.02000706438592749292653939, 0.019216932982655644211676316, 0.01840775385198258202811838, 0.017576872641244826238446232, 0.01672789855377731868231284, 0.015865723698872893130368151, 0.014988098934680295659297187, 0.014091111047270544037748385, 0.013179206821207936605655756, 0.012259174879947358907650473, 0.011327843857878022879468973, 0.010378732924116607706968357, 0.009417572229686206676231693, 0.0084551856397750456701145584, 0.007486910276414044519817546, 0.0064998725321664845168498302, 0.005501420399338078204040470, 0.0045141331625998620836358421, 0.003532955701483259989186770, 0.0025218765731496496845136331, 0.0014779639281743620208556758, 0.00052747696837833231426392217};	//148th order Gauss-Kronrod weight
 	long double x1, x2;	//Abscissa
 	long double k01, k02;	//On-shell relative energy at the abscissa
 	long double a, b;	//Sub-interval limits of integration
 
 	//Extra boundaries that insert extra intervals around peaks. Used a machine learn algorithm of sorts to minimize error to pick these values.
 
-	Elements F[2];			//Sum of ordinates*weights
-	Elements Answer(0, 0, 0, 0);	//Answer to be returned
-	Elements Partial;		//Answer for sub-interval for determining completeness
-	Elements Holder;
+	Elements<Around> F[2];			//Sum of ordinates*weights
+	Elements<Around> Answer(0, 0, 0, 0);	//Answer to be returned
+	Elements<Around> Partial;		//Answer for sub-interval for determining completeness
+	Elements<Around> Holder;
 
 	int Poles;		//Number of poles
 	long double zero[26];	//The real part of the signular pole
@@ -282,25 +289,25 @@ Elements k_Int(long double Par[], int Temp, long double theta)
 				k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
 				k02 = (Energy(0, Par[3]/2., x2, theta)-Energy(0, Par[3]/2., -x2, theta))/2.;
 
-Holder = (Elements(Potential1(Par,k01,x1), Interacting_Linear_Trace(Par)*Potential1(Par,k01,x1), Interacting_Quad_Trace(Par,k01,x1)*Potential1(Par,k01,x1), Potential2(Par,k01,x1)))*Dispersion(Par, Temp, k01, x1, theta);
-//cout << Par[3] << " " << Par[4] << " " << k01 << " " << x1 << " " << theta << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
+Holder = (Elements<Around>(Potential1(Par,k01,x1), Interacting_Linear_Trace(Par)*Potential1(Par,k01,x1), Interacting_Quad_Trace(Par,k01,x1)*Potential1(Par,k01,x1), Potential2(Par,k01,x1)))*Dispersion(Par, Temp, k01, x1, theta);
+//cout << "{" << Par[3] << "," << Par[4] << "," << k01 << "," << x1 << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "}," << endl;
 				F[0] += Holder*pow(x1, 2)*w37[l+1];
-				//F[1] += Holder*pow(x1, 2)*w58[l+1];
-Holder = (Elements(Potential1(Par,k02,x2), Interacting_Linear_Trace(Par)*Potential1(Par,k02,x2), Interacting_Quad_Trace(Par,k02,x2)*Potential1(Par,k02,x2), Potential2(Par,k02,x2)))*Dispersion(Par, Temp, k02, x2, theta);
-//cout << Par[3] << " " << Par[4] << " " << k02 << " " << x2 << " " << theta << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
+				F[1] += Holder*pow(x1, 2)*w58[l+1];
+Holder = (Elements<Around>(Potential1(Par,k02,x2), Interacting_Linear_Trace(Par)*Potential1(Par,k02,x2), Interacting_Quad_Trace(Par,k02,x2)*Potential1(Par,k02,x2), Potential2(Par,k02,x2)))*Dispersion(Par, Temp, k02, x2, theta);
+//cout << "{" << Par[3] << "," << Par[4] << "," << k02 << "," << x2 << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "}," << endl;
 				F[0] += Holder*pow(x2, 2)*w37[l+1];
-				//F[1] += Holder*pow(x2, 2)*w58[l+1];
+				F[1] += Holder*pow(x2, 2)*w58[l+1];
 			}
 			x1 = (a+b)/2.;
 			k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
-Holder = (Elements(Potential1(Par,k01,x1), Interacting_Linear_Trace(Par)*Potential1(Par,k01,x1), Interacting_Quad_Trace(Par,k01,x1)*Potential1(Par,k01,x1), Potential2(Par,k01,x1)))*Dispersion(Par, Temp, k01, x1, theta);
-//cout << Par[3] << " " << Par[4] << " " << k01 << " " << x1 << " " << theta << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
+Holder = (Elements<Around>(Potential1(Par,k01,x1), Interacting_Linear_Trace(Par)*Potential1(Par,k01,x1), Interacting_Quad_Trace(Par,k01,x1)*Potential1(Par,k01,x1), Potential2(Par,k01,x1)))*Dispersion(Par, Temp, k01, x1, theta);
+//cout << "{" << Par[3] << "," << Par[4] << "," << k01 << "," << x1 << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "}," << endl;
 			F[0] += Holder*pow((a+b)/2., 2)*w37[0];
-			//F[1] += Holder*pow((a+b)/2., 2)*w58[0];
+			F[1] += Holder*pow((a+b)/2., 2)*w58[0];
 		}
 		else
 		{
-			for(l = 1; l < 49; l+=2) //Count through points away from center
+			for(l = 0; l < 49; l++) //Count through points away from center
 			{
 				x1 = (b+a-Disp97[l]*(b-a))/2.;
 				x2 = (b+a+Disp97[l]*(b-a))/2.;
@@ -308,51 +315,51 @@ Holder = (Elements(Potential1(Par,k01,x1), Interacting_Linear_Trace(Par)*Potenti
 				k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
 				k02 = (Energy(0, Par[3]/2., x2, theta)-Energy(0, Par[3]/2., -x2, theta))/2.;
 
-Holder = (Elements(Potential1(Par,k01,x1), Interacting_Linear_Trace(Par)*Potential1(Par,k01,x1), Interacting_Quad_Trace(Par,k01,x1)*Potential1(Par,k01,x1), Potential2(Par,k01,x1)))*Dispersion(Par, Temp, k01, x1, theta);
-//cout << Par[3] << " " << Par[4] << " " << k01 << " " << x1 << " " << theta << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
+Holder = (Elements<Around>(Potential1(Par,k01,x1), Interacting_Linear_Trace(Par)*Potential1(Par,k01,x1), Interacting_Quad_Trace(Par,k01,x1)*Potential1(Par,k01,x1), Potential2(Par,k01,x1)))*Dispersion(Par, Temp, k01, x1, theta);
+//cout << "{" << Par[3] << "," << Par[4] << "," << k01 << "," << x1 << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "}," << endl;
 				F[0] += Holder*pow(x1, 2)*w97[l+1];
-				//F[1] += Holder*pow(x1, 2)*w148[l+1];
-Holder = (Elements(Potential1(Par,k02,x2), Interacting_Linear_Trace(Par)*Potential1(Par,k02,x2), Interacting_Quad_Trace(Par,k02,x2)*Potential1(Par,k02,x2), Potential2(Par,k02,x2)))*Dispersion(Par, Temp, k02, x2, theta);
-//cout << Par[3] << " " << Par[4] << " " << k02 << " " << x2 << " " << theta << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
+				F[1] += Holder*pow(x1, 2)*w148[l+1];
+Holder = (Elements<Around>(Potential1(Par,k02,x2), Interacting_Linear_Trace(Par)*Potential1(Par,k02,x2), Interacting_Quad_Trace(Par,k02,x2)*Potential1(Par,k02,x2), Potential2(Par,k02,x2)))*Dispersion(Par, Temp, k02, x2, theta);
+//cout << "{" << Par[3] << "," << Par[4] << "," << k02 << "," << x2 << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "}," << endl;
 				F[0] += Holder*pow(x2, 2)*w97[l+1];
-				//F[1] += Holder*pow(x2, 2)*w148[l+1];
+				F[1] += Holder*pow(x2, 2)*w148[l+1];
 			}
 			x1 = (a+b)/2.;
 			k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
-Holder = (Elements(Potential1(Par,k01,x1), Interacting_Linear_Trace(Par)*Potential1(Par,k01,x1), Interacting_Quad_Trace(Par,k01,x1)*Potential1(Par,k01,x1), Potential2(Par,k01,x1)))*Dispersion(Par, Temp, k01, x1, theta);
-//cout << Par[3] << " " << Par[4] << " " << k01 << " " << x1 << " " << theta << " " << Holder[0] << " " << Holder[1] << " " << Holder[2] << " " << Holder[3] << endl;
+Holder = (Elements<Around>(Potential1(Par,k01,x1), Interacting_Linear_Trace(Par)*Potential1(Par,k01,x1), Interacting_Quad_Trace(Par,k01,x1)*Potential1(Par,k01,x1), Potential2(Par,k01,x1)))*Dispersion(Par, Temp, k01, x1, theta);
+//cout << "{" << Par[3] << "," << Par[4] << "," << k01 << "," << x1 << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "}," << endl;
 			F[0] += Holder*pow((a+b)/2., 2)*w97[0];
-			//F[1] += Holder*pow((a+b)/2., 2)*w148[0];
+			F[1] += Holder*pow((a+b)/2., 2)*w148[0];
 		}
 
-		Partial = F[0]*(b-a)/2.;	//Record the subinterval to total of the integral
+		Partial = Elements<Around>(Around(F[1][0],abs(F[0][0]-F[1][0])),Around(F[1][1],abs(F[0][1]-F[1][1])),Around(F[1][2],abs(F[0][2]-F[1][2])),Around(F[1][3],abs(F[0][3]-F[1][3])))*(b-a)/2.;	//Record the subinterval to total of the integral
 		Answer += Partial;	//Add the subinterval to total of the integral
-cout << Par[3] << " " << Par[4] << " " << theta << " " << a << " " << b << " " << F[0][0] << " " << F[0][1] << " " << F[0][2] << " " << F[0][3] << " " << F[1][0] << " " << F[1][1] << " " << F[1][2] << " " << F[1][3] << endl;
-	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer)/(b-a) >= .0001) && (a <= Max || a <= 20.*sqrt(Par[4]+pow(Par[3], 2)))); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
+//cout << Par[3] << "," << Par[4] << "," << theta << "," << a << "," << b << "," << F[0][0] << "," << F[0][1] << "," << F[0][2] << "," << F[0][3] << "," << F[1][0] << "," << F[1][1] << "," << F[1][2] << "," << F[1][3] << endl;
+	}while(!(Partial[0] == 0) && (i < Intervals || abs(Partial/Answer)/(b-a) >= .0001) && (a <= Max || a <= 20.*sqrt(Par[4]+pow(Par[3], 2)))); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }
 
-long double Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta)
+Around Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta)
 {
 //9th order Gauss-Legendre integration/16th order Gauss-Kronrod weight
 	long double Disp[] = {0.2796304131617831934134665, sqrt(5.-2.*sqrt(10./7.))/3., 0.7541667265708492204408172, sqrt(5.+2.*sqrt(10./7.))/3., 0.9840853600948424644961729};	//Displacement from center
 	long double w9[] = {128./225.,0., (322.+13.*sqrt(70.))/900.,0., (322.-13.*sqrt(70.))/900.,0.};	//9th order Gauss-Legendre weights
-	//long double w16[]= {0.2829874178574912132042556, 0.27284980191255892234099326, 0.2410403392286475866999426, 0.18680079655649265746780003, 0.11523331662247339402462685, 0.042582036751081832864509451}; //16th order Gauss-Kronrod weights
+	long double w16[]= {0.2829874178574912132042556, 0.27284980191255892234099326, 0.2410403392286475866999426, 0.18680079655649265746780003, 0.11523331662247339402462685, 0.042582036751081832864509451}; //16th order Gauss-Kronrod weights
 	long double a, b;	//Sub-interval limits of integration
 	long double Min;	//Lower limit of integration
 	long double Max = 0;	//Upper limit of principal value integration
 	long double ParLoc[5] = {Par[0], Par[1], Par[2], Par[3], Par[4]};	//Local copy of the parameters as Par[4] corrisponds to s and ParLoc[4] is s'
-	long double ImG12 = k0_Int(Par, Temp, k, theta);		//Holder of the ImG12 that belongs to the other half of G12 that is calculated here
+	Around ImG12 = k0_Int(Par, Temp, k, theta);		//Holder of the ImG12 that belongs to the other half of G12 that is calculated here
 
 	//Extra boundaries that insert extra intervals around peaks. Used a machine learn algorithm of sorts to minimize error to pick these values.
 	long double Boundary_k_k0[] = {0.0491, .421};
 	long double Range[] = {-Boundary_k_k0[1], -Boundary_k_k0[0], 0, Boundary_k_k0[0], Boundary_k_k0[1]};	//Number of gamma from center
 
-	long double F[2];		//Sum of ordinates*weights
-	long double Answer = 0;	//Results to be returned
-	long double Partial;		//Partial results to examine convergance
-	long double Holder;
+	Around F[2];		//Sum of ordinates*weights
+	Around Answer(0,0);	//Results to be returned
+	Around Partial;		//Partial results to examine convergance
+	Around Holder;
 
 	long double zero[5];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[5];	//Imaginary part of poles
@@ -417,7 +424,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 			b += 3;
 		else if(i < Intervals)
 		{
-			while(i < Intervals && (b == Min || abs(b/a-(long double)(1.)) < LDBL_EPSILON*1000))
+			while(i < Intervals && (b == Min || abs(b/a-(long double)(1.)) < LDBL_EPSILON*5000))
 			{
 				b = Stops[i];
 				i++;
@@ -431,7 +438,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 		}
 
 		F[0] = 0;	//Zero out F for next sub-interval
-		//F[1] = 0;	//Zero out F for next sub-interval
+		F[1] = 0;	//Zero out F for next sub-interval
 		if(a > Par[4]+100. && Max == 0)
 		{
 			Principal = 0;
@@ -443,32 +450,32 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 			throw(chrono::duration_cast<chrono::seconds>(chrono::system_clock::now()-Start_Time).count());
 		}*/
 
-		for(l = 1; l < 5; l+=2) //Count through points away from center
+		for(l = 0; l < 5; l++) //Count through points away from center
 		{
 			ParLoc[4] = (b+a-Disp[l]*(b-a))/2.;
 			Holder = k0_Int(ParLoc, Temp, k, theta);
-//cout << Par[3] << " " << Par[4] << " " << ParLoc[4] << " " << k << " " << theta << " " << Holder << " " << Holder-ImG12*Principal << " " << (Holder-ImG12*Principal)/(ParLoc[4]-Par[4]) << endl;
+//cout << Par[3] << "," << Par[4] << "," << ParLoc[4] << "," << k << "," << theta << "," << a << "," << b << "," << Holder << "," << Holder-ImG12*Principal << "," << (Holder-ImG12*Principal)/(ParLoc[4]-Par[4]) << endl;
 			F[0] += (Holder-ImG12*Principal)/(ParLoc[4]-Par[4])*w9[l+1];
-			//F[1] += (Holder-ImG12*Principal)/(ParLoc[4]-Par[4])*w16[l+1];
+			F[1] += (Holder-ImG12*Principal)/(ParLoc[4]-Par[4])*w16[l+1];
 			ParLoc[4] = (b+a+Disp[l]*(b-a))/2.;
 			Holder = k0_Int(ParLoc, Temp, k, theta);
-//cout << Par[3] << " " << Par[4] << " " << ParLoc[4] << " " << k << " " << theta << " " << Holder << " " << Holder-ImG12*Principal << " " << (Holder-ImG12*Principal)/(ParLoc[4]-Par[4]) << endl;
+//cout << Par[3] << "," << Par[4] << "," << ParLoc[4] << "," << k << "," << theta << "," << a << "," << b << "," << Holder << "," << Holder-ImG12*Principal << "," << (Holder-ImG12*Principal)/(ParLoc[4]-Par[4]) << endl;
 			F[0] += (Holder-ImG12*Principal)/(ParLoc[4]-Par[4])*w9[l+1];
-			//F[1] += (Holder-ImG12*Principal)/(ParLoc[4]-Par[4])*w16[l+1];
+			F[1] += (Holder-ImG12*Principal)/(ParLoc[4]-Par[4])*w16[l+1];
 		}
 		ParLoc[4] = (b+a)/2.;
 		Holder = k0_Int(ParLoc, Temp, k, theta);
-//cout << Par[3] << " " << Par[4] << " " << ParLoc[4] << " " << k << " " << theta << " " << Holder << " " << Holder-ImG12*Principal << " " << (Holder-ImG12*Principal)/(ParLoc[4]-Par[4]) << endl;
+//cout << Par[3] << "," << Par[4] << "," << ParLoc[4] << "," << k << "," << theta << "," << a << "," << b << "," << Holder << "," << Holder-ImG12*Principal << "," << (Holder-ImG12*Principal)/(ParLoc[4]-Par[4]) << endl;
 		F[0] += (Holder-ImG12*Principal)/(ParLoc[4]-Par[4])*w9[0];
-		//F[1] += (Holder-ImG12*Principal)/(ParLoc[4]-Par[4])*w16[0];
+		F[1] += (Holder-ImG12*Principal)/(ParLoc[4]-Par[4])*w16[0];
 
-//cerr << Par[3] << " " << Par[4] << " " << k << " " << theta << " " << a << " " << b << " " << F[0] << " " << F[1] << endl;
+//cerr << Par[3] << "," << Par[4] << "," << k << "," << theta << "," << a << "," << b << "," << F[0] << "," << F[1] << endl;
 
-		Partial = F[0]*(b-a)/2.;
+		Partial = Around(F[1],abs(F[0]-F[1]))*(b-a)/2.;
 		Answer += Partial;		//Add the subinterval to the total
 		a = b;
 	}while((a < 700 && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
-
+//cout << Par[3] << "," << Par[4] << "," << k << "," << theta << "," << ImG12 << "," << Min << "," << Max << "," << log(abs((Max-Par[4])/(Par[4]-Min))) << endl;
 	if(Max == 0)	//Just in case it terminates before getting to s+100
 		Max = a;
 	if(abs(ImG12) >= 1e-17)
@@ -476,7 +483,7 @@ long double Dispersion(long double Par[], int Temp, long double k0, long double 
 	return(Answer/M_PI);
 }
 
-long double k0_Int(long double Par[], int Temp, long double k, long double theta)
+Around k0_Int(long double Par[], int Temp, long double k, long double theta)
 {
 	if(Temp == 0 && abs(sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta)-Energy(0,Par[3]/2.,k,theta)) < 1e-12)	//Vacuum and interval is going to be approximently zero
 		return(0);
@@ -484,11 +491,13 @@ long double k0_Int(long double Par[], int Temp, long double k, long double theta
 		return(0);
 
 //9th order Gauss-Legendre integration/16th order Gauss-Kronrod weight
-	long double Disp9[] = {sqrt(5.-2.*sqrt(10./7.))/3., sqrt(5.+2.*sqrt(10./7.))/3.};	//Displacement from center
-	long double w9[] = {128./225., (322.+13.*sqrt(70.))/900., (322.-13.*sqrt(70.))/900.};	//9th order Gauss-Legendre weights
-//37th order Gauss-Legendre integration
-	long double Disp37[] = {0.1603586456402253758680961, 0.3165640999636298319901173, 0.4645707413759609457172671, 0.6005453046616810234696382, 0.7209661773352293786170959, 0.8227146565371428249789225, 0.9031559036148179016426609, 0.9602081521348300308527788, 0.9924068438435844031890177};	//Displacement from center
-	long double w37[] = {8589934592./53335593025., 0.1589688433939543476499564, 0.1527660420658596667788554, 0.1426067021736066117757461, 0.1287539625393362276755158, 0.1115666455473339947160239, 0.09149002162244999946446209, 0.06904454273764122658070826, 0.04481422676569960033283816, 0.01946178822972647703631204};	//Weight
+	long double Disp9[] = {0.2796304131617831934134665, sqrt(5.-2.*sqrt(10./7.))/3., 0.7541667265708492204408172, sqrt(5.+2.*sqrt(10./7.))/3., 0.9840853600948424644961729};	//Displacement from center
+	long double w9[] = {128./225.,0., (322.+13.*sqrt(70.))/900.,0., (322.-13.*sqrt(70.))/900.,0.};	//9th order Gauss-Legendre weights
+	long double w16[]= {0.2829874178574912132042556, 0.27284980191255892234099326, 0.2410403392286475866999426, 0.18680079655649265746780003, 0.11523331662247339402462685, 0.042582036751081832864509451}; //16th order Gauss-Kronrod weights
+//37th order Gauss-Legendre/58th order Gauss-Kronrod integration
+	long double Disp37[] = {0.0804519227440113300278426, 0.1603586456402253758680961, 0.2392249283182414137341001, 0.3165640999636298319901173, 0.3918512308715201737953652, 0.4645707413759609457172671, 0.5342756325305535151963640, 0.6005453046616810234696382, 0.6629230657449078453411830, 0.7209661773352293786170959, 0.7743288590095347616463579, 0.8227146565371428249789225, 0.8657735426853351916579563, 0.9031559036148179016426609, 0.9346640001655193071885072, 0.9602081521348300308527788, 0.9795723007892632815580528, 0.9924068438435844031890177, 0.9987380120803145295920133};	//Displacement from center
+	long double w37[] = {8589934592./53335593025., 0., 0.1589688433939543476499564, 0., 0.1527660420658596667788554, 0., 0.1426067021736066117757461, 0., 0.1287539625393362276755158, 0., 0.1115666455473339947160239, 0., 0.09149002162244999946446209, 0., 0.06904454273764122658070826, 0., 0.04481422676569960033283816, 0., 0.01946178822972647703631204, 0.};	//37th order Gauss-Legendre weight
+	long double w58[] = {0.0805456032929981728198301, 0.080266216020850392581194275, 0.07946568358535507086009278, 0.078186910685741706047047342, 0.07640286193981625364079455, 0.074084074533738661445711554, 0.07128142476492939246412251, 0.068059780498133280356049360, 0.06440235226192880106950109, 0.060277411503208184144744010, 0.05575220103348140735879073, 0.050926225506244325100178813, 0.04578597308792229909269676, 0.040270023249514782733911164, 0.03446235286288098470562495, 0.028544238117114997898531094, 0.02250869575220427112238233, 0.016153414369091354277746989, 0.009499205461710044490552534, 0.0033981531196347042004121253};	//58th order Gauss-Kronrod weight
 	long double a, b;	//Sub-interval limits of integration
 	long double x1, x2;	//Abscissa
 	long double Max;	//Upper limit of integration
@@ -497,9 +506,9 @@ long double k0_Int(long double Par[], int Temp, long double k, long double theta
 	long double Boundary_k_k0[] = {.421, 4.85};
 	long double Range[] = {-Boundary_k_k0[1], -Boundary_k_k0[0], 0, Boundary_k_k0[0], Boundary_k_k0[1]};	//Number of gamma from center
 
-	long double F;			//Sum of ordinates*weights
-	long double Answer = 0;	//Results to be returned
-	long double Partial;		//Partial sum to determine continuation
+	long double F[2];			//Sum of ordinates*weights
+	Around Answer(0,0);	//Results to be returned
+	Around Partial;		//Partial sum to determine continuation
 
 	long double zero[12];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[12];	//Imaginary part of poles
@@ -586,34 +595,41 @@ long double k0_Int(long double Par[], int Temp, long double k, long double theta
 		if(b > Max && a < Max)
 			b = Max;	//Be sure E/2 is and sub-interval boundary
 
-		F = 0;	//Zero out F for next sub-interval
+		F[0] = 0;	//Zero out F for next sub-interval
+		F[1] = 0;	//Zero out F for next sub-interval
 
-		if(abs(a-Caution) < 1 || abs(b-Caution) < 1)
+		if(false)//abs(a-Caution) < 1 || abs(b-Caution) < 1)
 		{
-			for(j = 0; j < 9; j++)
+			for(j = 0; j < 19; j++)
 			{
 				x1 = (b+a-Disp37[j]*(b-a))/2.;
 				x2 = (b+a+Disp37[j]*(b-a))/2.;
 
-				F += Imk0_Integrand(Par,x1,k,theta,Temp)*w37[j+1];
-				F += Imk0_Integrand(Par,x2,k,theta,Temp)*w37[j+1];
+				F[0] += Imk0_Integrand(Par,x1,k,theta,Temp)*w37[j+1];
+				F[1] += Imk0_Integrand(Par,x1,k,theta,Temp)*w58[j+1];
+				F[0] += Imk0_Integrand(Par,x2,k,theta,Temp)*w37[j+1];
+				F[1] += Imk0_Integrand(Par,x2,k,theta,Temp)*w58[j+1];
 			}
-			F += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp)*w37[0];
+			F[0] += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp)*w37[0];
+			F[1] += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp)*w58[0];
 		}
 		else
 		{
-			for(j = 0; j < 2; j++)
+			for(j = 0; j < 5; j++)
 			{
 				x1 = (b+a-Disp9[j]*(b-a))/2.;
 				x2 = (b+a+Disp9[j]*(b-a))/2.;
 
-				F += Imk0_Integrand(Par,x1,k,theta,Temp)*w9[j+1];
-				F += Imk0_Integrand(Par,x2,k,theta,Temp)*w9[j+1];
+				F[0] += Imk0_Integrand(Par,x1,k,theta,Temp)*w9[j+1];
+				F[1] += Imk0_Integrand(Par,x1,k,theta,Temp)*w16[j+1];
+				F[0] += Imk0_Integrand(Par,x2,k,theta,Temp)*w9[j+1];
+				F[1] += Imk0_Integrand(Par,x2,k,theta,Temp)*w16[j+1];
 			}
-			F += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp)*w9[0];
+			F[0] += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp)*w9[0];
+			F[1] += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp)*w16[0];
 		}
 
-		Partial = F*(b-a)/2.;
+		Partial = Around(F[0],abs(F[0]-F[1]))*(b-a)/2.;
 		Answer += Partial;		//Add the subinterval to the total
 		a = b;
 	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a < Max);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded
