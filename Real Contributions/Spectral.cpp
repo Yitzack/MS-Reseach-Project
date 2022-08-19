@@ -19,10 +19,15 @@ long double Set_Mq(long double, long double, long double);			//Momentum dependen
 long double Set_Lambda(long double, long double, long double, long double, int);//Momentum dependence for the potential cutoff, <number> 0 causes it to be constant
 long double Set_C(long double, long double, long double, long double, long double);//Momentum dependence for the coupling constant, <number> 0 causes it to be constant
 
+Interpolation<long double> ReG;
+Interpolation<long double> ReG_Err;
+Interpolation<long double> ImG;
+Interpolation<long double> ImG_Err;
+
 int main(int argc, char* argv[])
 {
 #ifdef BB	//use option -D BB= to activate bottomium macro
-	char File[70] = "data/ReSpectralbb";  //Name of the file
+	char File[70] = "data/ReSpectralbb";	//Name of the file
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
 	char File[70] = "data/ReSpectralcc";
@@ -175,10 +180,10 @@ bool Restart_Check(char File[70], char* g, char* Lambda, char* Mq, char* P0, cha
 	InFile.close();
 
 	if(abs(g_File/atof(g)-1.) < .0001 &&
-	   abs(Mq_File/atof(Mq)-1.) < .0001 &&
-	   (abs(Lambda_File/atof(Lambda)-1.) < .0001 || Lambda_File-atof(Lambda) < .0001) &&
-	   abs(P0_File/atof(P0)-1.) < .0001 &&
-	   (abs(fraction_File/atof(fraction)-1.) < .0001 || fraction_File-atof(fraction) < .0001))
+		abs(Mq_File/atof(Mq)-1.) < .0001 &&
+		(abs(Lambda_File/atof(Lambda)-1.) < .0001 || Lambda_File-atof(Lambda) < .0001) &&
+		abs(P0_File/atof(P0)-1.) < .0001 &&
+		(abs(fraction_File/atof(fraction)-1.) < .0001 || fraction_File-atof(fraction) < .0001))
 		return(false);
 
 	InFile.close();

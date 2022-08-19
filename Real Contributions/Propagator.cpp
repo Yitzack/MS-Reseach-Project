@@ -30,16 +30,6 @@ int main(int argc, char* argv[])
 	char File[70] = "data/ReSpectralcc";
 #endif
 
-#if VERSION == EXP	//use option -D VERSION={Exp,22,24,42} to select one of the potentials
-	strcat(File,"Exp.");
-#elif VERSION == 22
-	strcat(File,"22.");
-#elif VERSION == 24
-	strcat(File,"24.");
-#elif VERSION == 42
-	strcat(File,"42.");
-#endif
-
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
 	strcat(File, "Half.");
 #endif
@@ -184,7 +174,7 @@ long double ImG12(long double M, long double s, long double P, long double k, lo
 
 long double k_i(int i, long double x1, long double x2, long double x3)
 {
-	if(isnan(x2))
+	if(isnan(x2) || x2 < .5)
 	{
 		return(.1*i);
 	}
@@ -194,10 +184,9 @@ long double k_i(int i, long double x1, long double x2, long double x3)
 		long double b = (-6.*x2+x3)/(600.*(x2-x3));
 		return(a*i/(1.+b*i));
 	}
-	long double a = (3.*x1*x2*x3)/(140.*(x1*(x2-6.*x3)+5.*x2*x3));
-	long double b = -((3.*(7.*x1*x2-32.*x1*x3+15.*x2*x3))/(1400.*(x1*(x2-6.*x3)+5.*x2*x3)));
-	long double c = (7.*x1*x2-12.*x1*x3+5.*x2*x3)/(140000.*(x1*(x2-6.*x3)+5.*x2*x3));
-	return(a*i/(1.+b*i+c*pow(i,2)));
+	long double a = -x1*x3/(120.*(x1-x3));
+	long double b = (-6.*x1+x3)/(600.*(x1-x3));
+	return(a*i/(1.+b*i));
 }
 
 int Start_Point(int Start, char File[70])	//Go through and find largest starting point in file and return it, causes it to repeat last line
