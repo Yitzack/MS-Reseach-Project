@@ -4,7 +4,13 @@
 #include<fstream>
 #include<cstring>
 #include<chrono>
-#include"Spectral.h"
+#include"Around.h"
+//#include"Spectral.h"
+#include"Spectral adaptive.h"
+//#include"Spectral dk0 ds.h"
+//#include"Spectral dk0 ds adaptive.h"
+//#include"Spectral f(k0 onshell) dk0 ds.h"
+//#include"Spectral f(k0 onshell) dk0 ds adaptive.h"
 using namespace std;
 
 int Start_Point(int, char[70]);						//Find highest line calculated and returns it, as written causes last line to be recalculated
@@ -64,7 +70,7 @@ int main(int argc, char* argv[])
 	const int Total = atoi(argv[2]);			//Number of concurent threads
 	const int Temp = atoi(argv[3]);			//Temprature enumeration
 	long double Par[5];					//Parameters to be used in calculation {Coupling constant, potential cutoff, quark mass, P, s}
-	Elements holder;					//Calculated value before distribution to Table
+	Elements<Around> holder;					//Calculated value before distribution to Table
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = Start; i <= Finish; i++)
@@ -130,20 +136,20 @@ int main(int argc, char* argv[])
 int Start_Point(int Start, char File[70])	//Go through and find largest starting point in file and return it, causes it to repeat last line
 {
 	ifstream TPlot(File);
-	char Line[200];
+	char Line[400];
 	int Test;
 
-	TPlot.getline(Line, 200);
+	TPlot.getline(Line, 400);
 	if(!TPlot.is_open())
 		return(Start);
 
-	TPlot.getline(Line, 200);
+	TPlot.getline(Line, 400);
 	while(!TPlot.eof())
 	{
 		Test = atoi(Line);
 		if(Test > Start)
 			Start = Test;
-		TPlot.getline(Line,200);
+		TPlot.getline(Line,400);
 	}
 
 	return(Start);

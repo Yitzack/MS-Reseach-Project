@@ -41,10 +41,10 @@ Interpolation<T>::Interpolation(T** Control, int xSize, int ySize)	//I really wa
 template <class T>
 T Interpolation<T>::operator()(long double x, long double y)
 {
-	int Basisi[4] = {4,4,4,4}; //Basis Functions in the i direction
-	int Basisj[4] = {4,4,4,4}; //Basis Functions in the i direction
-	long double zx[4][4], zy[4][4];					 //z from the x direction and y direction
-	int offset_i = -1, offset_j = -1;					 //Index offsets in calling up control points, normally -1, but can be 0 or -2 on the ends
+	int Basisi[4] = {4,4,4,4};		//Basis Functions in the i direction
+	int Basisj[4] = {4,4,4,4};		//Basis Functions in the j direction
+	long double zx[4][4], zy[4][4];	//z from the x direction and y direction
+	int offset_i = -1, offset_j = -1;	//Index offsets in calling up control points, normally -1, but can be other values on the ends
 	T Answer = T(0);
 
 	if(x < 2)	//Reassign the function pointers for the x/i direction

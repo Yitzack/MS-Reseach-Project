@@ -33,7 +33,8 @@ class Around
 		bool operator>(long double);
 		bool isnan();				//Is either part of Around() nan?
 		long double Value();			//Return value
-		long double Error();			//Return error estimate
+		long double Error();			//Return error estimate aka absolute error
+		long double RelErr();			//Return the relative error (error/value)
 		friend ostream& operator<<(ostream&, const Around&);	//Write Around to stream conformal to Mathematica standard
 	private:
 		long double value;
@@ -245,9 +246,15 @@ long double Around::Error()
 	return(error);
 }
 
+long double Around::RelErr()
+{
+	return(std::abs(error/value));
+}
+
 ostream& operator<<(ostream& os, const Around& A)
 {
-	os << "Around[" << A.value << "," << A.error << "]" << flush;
+	//os << "Around[" << A.value << "," << A.error << "]" << flush;
+	os << A.value << "," << A.error << flush;
 	return(os);
 }
 
