@@ -1,5 +1,5 @@
 long double i_k(long double, long double, long double, long double);			//Conversion from k to i counter that may be needed with the interpolation.
-long double i_k(long double, long double, long double, long double, long double);	//Interpolation doesn't need it to be an interpolation->not methods of the class.
+long double i_k(long double, long double, long double, long double, long double);	//Interpolation doesn't need it to be an interpolation, therefor their not methods of the class.
 
 template <class T>
 class Interpolation
@@ -261,8 +261,7 @@ long double i_k(long double k, long double s, long double P, long double theta)
 
 long double i_k(long double k, long double s, long double P, long double theta, long double M)
 {
-	photon = sqrt((s*(pow(P,2)+s))/(s+pow(P*sin(theta),2)));
-	on_shell = sqrt(((s-4.*pow(M,2))*(pow(P,2)+s))/(s+pow(P*sin(theta),2)));
-	return((-50.*(100.*photon-120.*on_shell-photon*on_shell+pow(photon,2))*((-6.*photon*on_shell*(50.+photon/2.))/(100.*photon-120.*on_shell-photon*on_shell+pow(photon,2))-(3.*k*(300.*photon-640.*on_shell-5.*photon*on_shell+(3.*pow(P,2)*s)/(s+pow(P,2)*pow(sin(theta),2))+(3.*pow(s,2))/(s+pow(P,2)*pow(sin(theta),2))))/(100.*photon-120.*on_shell-photon*on_shell+pow(photon,2))+(2.*sqrt((-350.*pow(k,2)*(100.*photon-240.*on_shell-photon*on_shell+(pow(P,2)*s)/(s+pow(P,2)*pow(sin(theta),2))+pow(s,2)/(s+pow(P,2)*pow(sin(theta),2)))*(100.*photon-120.*on_shell-photon*on_shell+pow(photon,2))+(225.*pow(300.*k*photon-640.*k*on_shell+100.*photon*on_shell-5.*k*photon*on_shell+(s*pow(on_shell,3))/(-4.*pow(M,2)+s)+(3.*k*s*(pow(P,2)+s))/(s+pow(P,2)*pow(sin(theta),2)),2))/4.)/pow(100.*photon-120.*on_shell-photon*on_shell+pow(photon,2),2)))/5.))/(k*(100.*photon-240.*on_shell-photon*on_shell+(pow(P,2)*s)/(s+pow(P,2)*pow(sin(theta),2))+pow(s,2)/(s+pow(P,2)*pow(sin(theta),2)))));
+	long double on_shell = sqrt((s-pow(2.*M,2))*(s+pow(P,2))/(s+pow(P*sin(theta),2)));
+	long double photon = sqrt(s*(s+pow(P,2))/(s+pow(P*sin(theta),2)));
+	return(1200.*k*(100.-on_shell+photon)/(200.*k+2.*k*photon+500.*on_shell-12.*k*on_shell+5.*on_shell*photon));
 }
-

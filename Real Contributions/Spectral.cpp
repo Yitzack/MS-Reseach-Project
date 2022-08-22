@@ -193,7 +193,7 @@ bool Restart_Check(char File[70], char* g, char* Lambda, char* Mq, char* P0, cha
 long double Set_Mq(long double Mq0, long double P, long double P0)
 {
 #ifndef BB
-	long double Mqf = 1.8;
+	long double Mqf = 1.9;
 #else
 	long double Mqf = 5.25;
 #endif

@@ -103,9 +103,9 @@ void mergeSort(long double List[], int a, int b)
 
 Elements<Around> theta_Int(long double Par[], int Temp)
 {
-cout << "f(k0=(w_+-w_-)/2.) ds' dk0 adaptive" << endl;
-cout << setprecision(18);
-cerr << setprecision(18);
+//cout << "f(k0=(w_+-w_-)/2.) ds' dk0 adaptive" << endl;
+//cout << setprecision(18);
+//cerr << setprecision(18);
 	if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
 		return(k_Int(Par, Temp, 0)/pow(2.*M_PI, 2)*2.);
 //23th order Gauss-Legendre/37th order Gauss-Kronrod integration
@@ -358,6 +358,8 @@ Holder = (Elements<Around>(Potential1(Par, k01, x1), Interacting_Linear_Trace(Pa
 
 Around Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta)
 {
+//cout << setprecision(18);
+//cerr << setprecision(18);
 	long double a, b;	//Sub-interval limits of integration
 	long double Min;	//Lower limit of integration
 	long double Max = 0;	//Upper limit of principal value integration
@@ -408,7 +410,7 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 	mergeSort(Stops, 0, l+7);
 	Stops[l+8] = Stops[l+7]+100;	//Adds the minimum end point to keep the integration going
 
-	Min = a = b = (-pow(Par[3], 2)>4.*pow(k, 2)-20.)?-pow(Par[3], 2):4.*pow(k, 2)-20.;	//Start from s'=-P^2
+	Min = a = b = -pow(Par[3], 2);	//Start from s'=-P^2
 	if(abs(Min-Par[4])<.1 && Min-.1 > -pow(Par[3], 2))
 	{
 		Min -= .1;
@@ -501,18 +503,18 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 		{
 			ParLoc[4] = (b+a-Disp9[l]*(b-a))/2.;
 			Holder = k0_Int(ParLoc, Temp, k, theta);
-//cout << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12*Principal << ", " << (Holder-ImG12*Principal)/(ParLoc[4]-Par[4]) << endl;
+//cerr << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12 << ", " << (Holder-ImG12)/(ParLoc[4]-Par[4]) << endl;
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w9[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w16[l+1];
 			ParLoc[4] = (b+a+Disp9[l]*(b-a))/2.;
 			Holder = k0_Int(ParLoc, Temp, k, theta);
-//cout << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12*Principal << ", " << (Holder-ImG12*Principal)/(ParLoc[4]-Par[4]) << endl;
+//cerr << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12 << ", " << (Holder-ImG12)/(ParLoc[4]-Par[4]) << endl;
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w9[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w16[l+1];
 		}
 		ParLoc[4] = (b+a)/2.;
 		Holder = k0_Int(ParLoc, Temp, k, theta);
-//cout << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12*Principal << ", " << (Holder-ImG12*Principal)/(ParLoc[4]-Par[4]) << endl;
+//cerr << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12 << ", " << (Holder-ImG12)/(ParLoc[4]-Par[4]) << endl;
 		F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w9[0];
 		F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w16[0];
 		break;
@@ -521,18 +523,18 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 		{
 			ParLoc[4] = (b+a-Disp97[l]*(b-a))/2.;
 			Holder = k0_Int(ParLoc, Temp, k, theta);
-//cout << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12*Principal << ", " << (Holder-ImG12*Principal)/(ParLoc[4]-Par[4]) << endl;
+//cerr << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12 << ", " << (Holder-ImG12)/(ParLoc[4]-Par[4]) << endl;
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w63[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w97[l+1];
 			ParLoc[4] = (b+a+Disp97[l]*(b-a))/2.;
 			Holder = k0_Int(ParLoc, Temp, k, theta);
-//cout << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12*Principal << ", " << (Holder-ImG12*Principal)/(ParLoc[4]-Par[4]) << endl;
+//cerr << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12 << ", " << (Holder-ImG12)/(ParLoc[4]-Par[4]) << endl;
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w63[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w97[l+1];
 		}
 		ParLoc[4] = (b+a)/2.;
 		Holder = k0_Int(ParLoc, Temp, k, theta);
-//cout << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12*Principal << ", " << (Holder-ImG12*Principal)/(ParLoc[4]-Par[4]) << endl;
+//cerr << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12 << ", " << (Holder-ImG12)/(ParLoc[4]-Par[4]) << endl;
 		F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w63[0];
 		F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w97[0];
 		break;
