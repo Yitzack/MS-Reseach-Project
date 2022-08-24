@@ -3,6 +3,7 @@
 #include<cstdlib>
 #include<cfloat>
 #include<complex>
+#include"Interpolation.h"
 #include"Around.h"
 #include"Elements.h"
 using namespace std;
@@ -55,6 +56,8 @@ long double Imk0_Integrand(long double[], long double, long double, long double,
 
 auto Start_Time = chrono::system_clock::now();
 int Allotment = 90;
+Interpolation<long double> ReG;
+Interpolation<long double> ReG_Err;
 
 //Merge Sort. There are a number of semi-sorted lists that need sorting. This will probably beat quick sort under similar conditions. Don't worry about the second element. It doesn't need sorting as either they don't matter or they will be assigned after sorting.
 void mergeSort(long double List[], int a, int b)
@@ -109,7 +112,7 @@ Elements<Around> theta_Int(long double Par[], int Temp)
 	if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
 		return(k_Int(Par, Temp, 0)/pow(2.*M_PI, 2)*2.);
 //23th order Gauss-Legendre/37th order Gauss-Kronrod integration
-	long double Disp[] = {0.1252334085114689154724414, 0.2485057483204692762677910, 0.3678314989981801937526915, 0.4813394504781570929359436, 0.5873179542866174472967024, 0.6840598954700558939449291, 0.7699026741943046870368938, 0.8435581241611532447921419, 0.9041172563704748566784659, 0.9505377959431212965490602, 0.9815606342467192506905491, 0.9969339225295954269123502};	//Displacement from center
+	long double Disp37[] = {0.1252334085114689154724414, 0.2485057483204692762677910, 0.3678314989981801937526915, 0.4813394504781570929359436, 0.5873179542866174472967024, 0.6840598954700558939449291, 0.7699026741943046870368938, 0.8435581241611532447921419, 0.9041172563704748566784659, 0.9505377959431212965490602, 0.9815606342467192506905491, 0.9969339225295954269123502};	//Displacement from center
 	long double w23[] = {0, 0.2491470458134027850005624, 0, 0.2334925365383548087608499, 0, 0.2031674267230659217490645, 0, 0.1600783285433462263346525, 0, 0.10693932599531843096025472, 0, 0.04717533638651182719461596, 0};	//23rd order Gauss-Legendre weight
 	long double w37[] =  {0.12555689390547433530429613, 0.1245841645361560734373125, 0.12162630352394838324609976, 0.1167120535017568262935807, 0.11002260497764407263590740, 0.10164973227906027771568877, 0.091549468295049210528171940, 0.07992027533360170149339261, 0.067250907050839930304940940, 0.05369701760775625122888916, 0.038915230469299477115089632, 0.02303608403898223259108458, 0.0082577114331683957576939224};	//37th order Gauss-Kronrod weight
 //63rd order Gauss-Legendre/97th order Gauss-Kronrod integration
@@ -119,8 +122,9 @@ Elements<Around> theta_Int(long double Par[], int Temp)
 	long double x1, x2;					//Abscissa
 	long double a = 0, b;					//Sub-interval limits of integration
 	long double Boundary_theta[] = {1./17., 0.3, 0.08};	//Extra boundary values
-	Elements<Around> F[2];						//Sum of ordinate*weights
-	Elements<Around> Answer(0, 0, 0, 0);				//Answer to be returned
+	Elements<Around> F[2];					//Sum of ordinate*weights
+	Elements<Around> Answer(0, 0, 0, 0);			//Answer to be returned
+	Elements<Around> Holder;
 	int i, j;						//Counters
 
 	if(Par[4] > 0 && Par[3] > sqrt(Par[4]/2.)) //Where the maximum of the theta integral ought to land. It might only be correct for BbS reduction, but is close enough for all other cases. Only valid for s>0 and P>sqrt(s/2)
@@ -156,20 +160,26 @@ Elements<Around> theta_Int(long double Par[], int Temp)
 		F[1].null();	//Zero out F for a new round
 
 		//Count through points away from center
-		for(j = 0; j < 32; j+=2)//for(j = 0; j < 12; j++)
+		for(j = 0; j < 12; j++)//for(j = 0; j < 32; j+=2)//
 		{
-			x1 = (b+a-Disp97[j]*(b-a))/2.;
-			x2 = (b+a+Disp97[j]*(b-a))/2.;
+			x1 = (b+a-Disp37[j]*(b-a))/2.;
+			x2 = (b+a+Disp37[j]*(b-a))/2.;
 
-			F[0] += k_Int(Par, Temp, x1)*sin(x1)*w63[j+1];
-			//F[1] += k_Int(Par, Temp, x1)*sin(x1)*w97[j+1];
-			F[0] += k_Int(Par, Temp, x2)*sin(x2)*w63[j+1];
-			//F[1] += k_Int(Par, Temp, x2)*sin(x2)*w97[j+1];
+			Holder = k_Int(Par, Temp, x1)*sin(x1);
+			F[0] += Holder*w23[j+1];
+			F[1] += Holder*w37[j+1];
+//cout << Par[3] << "," << Par[4] << "," << x1 << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << endl;
+			Holder = k_Int(Par, Temp, x2)*sin(x2);
+			F[0] += Holder*w23[j+1];
+			F[1] += Holder*w37[j+1];
+//cout << Par[3] << "," << Par[4] << "," << x2 << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << endl;
 		}
-		F[0] += k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.)*w63[0];
-		//F[1] += k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.)*w97[0];
+		Holder = k_Int(Par, Temp, (a+b)/2.)*sin((a+b)/2.);
+		F[0] += Holder*w23[0];
+		F[1] += Holder*w37[0];
+//cout << Par[3] << "," << Par[4] << "," << (a+b)/2. << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << endl;
 
-		Answer += F[0]*(b-a)/2.;//Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])))*(b-a)/2.;	//Add the subinterval to total of the integral
+		Answer += Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])))*(b-a)/2.;//F[0]*(b-a)/2.;//	//Add the subinterval to total of the integral
 
 		a = b;	//Upper edge becomes lower edge
 	}
@@ -181,7 +191,6 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 {
 	long double a, b;	//Sub-interval limits of integration
 
-	Elements<Around> F[2];			//Sum of ordinates*weights
 	Elements<Around> Answer(0, 0, 0, 0);	//Answer to be returned
 	Elements<Around> Partial;		//Answer for sub-interval for determining completeness
 
@@ -213,11 +222,11 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 	Stops[l+7] = .5*abs(Par[3]*cos(theta)-sqrt(Par[4]+pow(Par[3]*cos(theta), 2)));
 	Stops[l+8] = .5*abs(Par[3]*cos(theta)+sqrt(3.*pow(Par[3], 2)+4.*Par[4]+pow(Par[3]*cos(theta), 2)));
 	Stops[l+9] = .5*abs(Par[3]*cos(theta)-sqrt(3.*pow(Par[3], 2)+4.*Par[4]+pow(Par[3]*cos(theta), 2)));
-	Stops[l+10] = .5*sqrt((Par[4]+pow(Par[3], 2))*(Par[4]-pow(2.*Par[2], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)))+2.*GAMMA;
+	Stops[l+10] = .5*sqrt((Par[4]+pow(Par[3], 2))*(Par[4]-pow(2.*Par[2], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)))+5.*GAMMA;
 
 	for(i = 1; i <= 10; i++)
 	{
-		Stops[i+l+10] = Stops[l+10]-2.*i*GAMMA;
+		Stops[i+l+10] = Stops[l+10]-i*GAMMA;
 	}
 
 	for(i = 0; i < l+21; i++)	//Removes stops that are NaN or bigger than necessary
@@ -270,13 +279,11 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 		else
 			b += 3;
 
-		F[0].null();	//Zero out F for next subinterval
-		F[1].null();
-
-		if(b-a < 1)	//use a higher order when the interval is large
+		Partial = k_Int(Par, Temp, theta, a, b, 37, 0);
+		/*if(false)//b-a < 1)	//use a higher order when the interval is large
 			Partial = k_Int(Par, Temp, theta, a, b, 37, 0);
 		else
-			Partial = k_Int(Par, Temp, theta, a, b, 97, 0);
+			Partial = k_Int(Par, Temp, theta, a, b, 97, 0);*/
 
 		Answer += Partial;	//Add the subinterval to total of the integral
 	}while(!(Partial[0] == 0) && (i < Intervals || abs(Partial/Answer)/(b-a) >= .0001) && (a <= Max || a <= 20.*sqrt(Par[4]+pow(Par[3], 2)))); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
@@ -286,6 +293,11 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 
 Elements<Around> k_Int(long double Par[], int Temp, long double theta, long double a, long double b, int order, int deep)
 {
+	/*if((abs(a-.5*sqrt(Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)))) < 1 || abs(b-.5*sqrt(Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)))) < 1.5) && deep < 6)
+		return(k_Int(Par, Temp, theta, a, (a+b)/2., 97, deep+1) + k_Int(Par, Temp, theta, (a+b)/2., b, 97, deep+1));*/
+	long double Disp16[] = {0.2796304131617831934134665, sqrt(5.-2.*sqrt(10./7.))/3., 0.7541667265708492204408172, sqrt(5.+2.*sqrt(10./7.))/3., 0.9840853600948424644961729};	//Displacement from center
+	long double w9[] = {128./225., 0., (322.+13.*sqrt(70.))/900., 0., (322.-13.*sqrt(70.))/900., 0.};	//9th order Gauss-Legendre weights
+	long double w16[]= {0.2829874178574912132042556, 0.27284980191255892234099326, 0.2410403392286475866999426, 0.18680079655649265746780003, 0.11523331662247339402462685, 0.042582036751081832864509451}; //16th order Gauss-Kronrod weights
 //23th order Gauss-Legendre/37th order Gauss-Kronrod integration
 	long double Disp37[] = {0.1252334085114689154724414, 0.2485057483204692762677910, 0.3678314989981801937526915, 0.4813394504781570929359436, 0.5873179542866174472967024, 0.6840598954700558939449291, 0.7699026741943046870368938, 0.8435581241611532447921419, 0.9041172563704748566784659, 0.9505377959431212965490602, 0.9815606342467192506905491, 0.9969339225295954269123502};	//Displacement from center
 	long double w23[] = {0, 0.2491470458134027850005624, 0, 0.2334925365383548087608499, 0, 0.2031674267230659217490645, 0, 0.1600783285433462263346525, 0, 0.10693932599531843096025472, 0, 0.04717533638651182719461596, 0};	//23rd order Gauss-Legendre weight
@@ -303,8 +315,33 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 
 	switch(order)
 	{
+	case 16:
+		for(int l = 0; l < 5; l++)//for(int l = 0; l < 12; l+=2)// //Count through points away from center
+		{
+			x1 = (b+a-Disp16[l]*(b-a))/2.;
+			x2 = (b+a+Disp16[l]*(b-a))/2.;
+
+			k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
+			k02 = (Energy(0, Par[3]/2., x2, theta)-Energy(0, Par[3]/2., -x2, theta))/2.;
+
+			Holder = (Elements<Around>(Potential1(Par, k01, x1), Interacting_Linear_Trace(Par)*Potential1(Par, k01, x1), Interacting_Quad_Trace(Par, k01, x1)*Potential1(Par, k01, x1), Potential2(Par, k01, x1)))*Around(ReG(i_k_wrap(x1, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(x1, Par, theta), theta*200./M_PI));//Dispersion(Par, Temp, k01, x1, theta);
+//cout << Par[3] << "," << Par[4] << "," << x1 << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << Around(ReG(i_k_wrap(x1, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(x1, Par, theta), theta*200./M_PI)) << endl;
+			F[0] += Holder*pow(x1, 2)*w9[l+1];
+			F[1] += Holder*pow(x1, 2)*w16[l+1];
+			Holder = (Elements<Around>(Potential1(Par, k02, x2), Interacting_Linear_Trace(Par)*Potential1(Par, k02, x2), Interacting_Quad_Trace(Par, k02, x2)*Potential1(Par, k02, x2), Potential2(Par, k02, x2)))*Around(ReG(i_k_wrap(x2, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(x2, Par, theta), theta*200./M_PI));//Dispersion(Par, Temp, k01, x2, theta);
+//cout << Par[3] << "," << Par[4] << "," << x2 << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << Around(ReG(i_k_wrap(x2, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(x2, Par, theta), theta*200./M_PI)) << endl;
+			F[0] += Holder*pow(x2, 2)*w9[l+1];
+			F[1] += Holder*pow(x2, 2)*w16[l+1];
+		}
+		x1 = (a+b)/2.;
+		k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
+		Holder = (Elements<Around>(Potential1(Par, k01, x1), Interacting_Linear_Trace(Par)*Potential1(Par, k01, x1), Interacting_Quad_Trace(Par, k01, x1)*Potential1(Par, k01, x1), Potential2(Par, k01, x1)))*Around(ReG(i_k_wrap((a+b)/2., Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap((a+b)/2., Par, theta), theta*200./M_PI));//Dispersion(Par, Temp, k01, (a+b)/2., theta);
+//cout << Par[3] << "," << Par[4] << "," << (a+b)/2. << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << Around(ReG(i_k_wrap((a+b)/2., Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap((a+b)/2., Par, theta), theta*200./M_PI)) << endl;
+		F[0] += Holder*pow((a+b)/2., 2)*w9[0];
+		F[1] += Holder*pow((a+b)/2., 2)*w16[0];
+		break;
 	case 37:
-		for(int l = 0; l < 12; l+=2)//for(int l = 0; l < 12; l++)// //Count through points away from center
+		for(int l = 0; l < 12; l++)//for(int l = 0; l < 12; l+=2)// //Count through points away from center
 		{
 			x1 = (b+a-Disp37[l]*(b-a))/2.;
 			x2 = (b+a+Disp37[l]*(b-a))/2.;
@@ -312,21 +349,24 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 			k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
 			k02 = (Energy(0, Par[3]/2., x2, theta)-Energy(0, Par[3]/2., -x2, theta))/2.;
 
-			Holder = (Elements<Around>(Potential1(Par, k01, x1), Interacting_Linear_Trace(Par)*Potential1(Par, k01, x1), Interacting_Quad_Trace(Par, k01, x1)*Potential1(Par, k01, x1), Potential2(Par, k01, x1)))*Dispersion(Par, Temp, k01, x1, theta);
+			Holder = (Elements<Around>(Potential1(Par, k01, x1), Interacting_Linear_Trace(Par)*Potential1(Par, k01, x1), Interacting_Quad_Trace(Par, k01, x1)*Potential1(Par, k01, x1), Potential2(Par, k01, x1)))*Around(ReG(i_k_wrap(x1, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(x1, Par, theta), theta*200./M_PI));//Dispersion(Par, Temp, k01, x1, theta);
+//cout << Par[3] << "," << Par[4] << "," << x1 << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << Around(ReG(i_k_wrap(x1, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(x1, Par, theta), theta*200./M_PI)) << endl;
 			F[0] += Holder*pow(x1, 2)*w23[l+1];
-			//F[1] += Holder*pow(x1, 2)*w37[l+1];
-			Holder = (Elements<Around>(Potential1(Par, k02, x2), Interacting_Linear_Trace(Par)*Potential1(Par, k02, x2), Interacting_Quad_Trace(Par, k02, x2)*Potential1(Par, k02, x2), Potential2(Par, k02, x2)))*Dispersion(Par, Temp, k02, x2, theta);
+			F[1] += Holder*pow(x1, 2)*w37[l+1];
+			Holder = (Elements<Around>(Potential1(Par, k02, x2), Interacting_Linear_Trace(Par)*Potential1(Par, k02, x2), Interacting_Quad_Trace(Par, k02, x2)*Potential1(Par, k02, x2), Potential2(Par, k02, x2)))*Around(ReG(i_k_wrap(x2, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(x2, Par, theta), theta*200./M_PI));//Dispersion(Par, Temp, k01, x2, theta);
+//cout << Par[3] << "," << Par[4] << "," << x2 << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << Around(ReG(i_k_wrap(x2, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(x2, Par, theta), theta*200./M_PI)) << endl;
 			F[0] += Holder*pow(x2, 2)*w23[l+1];
-			//F[1] += Holder*pow(x2, 2)*w37[l+1];
+			F[1] += Holder*pow(x2, 2)*w37[l+1];
 		}
 		x1 = (a+b)/2.;
 		k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
-Holder = (Elements<Around>(Potential1(Par, k01, x1), Interacting_Linear_Trace(Par)*Potential1(Par, k01, x1), Interacting_Quad_Trace(Par, k01, x1)*Potential1(Par, k01, x1), Potential2(Par, k01, x1)))*Dispersion(Par, Temp, k01, x1, theta);
+		Holder = (Elements<Around>(Potential1(Par, k01, x1), Interacting_Linear_Trace(Par)*Potential1(Par, k01, x1), Interacting_Quad_Trace(Par, k01, x1)*Potential1(Par, k01, x1), Potential2(Par, k01, x1)))*Around(ReG(i_k_wrap((a+b)/2., Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap((a+b)/2., Par, theta), theta*200./M_PI));//Dispersion(Par, Temp, k01, (a+b)/2., theta);
+//cout << Par[3] << "," << Par[4] << "," << (a+b)/2. << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << Around(ReG(i_k_wrap((a+b)/2., Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap((a+b)/2., Par, theta), theta*200./M_PI)) << endl;
 		F[0] += Holder*pow((a+b)/2., 2)*w23[0];
-		//F[1] += Holder*pow((a+b)/2., 2)*w37[0];
+		F[1] += Holder*pow((a+b)/2., 2)*w37[0];
 		break;
 	case 97:
-		for(int l = 0; l < 32; l+=2)//for(int l = 0; l < 32; l++)// //Count through points away from center
+		for(int l = 0; l < 32; l++)//for(int l = 0; l < 32; l+=2)// //Count through points away from center
 		{
 			x1 = (b+a-Disp97[l]*(b-a))/2.;
 			x2 = (b+a+Disp97[l]*(b-a))/2.;
@@ -334,23 +374,26 @@ Holder = (Elements<Around>(Potential1(Par, k01, x1), Interacting_Linear_Trace(Pa
 			k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
 			k02 = (Energy(0, Par[3]/2., x2, theta)-Energy(0, Par[3]/2., -x2, theta))/2.;
 
-			Holder = (Elements<Around>(Potential1(Par, k01, x1), Interacting_Linear_Trace(Par)*Potential1(Par, k01, x1), Interacting_Quad_Trace(Par, k01, x1)*Potential1(Par, k01, x1), Potential2(Par, k01, x1)))*Dispersion(Par, Temp, k01, x1, theta);
+			Holder = (Elements<Around>(Potential1(Par, k01, x1), Interacting_Linear_Trace(Par)*Potential1(Par, k01, x1), Interacting_Quad_Trace(Par, k01, x1)*Potential1(Par, k01, x1), Potential2(Par, k01, x1)))*Around(ReG(i_k_wrap(x1, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(x1, Par, theta), theta*200./M_PI));//Dispersion(Par, Temp, k01, x1, theta);
+//cout << Par[3] << "," << Par[4] << "," << x1 << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << Around(ReG(i_k_wrap(x1, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(x1, Par, theta), theta*200./M_PI)) << endl;
 			F[0] += Holder*pow(x1, 2)*w63[l+1];
-			//F[1] += Holder*pow(x1, 2)*w97[l+1];
-			Holder = (Elements<Around>(Potential1(Par, k02, x2), Interacting_Linear_Trace(Par)*Potential1(Par, k02, x2), Interacting_Quad_Trace(Par, k02, x2)*Potential1(Par, k02, x2), Potential2(Par, k02, x2)))*Dispersion(Par, Temp, k02, x2, theta);
+			F[1] += Holder*pow(x1, 2)*w97[l+1];
+			Holder = (Elements<Around>(Potential1(Par, k02, x2), Interacting_Linear_Trace(Par)*Potential1(Par, k02, x2), Interacting_Quad_Trace(Par, k02, x2)*Potential1(Par, k02, x2), Potential2(Par, k02, x2)))*Around(ReG(i_k_wrap(x2, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(x2, Par, theta), theta*200./M_PI));//Dispersion(Par, Temp, k01, x2, theta);
+//cout << Par[3] << "," << Par[4] << "," << x2 << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << Around(ReG(i_k_wrap(x2, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(x2, Par, theta), theta*200./M_PI)) << endl;
 			F[0] += Holder*pow(x2, 2)*w63[l+1];
-			//F[1] += Holder*pow(x2, 2)*w97[l+1];
+			F[1] += Holder*pow(x2, 2)*w97[l+1];
 		}
 		x1 = (a+b)/2.;
 		k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
-		Holder = (Elements<Around>(Potential1(Par, k01, x1), Interacting_Linear_Trace(Par)*Potential1(Par, k01, x1), Interacting_Quad_Trace(Par, k01, x1)*Potential1(Par, k01, x1), Potential2(Par, k01, x1)))*Dispersion(Par, Temp, k01, x1, theta);
+		Holder = (Elements<Around>(Potential1(Par, k01, x1), Interacting_Linear_Trace(Par)*Potential1(Par, k01, x1), Interacting_Quad_Trace(Par, k01, x1)*Potential1(Par, k01, x1), Potential2(Par, k01, x1)))*Around(ReG(i_k_wrap((a+b)/2., Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap((a+b)/2., Par, theta), theta*200./M_PI));//Dispersion(Par, Temp, k01, (a+b)/2., theta);
+//cout << Par[3] << "," << Par[4] << "," << (a+b)/2. << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << Around(ReG(i_k_wrap((a+b)/2., Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap((a+b)/2., Par, theta), theta*200./M_PI)) << endl;
 		F[0] += Holder*pow((a+b)/2., 2)*w63[0];
-		//F[1] += Holder*pow((a+b)/2., 2)*w97[0];
+		F[1] += Holder*pow((a+b)/2., 2)*w97[0];
 		break;
 	}
 
-	Answer = F[0]*(b-a)/2.;//Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])))*(b-a)/2.;//	//Record the subinterval to total of the integral
-	/*if((Answer[0].RelErr() > 1e-4 || Answer[0].RelErr() > 1e-4 || Answer[0].RelErr() > 1e-4 || Answer[0].RelErr() > 1e-4) && deep < 4 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
+	Answer = Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])))*(b-a)/2.;//F[0]*(b-a)/2.;//	//Record the subinterval to total of the integral
+	if((Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9) && deep < 10 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
 		Answer = k_Int(Par, Temp, theta, a, (a+b)/2., order, deep+1) + k_Int(Par, Temp, theta, (a+b)/2., b, order, deep+1);//*/
 
 	return(Answer);
@@ -371,7 +414,8 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 	long double ParLoc[5] = {Par[0], Par[1], Par[2], Par[3], Par[4]};	//Local copy of the parameters as Par[4] corrisponds to s and ParLoc[4] is s'
 
 	Around Answer(0, 0);	//Results to be returned
-	Around Partial;		//Partial results to examine convergance
+	Around Partial;	//Partial results to examine convergance
+	Around Holder;
 
 	long double zero[5];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[5];	//Imaginary part of poles
@@ -422,9 +466,18 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 		if(abs(b/Par[4]-(long double)(1.)) < FLT_EPSILON)
 			Stops[i] = Par[4];
 
-	i = 0;
-	while(Stops[i] < Min+3)	//Remove any stops below the minimum of the limit of integration. Faster to illiminate here than by popping
+	for(i = 0; Stops[i] < Min+3 || Holder == Around(0); i++)	//Remove any stops below the minimum of the limit of integration. Faster to illiminate here than by popping
+	{
 		i++;
+		ParLoc[4] = Stops[i];
+		Holder = k0_Int(ParLoc, Temp, k, theta);
+		if(!(Holder == Around(0)))
+		{
+			i--;
+			Min = a = b = Stops[i];
+			break;
+		}
+	}
 
 	Intervals = l+9;
 
@@ -470,7 +523,7 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 			Partial = Dispersion(Par, Temp, k0, k, theta, a, b, ImG12*Principal, 16, 0);
 		Answer += Partial;		//Add the subinterval to the total
 		a = b;
-	}while((a < 700 && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
+	}while((a < 4.*(pow(k, 2)+pow(Par[2], 2))+50. && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
 //cout << Par[3] << ", " << Par[4] << ", " << k << ", " << theta << ", " << ImG12 << ", " << Min << ", " << Max << ", " << log(abs((Max-Par[4])/(Par[4]-Min))) << endl;
 	if(Max == 0)	//Just in case it terminates before getting to s+100
 		Max = a;
