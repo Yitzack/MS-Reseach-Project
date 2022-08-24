@@ -3,6 +3,7 @@
 #include<iomanip>
 #include<fstream>
 #include<cstring>
+#include<string>
 #include<chrono>
 #include"Around.h"
 //#include"Spectral.h"
@@ -13,25 +14,25 @@
 //#include"Spectral f(k0 onshell) dk0 ds adaptive.h"
 using namespace std;
 
-int Start_Point(int, char[70]);						//Find highest line calculated and returns it, as written causes last line to be recalculated
-bool Restart_Check(char[70], char*, char*, char*, char*, char*);		//Checks to see if file header matches input parameters and clears it if not
-long double Set_Mq(long double, long double, long double);			//Momentum dependence for the quark mass, <number> 0 causes it to be constant
-long double Set_Lambda(long double, long double, long double, long double, int);//Momentum dependence for the potential cutoff, <number> 0 causes it to be constant
-long double Set_C(long double, long double, long double, long double, long double);//Momentum dependence for the coupling constant, <number> 0 causes it to be constant
-
-Interpolation<long double> ReG;
-Interpolation<long double> ReG_Err;
-Interpolation<long double> ImG;
-Interpolation<long double> ImG_Err;
+int Start_Point(int, char[70]);							//Find highest line calculated and returns it, as written causes last line to be recalculated
+bool Restart_Check(char[70], char*, char*, char*, char*, char*);			//Checks to see if file header matches input parameters and clears it if not
+long double Set_Mq(long double, long double, long double);				//Momentum dependence for the quark mass, <number> 0 causes it to be constant
+long double Set_Lambda(long double, long double, long double, long double, int);	//Momentum dependence for the potential cutoff, <number> 0 causes it to be constant
+long double Set_C(long double, long double, long double, long double, long double);	//Momentum dependence for the coupling constant, <number> 0 causes it to be constant
+void Load_File(char*);									//Load File from disk to RAM for ReG and ReG_Err
+long double i_k_wrap(long double, long double[], long double);
 
 int main(int argc, char* argv[])
 {
+	char FileApp[70];
 #ifdef BB	//use option -D BB= to activate bottomium macro
 	char File[70] = "data/ReSpectralbb";	//Name of the file
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
 	char File[70] = "data/ReSpectralcc";
 #endif
+	strcpy(FileApp,File);
+	strcat(FileApp,".");
 
 #if VERSION == EXP	//use option -D VERSION={Exp,22,24,42} to select one of the potentials
 	strcat(File,"Exp.");
@@ -45,10 +46,14 @@ int main(int argc, char* argv[])
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
 	strcat(File, "Half.");
+	strcat(FileApp, ".Half.");
 #endif
 
+	char Number_c[5];
+	string Number_s;
 	char* Process = argv[1];
 	strcat(File, argv[3]);	//Appends the temprature to the file name
+	strcat(FileApp, argv[3]);
 	strcat(File, ".");
 	strcat(File, Process);	//Appends the process number to the file name
 
@@ -62,8 +67,9 @@ int main(int argc, char* argv[])
 	}
 	else	//If not starting from the beginning, append
 		TPlot.open(File, ios::app);
+	strcpy(File, FileApp);
 
-	int i,j;					//Counters
+	int i,j,l;					//Counters
 	int Start, Finish;
 	Start = atoi(argv[7]);				//Initial starting point
 	Finish = atoi(argv[8]);			//Finish at the point given
@@ -80,7 +86,7 @@ int main(int argc, char* argv[])
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = Start; i <= Finish; i++)
 	{
-		for(j = iProcess; j < 576; j+=Total)	//Does the subset of j that has been assigned to this process
+		for(j = iProcess+151; j < 576; j+=Total)	//Does the subset of j that has been assigned to this process
 		{
 			if(j <= 150)
 			{
@@ -123,6 +129,22 @@ int main(int argc, char* argv[])
 			Par[0] = -Set_C(atof(argv[4]), Par[3], atof(argv[9]), Par[1], atof(argv[10]));
 			Par[2] = atof(argv[6]);
 
+			strcpy(FileApp, File);
+			strcat(FileApp, ".");
+			Number_s = to_string(i);
+			for(l = 0; l < Number_s.length(); l++)
+				Number_c[l] = Number_s[l];
+			Number_c[l] = '\0';
+			strcat(FileApp, Number_c);
+			strcat(FileApp, ".");
+			Number_s = to_string(j);
+			for(l = 0; l < Number_s.length(); l++)
+				Number_c[l] = Number_s[l];
+			Number_c[l] = '\0';
+			strcat(FileApp, Number_c);
+			strcat(FileApp, ".csv");
+			Load_File(FileApp);
+
 			auto Start_Time = chrono::system_clock::now();
 			try{
 			holder = theta_Int(Par, Temp);
@@ -136,6 +158,40 @@ int main(int argc, char* argv[])
 	}
 
 	return(0);
+}
+
+void Load_File(char* File_Name)
+{
+	int xSize;
+	int ySize;
+	long double Holder[2];
+	char Bin;
+	ifstream File(File_Name);
+
+	File >> xSize;
+	File >> Bin;
+	File >> ySize;
+
+	long double** Control = new long double*[xSize];
+	long double** Control_Err = new long double*[xSize];
+
+	for(int i = 0; i < xSize; i++)
+	{
+		Control[i] = new long double[ySize];
+		Control_Err[i] = new long double[ySize];
+
+		for(int j = 0; j < ySize; j++)
+		{
+			File >> Holder[0] >> Bin >> Holder[1];
+			Control[i][j] = Holder[0];
+			Control_Err[i][j] = Holder[1];
+		}
+	}
+
+	ReG = Interpolation<long double>(Control, xSize, ySize);
+	ReG_Err = Interpolation<long double>(Control_Err, xSize, ySize);
+
+	return;
 }
 
 int Start_Point(int Start, char File[70])	//Go through and find largest starting point in file and return it, causes it to repeat last line

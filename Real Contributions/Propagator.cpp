@@ -24,10 +24,10 @@ void Loop_Out(long double[], int, char[]);
 int main(int argc, char* argv[])
 {
 #ifdef BB	//use option -D BB= to activate bottomium macro
-	char File[70] = "data/ReSpectralbb";  //Name of the file
+	char File[70] = "data/ReSpectralbb.";  //Name of the file
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
-	char File[70] = "data/ReSpectralcc";
+	char File[70] = "data/ReSpectralcc.";
 #endif
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
@@ -39,8 +39,6 @@ int main(int argc, char* argv[])
 	char Number_c[5];
 	string Number_s;
 	strcat(File, argv[3]);	//Appends the temprature to the file name
-	strcat(File, ".");
-	strcat(File, Process);	//Appends the process number to the file name
 
 	bool Restart = Restart_Check(File, argv[4], argv[5], argv[6], argv[9], argv[10]);	//True if scrapping the file contents and restarting, only if all args are already in file header
 
@@ -141,7 +139,7 @@ void Loop_Out(long double Par[], int Temp, char File[])
 	Table << setprecision(18);
 
 	Table << "{" << flush;
-	for(theta = 0; theta < M_PI*.505; theta += M_PI/200.)
+	for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
 	{
 		on_shell = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));

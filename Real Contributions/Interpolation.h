@@ -1,13 +1,20 @@
+#ifndef INTERPOLATION
+#define INTERPOLATION
 long double i_k(long double, long double, long double, long double);			//Conversion from k to i counter that may be needed with the interpolation.
 long double i_k(long double, long double, long double, long double, long double);	//Interpolation doesn't need it to be an interpolation, therefor their not methods of the class.
+long double i_k_wrap(long double, long double[], long double);			//Wrapper for i_k() to select the correct one.
 
 template <class T>
 class Interpolation
 {
 	public:
+		Interpolation();				//Default Constructor
 		Interpolation(T**, int xSize, int ySize);	//Constructor with long double array
-		T operator()(long double x, long double y);
+		T operator()(long double x, long double y);	//Interpolation evaluation
+		void operator=(Interpolation<T>);		//Assignment operator
+		bool is_ready();
 	private:
+		bool ready;
 		T** control_points;
 		int*** offset;
 		long double xRange, yRange;
@@ -19,6 +26,11 @@ class Interpolation
 		long double Basis_Wrapper(long double, int);
 };
 
+template <class T>
+Interpolation<T>::Interpolation()
+{
+	ready = false;
+}
 
 template <class T>
 Interpolation<T>::Interpolation(T** Control, int xSize, int ySize)	//I really wanted to derive the control points myself, but it is a lot easier to scrape them from Mathematica than figure out the matrix coefficents and inversion.
@@ -39,6 +51,31 @@ Interpolation<T>::Interpolation(T** Control, int xSize, int ySize)	//I really wa
 			offset[i][j][0] = i-5;
 			offset[i][j][1] = j-5;
 	}	}
+
+	ready = true;
+}
+
+template <class T>
+void Interpolation<T>::operator=(Interpolation<T> A)
+{
+	xRange = A.xRange;
+	yRange = A.yRange;
+
+	control_points = new T*[int(xRange)+1];
+	offset = new int**[int(xRange)+1];
+	for(int i = 0; i <= xRange; i++)
+	{
+		control_points[i] = new T[int(yRange)+1];
+		offset[i] = new int*[int(yRange)+1];
+		for(int j = 0; j <= yRange; j++)
+		{
+			control_points[i][j] = A.control_points[i][j];
+			offset[i][j] = new int[2];
+			offset[i][j][0] = i-5;
+			offset[i][j][1] = j-5;
+	}	}
+
+	ready = true;
 }
 
 template <class T>
@@ -254,6 +291,16 @@ long double Interpolation<T>::Basisn(long double x)
 	return(0);
 }
 
+long double i_k_wrap(long double k, long double Par[], long double theta)
+{
+	if(Par[4] > pow(Par[2]*2.,2) && sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)))/2. >= .5)
+		return(i_k(k, Par[4], Par[3], theta, Par[2]));
+	else if(Par[4] > 0 && sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)))/2. >= .5)
+		return(i_k(k, Par[4], Par[3], theta));
+	else
+		return(k*10.);
+}
+
 long double i_k(long double k, long double s, long double P, long double theta)
 {
 	return((24000.*k)/(40.*k+100.*sqrt((s*(pow(P,2)+s))/(s+pow(P,2)*pow(sin(theta),2)))-2.*k*sqrt((s*(pow(P,2)+s))/(s+pow(P,2)*pow(sin(theta),2)))+(s*(pow(P,2)+s))/(s+pow(P,2)*pow(sin(theta),2))));
@@ -265,3 +312,4 @@ long double i_k(long double k, long double s, long double P, long double theta, 
 	long double photon = sqrt(s*(s+pow(P,2))/(s+pow(P*sin(theta),2)));
 	return(1200.*k*(100.-on_shell+photon)/(200.*k+2.*k*photon+500.*on_shell-12.*k*on_shell+5.*on_shell*photon));
 }
+#endif
