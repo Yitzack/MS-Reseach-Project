@@ -6,12 +6,7 @@
 #include<string>
 #include<chrono>
 #include"Around.h"
-//#include"Spectral.h"
-#include"Spectral adaptive.h"
-//#include"Spectral dk0 ds.h"
-//#include"Spectral dk0 ds adaptive.h"
-//#include"Spectral f(k0 onshell) dk0 ds.h"
-//#include"Spectral f(k0 onshell) dk0 ds adaptive.h"
+#include"Spectral.h"
 using namespace std;
 
 int Start_Point(int, char[70]);							//Find highest line calculated and returns it, as written causes last line to be recalculated
