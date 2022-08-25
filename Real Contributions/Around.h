@@ -15,6 +15,7 @@ class Around
 		Around(const Around&);			//Copy constructor
 		Around& operator=(Around);		//Assignment
 		Around& operator+=(Around);		//Add and assign
+		Around& operator-=(Around);		//Subtract and assign
 		Around operator+(Around);		//Summation
 		Around operator+(long double);
 		Around operator-(Around);		//Difference
@@ -27,7 +28,8 @@ class Around
 		Around abs();
 		bool operator==(Around);		//Equality test
 		bool operator>=(Around);		//Greater than or equal test
-		bool operator>(Around);		//Greater than test
+		bool operator>(const Around) const;	//Greater than test
+		bool operator<(const Around) const;	//Less than test
 		bool operator==(long double);		//Equality to exact value. I wanted to be clever with if the value is within a standard deviation, call it equal. Caused problems in the algorithm cutting off early because small value appeared to be zero when more distance required
 		bool operator>=(long double);
 		bool operator>(long double);
@@ -82,6 +84,13 @@ Around& Around::operator+=(Around A)
 {
 	error = sqrt(pow(error,2)+pow(A.error,2));
 	value += A.value;
+	return(*this);
+}
+
+Around& Around::operator-=(Around A)
+{
+	error = sqrt(pow(error,2)+pow(A.error,2));
+	value -= A.value;
 	return(*this);
 }
 
@@ -191,9 +200,16 @@ bool Around::operator==(Around A)
 	return(false);
 }
 
-bool Around::operator>(Around A)
+bool Around::operator>(const Around A) const
 {
 	if(value > A.value && std::abs(A.value-this->value) > sqrt(pow(this->error,2)+pow(A.error,2)))
+		return(true);
+	return(false);
+}
+
+bool Around::operator<(const Around A) const
+{
+	if(value < A.value && std::abs(A.value-this->value) > sqrt(pow(this->error,2)+pow(A.error,2)))
 		return(true);
 	return(false);
 }

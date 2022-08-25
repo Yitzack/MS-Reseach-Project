@@ -15,9 +15,13 @@ class Elements
 		Elements(const Elements&);		//Copy constructor
 		void operator=(const Elements&);	//Assignment
 		void operator+=(const Elements &);	//Accumalate and assign
+		void operator-=(const Elements &);	//Deaccumalate and assign
 		bool operator==(T);			//This is looking for all components == 0, not any scalar. So, its actually looking for the 0 vector
 		bool operator>=(T);			//This is about accuracy, so all components must pass
+		bool operator>(const Elements<T>) const;//This is about accuracy, so all components must pass
+		bool operator<(const Elements<T>) const;//This is about accuracy, so all components must pass
 		bool operator>(T);			//This is about accuracy, so all components must pass
+		bool operator<(T);			//This is about accuracy, so all components must pass
 		bool isnan();				//Equavalent to isnan(T) but for vector but called as A.isnan instead of isnan(A)
 		Elements<T> operator+(Elements);	//Sum of vectors
 		Elements<T> operator+(T);		//Add a number to elements of vector
@@ -90,6 +94,15 @@ void Elements<T>::operator+=(const Elements<T> &A)
 }
 
 template <class T>
+void Elements<T>::operator-=(const Elements<T> &A)
+{
+	Array[0] -= A.Array[0];
+	Array[1] -= A.Array[1];
+	Array[2] -= A.Array[2];
+	Array[3] -= A.Array[3];
+}
+
+template <class T>
 bool Elements<T>::operator==(T A)
 {
 	return(Array[0] == A &&
@@ -109,6 +122,26 @@ bool Elements<T>::operator>=(T A)
 }
 
 template <class T>
+bool Elements<T>::operator>(const Elements<T> A) const
+{
+	using std::abs;
+	return(Array[0] > A.Array[0] ||
+		Array[1] > A.Array[1] ||
+		Array[2] > A.Array[2] ||
+		Array[3] > A.Array[3]);
+}
+
+template <class T>
+bool Elements<T>::operator<(const Elements<T> A) const
+{
+	using std::abs;
+	return(Array[0] < A.Array[0] ||
+		Array[1] < A.Array[1] ||
+		Array[2] < A.Array[2] ||
+		Array[3] < A.Array[3]);
+}
+
+template <class T>
 bool Elements<T>::operator>(T A)
 {
 	using std::abs;
@@ -116,6 +149,16 @@ bool Elements<T>::operator>(T A)
 		abs(Array[1]) > A ||
 		abs(Array[2]) > A ||
 		abs(Array[3]) > A);
+}
+
+template <class T>
+bool Elements<T>::operator<(T A)
+{
+	using std::abs;
+	return(abs(Array[0]) < A ||
+		abs(Array[1]) < A ||
+		abs(Array[2]) < A ||
+		abs(Array[3]) < A);
 }
 
 template <class T>
@@ -181,6 +224,12 @@ Elements<T> Elements<T>::operator/(Elements<T> A)
 	B.Array[2] = Array[2] / A.Array[2];
 	B.Array[3] = Array[3] / A.Array[3];
 	return(B);
+}
+
+template <class T>
+Elements<T> operator*(long double A, Elements<T> B)
+{
+	return(B*A);
 }
 
 template <class T>

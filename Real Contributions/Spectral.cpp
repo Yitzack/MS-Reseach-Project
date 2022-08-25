@@ -6,7 +6,8 @@
 #include<string>
 #include<chrono>
 #include"Around.h"
-#include"Spectral.h"
+//#include"Spectral.h"
+#include"Spectral adaptive.h"
 using namespace std;
 
 int Start_Point(int, char[70]);							//Find highest line calculated and returns it, as written causes last line to be recalculated
@@ -81,7 +82,7 @@ int main(int argc, char* argv[])
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = Start; i <= Finish; i++)
 	{
-		for(j = iProcess+151; j < 576; j+=Total)	//Does the subset of j that has been assigned to this process
+		for(j = iProcess; j < 576; j+=Total)	//Does the subset of j that has been assigned to this process
 		{
 			if(j <= 150)
 			{
@@ -142,7 +143,7 @@ int main(int argc, char* argv[])
 
 			auto Start_Time = chrono::system_clock::now();
 			try{
-			holder = theta_Int(Par, Temp);
+			holder = Int(Par, Temp);
 			}
 			catch(...)
 			{return(0);}
