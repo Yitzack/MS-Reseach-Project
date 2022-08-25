@@ -16,12 +16,13 @@ class Around
 		Around& operator=(Around);		//Assignment
 		Around& operator+=(Around);		//Add and assign
 		Around& operator-=(Around);		//Subtract and assign
-		Around operator+(Around);		//Summation
+		Around operator+(const Around) const;	//Summation
 		Around operator+(long double);
 		Around operator-(Around);		//Difference
 		Around operator-(long double);
 		Around operator*(Around);		//Product
 		Around operator*(long double);
+		Around operator/(Around) const;	//Quotient with uncertain divisor
 		Around operator/(Around);		//Quotient with uncertain divisor
 		Around operator/(long double);	//Quotient with exact divisor
 		Around abs(Around&);			//Absolute value
@@ -94,7 +95,7 @@ Around& Around::operator-=(Around A)
 	return(*this);
 }
 
-Around Around::operator+(Around A)
+Around Around::operator+(const Around A) const
 {
 	Around B;
 	B.error = sqrt(pow(error,2)+pow(A.error,2));
@@ -158,6 +159,14 @@ Around operator*(long double A, Around B)
 }
 
 Around Around::operator/(Around A)
+{
+	Around B;
+	B.error = sqrt(pow(error/A.value,2)+pow(value*A.error/pow(A.value,2),2));
+	B.value = value / A.value;
+	return(B);
+}
+
+Around Around::operator/(Around A) const
 {
 	Around B;
 	B.error = sqrt(pow(error/A.value,2)+pow(value*A.error/pow(A.value,2),2));

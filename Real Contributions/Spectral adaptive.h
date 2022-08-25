@@ -7,64 +7,8 @@
 #include"Interpolation.h"
 #include"Around.h"
 #include"Elements.h"
+#include"Region.h"
 using namespace std;
-
-class Region
-{
-	public:
-	long double x1, x2;
-	long double y1, y2;
-	Elements<Around> Int;
-	Elements<Around> xErr, yErr, Err;
-	int order;
-	int xDeep, yDeep;
-	bool operator>(const Region& x) const{return Err>x.Err;}
-	bool operator<(const Region& x) const{return Err<x.Err;}
-	Region()
-	{
-		xDeep = 0;
-		yDeep = 0;
-		order = 37;
-	}
-	Region(long double a, long double b, long double c, long double d, int precision = 37)
-	{
-		xDeep = 0;
-		yDeep = 0;
-		x1 = a;
-		x2 = b;
-		y1 = c;
-		y2 = d;
-		order = precision;
-	}
-	Region(const Region& A)
-	{
-		xDeep = A.xDeep;
-		yDeep = A.yDeep;
-		x1 = A.x1;
-		x2 = A.x2;
-		y1 = A.y1;
-		y2 = A.y2;
-		order = A.order;
-		Int = A.Int;
-		xErr = A.xErr;
-		yErr = A.yErr;
-		Err = A.Err;
-	}
-	void operator=(const Region& x)
-	{
-		x1 = x.x1;
-		x2 = x.x2;
-		y1 = x.y1;
-		y2 = x.y2;
-		Int = x.Int;
-		xErr = x.xErr;
-		yErr = x.yErr;
-		Err = x.Err;
-		order = x.order;
-		xDeep = x.xDeep;
-		yDeep = x.yDeep;
-	}
-};
 
 //Integrals that define results
 Elements<Around> Int(long double[], int);						//Theta/k 2D integral
@@ -164,9 +108,6 @@ void mergeSort(long double List[], int a, int b)
 
 Elements<Around> Int(long double Par[], int Temp)
 {
-//cout << "f(k0=(w_+-w_-)/2.) ds' dk0 adaptive" << endl;
-//cout << setprecision(18);
-//cerr << setprecision(18);
 	long double Boundary_theta[] = {1./17., 0.3, 0.08};	//Extra boundary values
 	long double x1;
 	long double a, b, c, d;				//Boundaries
@@ -184,15 +125,15 @@ Elements<Around> Int(long double Par[], int Temp)
 	if(x1>M_PI/10.)
 		x1 = M_PI/10.;
 
-	//List of boundaries between Regions
+	//List of boundaries between intial Regions
 	long double Range_theta[] = {x1*Boundary_theta[0], x1*Boundary_theta[1], x1, x1*(2.-Boundary_theta[1]), x1*(2.-Boundary_theta[1])*(1.-Boundary_theta[2])+M_PI/2.*Boundary_theta[2], M_PI/2., asin(sqrt(-Par[4])/Par[3]), 0, 0};
 	long double* Range_k;
-	int Range_k_Elements;
-	priority_queue<long double, vector<long double>, greater<long double>> k_Stops;
-	queue<Region> Initial_Regions;
-	priority_queue<Region> Evaluated_Regions;
-	queue<Region> Indivisible_Regions;
-	Region Consideration[5];
+	int Range_k_Elements;	//counter to get values out of Range_k and into k_Stops
+	priority_queue<long double, vector<long double>, greater<long double>> k_Stops;	//List of all k_Stops with the smallest listed first
+	queue<Region> Initial_Regions;		//List of intial regions
+	priority_queue<Region> Evaluated_Regions;	//List of regions that have been evaluated with the one with the most error listed first
+	queue<Region> Indivisible_Regions;		//List of regions that can no longer be divided because they are a certain number of steps deep into the recursion
+	Region Consideration[5];			//Array of regions under consideration
 
 	//Some kind of intersection, probably between the simultanous on-shell and potential peak, don't rightly remember
 	Range_theta[7] = sqrt(4.*pow(Par[3], 4)+8.*pow(Par[3], 2)*Par[4]+4.*pow(Par[4], 2)-pow(Par[1], 4))/pow(256.*pow(Par[3], 4)+512.*pow(Par[3], 2)*Par[4]+256.*pow(Par[4], 2), (long double).25);
@@ -210,8 +151,8 @@ Elements<Around> Int(long double Par[], int Temp)
 
 	for(i = 0; i < 9 && Range_theta[i] <= M_PI/2.; i++)	//Count through pre-determined intervals
 	{
-		Range_k = k_Int(Par, Temp, Range_theta[i], Range_k_Elements);
-		for(j = 0; j < Range_k_Elements; j++)
+		Range_k = k_Int(Par, Temp, Range_theta[i], Range_k_Elements);	//Get the list of points of interest for each theta
+		for(j = 0; j < Range_k_Elements; j++)					//And move them into k_Stops priority queue
 			k_Stops.push(Range_k[j]);
 		delete Range_k;
 	}
@@ -220,46 +161,44 @@ Elements<Around> Int(long double Par[], int Temp)
 	do
 	{
 		a = 0;
-		while((abs(k_Stops.top()/c-1.) < FLT_EPSILON || k_Stops.top()==c) && !k_Stops.empty())
+		while((abs(k_Stops.top()/c-1.) < FLT_EPSILON || k_Stops.top()==c) && !k_Stops.empty())	//Work through the list k_Stops
 			k_Stops.pop();
-		if(k_Stops.empty())
+		if(k_Stops.empty())	//Being sure not to pop and empty queue (that eats RAM and is unhelpful
 			break;
 		d = k_Stops.top();
 		k_Stops.pop();
-		for(i = 1; i < 9 && Range_theta[i] <= M_PI/2.; i++)
+		for(i = 1; i < 9 && Range_theta[i] <= M_PI/2.; i++)	//Work through the list of theta
 		{
 			b = Range_theta[i];
 			if(abs(.5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(a),2)))-c) < 1.5 || 
 				abs(.5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(b),2)))-c) < 1.5 || 
 				abs(.5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(a),2)))-d) < 1.5 || 
-				abs(.5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(b),2)))-d) < 1.5)
+				abs(.5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(b),2)))-d) < 1.5)	//If any corner of a region is within 1.5 GeV of the simultaous on-shell, it and all of its descendants shall use the 97th order integral
 			{
-				Initial_Regions.emplace(a, b, c, d, 97);
+				Initial_Regions.emplace(a, b, c, d, 97);	//Add the region to the list of initial regions
 			}
-			else{Initial_Regions.emplace(a, b, c, d);}
+			else{Initial_Regions.emplace(a, b, c, d);}	//Default to 37th order for all descendants
 			a = b;
 		}
 		c = d;
 	}while(!k_Stops.empty());
 
-	while(!Initial_Regions.empty())
+	while(!Initial_Regions.empty())	//Go through the list of regions and give them an intial evaluation before storing them to the evaluated region list
 	{
 		Consideration[0] = Initial_Regions.front();
 		Initial_Regions.pop();
 		Eval_Integral(Par, Consideration[0]);
 		Evaluated_Regions.push(Consideration[0]);
-		Total += Consideration[0].Int;
+		Total += Consideration[0].Int;	//Establish a running total for the total and error
 		Error += Consideration[0].Err;
 	}
 
-	while((Error/Total >= Around(1e-6)) && !Evaluated_Regions.empty())
-	{
-		Consideration[0] = Evaluated_Regions.top();
-//cout << Evaluated_Regions.size() << " " << Indivisible_Regions.size() << " " << Around(Total[0], Error[0]) << "," << Error[0]/Total[0] << " " << Around(Total[1], Error[1]) << "," << Error[1]/Total[1] << " " << Around(Total[2], Error[2]) << "," << Error[2]/Total[2] << " " << Around(Total[3], Error[3]) << "," << Error[3]/Total[3] << " " << Consideration[0].x1 << " " << Consideration[0].y1 << " " << Consideration[0].y1 << " " << Consideration[0].y2 << " " << Consideration[0].xDeep << " " << Consideration[0].yDeep << endl;
+	while((Error/Total >= Around(1e-6)) && !Evaluated_Regions.empty() && abs(Evaluated_Regions.top().Err/Error)/Evaluated_Regions.top().Area() >= Around(1e-4))
+	{//While the evaluated regions aren't empty and accuracy goals aren't reached (absolute error on left and all regions relative error condition on right)
+		Consideration[0] = Evaluated_Regions.top();	//Consider the top region
 		Evaluated_Regions.pop();
-		Total -= Consideration[0].Int;
+		Total -= Consideration[0].Int;	//Running total update
 		Error -= Consideration[0].Err;
-
 		if(abs(Consideration[0].xErr/Consideration[0].yErr-1.) < Around(1.) && Consideration[0].yDeep < 4 && Consideration[0].xDeep < 4)	//Divide both dimensions, they're roughly equally bad
 		{
 			Consideration[1] = Region(Consideration[0].x1, (Consideration[0].x1+Consideration[0].x2)/2., Consideration[0].y1, (Consideration[0].y1+Consideration[0].y2)/2., Consideration[0].order);
@@ -268,12 +207,12 @@ Elements<Around> Int(long double Par[], int Temp)
 			Consideration[4] = Region((Consideration[0].x1+Consideration[0].x2)/2., Consideration[0].x2, (Consideration[0].y1+Consideration[0].y2)/2., Consideration[0].y2, Consideration[0].order);
 			for(i = 1; i <= 4; i++)
 			{
-				Eval_Integral(Par, Consideration[i]);
-				Consideration[i].xDeep = Consideration[0].xDeep+1;
+				Eval_Integral(Par, Consideration[i]);			//Evaluate the subdivided regions
+				Consideration[i].xDeep = Consideration[0].xDeep+1;	//Increament the depth
 				Consideration[i].yDeep = Consideration[0].yDeep+1;
-				Total += Consideration[i].Int;
+				Total += Consideration[i].Int;			//Update the running total
 				Error += Consideration[i].Err;
-				Evaluated_Regions.push(Consideration[i]);
+				Evaluated_Regions.push(Consideration[i]);		//Push the subdivided regions to the queue
 			}
 		}
 		else if(Consideration[0].xErr-Consideration[0].yErr > Around(0.) && Consideration[0].xDeep < 4)	//x is worse, divide x
@@ -302,32 +241,29 @@ Elements<Around> Int(long double Par[], int Temp)
 				Evaluated_Regions.push(Consideration[i]);
 			}
 		}
-		else
+		else	//if none of the above happen, the region is propbably indivisible, store it that queue so it doesn't come back to the top of the priority queue
 		{
 			Indivisible_Regions.push(Consideration[0]);
+			Total += Consideration[0].Int;
+			Error += Consideration[0].Err;
 		}
 	}
 
-	Total = Elements<Around>(0,0,0,0);
+	Total = Elements<Around>(0,0,0,0);	//Total's error estimate has probably been messed up by adding and subtracting regions of the running total
 	Error = Elements<Around>(0,0,0,0);
+	while(!Indivisible_Regions.empty())	//Retotal the running total so that the error estimates aren't inflated
+	{
+		Total += Indivisible_Regions.front().Int;
+		Error += Indivisible_Regions.front().Err;
+		Indivisible_Regions.pop();
+	}
 	while(!Evaluated_Regions.empty())
 	{
 		Total += Evaluated_Regions.top().Int;
 		Error += Evaluated_Regions.top().Err;
-//		Consideration[0] = Evaluated_Regions.top();
-//cout << Consideration[0].x1 << " " <<Consideration[0].x2 << " " << Consideration[0].y1 << " " << Consideration[0].y2 << " " << Consideration[0].Int[0] << " " << Consideration[0].Err[0] << " " << Consideration[0].xErr[0] << " " << Consideration[0].yErr[0] << " " << Consideration[0].xDeep << " " << Consideration[0].yDeep << endl;
 		Evaluated_Regions.pop();
 	}
-	while(!Indivisible_Regions.empty())
-	{
-		Total += Indivisible_Regions.front().Int;
-		Error += Indivisible_Regions.front().Err;
-//		Consideration[0] = Indivisible_Regions.front();
-//cout << Consideration[0].x1 << " " << Consideration[0].x2 << " " << Consideration[0].y1 << " " << Consideration[0].y2 << " " << Consideration[0].Int[0] << " " << Consideration[0].Err[0] << " " << Consideration[0].xErr[0] << " " << Consideration[0].yErr[0] << " " << Consideration[0].xDeep << " " << Consideration[0].yDeep << endl;
-		Indivisible_Regions.pop();
-	}
-	Answer = Elements<Around>(Around(Total[0], Error[0]), Around(Total[1], Error[1]), Around(Total[2], Error[2]), Around(Total[3], Error[3]));	//Add the Region to total of the integral
-
+	Answer = Elements<Around>(Around(Total[0], Error[0]), Around(Total[1], Error[1]), Around(Total[2], Error[2]), Around(Total[3], Error[3]));//Assemble the answer
 	return(Answer/pow(2.*M_PI, 2)*2.);
 }
 
@@ -552,7 +488,7 @@ void Eval_Integral(long double Par[], Region& Stuff)
 		Stuff.Err += errw97[0]*errw97[0]*Holder[0];
 	}
 
-	Stuff.Int = Stuff.Int*(b-a)*(d-c)/4.;
+	Stuff.Int = Stuff.Int*(b-a)*(d-c)/4.;		//final weights for size and abs() for error estimates
 	Stuff.xErr = abs(Stuff.xErr)*(b-a)*(d-c)/4.;
 	Stuff.yErr = abs(Stuff.yErr)*(b-a)*(d-c)/4.;
 	Stuff.Err = abs(Stuff.Err)*(b-a)*(d-c)/4.;
@@ -618,8 +554,6 @@ long double* k_Int(long double Par[], int Temp, long double theta, int &Stop_Num
 
 Around Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta)
 {
-//cout << setprecision(18);
-//cerr << setprecision(18);
 	long double a, b;	//Sub-interval limits of integration
 	long double Min;	//Lower limit of integration
 	long double Max = 0;	//Upper limit of principal value integration
@@ -741,7 +675,7 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 		Answer += Partial;		//Add the Region to the total
 		a = b;
 	}while((a < 4.*(pow(k, 2)+pow(Par[2], 2))+50. && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
-//cout << Par[3] << ", " << Par[4] << ", " << k << ", " << theta << ", " << ImG12 << ", " << Min << ", " << Max << ", " << log(abs((Max-Par[4])/(Par[4]-Min))) << endl;
+
 	if(Max == 0)	//Just in case it terminates before getting to s+100
 		Max = a;
 	if(abs(ImG12) >= 1e-12)
@@ -773,18 +707,15 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 		{
 			ParLoc[4] = (b+a-Disp9[l]*(b-a))/2.;
 			Holder = k0_Int(ParLoc, Temp, k, theta);
-//cerr << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12 << ", " << (Holder-ImG12)/(ParLoc[4]-Par[4]) << endl;
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w9[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w16[l+1];
 			ParLoc[4] = (b+a+Disp9[l]*(b-a))/2.;
 			Holder = k0_Int(ParLoc, Temp, k, theta);
-//cerr << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12 << ", " << (Holder-ImG12)/(ParLoc[4]-Par[4]) << endl;
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w9[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w16[l+1];
 		}
 		ParLoc[4] = (b+a)/2.;
 		Holder = k0_Int(ParLoc, Temp, k, theta);
-//cerr << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12 << ", " << (Holder-ImG12)/(ParLoc[4]-Par[4]) << endl;
 		F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w9[0];
 		F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w16[0];
 		break;
@@ -793,32 +724,23 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 		{
 			ParLoc[4] = (b+a-Disp97[l]*(b-a))/2.;
 			Holder = k0_Int(ParLoc, Temp, k, theta);
-//cerr << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12 << ", " << (Holder-ImG12)/(ParLoc[4]-Par[4]) << endl;
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w63[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w97[l+1];
 			ParLoc[4] = (b+a+Disp97[l]*(b-a))/2.;
 			Holder = k0_Int(ParLoc, Temp, k, theta);
-//cerr << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12 << ", " << (Holder-ImG12)/(ParLoc[4]-Par[4]) << endl;
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w63[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w97[l+1];
 		}
 		ParLoc[4] = (b+a)/2.;
 		Holder = k0_Int(ParLoc, Temp, k, theta);
-//cerr << Par[3] << ", " << Par[4] << ", " << ParLoc[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << Holder << ", " << Holder-ImG12 << ", " << (Holder-ImG12)/(ParLoc[4]-Par[4]) << endl;
 		F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w63[0];
 		F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w97[0];
 		break;
 	}
 
-//cerr << Par[3] << ", " << Par[4] << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << F[0] << ", " << F[1] << endl;
-
 	Answer = Around(F[1], abs(F[0]-F[1]))*(b-a)/2.;
-	/*if(deep == 0)
-		cout << "{" << Par[3] << ", " << Par[4] << ", " << k0 << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << order << ", " << deep << ", " << Answer.RelErr() << ", " << Answer << "}, " << endl;//*/
 	if(!(Answer.RelErr() < 1e-6 || Answer.Error() < 1e-7) && deep < 4 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
 		Answer = Dispersion(Par, Temp, k0, k, theta, a, (a+b)/2., ImG12, order, deep+1) + Dispersion(Par, Temp, k0, k, theta, (a+b)/2., b, ImG12, order, deep+1);
-	/*else
-		cout << "{" << Par[3] << ", " << Par[4] << ", " << k0 << ", " << k << ", " << theta << ", " << a << ", " << b << ", " << order << ", " << deep << ", " << Answer.RelErr() << ", " << Answer << "}" << endl;//*/
 
 	return(Answer);
 }
@@ -968,14 +890,11 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta, lon
 
 			F[0] += Imk0_Integrand(Par, x1, k, theta, Temp)*w63[j+1];
 			F[1] += Imk0_Integrand(Par, x1, k, theta, Temp)*w97[j+1];
-//cout << Par[3] << " " << Par[4] << " " << x1 << " " << k << " " << theta << " " << Imk0_Integrand(Par, x1, k, theta, Temp) << endl;
 			F[0] += Imk0_Integrand(Par, x2, k, theta, Temp)*w63[j+1];
 			F[1] += Imk0_Integrand(Par, x2, k, theta, Temp)*w97[j+1];
-//cout << Par[3] << " " << Par[4] << " " << x2 << " " << k << " " << theta << " " << Imk0_Integrand(Par, x2, k, theta, Temp) << endl;
 		}
 		F[0] += Imk0_Integrand(Par, (a+b)/2., k, theta, Temp)*w63[0];
 		F[1] += Imk0_Integrand(Par, (a+b)/2., k, theta, Temp)*w97[0];
-//cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << k << " " << theta << " " << Imk0_Integrand(Par, (a+b)/2., k, theta, Temp) << endl;
 		break;
 	case 37:
 		for(int j = 0; j < 12; j++)//for(int j = 0; j < 12; j+=2)//
@@ -985,14 +904,11 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta, lon
 
 			F[0] += Imk0_Integrand(Par, x1, k, theta, Temp)*w23[j+1];
 			F[1] += Imk0_Integrand(Par, x1, k, theta, Temp)*w37[j+1];
-//cout << Par[3] << " " << Par[4] << " " << x1 << " " << k << " " << theta << " " << Imk0_Integrand(Par, x1, k, theta, Temp) << endl;
 			F[0] += Imk0_Integrand(Par, x2, k, theta, Temp)*w23[j+1];
 			F[1] += Imk0_Integrand(Par, x2, k, theta, Temp)*w37[j+1];
-//cout << Par[3] << " " << Par[4] << " " << x2 << " " << k << " " << theta << " " << Imk0_Integrand(Par, x2, k, theta, Temp) << endl;
 		}
 		F[0] += Imk0_Integrand(Par, (a+b)/2., k, theta, Temp)*w23[0];
 		F[1] += Imk0_Integrand(Par, (a+b)/2., k, theta, Temp)*w37[0];
-//cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << k << " " << theta << " " << Imk0_Integrand(Par, (a+b)/2., k, theta, Temp) << endl;
 		break;
 	case 16:
 		for(int j = 0; j < 5; j++)//for(int j = 1; j < 5; j+=2)//
@@ -1002,17 +918,14 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta, lon
 
 			F[0] += Imk0_Integrand(Par, x1, k, theta, Temp)*w9[j+1];
 			F[1] += Imk0_Integrand(Par, x1, k, theta, Temp)*w16[j+1];
-//cout << Par[3] << " " << Par[4] << " " << x1 << " " << k << " " << theta << " " << Imk0_Integrand(Par, x1, k, theta, Temp) << endl;
 			F[0] += Imk0_Integrand(Par, x2, k, theta, Temp)*w9[j+1];
 			F[1] += Imk0_Integrand(Par, x2, k, theta, Temp)*w16[j+1];
-//cout << Par[3] << " " << Par[4] << " " << x2 << " " << k << " " << theta << " " << Imk0_Integrand(Par, x2, k, theta, Temp) << endl;
 		}
 		F[0] += Imk0_Integrand(Par, (a+b)/2., k, theta, Temp)*w9[0];
 		F[1] += Imk0_Integrand(Par, (a+b)/2., k, theta, Temp)*w16[0];
-//cout << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << k << " " << theta << " " << Imk0_Integrand(Par, (a+b)/2., k, theta, Temp) << endl;
 		break;
 	}
-//if(Around(F[1], abs(F[0]-F[1])).RelErr() > 1e-7) cout << Par[3] << " " << Par[4] << " " << k << " " << theta << " " << a << " " << b << " " << F[0] << " " << F[1] << " " << order << " " << Around(F[1], abs(F[0]-F[1])).RelErr() << endl;
+
 	Answer = Around(F[1], abs(F[0]-F[1]))*(b-a)/2.;//Around(F[0])*(b-a)/2.;//
 	/*if(Answer.RelErr() > 1e-8 && deep < 4 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
 		Answer = k0_Int(Par, Temp, k, theta, a, (a+b)/2., order, deep+1) + k0_Int(Par, Temp, k, theta, (a+b)/2., b, order, deep+1);//*/

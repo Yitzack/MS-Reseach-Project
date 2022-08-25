@@ -27,7 +27,7 @@ class Elements
 		Elements<T> operator+(T);		//Add a number to elements of vector
 		Elements<T> operator-(Elements);	//Difference of vectors
 		Elements<T> operator-(T);		//Subtract a number from elements of vector
-		Elements<T> operator/(Elements);	//This is about accuracy, not the correct definition of division, so it is an element-wise division
+		Elements<T> operator/(Elements<T>) const;//This is about accuracy, not the correct definition of division, so it is an element-wise division
 		Elements<T> operator/(T);		//Scalar divide
 		Elements<T> operator*(T);		//Scalar multiply
 		Elements<T> operator*(Elements);	//Vector multiply (not to be confused with cross product, but element by element multiply
@@ -125,20 +125,20 @@ template <class T>
 bool Elements<T>::operator>(const Elements<T> A) const
 {
 	using std::abs;
-	return(Array[0] > A.Array[0] ||
-		Array[1] > A.Array[1] ||
-		Array[2] > A.Array[2] ||
-		Array[3] > A.Array[3]);
+	T lhs, rhs;
+	lhs = Array[0]+Array[1]+Array[2]+Array[3];
+	rhs = A.Array[0]+A.Array[1]+A.Array[2]+A.Array[3];
+	return(lhs > rhs);
 }
 
 template <class T>
 bool Elements<T>::operator<(const Elements<T> A) const
 {
 	using std::abs;
-	return(Array[0] < A.Array[0] ||
-		Array[1] < A.Array[1] ||
-		Array[2] < A.Array[2] ||
-		Array[3] < A.Array[3]);
+	T lhs, rhs;
+	lhs = Array[0]+Array[1]+Array[2]+Array[3];
+	rhs = A.Array[0]+A.Array[1]+A.Array[2]+A.Array[3];
+	return(lhs < rhs);
 }
 
 template <class T>
@@ -216,7 +216,7 @@ Elements<T> Elements<T>::operator-(T A)
 }
 
 template <class T>
-Elements<T> Elements<T>::operator/(Elements<T> A)
+Elements<T> Elements<T>::operator/(Elements<T> A) const
 {
 	Elements<T> B;
 	B.Array[0] = Array[0] / A.Array[0];
