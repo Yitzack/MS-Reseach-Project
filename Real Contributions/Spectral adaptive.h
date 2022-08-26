@@ -196,7 +196,7 @@ Elements<Around> Int(long double Par[], int Temp)
 		Error += Consideration[0].Err;
 	}
 
-	while((Error/Total >= Around(1e-6)) && !Evaluated_Regions.empty() && abs(Evaluated_Regions.top().Err/Error)/Evaluated_Regions.top().Area() >= Around(1e-4))
+	while((Error/Total >= Around(1e-6)) && !Evaluated_Regions.empty() && abs(Evaluated_Regions.top().Err/Error)/Evaluated_Regions.top().Area() >= Around(1e-6))
 	{//While the evaluated regions aren't empty and accuracy goals aren't reached (absolute error on left and all regions relative error condition on right)
 		Consideration[0] = Evaluated_Regions.top();	//Consider the top region
 		Evaluated_Regions.pop();
@@ -320,25 +320,25 @@ void Eval_Integral(long double Par[], Region& Stuff)
 				Holder[2] = (Elements<Around>(Potential1(Par, k021, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k021, y1), Interacting_Quad_Trace(Par, k021, y1)*Potential1(Par, k021, y1), Potential2(Par, k021, y1)))*Around(ReG(i_k_wrap(y1, Par, x2), x2*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x2), x2*200./M_PI))*pow(y1,2)*sin(x2);
 				Holder[3] = (Elements<Around>(Potential1(Par, k022, y2), Interacting_Linear_Trace(Par)*Potential1(Par, k022, y2), Interacting_Quad_Trace(Par, k022, y2)*Potential1(Par, k022, y2), Potential2(Par, k022, y2)))*Around(ReG(i_k_wrap(y2, Par, x2), x2*200./M_PI), ReG_Err(i_k_wrap(y2, Par, x2), x2*200./M_PI))*pow(y2,2)*sin(x2);
 
-				Stuff.Int += w37[i]*w37[j]*Holder[0];
-				Stuff.Int += w37[i]*w37[j]*Holder[1];
-				Stuff.Int += w37[i]*w37[j]*Holder[2];
-				Stuff.Int += w37[i]*w37[j]*Holder[3];
+				Stuff.Int += w37[i+1]*w37[j+1]*Holder[0];
+				Stuff.Int += w37[i+1]*w37[j+1]*Holder[1];
+				Stuff.Int += w37[i+1]*w37[j+1]*Holder[2];
+				Stuff.Int += w37[i+1]*w37[j+1]*Holder[3];
 
-				Stuff.xErr += errw37[i]*w37[j]*Holder[0];
-				Stuff.xErr += errw37[i]*w37[j]*Holder[1];
-				Stuff.xErr += errw37[i]*w37[j]*Holder[2];
-				Stuff.xErr += errw37[i]*w37[j]*Holder[3];
+				Stuff.xErr += errw37[i+1]*w37[j+1]*Holder[0];
+				Stuff.xErr += errw37[i+1]*w37[j+1]*Holder[1];
+				Stuff.xErr += errw37[i+1]*w37[j+1]*Holder[2];
+				Stuff.xErr += errw37[i+1]*w37[j+1]*Holder[3];
 
-				Stuff.yErr += w37[i]*errw37[j]*Holder[0];
-				Stuff.yErr += w37[i]*errw37[j]*Holder[1];
-				Stuff.yErr += w37[i]*errw37[j]*Holder[2];
-				Stuff.yErr += w37[i]*errw37[j]*Holder[3];
+				Stuff.yErr += w37[i+1]*errw37[j+1]*Holder[0];
+				Stuff.yErr += w37[i+1]*errw37[j+1]*Holder[1];
+				Stuff.yErr += w37[i+1]*errw37[j+1]*Holder[2];
+				Stuff.yErr += w37[i+1]*errw37[j+1]*Holder[3];
 
-				Stuff.Err += errw37[i]*errw37[j]*Holder[0];
-				Stuff.Err += errw37[i]*errw37[j]*Holder[1];
-				Stuff.Err += errw37[i]*errw37[j]*Holder[2];
-				Stuff.Err += errw37[i]*errw37[j]*Holder[3];
+				Stuff.Err += errw37[i+1]*errw37[j+1]*Holder[0];
+				Stuff.Err += errw37[i+1]*errw37[j+1]*Holder[1];
+				Stuff.Err += errw37[i+1]*errw37[j+1]*Holder[2];
+				Stuff.Err += errw37[i+1]*errw37[j+1]*Holder[3];
 			}
 
 			y1 = (d+c)/2.;
@@ -349,17 +349,17 @@ void Eval_Integral(long double Par[], Region& Stuff)
 			Holder[0] = (Elements<Around>(Potential1(Par, k011, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k011, y1), Interacting_Quad_Trace(Par, k011, y1)*Potential1(Par, k011, y1), Potential2(Par, k011, y1)))*Around(ReG(i_k_wrap(y1, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x1), x1*200./M_PI))*pow(y1,2)*sin(x1);
 			Holder[2] = (Elements<Around>(Potential1(Par, k021, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k021, y1), Interacting_Quad_Trace(Par, k021, y1)*Potential1(Par, k021, y1), Potential2(Par, k021, y1)))*Around(ReG(i_k_wrap(y1, Par, x2), x2*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x2), x2*200./M_PI))*pow(y1,2)*sin(x2);
 
-			Stuff.Int += w37[i]*w37[0]*Holder[0];
-			Stuff.Int += w37[i]*w37[0]*Holder[2];
+			Stuff.Int += w37[i+1]*w37[0]*Holder[0];
+			Stuff.Int += w37[i+1]*w37[0]*Holder[2];
 
-			Stuff.xErr += errw37[i]*w37[0]*Holder[0];
-			Stuff.xErr += errw37[i]*w37[0]*Holder[2];
+			Stuff.xErr += errw37[i+1]*w37[0]*Holder[0];
+			Stuff.xErr += errw37[i+1]*w37[0]*Holder[2];
 
-			Stuff.yErr += w37[i]*errw37[0]*Holder[0];
-			Stuff.yErr += w37[i]*errw37[0]*Holder[2];
+			Stuff.yErr += w37[i+1]*errw37[0]*Holder[0];
+			Stuff.yErr += w37[i+1]*errw37[0]*Holder[2];
 		
-			Stuff.Err += errw37[i]*errw37[0]*Holder[0];
-			Stuff.Err += errw37[i]*errw37[0]*Holder[2];
+			Stuff.Err += errw37[i+1]*errw37[0]*Holder[0];
+			Stuff.Err += errw37[i+1]*errw37[0]*Holder[2];
 		}
 
 		x1 = (a+b)/2.;
@@ -374,17 +374,17 @@ void Eval_Integral(long double Par[], Region& Stuff)
 			Holder[0] = (Elements<Around>(Potential1(Par, k011, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k011, y1), Interacting_Quad_Trace(Par, k011, y1)*Potential1(Par, k011, y1), Potential2(Par, k011, y1)))*Around(ReG(i_k_wrap(y1, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x1), x1*200./M_PI))*pow(y1,2)*sin(x1);
 			Holder[1] = (Elements<Around>(Potential1(Par, k012, y2), Interacting_Linear_Trace(Par)*Potential1(Par, k012, y2), Interacting_Quad_Trace(Par, k012, y2)*Potential1(Par, k012, y2), Potential2(Par, k012, y2)))*Around(ReG(i_k_wrap(y2, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y2, Par, x1), x1*200./M_PI))*pow(y2,2)*sin(x1);
 
-			Stuff.Int += w37[0]*w37[j]*Holder[0];
-			Stuff.Int += w37[0]*w37[j]*Holder[1];
+			Stuff.Int += w37[0]*w37[j+1]*Holder[0];
+			Stuff.Int += w37[0]*w37[j+1]*Holder[1];
 
-			Stuff.xErr += errw37[0]*w37[j]*Holder[0];
-			Stuff.xErr += errw37[0]*w37[j]*Holder[1];
+			Stuff.xErr += errw37[0]*w37[j+1]*Holder[0];
+			Stuff.xErr += errw37[0]*w37[j+1]*Holder[1];
 
-			Stuff.yErr += w37[0]*errw37[j]*Holder[0];
-			Stuff.yErr += w37[0]*errw37[j]*Holder[1];
+			Stuff.yErr += w37[0]*errw37[j+1]*Holder[0];
+			Stuff.yErr += w37[0]*errw37[j+1]*Holder[1];
 
-			Stuff.Err += errw37[0]*errw37[j]*Holder[0];
-			Stuff.Err += errw37[0]*errw37[j]*Holder[1];
+			Stuff.Err += errw37[0]*errw37[j+1]*Holder[0];
+			Stuff.Err += errw37[0]*errw37[j+1]*Holder[1];
 		}
 
 		y1 = (c+d)/2.;
@@ -417,25 +417,25 @@ void Eval_Integral(long double Par[], Region& Stuff)
 				Holder[2] = (Elements<Around>(Potential1(Par, k021, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k021, y1), Interacting_Quad_Trace(Par, k021, y1)*Potential1(Par, k021, y1), Potential2(Par, k021, y1)))*Around(ReG(i_k_wrap(y1, Par, x2), x2*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x2), x2*200./M_PI))*pow(y1,2)*sin(x2);
 				Holder[3] = (Elements<Around>(Potential1(Par, k022, y2), Interacting_Linear_Trace(Par)*Potential1(Par, k022, y2), Interacting_Quad_Trace(Par, k022, y2)*Potential1(Par, k022, y2), Potential2(Par, k022, y2)))*Around(ReG(i_k_wrap(y2, Par, x2), x2*200./M_PI), ReG_Err(i_k_wrap(y2, Par, x2), x2*200./M_PI))*pow(y2,2)*sin(x2);
 
-				Stuff.Int += w97[i]*w97[j]*Holder[0];
-				Stuff.Int += w97[i]*w97[j]*Holder[1];
-				Stuff.Int += w97[i]*w97[j]*Holder[2];
-				Stuff.Int += w97[i]*w97[j]*Holder[3];
+				Stuff.Int += w97[i+1]*w97[j+1]*Holder[0];
+				Stuff.Int += w97[i+1]*w97[j+1]*Holder[1];
+				Stuff.Int += w97[i+1]*w97[j+1]*Holder[2];
+				Stuff.Int += w97[i+1]*w97[j+1]*Holder[3];
 
-				Stuff.xErr += errw97[i]*w97[j]*Holder[0];
-				Stuff.xErr += errw97[i]*w97[j]*Holder[1];
-				Stuff.xErr += errw97[i]*w97[j]*Holder[2];
-				Stuff.xErr += errw97[i]*w97[j]*Holder[3];
+				Stuff.xErr += errw97[i+1]*w97[j+1]*Holder[0];
+				Stuff.xErr += errw97[i+1]*w97[j+1]*Holder[1];
+				Stuff.xErr += errw97[i+1]*w97[j+1]*Holder[2];
+				Stuff.xErr += errw97[i+1]*w97[j+1]*Holder[3];
 
-				Stuff.yErr += w97[i]*errw97[j]*Holder[0];
-				Stuff.yErr += w97[i]*errw97[j]*Holder[1];
-				Stuff.yErr += w97[i]*errw97[j]*Holder[2];
-				Stuff.yErr += w97[i]*errw97[j]*Holder[3];
+				Stuff.yErr += w97[i+1]*errw97[j+1]*Holder[0];
+				Stuff.yErr += w97[i+1]*errw97[j+1]*Holder[1];
+				Stuff.yErr += w97[i+1]*errw97[j+1]*Holder[2];
+				Stuff.yErr += w97[i+1]*errw97[j+1]*Holder[3];
 
-				Stuff.Err += errw97[i]*errw97[j]*Holder[0];
-				Stuff.Err += errw97[i]*errw97[j]*Holder[1];
-				Stuff.Err += errw97[i]*errw97[j]*Holder[2];
-				Stuff.Err += errw97[i]*errw97[j]*Holder[3];
+				Stuff.Err += errw97[i+1]*errw97[j+1]*Holder[0];
+				Stuff.Err += errw97[i+1]*errw97[j+1]*Holder[1];
+				Stuff.Err += errw97[i+1]*errw97[j+1]*Holder[2];
+				Stuff.Err += errw97[i+1]*errw97[j+1]*Holder[3];
 			}
 
 			y1 = (d+c)/2.;
@@ -446,17 +446,17 @@ void Eval_Integral(long double Par[], Region& Stuff)
 			Holder[0] = (Elements<Around>(Potential1(Par, k011, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k011, y1), Interacting_Quad_Trace(Par, k011, y1)*Potential1(Par, k011, y1), Potential2(Par, k011, y1)))*Around(ReG(i_k_wrap(y1, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x1), x1*200./M_PI))*pow(y1,2)*sin(x1);
 			Holder[2] = (Elements<Around>(Potential1(Par, k021, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k021, y1), Interacting_Quad_Trace(Par, k021, y1)*Potential1(Par, k021, y1), Potential2(Par, k021, y1)))*Around(ReG(i_k_wrap(y1, Par, x2), x2*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x2), x2*200./M_PI))*pow(y1,2)*sin(x2);
 
-			Stuff.Int += w97[i]*w97[0]*Holder[0];
-			Stuff.Int += w97[i]*w97[0]*Holder[2];
+			Stuff.Int += w97[i+1]*w97[0]*Holder[0];
+			Stuff.Int += w97[i+1]*w97[0]*Holder[2];
 
-			Stuff.xErr += errw97[i]*w97[0]*Holder[0];
-			Stuff.xErr += errw97[i]*w97[0]*Holder[2];
+			Stuff.xErr += errw97[i+1]*w97[0]*Holder[0];
+			Stuff.xErr += errw97[i+1]*w97[0]*Holder[2];
 
-			Stuff.yErr += w97[i]*errw97[0]*Holder[0];
-			Stuff.yErr += w97[i]*errw97[0]*Holder[2];
+			Stuff.yErr += w97[i+1]*errw97[0]*Holder[0];
+			Stuff.yErr += w97[i+1]*errw97[0]*Holder[2];
 		
-			Stuff.Err += errw97[i]*errw97[0]*Holder[0];
-			Stuff.Err += errw97[i]*errw97[0]*Holder[2];
+			Stuff.Err += errw97[i+1]*errw97[0]*Holder[0];
+			Stuff.Err += errw97[i+1]*errw97[0]*Holder[2];
 		}
 
 		x1 = (a+b)/2.;
@@ -471,17 +471,17 @@ void Eval_Integral(long double Par[], Region& Stuff)
 			Holder[0] = (Elements<Around>(Potential1(Par, k011, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k011, y1), Interacting_Quad_Trace(Par, k011, y1)*Potential1(Par, k011, y1), Potential2(Par, k011, y1)))*Around(ReG(i_k_wrap(y1, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x1), x1*200./M_PI))*pow(y1,2)*sin(x1);
 			Holder[1] = (Elements<Around>(Potential1(Par, k012, y2), Interacting_Linear_Trace(Par)*Potential1(Par, k012, y2), Interacting_Quad_Trace(Par, k012, y2)*Potential1(Par, k012, y2), Potential2(Par, k012, y2)))*Around(ReG(i_k_wrap(y2, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y2, Par, x1), x1*200./M_PI))*pow(y2,2)*sin(x1);
 
-			Stuff.Int += w97[0]*w97[j]*Holder[0];
-			Stuff.Int += w97[0]*w97[j]*Holder[1];
+			Stuff.Int += w97[0]*w97[j+1]*Holder[0];
+			Stuff.Int += w97[0]*w97[j+1]*Holder[1];
 
-			Stuff.xErr += errw97[0]*w97[j]*Holder[0];
-			Stuff.xErr += errw97[0]*w97[j]*Holder[1];
+			Stuff.xErr += errw97[0]*w97[j+1]*Holder[0];
+			Stuff.xErr += errw97[0]*w97[j+1]*Holder[1];
 
-			Stuff.yErr += w97[0]*errw97[j]*Holder[0];
-			Stuff.yErr += w97[0]*errw97[j]*Holder[1];
+			Stuff.yErr += w97[0]*errw97[j+1]*Holder[0];
+			Stuff.yErr += w97[0]*errw97[j+1]*Holder[1];
 
-			Stuff.Err += errw97[0]*errw97[j]*Holder[0];
-			Stuff.Err += errw97[0]*errw97[j]*Holder[1];
+			Stuff.Err += errw97[0]*errw97[j+1]*Holder[0];
+			Stuff.Err += errw97[0]*errw97[j+1]*Holder[1];
 		}
 
 		y1 = (c+d)/2.;
