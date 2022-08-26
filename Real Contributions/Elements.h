@@ -124,8 +124,7 @@ bool Elements<T>::operator>=(T A)
 template <class T>
 bool Elements<T>::operator>(const Elements<T> A) const
 {
-	using std::abs;
-	T lhs, rhs;
+	T lhs, rhs;	//The error of the elements remain roughly propitional to each other throught out the execution of the algorithm. The sum of the elements does a better job of ordering the objects than an or operation on the elements individually.
 	lhs = Array[0]+Array[1]+Array[2]+Array[3];
 	rhs = A.Array[0]+A.Array[1]+A.Array[2]+A.Array[3];
 	return(lhs > rhs);
@@ -134,8 +133,7 @@ bool Elements<T>::operator>(const Elements<T> A) const
 template <class T>
 bool Elements<T>::operator<(const Elements<T> A) const
 {
-	using std::abs;
-	T lhs, rhs;
+	T lhs, rhs;	//The error of the elements remain roughly propitional to each other throught out the execution of the algorithm. The sum of the elements does a better job of ordering the objects than an or operation on the elements individually.
 	lhs = Array[0]+Array[1]+Array[2]+Array[3];
 	rhs = A.Array[0]+A.Array[1]+A.Array[2]+A.Array[3];
 	return(lhs < rhs);
