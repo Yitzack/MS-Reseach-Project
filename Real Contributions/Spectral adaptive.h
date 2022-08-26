@@ -202,7 +202,7 @@ Elements<Around> Int(long double Par[], int Temp)
 		Evaluated_Regions.pop();
 		Total -= Consideration[0].Int;	//Running total update
 		Error -= Consideration[0].Err;
-		if(abs(Consideration[0].xErr/Consideration[0].yErr-1.) < Around(1.) && Consideration[0].yDeep < 4 && Consideration[0].xDeep < 4)	//Divide both dimensions, they're roughly equally bad
+		if((abs(Consideration[0].xErr/Consideration[0].yErr-1.) < Around(1.) || Consideration[0].Err == Around(0)) && Consideration[0].yDeep < 4 && Consideration[0].xDeep < 4)	//Divide both dimensions, they're roughly equally bad. Consideration[0].Err == Around(0) subdivides unevaluated regions only if they aren't 4 levels deep
 		{
 			Consideration[1] = Region(Consideration[0].x1, (Consideration[0].x1+Consideration[0].x2)/2., Consideration[0].y1, (Consideration[0].y1+Consideration[0].y2)/2., Consideration[0].order);
 			Consideration[2] = Region((Consideration[0].x1+Consideration[0].x2)/2., Consideration[0].x2, Consideration[0].y1, (Consideration[0].y1+Consideration[0].y2)/2., Consideration[0].order);
@@ -295,6 +295,9 @@ void Eval_Integral(long double Par[], Region& Stuff)
 	Stuff.xErr = Elements<Around>(0,0,0,0);;
 	Stuff.yErr = Elements<Around>(0,0,0,0);;
 	Stuff.Err = Elements<Around>(0,0,0,0);;
+
+	if(i_k_wrap(d, Par, a) > 700 || i_k_wrap(d, Par, b) > 700)	//Interpolation excceeded
+		return;
 
 	if(Stuff.order == 37)
 	{
