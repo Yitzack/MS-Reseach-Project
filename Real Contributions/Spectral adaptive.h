@@ -154,7 +154,7 @@ Elements<Around> Int(long double Par[], int Temp)
 		Range_k = k_Int(Par, Temp, Range_theta[i], Range_k_Elements);	//Get the list of points of interest for each theta
 		for(j = 0; j < Range_k_Elements; j++)					//And move them into k_Stops priority queue
 		{
-			while(Range_k[j] < 0) j++;
+			while(Range_k[j] < 0 || i_k_wrap(Range_k[j], Par, Range_theta[i]) > 700 || isnan(Range_k[j])) j++;
 			k_Stops.push(Range_k[j]);
 		}
 		delete Range_k;

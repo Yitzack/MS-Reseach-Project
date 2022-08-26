@@ -8,6 +8,7 @@ template <class T>
 class Interpolation
 {
 	public:
+		~Interpolation();				//Deconstructor
 		Interpolation();				//Default Constructor
 		Interpolation(T**, int xSize, int ySize);	//Constructor with long double array
 		T operator()(long double x, long double y);	//Interpolation evaluation
@@ -25,6 +26,22 @@ class Interpolation
 		long double Basisn(long double);
 		long double Basis_Wrapper(long double, int);
 };
+
+template <class T>
+Interpolation<T>::~Interpolation()
+{
+	for(int i = 0; i <= xRange; i++)
+	{
+		for(int j = 0; j < yRange; j++)
+		{
+			delete offset[i][j];
+		}
+		delete offset[i];
+		delete control_points[i];
+	}
+	delete offset;
+	delete control_points;
+}
 
 template <class T>
 Interpolation<T>::Interpolation()
