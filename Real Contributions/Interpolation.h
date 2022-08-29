@@ -30,17 +30,20 @@ class Interpolation
 template <class T>
 Interpolation<T>::~Interpolation()
 {
-	for(int i = 0; i <= xRange; i++)
+	if(ready)
 	{
-		for(int j = 0; j < yRange; j++)
+		for(int i = 0; i <= xRange; i++)
 		{
-			delete offset[i][j];
+			for(int j = 0; j < yRange; j++)
+			{
+				delete offset[i][j];
+			}
+			delete offset[i];
+			delete control_points[i];
 		}
-		delete offset[i];
-		delete control_points[i];
+		delete offset;
+		delete control_points;
 	}
-	delete offset;
-	delete control_points;
 }
 
 template <class T>

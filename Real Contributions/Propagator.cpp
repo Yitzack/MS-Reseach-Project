@@ -134,11 +134,38 @@ void Loop_Out(long double Par[], int Temp, char File[])
 {
 	long double k, theta;
 	long double on_shell, photon, stop;
-	ofstream Table(File);
+	bool Manifest[702][101];
+	ofstream oTable;
+	ifstream iTable(File);
 	int i;
-	Table << setprecision(18);
+	char Bin_c[11];
+	long double Bin_n[9];
 
-	Table << "{" << flush;
+	for(i = 0; i < 702; i++)
+	{
+		for(int j = 0; j < 101; j++)
+		{
+			Manifest[i][j] = false;
+		}
+	}
+
+	iTable >> Bin_c[0];
+	while(iTable.good())
+	{
+		iTable >> Bin_c[0] >> Bin_n[0] >> Bin_c[1] >> Bin_n[1] >> Bin_c[2] >> Bin_n[2];
+		iTable.ignore(200,'\n');
+		i = Bin_n[0];
+		theta = Bin_n[2];
+		Manifest[i][int(theta*200./M_PI)] = true;
+	}
+
+	iTable.close();
+	oTable.open(File, ios::app);
+
+	oTable << setprecision(18);
+
+	if(!Manifest[0][0])
+		oTable << "{" << flush;
 	for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
 	{
 		on_shell = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
@@ -147,17 +174,24 @@ void Loop_Out(long double Par[], int Temp, char File[])
 
 		for(i = 0; i <= 700; i++)
 		{
-			k = k_i(i,on_shell,photon,stop);
-			Table << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}," << endl;
+			if(!Manifest[i][int(theta*200./M_PI)])
+			{
+				k = k_i(i,on_shell,photon,stop);
+				oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}," << endl;
+			}
 		}
-		k = k_i(i,on_shell,photon,stop);
-		Table << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}" << flush;
-		if(theta != M_PI/2.)
-			Table << "," << endl;
+		if(!Manifest[i][int(theta*200./M_PI)])
+		{
+			k = k_i(i,on_shell,photon,stop);
+			oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}" << flush;
+			if(theta != M_PI/2.)
+				oTable << "," << endl;
+		}
 	}
-	Table << "}" << endl;
+	if(!Manifest[701][100])
+		oTable << "}" << endl;
 
-	Table.close();
+	oTable.close();
 }
 
 long double ReG12(long double M, long double s, long double P, long double k, long double theta)
