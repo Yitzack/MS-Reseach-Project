@@ -177,15 +177,19 @@ void Loop_Out(long double Par[], int Temp, char File[])
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{
 				k = k_i(i,on_shell,photon,stop);
-				oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}," << endl;
+				if(k < stop+50. && k >= 0)
+					oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}," << endl;
 			}
 		}
 		if(!Manifest[i][int(theta*200./M_PI)])
 		{
 			k = k_i(i,on_shell,photon,stop);
-			oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}" << flush;
-			if(theta != M_PI/2.)
-				oTable << "," << endl;
+			if(k < stop+50. && k>= 0)
+			{
+				oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}" << flush;
+				if(theta != M_PI/2.)
+					oTable << "," << endl;
+			}
 		}
 	}
 	if(!Manifest[701][100])
