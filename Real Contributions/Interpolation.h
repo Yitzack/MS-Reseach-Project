@@ -78,24 +78,44 @@ Interpolation<T>::Interpolation(T** Control, int xSize, int ySize)	//I really wa
 template <class T>
 void Interpolation<T>::operator=(Interpolation<T> A)
 {
-	xRange = A.xRange;
-	yRange = A.yRange;
-
-	control_points = new T*[int(xRange)+1];
-	offset = new int**[int(xRange)+1];
-	for(int i = 0; i <= xRange; i++)
+	if(ready)	//delete the interpolation in *this if it exists
 	{
-		control_points[i] = new T[int(yRange)+1];
-		offset[i] = new int*[int(yRange)+1];
-		for(int j = 0; j <= yRange; j++)
+		for(int i = 0; i <= xRange; i++)
 		{
-			control_points[i][j] = A.control_points[i][j];
-			offset[i][j] = new int[2];
-			offset[i][j][0] = i-5;
-			offset[i][j][1] = j-5;
-	}	}
+			for(int j = 0; j < yRange; j++)
+			{
+				delete offset[i][j];
+			}
+			delete offset[i];
+			delete control_points[i];
+		}
+		delete offset;
+		delete control_points;
 
-	ready = true;
+		ready = false;
+	}
+
+	if(A.ready)	//Assign the interpolation in A if it exists
+	{
+		xRange = A.xRange;
+		yRange = A.yRange;
+
+		control_points = new T*[int(xRange)+1];
+		offset = new int**[int(xRange)+1];
+		for(int i = 0; i <= xRange; i++)
+		{
+			control_points[i] = new T[int(yRange)+1];
+			offset[i] = new int*[int(yRange)+1];
+			for(int j = 0; j <= yRange; j++)
+			{
+				control_points[i][j] = A.control_points[i][j];
+				offset[i][j] = new int[2];
+				offset[i][j][0] = i-5;
+				offset[i][j][1] = j-5;
+		}	}
+
+		ready = true;
+	}
 }
 
 template <class T>
