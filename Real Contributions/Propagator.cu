@@ -6,15 +6,15 @@
 #include<string>
 #include<chrono>
 #include"Around.h"
-#include"Spectral.h"
+#include"Spectral.cuh"
 using namespace std;
 
 int Start_Point(int, char[70]);						//Find highest line calculated and returns it, as written causes last line to be recalculated
 bool Restart_Check(char[70], char*, char*, char*, char*, char*);		//Checks to see if file header matches input parameters and clears it if not
-long double ReG12(long double, long double, long double, long double, long double);
-long double ImG12(long double, long double, long double, long double, long double);
-long double k_i(int, long double, long double, long double);
-void Loop_Out(long double[], int, char[]);
+double ReG12(double, double, double, double, double);
+double ImG12(double, double, double, double, double);
+double k_i(int, double, double, double);
+void Loop_Out(double[], int, char[]);
 
 int main(int argc, char* argv[])
 {
@@ -29,7 +29,6 @@ int main(int argc, char* argv[])
 	strcat(File, "Half.");
 #endif
 
-	char* Process = argv[1];
 	char FileApp[70];
 	char Number_c[5];
 	string Number_s;
@@ -57,10 +56,9 @@ int main(int argc, char* argv[])
 	const int iProcess = atoi(argv[1]) % atoi(argv[2]);	//Assigned column(s)
 	const int Total = atoi(argv[2]);			//Number of concurent threads
 	const int Temp = atoi(argv[3]);			//Temprature enumeration
-	long double Par[5];					//Parameters to be used in calculation {Coupling constant, potential cutoff, quark mass, P, s}
-	Elements<Around> holder;					//Calculated value before distribution to Table
+	double Par[5];					//Parameters to be used in calculation {Coupling constant, potential cutoff, quark mass, P, s}
 
-	cerr << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
+	cerr << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for double.
 	for(i = Start; i <= Finish; i++)
 	{
 		for(j = iProcess; j < 576; j+=Total)	//Does the subset of j that has been assigned to this process
@@ -82,7 +80,7 @@ int main(int argc, char* argv[])
 			{
 				Par[3] = i*.8;
 				if(i < 0)
-					Par[3] = ((long double)(i%7)/8.-.125-floor((long double)(i)/7.))*.8;
+					Par[3] = ((double)(i%7)/8.-.125-floor((double)(i)/7.))*.8;
 #ifndef BB
 				if(j <= 161)
 					Par[4] = pow((j-151.)/100.,2);
@@ -125,16 +123,16 @@ int main(int argc, char* argv[])
 	return(0);
 }
 
-void Loop_Out(long double Par[], int Temp, char File[])
+void Loop_Out(double Par[], int Temp, char File[])
 {
-	long double k, theta;
-	long double on_shell, photon, stop;
+	double k, theta;
+	double on_shell, photon, stop;
 	bool Manifest[702][101];
 	ofstream oTable;
 	ifstream iTable(File);
 	int i;
 	char Bin_c[11];
-	long double Bin_n[9];
+	double Bin_n[9];
 
 	for(i = 0; i < 702; i++)
 	{
@@ -161,19 +159,21 @@ void Loop_Out(long double Par[], int Temp, char File[])
 
 	if(!Manifest[0][0])
 		oTable << "{" << flush;
-	for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
+	for(theta = 0; theta < M_PI*.0025; theta += M_PI/200.)
 	{
 		on_shell = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		stop = isnan(photon)?50.:photon+50.;
 
-		for(i = 0; i <= 700; i++)
+		for(i = 0; i <= 5; i++)
 		{
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{
 				k = k_i(i,on_shell,photon,stop);
 				if(k < stop+50. && k >= 0)
+				{
 					oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}," << endl;
+				}
 			}
 		}
 		if(!Manifest[i][int(theta*200./M_PI)])
@@ -193,17 +193,17 @@ void Loop_Out(long double Par[], int Temp, char File[])
 	oTable.close();
 }
 
-long double ReG12(long double M, long double s, long double P, long double k, long double theta)
+double ReG12(double M, double s, double P, double k, double theta)
 {
 	return((2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)))*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(pow(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2),2)+pow(.14,2))));
 }
 
-long double ImG12(long double M, long double s, long double P, long double k, long double theta)
+double ImG12(double M, double s, double P, double k, double theta)
 {
 	return((2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)))*.14/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(pow(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2),2)+pow(.14,2))));
 }
 
-long double k_i(int i, long double x1, long double x2, long double x3)
+double k_i(int i, double x1, double x2, double x3)
 {
 	if(isnan(x2) || x2 < .5)
 	{
@@ -211,12 +211,12 @@ long double k_i(int i, long double x1, long double x2, long double x3)
 	}
 	else if(isnan(x1) || x1 < .5)
 	{
-		long double a = -x2*x3/(120.*(x2-x3));
-		long double b = (-6.*x2+x3)/(600.*(x2-x3));
+		double a = -x2*x3/(120.*(x2-x3));
+		double b = (-6.*x2+x3)/(600.*(x2-x3));
 		return(a*i/(1.+b*i));
 	}
-	long double a = -x1*x3/(120.*(x1-x3));
-	long double b = (-6.*x1+x3)/(600.*(x1-x3));
+	double a = -x1*x3/(120.*(x1-x3));
+	double b = (-6.*x1+x3)/(600.*(x1-x3));
 	return(a*i/(1.+b*i));
 }
 
