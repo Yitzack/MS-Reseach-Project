@@ -134,6 +134,14 @@ void Loop_Out(double Par[], int Temp, char File[])
 	char Bin_c[11];
 	double Bin_n[9];
 
+	Dev_Pointer Pointers;
+	cudaMalloc((void**)&Pointers.omega, 130*sizeof(double));
+	cudaMalloc((void**)&Pointers.Fermi, 130*sizeof(double));
+	cudaMalloc((void**)&Pointers.ImSelf, 130*sizeof(double));
+	cudaMalloc((void**)&Pointers.ReSelf, 130*sizeof(double));
+	cudaMalloc((void**)&Pointers.q, 130*sizeof(double));
+	cudaMalloc((void**)&Pointers.Ordinate, 65*sizeof(double));
+
 	for(i = 0; i < 702; i++)
 	{
 		for(int j = 0; j < 101; j++)
@@ -165,14 +173,14 @@ void Loop_Out(double Par[], int Temp, char File[])
 		photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		stop = isnan(photon)?50.:photon+50.;
 
-		for(i = 0; i <= 5; i++)
+		for(i = 0; i < 101; i++)
 		{
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{
 				k = k_i(i,on_shell,photon,stop);
 				if(k < stop+50. && k >= 0)
 				{
-					oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}," << endl;
+					oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Pointers, Par, Temp, 0, k, theta) << "," << k0_Int(Pointers, Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}," << endl;
 				}
 			}
 		}
@@ -181,7 +189,7 @@ void Loop_Out(double Par[], int Temp, char File[])
 			k = k_i(i,on_shell,photon,stop);
 			if(k < stop+50. && k>= 0)
 			{
-				oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}" << flush;
+				oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Pointers, Par, Temp, 0, k, theta) << "," << k0_Int(Pointers, Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}" << flush;
 				if(theta != M_PI/2.)
 					oTable << "," << endl;
 			}
@@ -189,6 +197,13 @@ void Loop_Out(double Par[], int Temp, char File[])
 	}
 	if(!Manifest[701][100])
 		oTable << "}" << endl;
+
+	cudaFree(Pointers.omega);
+	cudaFree(Pointers.Fermi);
+	cudaFree(Pointers.ImSelf);
+	cudaFree(Pointers.ReSelf);
+	cudaFree(Pointers.q);
+	cudaFree(Pointers.Ordinate);
 
 	oTable.close();
 }

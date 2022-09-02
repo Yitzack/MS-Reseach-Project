@@ -7,14 +7,45 @@
 #include"Around.h"
 using namespace std;
 
+struct Dev_Pointer
+{
+	double* omega;
+	double* Fermi;
+	double* ImSelf;
+	double* ReSelf;
+	double* q;
+	double* Ordinate;
+};
+
 //Integrals that define results
-Around Dispersion(double[], int, double, double, double);	//Dispersion relation for turning ImG_12 into ReG_12
-Around Dispersion(double[], int, double, double, double, double, double, Around, int, int);	//Dispersion relation for turning ImG_12 into ReG_12
-Around k0_Int(double[], int, double, double);			//k0 integral aka energy integral
-Around k0_Int(double[], int, double, double, double, double, int, int);			//k0 integral aka energy integral
-__global__ void k0_Int97(double*, int*, double*, double*, double*, double*, double*);
-__global__ void k0_Int37(double*, int*, double*, double*, double*, double*, double*);
-__global__ void k0_Int16(double*, int*, double*, double*, double*, double*, double*);
+Around Dispersion(Dev_Pointer, double[], int, double, double, double);			//Dispersion relation for turning ImG_12 into ReG_12
+Around Dispersion(Dev_Pointer, double[], int, double, double, double, double, double, Around, int, int);	//Dispersion relation for turning ImG_12 into ReG_12
+Around k0_Int(Dev_Pointer, double[], int, double, double);					//k0 integral aka energy integral
+Around k0_Int(Dev_Pointer, double[], int, double, double, double, double, int, int);	//k0 integral aka energy integral
+
+__global__ void k0_omega_Fermi_16(double*, double*, double*, double*);				//Energy and Fermi function for 16th order
+__global__ void k0_Vaccum_ImSelf_16(double*, double*, double*);					//ImSelf for Vacuum and 16th order
+__global__ void k0_Vaccum_ReSelf_16(double*, double*, double*);					//ReSelf for Vacuum and 16th order
+__global__ void k0_194_ImSelf_16(double*, double*, double*, double*);				//ImSelf for T=194 MeV and 16th order
+__global__ void k0_194_ReSelf_16(double*, double*, double*, double*);				//ReSelf for T=194 MeV and 16th order
+__global__ void k0_Ordinate_16(double*, double*, double*, double*, double*, double*, double*);	//Ordinate for 16th order
+__global__ void k0_Reduce_16(double*, double*);							//Reduce 16th order
+
+__global__ void k0_omega_Fermi_37(double*, double*, double*, double*);				//Energy and Fermi function for 37th order
+__global__ void k0_Vaccum_ImSelf_37(double*, double*, double*);					//ImSelf for Vacuum and 37th order
+__global__ void k0_Vaccum_ReSelf_37(double*, double*, double*);					//ReSelf for Vacuum and 37th order
+__global__ void k0_194_ImSelf_37(double*, double*, double*, double*);				//ImSelf for T=194 MeV and 37th order
+__global__ void k0_194_ReSelf_37(double*, double*, double*, double*);				//ReSelf for T=194 MeV and 37th order
+__global__ void k0_Ordinate_37(double*, double*, double*, double*, double*, double*, double*);	//Ordinate for 37th order
+__global__ void k0_Reduce_37(double*, double*);	//Reduce 37th order
+
+__global__ void k0_omega_Fermi_97(double*, double*, double*, double*);				//Energy and Fermi function for 97th order
+__global__ void k0_Vaccum_ImSelf_97(double*, double*, double*);					//ImSelf for Vacuum and 97th order
+__global__ void k0_Vaccum_ReSelf_97(double*, double*, double*);					//ReSelf for Vacuum and 97th order
+__global__ void k0_194_ImSelf_97(double*, double*, double*, double*);				//ImSelf for T=194 MeV and 97th order
+__global__ void k0_194_ReSelf_97(double*, double*, double*, double*);				//ReSelf for T=194 MeV and 97th order
+__global__ void k0_Ordinate_97(double*, double*, double*, double*, double*, double*, double*);	//Ordinate for 97th order
+__global__ void k0_Reduce_97(double*, double*);	//Reduce 97th order
 
 //Functions for finding points of interest in the k0 integral
 void Characterize_k0_Int(double[], int, double, double, double[], double[], int&);	//Returns the poles of the k0 integral's integrands
@@ -26,14 +57,14 @@ void Characterize_Dispersion(double[], int, double, double, double, double[], do
 double sp_Width(double[], double, double, double, int, double (*)(double[], double, double, double, int));	//Breit-Wigner width of the peak
 
 //Functions that return physics for the integrand
-__device__ __host__ void ImSelf_Energy(double, double, double[], int, double[]);			//Returns the imaginary single quark self-energies for both quarks, contains an alternate T=194 MeV solution
-double ImSelf_Energy(double, double, double, int);				//Returns the imaginary single quark self-energies for one quark, contains an alternate T=194 MeV solution
-__device__ __host__ void ReSelf_Energy(double, double, double[], int, double[]);					//Returns the real single quark self-energies for both quarks, contains an alternate T=194 MeV solution
-__device__ __host__ void Self_Energy(double, double, double[], int, double[], double[]);	//Returns the complex single quark self-energies for both quarks, is a simple Breit-Wigner self-energy and alternate to those above
-__device__ __host__ double Energy(double, double, double, double);						//Single quark energy, also used to return total momentum by setting M=0
-__device__ __host__ double Fermi(double, int);											//Fermi function
-__device__ __host__ double Set_Temp(int);												//Decodes 0-4 into numeric temprature for Fermi factor
-__device__ __host__ double Imk0_Integrand(double[], double, double, double, int);				//Integrand of the k0 integral for positive energy
+void ImSelf_Energy(double, double, double[], int, double[]);		//Returns the imaginary single quark self-energies for both quarks, contains an alternate T=194 MeV solution
+double ImSelf_Energy(double, double, double, int);			//Returns the imaginary single quark self-energies for one quark, contains an alternate T=194 MeV solution
+void ReSelf_Energy(double, double, double[], int, double[]);		//Returns the real single quark self-energies for both quarks, contains an alternate T=194 MeV solution
+void Self_Energy(double, double, double[], int, double[], double[]);	//Returns the complex single quark self-energies for both quarks, is a simple Breit-Wigner self-energy and alternate to those above
+double Energy(double, double, double, double);			//Single quark energy, also used to return total momentum by setting M=0
+double Fermi(double, int);						//Fermi function
+double Set_Temp(int);							//Decodes 0-4 into numeric temprature for Fermi factor
+double Imk0_Integrand(double[], double, double, double, int);	//Integrand of the k0 integral for positive energy
 __device__ __host__ double sq(double);
 
 auto Start_Time = chrono::system_clock::now();
@@ -84,12 +115,12 @@ void mergeSort(double List[], int a, int b)
 #define GAMMA -.015	//Width of single quark propagator
 #endif
 
-Around Dispersion(double Par[], int Temp, double k0, double k, double theta)
+Around Dispersion(Dev_Pointer Pointers, double Par[], int Temp, double k0, double k, double theta)
 {
 	double a, b;	//Sub-interval limits of integration
 	double Min;	//Lower limit of integration
 	double Max = 0;	//Upper limit of principal value integration
-	Around ImG12 = k0_Int(Par, Temp, k, theta);		//Holder of the ImG12 that belongs to the other half of G12 that is calculated here
+	Around ImG12 = k0_Int(Pointers, Par, Temp, k, theta);		//Holder of the ImG12 that belongs to the other half of G12 that is calculated here
 
 	//Extra boundaries that insert extra intervals around peaks. Used a machine learn algorithm of sorts to minimize error to pick these values.
 	double Boundary_k_k0[] = {0.0491, .421};
@@ -153,7 +184,7 @@ Around Dispersion(double Par[], int Temp, double k0, double k, double theta)
 	{
 		i++;
 		ParLoc[4] = Stops[i];
-		Holder = k0_Int(ParLoc, Temp, k, theta);
+		Holder = k0_Int(Pointers, ParLoc, Temp, k, theta);
 		if(!(Holder == Around(0)))
 		{
 			i--;
@@ -201,9 +232,9 @@ Around Dispersion(double Par[], int Temp, double k0, double k, double theta)
 		}*/
 
 		if(abs(Par[4]-a)<.25 || abs(b-Par[4])<.25)
-			Partial = Dispersion(Par, Temp, k0, k, theta, a, b, ImG12*Principal, 97, 0);
+			Partial = Dispersion(Pointers, Par, Temp, k0, k, theta, a, b, ImG12*Principal, 97, 0);
 		else
-			Partial = Dispersion(Par, Temp, k0, k, theta, a, b, ImG12*Principal, 16, 0);
+			Partial = Dispersion(Pointers, Par, Temp, k0, k, theta, a, b, ImG12*Principal, 16, 0);
 		Answer += Partial;		//Add the Region to the total
 		a = b;
 	}while((a < 4.*(sq(k)+sq(Par[2]))+50. && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
@@ -215,7 +246,7 @@ Around Dispersion(double Par[], int Temp, double k0, double k, double theta)
 	return(Answer/M_PI);
 }
 
-Around Dispersion(double Par[], int Temp, double k0, double k, double theta, double a, double b, Around ImG12, int order, int deep)
+Around Dispersion(Dev_Pointer Pointers, double Par[], int Temp, double k0, double k, double theta, double a, double b, Around ImG12, int order, int deep)
 {
 //9th order Gauss-Legendre integration/16th order Gauss-Kronrod weight
 	double Disp9[] = {0.2796304131617831934134665, sqrt(5.-2.*sqrt(10./7.))/3., 0.7541667265708492204408172, sqrt(5.+2.*sqrt(10./7.))/3., 0.9840853600948424644961729};	//Displacement from center
@@ -238,16 +269,16 @@ Around Dispersion(double Par[], int Temp, double k0, double k, double theta, dou
 		for(int l = 0; l < 5; l++) //Count through points away from center
 		{
 			ParLoc[4] = (b+a-Disp9[l]*(b-a))/2.;
-			Holder = k0_Int(ParLoc, Temp, k, theta);
+			Holder = k0_Int(Pointers, ParLoc, Temp, k, theta);
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w9[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w16[l+1];
 			ParLoc[4] = (b+a+Disp9[l]*(b-a))/2.;
-			Holder = k0_Int(ParLoc, Temp, k, theta);
+			Holder = k0_Int(Pointers, ParLoc, Temp, k, theta);
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w9[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w16[l+1];
 		}
 		ParLoc[4] = (b+a)/2.;
-		Holder = k0_Int(ParLoc, Temp, k, theta);
+		Holder = k0_Int(Pointers, ParLoc, Temp, k, theta);
 		F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w9[0];
 		F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w16[0];
 		break;
@@ -255,16 +286,16 @@ Around Dispersion(double Par[], int Temp, double k0, double k, double theta, dou
 		for(int l = 0; l < 32; l++) //Count through points away from center
 		{
 			ParLoc[4] = (b+a-Disp97[l]*(b-a))/2.;
-			Holder = k0_Int(ParLoc, Temp, k, theta);
+			Holder = k0_Int(Pointers, ParLoc, Temp, k, theta);
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w63[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w97[l+1];
 			ParLoc[4] = (b+a+Disp97[l]*(b-a))/2.;
-			Holder = k0_Int(ParLoc, Temp, k, theta);
+			Holder = k0_Int(Pointers, ParLoc, Temp, k, theta);
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w63[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w97[l+1];
 		}
 		ParLoc[4] = (b+a)/2.;
-		Holder = k0_Int(ParLoc, Temp, k, theta);
+		Holder = k0_Int(Pointers, ParLoc, Temp, k, theta);
 		F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w63[0];
 		F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w97[0];
 		break;
@@ -272,12 +303,12 @@ Around Dispersion(double Par[], int Temp, double k0, double k, double theta, dou
 
 	Answer = Around(F[1], abs(F[0]-F[1]))*(b-a)/2.;
 	if(!(Answer.RelErr() < 1e-6 || Answer.Error() < 1e-7) && deep < 4 && abs(b/a-(double)(1.)) > FLT_EPSILON)
-		Answer = Dispersion(Par, Temp, k0, k, theta, a, (a+b)/2., ImG12, order, deep+1) + Dispersion(Par, Temp, k0, k, theta, (a+b)/2., b, ImG12, order, deep+1);
+		Answer = Dispersion(Pointers, Par, Temp, k0, k, theta, a, (a+b)/2., ImG12, order, deep+1) + Dispersion(Pointers, Par, Temp, k0, k, theta, (a+b)/2., b, ImG12, order, deep+1);
 
 	return(Answer);
 }
 
-Around k0_Int(double Par[], int Temp, double k, double theta)
+Around k0_Int(Dev_Pointer Pointers, double Par[], int Temp, double k, double theta)
 {
 	double a, b;	//Sub-interval limits of integration
 	double Max;	//Upper limit of integration
@@ -380,11 +411,11 @@ Around k0_Int(double Par[], int Temp, double k, double theta)
 			b = Max;	//Be sure E/2 is and sub-interval boundary
 
 		if((abs(a-Caution) < 1 || abs(b-Caution) < 1) && Par[4] > pow(2.*Par[2], 2) && abs(k-.5*sqrt((Par[4]-pow(2.*Par[2], 2))*(Par[4]+sq(Par[3]))/(Par[4]+pow(Par[3]*sin(theta), 2)))) < 1)
-			Partial = k0_Int(Par, Temp, k, theta, a, b, 97, 0);
+			Partial = k0_Int(Pointers, Par, Temp, k, theta, a, b, 97, 0);
 		else if((abs(a-Caution) < 1 || abs(b-Caution) < 1))
-			Partial = k0_Int(Par, Temp, k, theta, a, b, 37, 0);
+			Partial = k0_Int(Pointers, Par, Temp, k, theta, a, b, 37, 0);
 		else
-			Partial = k0_Int(Par, Temp, k, theta, a, b, 16, 0);
+			Partial = k0_Int(Pointers, Par, Temp, k, theta, a, b, 16, 0);
 
 		Answer += Partial;		//Add the Region to the total
 		a = b;
@@ -393,53 +424,74 @@ Around k0_Int(double Par[], int Temp, double k, double theta)
 	return(Answer/M_PI);
 }
 
-Around k0_Int(double Par[], int Temp, double k, double theta, double a, double b, int order, int deep)
+Around k0_Int(Dev_Pointer Pointers, double Par[], int Temp, double k, double theta, double a, double b, int order, int deep)
 {
 	double F[2];
 	double* F_dev;
-	double* a_dev;
-	double* b_dev;
-	double* k_dev;
-	double* theta_dev;
+
+	double Par_loc[] = {Par[0], Par[1], Par[2], Par[3], Par[4], k, theta, a, b, Set_Temp(Temp)};
 	double* Par_dev;
-	int* Temp_dev;
 
 	cudaMalloc((void**)&F_dev, 2*sizeof(double));
-	cudaMalloc((void**)&a_dev, sizeof(double));
-	cudaMalloc((void**)&b_dev, sizeof(double));
-	cudaMalloc((void**)&k_dev, sizeof(double));
-	cudaMalloc((void**)&theta_dev, sizeof(double));
-	cudaMalloc((void**)&Par_dev, 5*sizeof(double));
-	cudaMalloc((void**)&Temp_dev, sizeof(int));
+	cudaMalloc((void**)&Par_dev, 10*sizeof(double));
 
-	cudaMemcpy((void*)a_dev, (void*)&a, sizeof(double), cudaMemcpyHostToDevice);
-	cudaMemcpy((void*)b_dev, (void*)&b, sizeof(double), cudaMemcpyHostToDevice);
-	cudaMemcpy((void*)k_dev, (void*)&k, sizeof(double), cudaMemcpyHostToDevice);
-	cudaMemcpy((void*)theta_dev, (void*)&theta, sizeof(double), cudaMemcpyHostToDevice);
-	cudaMemcpy((void*)Par_dev, (void*)Par, 5*sizeof(double), cudaMemcpyHostToDevice);
-	cudaMemcpy((void*)Temp_dev, (void*)&Temp, sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy((void*)Par_dev, (void*)Par, 10*sizeof(double), cudaMemcpyHostToDevice);
 
 	switch(order)
 	{
 	case 97:
-		k0_Int97<<<1,65>>>(Par_dev, Temp_dev, k_dev, theta_dev, a_dev, b_dev, F_dev);
+		k0_omega_Fermi_97<<<1,65>>>(Par_dev, Pointers.omega, Pointers.q, Pointers.Fermi);	//Energy and Fermi function for 97th order
+		switch(Temp)
+		{
+		case 0:
+			k0_Vaccum_ImSelf_97<<<1,130>>>(Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for Vacuum and 97th order
+			k0_Vaccum_ReSelf_97<<<1,130>>>(Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for Vacuum and 97th order
+			break;
+		case 1:
+			k0_194_ImSelf_97<<<1,130>>>(Par_dev, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for T=194 MeV and 97th order
+			k0_194_ReSelf_97<<<1,130>>>(Par_dev, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for T=194 MeV and 97th order
+			break;
+		}
+		k0_Ordinate_97<<<1,65>>>(Par_dev, Pointers.omega, Pointers.q, Pointers.Fermi, Pointers.ImSelf, Pointers.ReSelf, Pointers.Ordinate);	//Ordinate for 97th order
+		k0_Reduce_97<<<1,65>>>(Pointers.Ordinate, F);								//Reduce 97th order
 		break;
 	case 37:
-		k0_Int37<<<1,25>>>(Par_dev, Temp_dev, k_dev, theta_dev, a_dev, b_dev, F_dev);
+		k0_omega_Fermi_37<<<1,25>>>(Par_dev, Pointers.omega, Pointers.q, Pointers.Fermi);	//Energy and Fermi function for 37th order
+		switch(Temp)
+		{
+		case 0:
+			k0_Vaccum_ImSelf_37<<<1,50>>>(Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for Vacuum and 37th order
+			k0_Vaccum_ReSelf_37<<<1,50>>>(Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for Vacuum and 37th order
+			break;
+		case 1:
+			k0_194_ImSelf_37<<<1,50>>>(Par_dev, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for T=194 MeV and 37th order
+			k0_194_ReSelf_37<<<1,50>>>(Par_dev, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for T=194 MeV and 37th order
+			break;
+		}
+		k0_Ordinate_37<<<1,25>>>(Par_dev, Pointers.omega, Pointers.q, Pointers.Fermi, Pointers.ImSelf, Pointers.ReSelf, Pointers.Ordinate);	//Ordinate for 37th order
+		k0_Reduce_37<<<1,25>>>(Pointers.Ordinate, F);								//Reduce 37th order
 		break;
 	case 16:
-		k0_Int16<<<1,11>>>(Par_dev, Temp_dev, k_dev, theta_dev, a_dev, b_dev, F_dev);
+		k0_omega_Fermi_16<<<1,11>>>(Par_dev, Pointers.omega, Pointers.q, Pointers.Fermi);	//Energy and Fermi function for 16th order
+		switch(Temp)
+		{
+		case 0:
+			k0_Vaccum_ImSelf_16<<<1,22>>>(Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for Vacuum and 16th order
+			k0_Vaccum_ReSelf_16<<<1,22>>>(Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for Vacuum and 16th order
+			break;
+		case 1:
+			k0_194_ImSelf_16<<<1,22>>>(Par_dev, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for T=194 MeV and 16th order
+			k0_194_ReSelf_16<<<1,22>>>(Par_dev, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for T=194 MeV and 16th order
+			break;
+		}
+		k0_Ordinate_16<<<1,11>>>(Par_dev, Pointers.omega, Pointers.q, Pointers.Fermi, Pointers.ImSelf, Pointers.ReSelf, Pointers.Ordinate);	//Ordinate for 16th order
+		k0_Reduce_16<<<1,11>>>(Pointers.Ordinate, F);								//Reduce 16th order
 		break;
 	}
 
 	cudaMemcpy((void*)F, (void*)F_dev, 2*sizeof(double), cudaMemcpyDeviceToHost);
 	cudaFree(F_dev);
-	cudaFree(a_dev);
-	cudaFree(b_dev);
-	cudaFree(k_dev);
-	cudaFree(theta_dev);
 	cudaFree(Par_dev);
-	cudaFree(Temp_dev);
 
 	Around Answer = Around(F[1], abs(F[0]-F[1]))*(b-a)/2.;//Around(F[0])*(b-a)/2.;//
 	/*if(Answer.RelErr() > 1e-8 && deep < 4 && abs(b/a-(double)(1.)) > FLT_EPSILON)
@@ -449,21 +501,171 @@ Around k0_Int(double Par[], int Temp, double k, double theta, double a, double b
 
 }
 
-__global__ void k0_Int16(double* Par, int* Temp, double* k, double* theta, double* a, double* b, double* Answer)
-{
 //9th order Gauss-Legendre integration/16th order Gauss-Kronrod weight, 11 points
-	double Disp9[] = {-0.9840853600948424644961729, -sqrt(5.+2.*sqrt(10./7.))/3., -0.7541667265708492204408172, -sqrt(5.-2.*sqrt(10./7.))/3., -0.2796304131617831934134665, 0, 0.2796304131617831934134665, sqrt(5.-2.*sqrt(10./7.))/3., 0.7541667265708492204408172, sqrt(5.+2.*sqrt(10./7.))/3., 0.9840853600948424644961729};	//Displacement from center
-	double w9[] = {0., (322.-13.*sqrt(70.))/900., 0., (322.+13.*sqrt(70.))/900., 0., 128./225., 0., (322.+13.*sqrt(70.))/900., 0., (322.-13.*sqrt(70.))/900., 0.};	//9th order Gauss-Legendre weights
-	double w16[]= {0.042582036751081832864509451, 0.11523331662247339402462685, 0.18680079655649265746780003, 0.2410403392286475866999426, 0.27284980191255892234099326, 0.2829874178574912132042556, 0.27284980191255892234099326, 0.2410403392286475866999426, 0.18680079655649265746780003, 0.11523331662247339402462685, 0.042582036751081832864509451}; //16th order Gauss-Kronrod weights
+__constant__ double Disp9[] = {-0.9840853600948424644961729, -0.906179845938663992797627, -0.7541667265708492204408172, -0.538469310105683091036314, -0.2796304131617831934134665, 0, 0.2796304131617831934134665, 0.538469310105683091036314, 0.7541667265708492204408172, 0.906179845938663992797627, 0.9840853600948424644961729};	//Displacement from center
+__constant__ double w9[] = {0., 0.236926885056189087514264, 0., 0.478628670499366468041292, 0., 128./225., 0., 0.478628670499366468041292, 0., 0.236926885056189087514264, 0.};	//9th order Gauss-Legendre weights
+__constant__ double w16[]= {0.042582036751081832864509451, 0.11523331662247339402462685, 0.18680079655649265746780003, 0.2410403392286475866999426, 0.27284980191255892234099326, 0.2829874178574912132042556, 0.27284980191255892234099326, 0.2410403392286475866999426, 0.18680079655649265746780003, 0.11523331662247339402462685, 0.042582036751081832864509451}; //16th order Gauss-Kronrod weights
+__global__ void k0_omega_Fermi_16(double* Par_globe, double* omega, double* q, double* Fermi)	//Energy and Fermi function for 16th order
+{
+	__shared__ double x[11];
+	__shared__ double Par[10];
+	if(threadIdx.x < 10);
+		Par[threadIdx.x] = Par_globe[threadIdx.x];
 
-	double x = (b[0]+a[0]+Disp9[threadIdx.x]*(b[0]-a[0]))/2.;	//abscisca
-	double Ordinate = Imk0_Integrand(Par, x, *k, *theta, *Temp);	//Ordinate aka map algorithm
+	x[threadIdx.x] = (Par[8]+Par[7]+Disp9[threadIdx.x]*(Par[8]-Par[7]))/2.;	//abscisca
+	omega[threadIdx.x] = sqrt(Par[4]+sq(Par[3]))/2.+x[threadIdx.x];
+	omega[threadIdx.x+11] = sqrt(Par[4]+sq(Par[3]))/2.-x[threadIdx.x];
+	q[threadIdx.x] = sqrt(sq(Par[3])/4.+sq(Par[5])+Par[0]*Par[5]*cos(Par[6]));
+	q[threadIdx.x+11] = sqrt(sq(Par[3])/4.+sq(Par[5])-Par[0]*Par[5]*cos(Par[6]));
 
+	if(Par[9] == 0)
+	{
+		if(omega[threadIdx.x] >= 0)	//Fermi factor for vacuum
+			Fermi[threadIdx.x] = 0;
+		else
+			Fermi[threadIdx.x] = 1;
+	}
+	else
+		Fermi[threadIdx.x] = 1./(1.+exp(omega[threadIdx.x]/Par[9]));
+
+	if(Par[9] == 0)
+	{
+		if(omega[threadIdx.x+11] >= 0)	//Fermi factor for vacuum
+			Fermi[threadIdx.x+11] = 0;
+		else
+			Fermi[threadIdx.x+11] = 1;
+	}
+	else
+		Fermi[threadIdx.x+11] = 1./(1.+exp(omega[threadIdx.x+11]/Par[9]));
+}
+
+__global__ void k0_Vaccum_ImSelf_16(double* q, double* omega_globe, double* ImSelf)			//ImSelf for Vacuum and 16th order
+{
+	__shared__ double omega[22];
+	__shared__ double k[22];
+	omega[threadIdx.x] = omega_globe[threadIdx.x];
+	k[threadIdx.x] = q[threadIdx.x];
+
+	if(sq(omega[threadIdx.x])>=sq(k[threadIdx.x]) && omega[threadIdx.x] >= 0)	//Vacuum width
+		ImSelf[threadIdx.x] = sqrt(sq(omega[threadIdx.x])-sq(k[threadIdx.x]))*GAMMA;
+	else
+		ImSelf[threadIdx.x] = 0;
+}
+
+__global__ void k0_Vaccum_ReSelf_16(double* q, double* omega_globe, double* ReSelf)			//ReSelf for Vacuum and 16th order
+{
+	ReSelf[threadIdx.x] = 0;
+}
+
+__global__ void k0_194_ImSelf_16(double* Par, double* q, double* omega_globe, double* ImSelf)	//ImSelf for T=194 MeV and 16th order
+{
+	__shared__ double omega[22];
+	__shared__ double k[22];
+	__shared__ double ImSigma[22];
+	__shared__ static double M;
+	__shared__ static double omega0[2];		//Location of central peak
+	__shared__ static double Sigma[2];		//Amplitude of energy dependance
+	__shared__ static double a[2], b[2];	//Slope of exponential decrease to left and right
+	__shared__ static double knee[2];		//Interval to change from left to right side of peak
+	__shared__ static double M_T, Shift;	//Default quark mass, shfift from default quark mass to given quark mass
+	__shared__ static double k_old[2];		//Previous value of k to know if the parmeters need to recalculated
+
+	omega[threadIdx.x] = omega[threadIdx.x];
+	k[threadIdx.x] = q[threadIdx.x];
+
+	if((k[0] != k_old[0] || k[11] != k_old[1]) && (threadIdx.x == 0 || threadIdx.x == 11))
+	{
+		k_old[threadIdx.x%2] = k[threadIdx.x/11];
+		if(threadIdx.x == 0)
+		{
+			M_T = 1.84184;
+			M = Par[2];
+			Shift = M-M_T;
+		}
+		Sigma[threadIdx.x/11] = .569969/sqrt(sq(k[threadIdx.x/11])+sq(1.75236))+.0187484;
+		a[threadIdx.x/11] = 12.5349/(sq(k[threadIdx.x/11])+sq(1.63711))+5.026;
+		b[threadIdx.x/11] = -291.579/(sq(k[threadIdx.x/11]+15.2519)+sq(.0614821))+3.36681;
+		omega0[threadIdx.x/11] = sqrt(sq(1.51443+Shift)+sq(k[threadIdx.x/11]))+.232841;
+		knee[threadIdx.x/11] = 3.78956*pow(k[threadIdx.x/11]+1., (double)-.530289)+.305*(tanh((k[threadIdx.x/11]-48.4)/11.1111)+1);
+	}
+
+	if((omega[threadIdx.x]-omega0[threadIdx.x/11]+knee[threadIdx.x/11]*(b[threadIdx.x/11]-a[threadIdx.x/11])/(sqrt(a[threadIdx.x/11]*b[threadIdx.x/11])*(a[threadIdx.x/11]+b[threadIdx.x/11])))/knee[threadIdx.x/11] < -4.)
+		ImSigma[threadIdx.x] = a[threadIdx.x/11]*(omega[threadIdx.x]-omega0[threadIdx.x/11]+knee[threadIdx.x/11]/sqrt(a[threadIdx.x/11]*b[threadIdx.x/11]));
+	else if((omega[threadIdx.x]-omega0[threadIdx.x/11]+knee[threadIdx.x/11]*(b[threadIdx.x/11]-a[threadIdx.x/11])/(sqrt(a[threadIdx.x/11]*b[threadIdx.x/11])*(a[threadIdx.x/11]+b[threadIdx.x/11])))/knee[threadIdx.x/11] > 4.)
+		ImSigma[threadIdx.x] = b[threadIdx.x/11]*(omega0[threadIdx.x/11]-omega[threadIdx.x]+knee[threadIdx.x/11]/sqrt(a[threadIdx.x/11]*b[threadIdx.x/11]));
+	else	//Lost of precision having been circumvented, the actual value
+		ImSigma[threadIdx.x] = -.5*((a[threadIdx.x/11]-b[threadIdx.x/11])*omega0[threadIdx.x/11]-((a[threadIdx.x/11]+b[threadIdx.x/11])*knee[threadIdx.x/11])/sqrt(a[threadIdx.x/11]*b[threadIdx.x/11]))+(a[threadIdx.x/11]-b[threadIdx.x/11])*omega[threadIdx.x]/2-sqrt(pow(((a[threadIdx.x/11]+b[threadIdx.x/11])/2.)*(omega[threadIdx.x]-omega0[threadIdx.x/11]+((a[threadIdx.x/11]-b[threadIdx.x/11])*knee[threadIdx.x/11])/(sqrt(a[threadIdx.x/11]*b[threadIdx.x/11])*(a[threadIdx.x/11]+b[threadIdx.x/11]))), 2)+pow(knee[threadIdx.x/11], 2));
+
+#ifdef HALF
+	ImSigma[threadIdx.x] = -M*Sigma[threadIdx.x/11]*exp(ImSigma[threadIdx.x]);	//ImSigma from the in-medium
+#else
+	ImSigma[threadIdx.x] = -2.*M*Sigma[threadIdx.x/11]*exp(ImSigma[threadIdx.x]);	//ImSigma from the in-medium
+#endif
+
+	if(sq(omega[threadIdx.x])>=sq(k[threadIdx.x]) && omega[threadIdx.x] >= 0)	//Vacuum width
+		ImSelf[threadIdx.x] = sqrt(sq(omega[threadIdx.x])-sq(k[threadIdx.x]))*GAMMA+ImSigma[threadIdx.x];
+	else
+		ImSelf[threadIdx.x] = ImSigma[threadIdx.x];
+}
+
+__global__ void k0_194_ReSelf_16(double* Par, double* q, double* omega_globe, double* ReSelf)	//ReSelf for T=194 MeV and 16th order
+{
+	__shared__ double omega[22];
+	__shared__ double k[22];
+	__shared__ static double M;
+	__shared__ static double Sigma[2];		//Strength
+	__shared__ static double x0[2], x1[2];	//Centrality markers
+	__shared__ static double gamma[2];		//Width
+	__shared__ static double Shift, M_T;
+	__shared__ static double k_old[2];		//Note on validity of k
+
+	omega[threadIdx.x] = omega[threadIdx.x];
+	k[threadIdx.x] = q[threadIdx.x];
+
+	if((k[0] != k_old[0] || k[11] != k_old[1]) && (threadIdx.x == 0 || threadIdx.x == 11))
+	{
+		k_old[threadIdx.x%2] = k[threadIdx.x/11];
+		if(threadIdx.x == 0)
+		{
+			M_T = 1.84184;
+			M = Par[2];
+			Shift = M-M_T;
+		}
+		Sigma[threadIdx.x/11] = .212571/sqrt(sq(k[threadIdx.x])+sq(1.17821))+.00762638;
+		x0[threadIdx.x/11] = sqrt(sq(k[threadIdx.x])+sq(1.57536+Shift))+.259147;
+		x1[threadIdx.x/11] = sqrt(sq(k[threadIdx.x])+sq(1.50194+Shift))+.222526;
+		gamma[threadIdx.x/11] = .336699/sqrt(sq(k[threadIdx.x])+sq(1.87956))+.0651449;
+	}
+
+#ifdef HALF
+	ReSelf[threadIdx.x] = Sigma[threadIdx.x/11]*(omega[threadIdx.x]-x0[threadIdx.x/11])/(pow(omega[threadIdx.x]-x1[threadIdx.x/11], 2)+gamma[threadIdx.x/11])/2.;
+#else
+	ReSelf[threadIdx.x] = Sigma[threadIdx.x/11]*(omega[threadIdx.x]-x0[threadIdx.x/11])/(pow(omega[threadIdx.x]-x1[threadIdx.x/11], 2)+gamma[threadIdx.x/11]);
+#endif
+}
+
+__global__ void k0_Ordinate_16(double* Par, double* omega, double* q, double* fermi, double* ImSelf_globe, double* ReSelf, double* Ordinate)	//Ordinate for 16th order
+{
+	__shared__ double ImSelf[11][2];
+	__shared__ double M;
+	
+	if(threadIdx.x == 0)
+		M = Par[2];
+	ImSelf[threadIdx.x][0] = ImSelf_globe[threadIdx.x];
+	ImSelf[threadIdx.x][1] = ImSelf_globe[threadIdx.x+11];
+
+	Ordinate[threadIdx.x] = -((4.*ImSelf[threadIdx.x][0]*ImSelf[threadIdx.x][1]*sq(M)*(1.-fermi[threadIdx.x]-fermi[threadIdx.x+11]))/((sq(sq(omega[threadIdx.x])-sq(q[threadIdx.x])-sq(M)-2.*M*ReSelf[threadIdx.x])+sq(ImSelf[threadIdx.x][0]))*(sq(sq(omega[threadIdx.x+11])-sq(q[threadIdx.x+11])-sq(M)-2.*M*ReSelf[threadIdx.x+11])+sq(ImSelf[threadIdx.x][1]))));
+}
+
+__global__ void k0_Reduce_16(double* Ordinate_globe, double* Answer)	//Reduce 16th order
+{
 	__shared__ double lower_order[11];
 	__shared__ double higher_order[11];
+	__shared__ double Ordinate[11];
 
-	lower_order[threadIdx.x] = Ordinate*w9[threadIdx.x];		//store the lower order value
-	higher_order[threadIdx.x] = Ordinate*w16[threadIdx.x];	//store the higher order value
+	Ordinate[threadIdx.x] = Ordinate_globe[threadIdx.x];
+	lower_order[threadIdx.x] = Ordinate[threadIdx.x]*w9[threadIdx.x];	//store the lower order value
+	higher_order[threadIdx.x] = Ordinate[threadIdx.x]*w16[threadIdx.x];	//store the higher order value
 
 	for(int i = 0; i < 4; i++)	//reduce
 	{
@@ -481,21 +683,171 @@ __global__ void k0_Int16(double* Par, int* Temp, double* k, double* theta, doubl
 	}
 }
 
-__global__ void k0_Int37(double* Par, int* Temp, double* k, double* theta, double* a, double* b, double* Answer)
-{
 //23th order Gauss-Legendre/37th order Gauss-Kronrod integration, 25 points
-	double Disp37[] = {-0.99693392252959542691235, -0.98156063424671925069055, -0.95053779594312129654906, -0.90411725637047485667847, -0.84355812416115324479214, -0.76990267419430468703689, -0.68405989547005589394493, -0.58731795428661744729670, -0.48133945047815709293594, -0.36783149899818019375269, -0.24850574832046927626779, -0.12523340851146891547244, 0, 0.12523340851146891547244, 0.24850574832046927626779, 0.36783149899818019375269, 0.48133945047815709293594, 0.58731795428661744729670, 0.68405989547005589394493, 0.76990267419430468703689, 0.84355812416115324479214, 0.90411725637047485667847, 0.95053779594312129654906, 0.98156063424671925069055, 0.99693392252959542691235};	//Displacement from center
-	double w23[] = {0, 0.047175336386511827194616, 0, 0.106939325995318430960255, 0, 0.16007832854334622633465, 0, 0.20316742672306592174906, 0, 0.23349253653835480876085, 0, 0.24914704581340278500056, 0, 0.24914704581340278500056, 0, 0.23349253653835480876085, 0, 0.20316742672306592174906, 0, 0.16007832854334622633465, 0, 0.106939325995318430960255, 0, 0.047175336386511827194616, 0};	//23rd order Gauss-Legendre weight
-	double w37[] =  {0.00825771143316839575769392, 0.023036084038982232591085, 0.0389152304692994771150896, 0.053697017607756251228889, 0.0672509070508399303049409, 0.079920275333601701493393, 0.0915494682950492105281719, 0.101649732279060277715689, 0.110022604977644072635907, 0.11671205350175682629358, 0.121626303523948383246100, 0.12458416453615607343731, 0.125556893905474335304296, 0.12458416453615607343731, 0.121626303523948383246100, 0.11671205350175682629358, 0.110022604977644072635907, 0.101649732279060277715689, 0.0915494682950492105281719, 0.079920275333601701493393, 0.0672509070508399303049409, 0.053697017607756251228889, 0.0389152304692994771150896, 0.023036084038982232591085, 0.00825771143316839575769392};	//37th order Gauss-Kronrod weight
+__constant__ double Disp37[] = {-0.99693392252959542691235, -0.98156063424671925069055, -0.95053779594312129654906, -0.90411725637047485667847, -0.84355812416115324479214, -0.76990267419430468703689, -0.68405989547005589394493, -0.58731795428661744729670, -0.48133945047815709293594, -0.36783149899818019375269, -0.24850574832046927626779, -0.12523340851146891547244, 0, 0.12523340851146891547244, 0.24850574832046927626779, 0.36783149899818019375269, 0.48133945047815709293594, 0.58731795428661744729670, 0.68405989547005589394493, 0.76990267419430468703689, 0.84355812416115324479214, 0.90411725637047485667847, 0.95053779594312129654906, 0.98156063424671925069055, 0.99693392252959542691235};	//Displacement from center
+__constant__ double w23[] = {0, 0.047175336386511827194616, 0, 0.106939325995318430960255, 0, 0.16007832854334622633465, 0, 0.20316742672306592174906, 0, 0.23349253653835480876085, 0, 0.24914704581340278500056, 0, 0.24914704581340278500056, 0, 0.23349253653835480876085, 0, 0.20316742672306592174906, 0, 0.16007832854334622633465, 0, 0.106939325995318430960255, 0, 0.047175336386511827194616, 0};	//23rd order Gauss-Legendre weight
+__constant__ double w37[] =  {0.00825771143316839575769392, 0.023036084038982232591085, 0.0389152304692994771150896, 0.053697017607756251228889, 0.0672509070508399303049409, 0.079920275333601701493393, 0.0915494682950492105281719, 0.101649732279060277715689, 0.110022604977644072635907, 0.11671205350175682629358, 0.121626303523948383246100, 0.12458416453615607343731, 0.125556893905474335304296, 0.12458416453615607343731, 0.121626303523948383246100, 0.11671205350175682629358, 0.110022604977644072635907, 0.101649732279060277715689, 0.0915494682950492105281719, 0.079920275333601701493393, 0.0672509070508399303049409, 0.053697017607756251228889, 0.0389152304692994771150896, 0.023036084038982232591085, 0.00825771143316839575769392};	//37th order Gauss-Kronrod weight
+__global__ void k0_omega_Fermi_37(double* Par_globe, double* omega, double* q, double* Fermi)	//Energy and Fermi function for 37th order
+{
+	__shared__ double x[25];
+	__shared__ double Par[10];
+	if(threadIdx.x < 10);
+		Par[threadIdx.x] = Par_globe[threadIdx.x];
 
-	double x = (b[0]+a[0]+Disp37[threadIdx.x]*(b[0]-a[0]))/2.;	//abscisca
-	double Ordinate = Imk0_Integrand(Par, x, *k, *theta, *Temp);	//Ordinate aka map algorithm
+	x[threadIdx.x] = (Par[8]+Par[7]+Disp37[threadIdx.x]*(Par[8]-Par[7]))/2.;	//abscisca
+	omega[threadIdx.x] = sqrt(Par[4]+sq(Par[3]))/2.+x[threadIdx.x];
+	omega[threadIdx.x+25] = sqrt(Par[4]+sq(Par[3]))/2.-x[threadIdx.x];
+	q[threadIdx.x] = sqrt(sq(Par[3])/4.+sq(Par[5])+Par[0]*Par[5]*cos(Par[6]));
+	q[threadIdx.x+25] = sqrt(sq(Par[3])/4.+sq(Par[5])-Par[0]*Par[5]*cos(Par[6]));
 
+	if(Par[9] == 0)
+	{
+		if(omega[threadIdx.x] >= 0)	//Fermi factor for vacuum
+			Fermi[threadIdx.x] = 0;
+		else
+			Fermi[threadIdx.x] = 1;
+	}
+	else
+		Fermi[threadIdx.x] = 1./(1.+exp(omega[threadIdx.x]/Par[9]));
+
+	if(Par[9] == 0)
+	{
+		if(omega[threadIdx.x+25] >= 0)	//Fermi factor for vacuum
+			Fermi[threadIdx.x+25] = 0;
+		else
+			Fermi[threadIdx.x+25] = 1;
+	}
+	else
+		Fermi[threadIdx.x+25] = 1./(1.+exp(omega[threadIdx.x+25]/Par[9]));
+}
+
+__global__ void k0_Vaccum_ImSelf_37(double* q, double* omega_globe, double* ImSelf)			//ImSelf for Vacuum and 37th order
+{
+	__shared__ double omega[50];
+	__shared__ double k[50];
+	omega[threadIdx.x] = omega_globe[threadIdx.x];
+	k[threadIdx.x] = q[threadIdx.x];
+
+	if(sq(omega[threadIdx.x])>=sq(k[threadIdx.x]) && omega[threadIdx.x] >= 0)	//Vacuum width
+		ImSelf[threadIdx.x] = sqrt(sq(omega[threadIdx.x])-sq(k[threadIdx.x]))*GAMMA;
+	else
+		ImSelf[threadIdx.x] = 0;
+}
+
+__global__ void k0_Vaccum_ReSelf_37(double* q, double* omega_globe, double* ReSelf)			//ReSelf for Vacuum and 37th order
+{
+	ReSelf[threadIdx.x] = 0;
+}
+
+__global__ void k0_194_ImSelf_37(double* Par, double* q, double* omega_globe, double* ImSelf)	//ImSelf for T=194 MeV and 37th order
+{
+	__shared__ double omega[50];
+	__shared__ double k[50];
+	__shared__ double ImSigma[5022];
+	__shared__ static double M;
+	__shared__ static double omega0[2];		//Location of central peak
+	__shared__ static double Sigma[2];		//Amplitude of energy dependance
+	__shared__ static double a[2], b[2];	//Slope of exponential decrease to left and right
+	__shared__ static double knee[2];		//Interval to change from left to right side of peak
+	__shared__ static double M_T, Shift;	//Default quark mass, shfift from default quark mass to given quark mass
+	__shared__ static double k_old[2];		//Previous value of k to know if the parmeters need to recalculated
+
+	omega[threadIdx.x] = omega[threadIdx.x];
+	k[threadIdx.x] = q[threadIdx.x];
+
+	if((k[0] != k_old[0] || k[25] != k_old[1]) && (threadIdx.x == 0 || threadIdx.x == 25))
+	{
+		k_old[threadIdx.x%2] = k[threadIdx.x/25];
+		if(threadIdx.x == 0)
+		{
+			M_T = 1.84184;
+			M = Par[2];
+			Shift = M-M_T;
+		}
+		Sigma[threadIdx.x/25] = .569969/sqrt(sq(k[threadIdx.x/25])+sq(1.75236))+.0187484;
+		a[threadIdx.x/25] = 12.5349/(sq(k[threadIdx.x/25])+sq(1.63711))+5.026;
+		b[threadIdx.x/25] = -291.579/(sq(k[threadIdx.x/25]+15.2519)+sq(.0614821))+3.36681;
+		omega0[threadIdx.x/25] = sqrt(sq(1.51443+Shift)+sq(k[threadIdx.x/25]))+.232841;
+		knee[threadIdx.x/25] = 3.78956*pow(k[threadIdx.x/25]+1., (double)-.530289)+.305*(tanh((k[threadIdx.x/25]-48.4)/11.1111)+1);
+	}
+
+	if((omega[threadIdx.x]-omega0[threadIdx.x/25]+knee[threadIdx.x/25]*(b[threadIdx.x/25]-a[threadIdx.x/25])/(sqrt(a[threadIdx.x/25]*b[threadIdx.x/25])*(a[threadIdx.x/25]+b[threadIdx.x/25])))/knee[threadIdx.x/25] < -4.)
+		ImSigma[threadIdx.x] = a[threadIdx.x/25]*(omega[threadIdx.x]-omega0[threadIdx.x/25]+knee[threadIdx.x/25]/sqrt(a[threadIdx.x/25]*b[threadIdx.x/25]));
+	else if((omega[threadIdx.x]-omega0[threadIdx.x/25]+knee[threadIdx.x/25]*(b[threadIdx.x/25]-a[threadIdx.x/25])/(sqrt(a[threadIdx.x/25]*b[threadIdx.x/25])*(a[threadIdx.x/25]+b[threadIdx.x/25])))/knee[threadIdx.x/25] > 4.)
+		ImSigma[threadIdx.x] = b[threadIdx.x/25]*(omega0[threadIdx.x/25]-omega[threadIdx.x]+knee[threadIdx.x/25]/sqrt(a[threadIdx.x/25]*b[threadIdx.x/25]));
+	else	//Lost of precision having been circumvented, the actual value
+		ImSigma[threadIdx.x] = -.5*((a[threadIdx.x/25]-b[threadIdx.x/25])*omega0[threadIdx.x/25]-((a[threadIdx.x/25]+b[threadIdx.x/25])*knee[threadIdx.x/25])/sqrt(a[threadIdx.x/25]*b[threadIdx.x/25]))+(a[threadIdx.x/25]-b[threadIdx.x/25])*omega[threadIdx.x]/2-sqrt(pow(((a[threadIdx.x/25]+b[threadIdx.x/25])/2.)*(omega[threadIdx.x]-omega0[threadIdx.x/25]+((a[threadIdx.x/25]-b[threadIdx.x/25])*knee[threadIdx.x/25])/(sqrt(a[threadIdx.x/25]*b[threadIdx.x/25])*(a[threadIdx.x/25]+b[threadIdx.x/25]))), 2)+pow(knee[threadIdx.x/25], 2));
+
+#ifdef HALF
+	ImSigma[threadIdx.x] = -M*Sigma[threadIdx.x/25]*exp(ImSigma[threadIdx.x]);	//ImSigma from the in-medium
+#else
+	ImSigma[threadIdx.x] = -2.*M*Sigma[threadIdx.x/25]*exp(ImSigma[threadIdx.x]);	//ImSigma from the in-medium
+#endif
+
+	if(sq(omega[threadIdx.x])>=sq(k[threadIdx.x]) && omega[threadIdx.x] >= 0)	//Vacuum width
+		ImSelf[threadIdx.x] = sqrt(sq(omega[threadIdx.x])-sq(k[threadIdx.x]))*GAMMA+ImSigma[threadIdx.x];
+	else
+		ImSelf[threadIdx.x] = ImSigma[threadIdx.x];
+}
+
+__global__ void k0_194_ReSelf_37(double* Par, double* q, double* omega_globe, double* ReSelf)	//ReSelf for T=194 MeV and 37th order
+{
+	__shared__ double omega[50];
+	__shared__ double k[50];
+	__shared__ static double M;
+	__shared__ static double Sigma[2];		//Strength
+	__shared__ static double x0[2], x1[2];	//Centrality markers
+	__shared__ static double gamma[2];		//Width
+	__shared__ static double Shift, M_T;
+	__shared__ static double k_old[2];		//Note on validity of k
+
+	omega[threadIdx.x] = omega[threadIdx.x];
+	k[threadIdx.x] = q[threadIdx.x];
+
+	if((k[0] != k_old[0] || k[25] != k_old[1]) && (threadIdx.x == 0 || threadIdx.x == 25))
+	{
+		k_old[threadIdx.x%2] = k[threadIdx.x/25];
+		if(threadIdx.x == 0)
+		{
+			M_T = 1.84184;
+			M = Par[2];
+			Shift = M-M_T;
+		}
+		Sigma[threadIdx.x/25] = .212571/sqrt(sq(k[threadIdx.x])+sq(1.17821))+.00762638;
+		x0[threadIdx.x/25] = sqrt(sq(k[threadIdx.x])+sq(1.57536+Shift))+.259147;
+		x1[threadIdx.x/25] = sqrt(sq(k[threadIdx.x])+sq(1.50194+Shift))+.222526;
+		gamma[threadIdx.x/25] = .336699/sqrt(sq(k[threadIdx.x])+sq(1.87956))+.0651449;
+	}
+
+#ifdef HALF
+	ReSelf[threadIdx.x] = Sigma[threadIdx.x/25]*(omega[threadIdx.x]-x0[threadIdx.x/25])/(pow(omega[threadIdx.x]-x1[threadIdx.x/25], 2)+gamma[threadIdx.x/25])/2.;
+#else
+	ReSelf[threadIdx.x] = Sigma[threadIdx.x/25]*(omega[threadIdx.x]-x0[threadIdx.x/25])/(pow(omega[threadIdx.x]-x1[threadIdx.x/25], 2)+gamma[threadIdx.x/25]);
+#endif
+}
+
+__global__ void k0_Ordinate_37(double* Par, double* omega, double* q, double* fermi, double* ImSelf_globe, double* ReSelf, double* Ordinate)	//Ordinate for 37th order
+{
+	__shared__ double ImSelf[25][2];
+	__shared__ double M;
+	
+	if(threadIdx.x == 0)
+		M = Par[2];
+	ImSelf[threadIdx.x][0] = ImSelf_globe[threadIdx.x];
+	ImSelf[threadIdx.x][1] = ImSelf_globe[threadIdx.x+25];
+
+	Ordinate[threadIdx.x] = -((4.*ImSelf[threadIdx.x][0]*ImSelf[threadIdx.x][1]*sq(M)*(1.-fermi[threadIdx.x]-fermi[threadIdx.x+25]))/((sq(sq(omega[threadIdx.x])-sq(q[threadIdx.x])-sq(M)-2.*M*ReSelf[threadIdx.x])+sq(ImSelf[threadIdx.x][0]))*(sq(sq(omega[threadIdx.x+25])-sq(q[threadIdx.x+25])-sq(M)-2.*M*ReSelf[threadIdx.x+25])+sq(ImSelf[threadIdx.x][1]))));
+}
+
+__global__ void k0_Reduce_37(double* Ordinate_globe, double* Answer)	//Reduce 37th order
+{
 	__shared__ double lower_order[25];
 	__shared__ double higher_order[25];
+	__shared__ double Ordinate[25];
 
-	lower_order[threadIdx.x] = Ordinate*w23[threadIdx.x];	//store the lower order value
-	higher_order[threadIdx.x] = Ordinate*w37[threadIdx.x];	//store the higher order value
+	Ordinate[threadIdx.x] = Ordinate_globe[threadIdx.x];
+	lower_order[threadIdx.x] = Ordinate[threadIdx.x]*w9[threadIdx.x];	//store the lower order value
+	higher_order[threadIdx.x] = Ordinate[threadIdx.x]*w16[threadIdx.x];	//store the higher order value
 
 	for(int i = 0; i < 5; i++)	//reduce
 	{
@@ -513,21 +865,171 @@ __global__ void k0_Int37(double* Par, int* Temp, double* k, double* theta, doubl
 	}
 }
 
-__global__ void k0_Int97(double* Par, int* Temp, double* k, double* theta, double* a, double* b, double* Answer)
-{
 //63rd order Gauss-Legendre/97th order Gauss-Kronrod integration, 65 points
-	double Disp97[] = {-0.99954590212436447863561, -0.99726386184948156354498, -0.99262803526297191268579, -0.98561151154526833540018, -0.97631028361466380719767, -0.96476225558750643077381, -0.95095468484866118538988, -0.93490607593773968917092, -0.91667726665136432427535, -0.89632115576605212396531, -0.87386976894531060612966, -0.84936761373256997013369, -0.82288295013605132164827, -0.79448379596794240696310, -0.76422825199780370415066, -0.73218211874028968038743, -0.69842655779521049288477, -0.66304426693021520097512, -0.62611293770182399782024, -0.58771575724076232904075, -0.54794631419915247868094, -0.50689990893222939002375, -0.46466930848199221775618, -0.42135127613063534536412, -0.37704942115412110544534, -0.33186860228212764977992, -0.28591245858945975941661, -0.23928736225213707454460, -0.19210360898314249727164, -0.14447196158279649348519, -0.09650269687689436580083, -0.04830766568773831623481, 0, 0.04830766568773831623481, 0.09650269687689436580083, 0.14447196158279649348519, 0.19210360898314249727164, 0.23928736225213707454460, 0.28591245858945975941661, 0.33186860228212764977992, 0.37704942115412110544534, 0.42135127613063534536412, 0.46466930848199221775618, 0.50689990893222939002375, 0.54794631419915247868094, 0.58771575724076232904075, 0.62611293770182399782024, 0.66304426693021520097512, 0.69842655779521049288477, 0.73218211874028968038743, 0.76422825199780370415066, 0.79448379596794240696310, 0.82288295013605132164827, 0.84936761373256997013369, 0.87386976894531060612966, 0.89632115576605212396531, 0.91667726665136432427535, 0.93490607593773968917092, 0.95095468484866118538988, 0.96476225558750643077381, 0.97631028361466380719767, 0.98561151154526833540018, 0.99262803526297191268579, 0.99726386184948156354498, 0.99954590212436447863561};	//Displacement from center
-	double w63[] = {0, 0.0070186100094700966004071, 0, 0.0162743947309056706051706, 0, 0.025392065309262059455753, 0, 0.034273862913021433102688, 0, 0.042835898022226680656879, 0, 0.050998059262376176196163, 0, 0.058684093478535547145284, 0, 0.065822222776361846837650, 0, 0.072345794108848506225399, 0, 0.078193895787070306471741, 0, 0.083311924226946755222199, 0, 0.087652093004403811142771, 0, 0.091173878695763884712869, 0, 0.093844399080804565639180, 0, 0.09563872007927485941908, 0, 0.09654008851472780056676, 0, 0.09654008851472780056676, 0, 0.09563872007927485941908, 0, 0.093844399080804565639180, 0, 0.091173878695763884712869, 0, 0.087652093004403811142771, 0, 0.083311924226946755222199, 0, 0.078193895787070306471741, 0, 0.072345794108848506225399, 0, 0.065822222776361846837650, 0, 0.058684093478535547145284, 0, 0.050998059262376176196163, 0, 0.042835898022226680656879, 0, 0.034273862913021433102688, 0, 0.025392065309262059455753, 0, 0.0162743947309056706051706, 0, 0.0070186100094700966004071, 0};	//63rd order Gauss-Legendre weight
-	double w97[] = {0.00122336081795147180029304, 0.0034268187757723709355746, 0.00584173707916669330394798, 0.0081725040385316684143438, 0.0104239873988068188280343, 0.012676054806654402859369, 0.0149361036060860273850968, 0.017149805209784253256086, 0.0192987714303268112944037, 0.021408913184821915955778, 0.0234866596721633245920879, 0.025505695480894652814529, 0.0274520984222104037831477, 0.029336956689620661368616, 0.0311633255619737371711558, 0.032915077643903600263296, 0.0345821227447330341307264, 0.036169769475642299860958, 0.0376791306456133985148960, 0.039099420133306611207482, 0.0404234923703730966723493, 0.041654019985643051398296, 0.0427911155964467469336549, 0.043827544030139749046816, 0.0447586387497669372951992, 0.045585826564547070280575, 0.0463087567380257132403813, 0.046922968281703611103481, 0.0474260618738823823628799, 0.047818908736988472212264, 0.0481009691854577469278465, 0.04827019307577738559871, 0.0483263839865677583754454, 0.04827019307577738559871, 0.0481009691854577469278465, 0.047818908736988472212264, 0.0474260618738823823628799, 0.046922968281703611103481, 0.0463087567380257132403813, 0.045585826564547070280575, 0.0447586387497669372951992, 0.043827544030139749046816, 0.0427911155964467469336549, 0.041654019985643051398296, 0.0404234923703730966723493, 0.039099420133306611207482, 0.0376791306456133985148960, 0.036169769475642299860958, 0.0345821227447330341307264, 0.032915077643903600263296, 0.0311633255619737371711558, 0.029336956689620661368616, 0.0274520984222104037831477, 0.025505695480894652814529, 0.0234866596721633245920879, 0.021408913184821915955778, 0.0192987714303268112944037, 0.017149805209784253256086, 0.0149361036060860273850968, 0.012676054806654402859369, 0.0104239873988068188280343, 0.0081725040385316684143438, 0.00584173707916669330394798, 0.0034268187757723709355746, 0.00122336081795147180029304};	//97th order Gauss-Kronrod weight
+__constant__ double Disp97[] = {-0.99954590212436447863561, -0.99726386184948156354498, -0.99262803526297191268579, -0.98561151154526833540018, -0.97631028361466380719767, -0.96476225558750643077381, -0.95095468484866118538988, -0.93490607593773968917092, -0.91667726665136432427535, -0.89632115576605212396531, -0.87386976894531060612966, -0.84936761373256997013369, -0.82288295013605132164827, -0.79448379596794240696310, -0.76422825199780370415066, -0.73218211874028968038743, -0.69842655779521049288477, -0.66304426693021520097512, -0.62611293770182399782024, -0.58771575724076232904075, -0.54794631419915247868094, -0.50689990893222939002375, -0.46466930848199221775618, -0.42135127613063534536412, -0.37704942115412110544534, -0.33186860228212764977992, -0.28591245858945975941661, -0.23928736225213707454460, -0.19210360898314249727164, -0.14447196158279649348519, -0.09650269687689436580083, -0.04830766568773831623481, 0, 0.04830766568773831623481, 0.09650269687689436580083, 0.14447196158279649348519, 0.19210360898314249727164, 0.23928736225213707454460, 0.28591245858945975941661, 0.33186860228212764977992, 0.37704942115412110544534, 0.42135127613063534536412, 0.46466930848199221775618, 0.50689990893222939002375, 0.54794631419915247868094, 0.58771575724076232904075, 0.62611293770182399782024, 0.66304426693021520097512, 0.69842655779521049288477, 0.73218211874028968038743, 0.76422825199780370415066, 0.79448379596794240696310, 0.82288295013605132164827, 0.84936761373256997013369, 0.87386976894531060612966, 0.89632115576605212396531, 0.91667726665136432427535, 0.93490607593773968917092, 0.95095468484866118538988, 0.96476225558750643077381, 0.97631028361466380719767, 0.98561151154526833540018, 0.99262803526297191268579, 0.99726386184948156354498, 0.99954590212436447863561};	//Displacement from center
+__constant__ double w63[] = {0, 0.0070186100094700966004071, 0, 0.0162743947309056706051706, 0, 0.025392065309262059455753, 0, 0.034273862913021433102688, 0, 0.042835898022226680656879, 0, 0.050998059262376176196163, 0, 0.058684093478535547145284, 0, 0.065822222776361846837650, 0, 0.072345794108848506225399, 0, 0.078193895787070306471741, 0, 0.083311924226946755222199, 0, 0.087652093004403811142771, 0, 0.091173878695763884712869, 0, 0.093844399080804565639180, 0, 0.09563872007927485941908, 0, 0.09654008851472780056676, 0, 0.09654008851472780056676, 0, 0.09563872007927485941908, 0, 0.093844399080804565639180, 0, 0.091173878695763884712869, 0, 0.087652093004403811142771, 0, 0.083311924226946755222199, 0, 0.078193895787070306471741, 0, 0.072345794108848506225399, 0, 0.065822222776361846837650, 0, 0.058684093478535547145284, 0, 0.050998059262376176196163, 0, 0.042835898022226680656879, 0, 0.034273862913021433102688, 0, 0.025392065309262059455753, 0, 0.0162743947309056706051706, 0, 0.0070186100094700966004071, 0};	//63rd order Gauss-Legendre weight
+__constant__ double w97[] = {0.00122336081795147180029304, 0.0034268187757723709355746, 0.00584173707916669330394798, 0.0081725040385316684143438, 0.0104239873988068188280343, 0.012676054806654402859369, 0.0149361036060860273850968, 0.017149805209784253256086, 0.0192987714303268112944037, 0.021408913184821915955778, 0.0234866596721633245920879, 0.025505695480894652814529, 0.0274520984222104037831477, 0.029336956689620661368616, 0.0311633255619737371711558, 0.032915077643903600263296, 0.0345821227447330341307264, 0.036169769475642299860958, 0.0376791306456133985148960, 0.039099420133306611207482, 0.0404234923703730966723493, 0.041654019985643051398296, 0.0427911155964467469336549, 0.043827544030139749046816, 0.0447586387497669372951992, 0.045585826564547070280575, 0.0463087567380257132403813, 0.046922968281703611103481, 0.0474260618738823823628799, 0.047818908736988472212264, 0.0481009691854577469278465, 0.04827019307577738559871, 0.0483263839865677583754454, 0.04827019307577738559871, 0.0481009691854577469278465, 0.047818908736988472212264, 0.0474260618738823823628799, 0.046922968281703611103481, 0.0463087567380257132403813, 0.045585826564547070280575, 0.0447586387497669372951992, 0.043827544030139749046816, 0.0427911155964467469336549, 0.041654019985643051398296, 0.0404234923703730966723493, 0.039099420133306611207482, 0.0376791306456133985148960, 0.036169769475642299860958, 0.0345821227447330341307264, 0.032915077643903600263296, 0.0311633255619737371711558, 0.029336956689620661368616, 0.0274520984222104037831477, 0.025505695480894652814529, 0.0234866596721633245920879, 0.021408913184821915955778, 0.0192987714303268112944037, 0.017149805209784253256086, 0.0149361036060860273850968, 0.012676054806654402859369, 0.0104239873988068188280343, 0.0081725040385316684143438, 0.00584173707916669330394798, 0.0034268187757723709355746, 0.00122336081795147180029304};	//97th order Gauss-Kronrod weight
+__global__ void k0_omega_Fermi_97(double* Par_globe, double* omega, double* q, double* Fermi)	//Energy and Fermi function for 97th order
+{
+	__shared__ double x[65];
+	__shared__ double Par[10];
+	if(threadIdx.x < 10);
+		Par[threadIdx.x] = Par_globe[threadIdx.x];
 
-	double x = (b[0]+a[0]+Disp97[threadIdx.x]*(b[0]-a[0]))/2.;	//abscisca
-	double Ordinate = Imk0_Integrand(Par, x, *k, *theta, *Temp);	//Ordinate aka map algorithm
+	x[threadIdx.x] = (Par[8]+Par[7]+Disp9[threadIdx.x]*(Par[8]-Par[7]))/2.;	//abscisca
+	omega[threadIdx.x] = sqrt(Par[4]+sq(Par[3]))/2.+x[threadIdx.x];
+	omega[threadIdx.x+65] = sqrt(Par[4]+sq(Par[3]))/2.-x[threadIdx.x];
+	q[threadIdx.x] = sqrt(sq(Par[3])/4.+sq(Par[5])+Par[0]*Par[5]*cos(Par[6]));
+	q[threadIdx.x+65] = sqrt(sq(Par[3])/4.+sq(Par[5])-Par[0]*Par[5]*cos(Par[6]));
 
+	if(Par[9] == 0)
+	{
+		if(omega[threadIdx.x] >= 0)	//Fermi factor for vacuum
+			Fermi[threadIdx.x] = 0;
+		else
+			Fermi[threadIdx.x] = 1;
+	}
+	else
+		Fermi[threadIdx.x] = 1./(1.+exp(omega[threadIdx.x]/Par[9]));
+
+	if(Par[9] == 0)
+	{
+		if(omega[threadIdx.x+65] >= 0)	//Fermi factor for vacuum
+			Fermi[threadIdx.x+65] = 0;
+		else
+			Fermi[threadIdx.x+65] = 1;
+	}
+	else
+		Fermi[threadIdx.x+65] = 1./(1.+exp(omega[threadIdx.x+65]/Par[9]));
+}
+
+__global__ void k0_Vaccum_ImSelf_97(double* q, double* omega_globe, double* ImSelf)			//ImSelf for Vacuum and 97th order
+{
+	__shared__ double omega[130];
+	__shared__ double k[130];
+	omega[threadIdx.x] = omega_globe[threadIdx.x];
+	k[threadIdx.x] = q[threadIdx.x];
+
+	if(sq(omega[threadIdx.x])>=sq(k[threadIdx.x]) && omega[threadIdx.x] >= 0)	//Vacuum width
+		ImSelf[threadIdx.x] = sqrt(sq(omega[threadIdx.x])-sq(k[threadIdx.x]))*GAMMA;
+	else
+		ImSelf[threadIdx.x] = 0;
+}
+
+__global__ void k0_Vaccum_ReSelf_97(double* q, double* omega_globe, double* ReSelf)			//ReSelf for Vacuum and 97th order
+{
+	ReSelf[threadIdx.x] = 0;
+}
+
+__global__ void k0_194_ImSelf_97(double* Par, double* q, double* omega_globe, double* ImSelf)	//ImSelf for T=194 MeV and 97th order
+{
+	__shared__ double omega[130];
+	__shared__ double k[130];
+	__shared__ double ImSigma[130];
+	__shared__ static double M;
+	__shared__ static double omega0[2];		//Location of central peak
+	__shared__ static double Sigma[2];		//Amplitude of energy dependance
+	__shared__ static double a[2], b[2];	//Slope of exponential decrease to left and right
+	__shared__ static double knee[2];		//Interval to change from left to right side of peak
+	__shared__ static double M_T, Shift;	//Default quark mass, shfift from default quark mass to given quark mass
+	__shared__ static double k_old[2];		//Previous value of k to know if the parmeters need to recalculated
+
+	omega[threadIdx.x] = omega[threadIdx.x];
+	k[threadIdx.x] = q[threadIdx.x];
+
+	if((k[0] != k_old[0] || k[65] != k_old[1]) && (threadIdx.x == 0 || threadIdx.x == 65))
+	{
+		k_old[threadIdx.x%2] = k[threadIdx.x/65];
+		if(threadIdx.x == 0)
+		{
+			M_T = 1.84184;
+			M = Par[2];
+			Shift = M-M_T;
+		}
+		Sigma[threadIdx.x/65] = .569969/sqrt(sq(k[threadIdx.x/65])+sq(1.75236))+.0187484;
+		a[threadIdx.x/65] = 12.5349/(sq(k[threadIdx.x/65])+sq(1.63711))+5.026;
+		b[threadIdx.x/65] = -291.579/(sq(k[threadIdx.x/65]+15.2519)+sq(.0614821))+3.36681;
+		omega0[threadIdx.x/65] = sqrt(sq(1.51443+Shift)+sq(k[threadIdx.x/65]))+.232841;
+		knee[threadIdx.x/65] = 3.78956*pow(k[threadIdx.x/65]+1., (double)-.530289)+.305*(tanh((k[threadIdx.x/65]-48.4)/11.1111)+1);
+	}
+
+	if((omega[threadIdx.x]-omega0[threadIdx.x/65]+knee[threadIdx.x/65]*(b[threadIdx.x/65]-a[threadIdx.x/65])/(sqrt(a[threadIdx.x/65]*b[threadIdx.x/65])*(a[threadIdx.x/65]+b[threadIdx.x/65])))/knee[threadIdx.x/65] < -4.)
+		ImSigma[threadIdx.x] = a[threadIdx.x/65]*(omega[threadIdx.x]-omega0[threadIdx.x/65]+knee[threadIdx.x/65]/sqrt(a[threadIdx.x/65]*b[threadIdx.x/65]));
+	else if((omega[threadIdx.x]-omega0[threadIdx.x/65]+knee[threadIdx.x/65]*(b[threadIdx.x/65]-a[threadIdx.x/65])/(sqrt(a[threadIdx.x/65]*b[threadIdx.x/65])*(a[threadIdx.x/65]+b[threadIdx.x/65])))/knee[threadIdx.x/65] > 4.)
+		ImSigma[threadIdx.x] = b[threadIdx.x/65]*(omega0[threadIdx.x/65]-omega[threadIdx.x]+knee[threadIdx.x/65]/sqrt(a[threadIdx.x/65]*b[threadIdx.x/65]));
+	else	//Lost of precision having been circumvented, the actual value
+		ImSigma[threadIdx.x] = -.5*((a[threadIdx.x/65]-b[threadIdx.x/65])*omega0[threadIdx.x/65]-((a[threadIdx.x/65]+b[threadIdx.x/65])*knee[threadIdx.x/65])/sqrt(a[threadIdx.x/65]*b[threadIdx.x/65]))+(a[threadIdx.x/65]-b[threadIdx.x/65])*omega[threadIdx.x]/2-sqrt(pow(((a[threadIdx.x/65]+b[threadIdx.x/65])/2.)*(omega[threadIdx.x]-omega0[threadIdx.x/65]+((a[threadIdx.x/65]-b[threadIdx.x/65])*knee[threadIdx.x/65])/(sqrt(a[threadIdx.x/65]*b[threadIdx.x/65])*(a[threadIdx.x/65]+b[threadIdx.x/65]))), 2)+pow(knee[threadIdx.x/65], 2));
+
+#ifdef HALF
+	ImSigma[threadIdx.x] = -M*Sigma[threadIdx.x/65]*exp(ImSigma[threadIdx.x]);	//ImSigma from the in-medium
+#else
+	ImSigma[threadIdx.x] = -2.*M*Sigma[threadIdx.x/65]*exp(ImSigma[threadIdx.x]);	//ImSigma from the in-medium
+#endif
+
+	if(sq(omega[threadIdx.x])>=sq(k[threadIdx.x]) && omega[threadIdx.x] >= 0)	//Vacuum width
+		ImSelf[threadIdx.x] = sqrt(sq(omega[threadIdx.x])-sq(k[threadIdx.x]))*GAMMA+ImSigma[threadIdx.x];
+	else
+		ImSelf[threadIdx.x] = ImSigma[threadIdx.x];
+}
+
+__global__ void k0_194_ReSelf_97(double* Par, double* q, double* omega_globe, double* ReSelf)	//ReSelf for T=194 MeV and 97th order
+{
+	__shared__ double omega[130];
+	__shared__ double k[130];
+	__shared__ static double M;
+	__shared__ static double Sigma[2];		//Strength
+	__shared__ static double x0[2], x1[2];	//Centrality markers
+	__shared__ static double gamma[2];		//Width
+	__shared__ static double Shift, M_T;
+	__shared__ static double k_old[2];		//Note on validity of k
+
+	omega[threadIdx.x] = omega[threadIdx.x];
+	k[threadIdx.x] = q[threadIdx.x];
+
+	if((k[0] != k_old[0] || k[65] != k_old[1]) && (threadIdx.x == 0 || threadIdx.x == 65))
+	{
+		k_old[threadIdx.x%2] = k[threadIdx.x/65];
+		if(threadIdx.x == 0)
+		{
+			M_T = 1.84184;
+			M = Par[2];
+			Shift = M-M_T;
+		}
+		Sigma[threadIdx.x/65] = .212571/sqrt(sq(k[threadIdx.x])+sq(1.17821))+.00762638;
+		x0[threadIdx.x/65] = sqrt(sq(k[threadIdx.x])+sq(1.57536+Shift))+.259147;
+		x1[threadIdx.x/65] = sqrt(sq(k[threadIdx.x])+sq(1.50194+Shift))+.222526;
+		gamma[threadIdx.x/65] = .336699/sqrt(sq(k[threadIdx.x])+sq(1.87956))+.0651449;
+	}
+
+#ifdef HALF
+	ReSelf[threadIdx.x] = Sigma[threadIdx.x/65]*(omega[threadIdx.x]-x0[threadIdx.x/65])/(pow(omega[threadIdx.x]-x1[threadIdx.x/65], 2)+gamma[threadIdx.x/65])/2.;
+#else
+	ReSelf[threadIdx.x] = Sigma[threadIdx.x/65]*(omega[threadIdx.x]-x0[threadIdx.x/65])/(pow(omega[threadIdx.x]-x1[threadIdx.x/65], 2)+gamma[threadIdx.x/65]);
+#endif
+}
+
+__global__ void k0_Ordinate_97(double* Par, double* omega, double* q, double* fermi, double* ImSelf_globe, double* ReSelf, double* Ordinate)	//Ordinate for 97th order
+{
+	__shared__ double ImSelf[65][2];
+	__shared__ double M;
+	
+	if(threadIdx.x == 0)
+		M = Par[2];
+	ImSelf[threadIdx.x][0] = ImSelf_globe[threadIdx.x];
+	ImSelf[threadIdx.x][1] = ImSelf_globe[threadIdx.x+65];
+
+	Ordinate[threadIdx.x] = -((4.*ImSelf[threadIdx.x][0]*ImSelf[threadIdx.x][1]*sq(M)*(1.-fermi[threadIdx.x]-fermi[threadIdx.x+65]))/((sq(sq(omega[threadIdx.x])-sq(q[threadIdx.x])-sq(M)-2.*M*ReSelf[threadIdx.x])+sq(ImSelf[threadIdx.x][0]))*(sq(sq(omega[threadIdx.x+65])-sq(q[threadIdx.x+65])-sq(M)-2.*M*ReSelf[threadIdx.x+65])+sq(ImSelf[threadIdx.x][1]))));
+}
+
+__global__ void k0_Reduce_97(double* Ordinate_globe, double* Answer)	//Reduce 97th order
+{
 	__shared__ double lower_order[65];
 	__shared__ double higher_order[65];
+	__shared__ double Ordinate[65];
 
-	lower_order[threadIdx.x] = Ordinate*w63[threadIdx.x];	//store the lower order value
-	higher_order[threadIdx.x] = Ordinate*w97[threadIdx.x];	//store the higher order value
+	Ordinate[threadIdx.x] = Ordinate_globe[threadIdx.x];
+	lower_order[threadIdx.x] = Ordinate[threadIdx.x]*w9[threadIdx.x];	//store the lower order value
+	higher_order[threadIdx.x] = Ordinate[threadIdx.x]*w16[threadIdx.x];	//store the higher order value
 
 	for(int i = 0; i < 7; i++)	//reduce
 	{
@@ -719,7 +1221,7 @@ __device__ __host__ double sq(double a)
 	return(a*a);
 }
 
-__device__ __host__ void ImSelf_Energy(double M, double omega[], double k[], int Temp, double Results[])	//Single quark self energy for both quarks
+void ImSelf_Energy(double M, double omega[], double k[], int Temp, double Results[])	//Single quark self energy for both quarks
 {
 	static double omega0[2];		//Location of central peak
 	static double Sigma[2];		//Amplitude of energy dependance
@@ -950,7 +1452,7 @@ double ImSelf_Energy(double M, double omega, double k, int Temp)	//Single quark 
 	return(answer);
 }
 
-__device__ __host__ void ReSelf_Energy(double M, double omega[], double k[], int Temp, double Results[])	//Single quark self energy
+void ReSelf_Energy(double M, double omega[], double k[], int Temp, double Results[])	//Single quark self energy
 {
 	static double Sigma[2];		//Strength
 	static double x0[2], x1[2];	//Centrality markers
@@ -1049,7 +1551,7 @@ __device__ __host__ void ReSelf_Energy(double M, double omega[], double k[], int
 	return;
 }
 
-__device__ __host__ void Self_Energy(double M, double omega[], double k[], int Temp, double ImSelf[], double ReSelf[])	//Single quark self energy for both quarks. This one has both imaginary and real parts. It is a simple Breit-Wigner peak and simplier than the other provisioned version
+void Self_Energy(double M, double omega[], double k[], int Temp, double ImSelf[], double ReSelf[])	//Single quark self energy for both quarks. This one has both imaginary and real parts. It is a simple Breit-Wigner peak and simplier than the other provisioned version
 {
 	static double omega0[2];	//location of central peak
 	static double Sigma[2];	//size of energy dependance
@@ -1133,7 +1635,7 @@ __device__ __host__ void Self_Energy(double M, double omega[], double k[], int T
 	return;
 }
 
-__device__ __host__ double Energy(double M, double P, double k, double theta)	//Single quark energy, can return momentum if M=0
+double Energy(double M, double P, double k, double theta)	//Single quark energy, can return momentum if M=0
 {
 	if(sq(M)+sq(P)+sq(k)+2.*P*k*cos(theta) < 0)
 		return(0.);
@@ -1141,13 +1643,13 @@ __device__ __host__ double Energy(double M, double P, double k, double theta)	//
 		return(sqrt(sq(M)+sq(P)+sq(k)+2.*P*k*cos(theta)));
 }
 
-__device__ __host__ double Set_Temp(int T)
+double Set_Temp(int T)
 {
 	const double Temps[] = {0, .194, .258, .32, .4, .04, .04};
 	return(Temps[T]);
 }
 
-__device__ __host__ double Fermi(double omega, int T)	//Fermi factor
+double Fermi(double omega, int T)	//Fermi factor
 {
 	double Temp = Set_Temp(T);
 
@@ -1161,7 +1663,7 @@ __device__ __host__ double Fermi(double omega, int T)	//Fermi factor
 	return(1./(1.+exp(omega/Temp)));
 }
 
-__device__ __host__ double Imk0_Integrand(double Par[], double k0, double k, double theta, int Temp)	//Integrand of the folding integral for positive energy
+double Imk0_Integrand(double Par[], double k0, double k, double theta, int Temp)	//Integrand of the folding integral for positive energy
 {
 	static double q[2];
 	static double k_old = -1;
