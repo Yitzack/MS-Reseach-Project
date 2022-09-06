@@ -141,6 +141,8 @@ void Loop_Out(double Par[], int Temp, char File[])
 	cudaMalloc((void**)&Pointers.ReSelf, 130*sizeof(double));
 	cudaMalloc((void**)&Pointers.q, 130*sizeof(double));
 	cudaMalloc((void**)&Pointers.Ordinate, 65*sizeof(double));
+	cudaMalloc((void**)&Pointers.F, 2*sizeof(double));
+	cudaMalloc((void**)&Pointers.Par, 10*sizeof(double));
 
 	for(i = 0; i < 702; i++)
 	{
@@ -173,7 +175,7 @@ void Loop_Out(double Par[], int Temp, char File[])
 		photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		stop = isnan(photon)?50.:photon+50.;
 
-		for(i = 0; i < 101; i++)
+		for(i = 0; i < 7; i++)
 		{
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{

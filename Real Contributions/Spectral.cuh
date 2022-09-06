@@ -15,6 +15,8 @@ struct Dev_Pointer
 	double* ReSelf;
 	double* q;
 	double* Ordinate;
+	double* F;
+	double* Par;
 };
 
 //Integrals that define results
@@ -66,6 +68,105 @@ double Fermi(double, int);						//Fermi function
 double Set_Temp(int);							//Decodes 0-4 into numeric temprature for Fermi factor
 double Imk0_Integrand(double[], double, double, double, int);	//Integrand of the k0 integral for positive energy
 __device__ __host__ double sq(double);
+
+void George(double M, double omega[], double k[], int Temp, double Results[])	//Single quark self energy
+{
+	static double Sigma[2];		//Strength
+	static double x0[2], x1[2];	//Centrality markers
+	static double gamma[2];		//Width
+	static double Shift, M_T;
+	static double k_old[2];		//Note on validity of k
+
+	if(Temp == 0 || Temp == 5)
+	{
+		Results[0] = 0;
+		Results[1] = 0;
+		return;
+	}
+
+	if(k[0] != k_old[0] || k[1] != k_old[1])
+	{
+		k_old[0] = k[0];
+		k_old[1] = k[1];
+		switch(Temp)
+		{
+			/*case 1://194MeV
+				M_T = 1.84184;
+				Shift = M-M_T;
+				Sigma[0] = .257498/sqrt(sq(k[0])+pow(1.33201, 2))+.00762638;
+				Sigma[1] = .257498/sqrt(sq(k[1])+pow(1.33201, 2))+.00762638;
+				x0[0] = sqrt(sq(k[0])+pow(1.54778+Shift, 2))+.276509;
+				x0[1] = sqrt(sq(k[1])+pow(1.54778+Shift, 2))+.276509;
+				x1[0] = sqrt(sq(k[0])+pow(1.49799+Shift, 2))+.246719;
+				x1[1] = sqrt(sq(k[1])+pow(1.49799+Shift, 2))+.246719;
+				gamma[0] = .658734/sqrt(sq(k[0])+pow(3.35217, 2))+.0815109;
+				gamma[1] = .658734/sqrt(sq(k[1])+pow(3.35217, 2))+.0815109;
+				break;*/
+			case 1://194MeV
+				M_T = 1.84184;
+				Shift = M-M_T;
+				Sigma[0] = .212571/sqrt(sq(k[0])+pow(1.17821, 2))+.00762638;
+				Sigma[1] = .212571/sqrt(sq(k[1])+pow(1.17821, 2))+.00762638;
+				x0[0] = sqrt(sq(k[0])+pow(1.57536+Shift, 2))+.259147;
+				x0[1] = sqrt(sq(k[1])+pow(1.57536+Shift, 2))+.259147;
+				x1[0] = sqrt(sq(k[0])+pow(1.50194+Shift, 2))+.222526;
+				x1[1] = sqrt(sq(k[1])+pow(1.50194+Shift, 2))+.222526;
+				gamma[0] = .336699/sqrt(sq(k[0])+pow(1.87956, 2))+.0651449;
+				gamma[1] = .336699/sqrt(sq(k[1])+pow(1.87956, 2))+.0651449;
+				break;
+			case 2://258MeV
+				M_T = 1.69584;
+				Shift = M-M_T;
+				Sigma[0] = .307972/sqrt(sq(k[0])+pow(1.41483, 2))+.0101423;
+				Sigma[1] = .307972/sqrt(sq(k[1])+pow(1.41483, 2))+.0101423;
+				x0[0] = sqrt(sq(k[0])+pow(1.56476+Shift, 2))+.251031;
+				x0[1] = sqrt(sq(k[1])+pow(1.56476+Shift, 2))+.251031;
+				x1[0] = sqrt(sq(k[0])+pow(1.50194+Shift, 2))+.222526;
+				x1[1] = sqrt(sq(k[1])+pow(1.50194+Shift, 2))+.222526;
+				gamma[0] = .550628/sqrt(sq(k[0])+pow(2.43968, 2))+.0981269;
+				gamma[1] = .550628/sqrt(sq(k[1])+pow(2.43968, 2))+.0981269;
+				break;
+			case 3://320MeV
+				M_T = 1.59439;
+				Shift = M-M_T;
+				Sigma[0] = .339131/sqrt(sq(k[0])+pow(1.43308, 2))+.0125796;
+				Sigma[1] = .339131/sqrt(sq(k[1])+pow(1.43308, 2))+.0125796;
+				x0[0] = sqrt(sq(k[0])+pow(1.55034+Shift, 2))+.257788;
+				x0[1] = sqrt(sq(k[1])+pow(1.55034+Shift, 2))+.257788;
+				x1[0] = sqrt(sq(k[0])+pow(1.46999+Shift, 2))+.231821;
+				x1[1] = sqrt(sq(k[1])+pow(1.46999+Shift, 2))+.231821;
+				gamma[0] = .615278/sqrt(sq(k[0])+pow(2.22298, 2))+.143376;
+				gamma[1] = .615278/sqrt(sq(k[1])+pow(2.22298, 2))+.143376;
+				break;
+			case 4://400MeV
+				M_T = 1.48038;
+				Shift = M-M_T;
+				Sigma[0] = .304841/sqrt(sq(k[0])+pow(1.42911, 2))+.0157245;
+				Sigma[1] = .304841/sqrt(sq(k[1])+pow(1.42911, 2))+.0157245;
+				x0[0] = sqrt(sq(k[0])+pow(1.55511+Shift, 2))+.231105;
+				x0[1] = sqrt(sq(k[1])+pow(1.55511+Shift, 2))+.231105;
+				x1[0] = sqrt(sq(k[0])+pow(1.44714+Shift, 2))+.20956;
+				x1[1] = sqrt(sq(k[1])+pow(1.44714+Shift, 2))+.20956;
+				gamma[0] = .862629/sqrt(sq(k[0])+pow(2.67193, 2))+.189598;
+				gamma[1] = .862629/sqrt(sq(k[1])+pow(2.67193, 2))+.189598;
+				break;
+			default:
+				Sigma[0] = Sigma[1] = .188045;
+				x0[0] = x0[1] = 1.83451;
+				x1[0] = x1[1] = 1.72447;
+				gamma[0] = gamma[1] = .244282;
+		}
+	}
+
+#ifdef HALF
+	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0], 2)+gamma[0])/2.;
+	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1], 2)+gamma[1])/2.;
+#else
+	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0], 2)+gamma[0]);
+	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1], 2)+gamma[1]);
+#endif
+	return;
+}
 
 auto Start_Time = chrono::system_clock::now();
 int Allotment = 90;
@@ -426,21 +527,22 @@ Around k0_Int(Dev_Pointer Pointers, double Par[], int Temp, double k, double the
 
 Around k0_Int(Dev_Pointer Pointers, double Par[], int Temp, double k, double theta, double a, double b, int order, int deep)
 {
+#ifdef DEBUG
+double Disp9[] = {-0.9840853600948424644961729, -0.906179845938663992797627, -0.7541667265708492204408172, -0.538469310105683091036314, -0.2796304131617831934134665, 0, 0.2796304131617831934134665, 0.538469310105683091036314, 0.7541667265708492204408172, 0.906179845938663992797627, 0.9840853600948424644961729};	//Displacement from center
+	double Debug[16][130];
+#endif
+//double w9[] = {0., 0.236926885056189087514264, 0., 0.478628670499366468041292, 0., 128./225., 0., 0.478628670499366468041292, 0., 0.236926885056189087514264, 0.};	//9th order Gauss-Legendre weights
+//double w16[]= {0.042582036751081832864509451, 0.11523331662247339402462685, 0.18680079655649265746780003, 0.2410403392286475866999426, 0.27284980191255892234099326, 0.2829874178574912132042556, 0.27284980191255892234099326, 0.2410403392286475866999426, 0.18680079655649265746780003, 0.11523331662247339402462685, 0.042582036751081832864509451}; //16th order Gauss-Kronrod weights
 	double F[2];
-	double* F_dev;
-
 	double Par_loc[] = {Par[0], Par[1], Par[2], Par[3], Par[4], k, theta, a, b, Set_Temp(Temp)};
-	double* Par_dev;
+	
 
-	cudaMalloc((void**)&F_dev, 2*sizeof(double));
-	cudaMalloc((void**)&Par_dev, 10*sizeof(double));
-
-	cudaMemcpy((void*)Par_dev, (void*)Par, 10*sizeof(double), cudaMemcpyHostToDevice);
+	cudaMemcpy((void*)Pointers.Par, (void*)Par_loc, 10*sizeof(double), cudaMemcpyHostToDevice);
 
 	switch(order)
 	{
 	case 97:
-		k0_omega_Fermi_97<<<1,65>>>(Par_dev, Pointers.omega, Pointers.q, Pointers.Fermi);	//Energy and Fermi function for 97th order
+		k0_omega_Fermi_97<<<1,65>>>(Pointers.Par, Pointers.omega, Pointers.q, Pointers.Fermi);	//Energy and Fermi function for 97th order
 		switch(Temp)
 		{
 		case 0:
@@ -448,15 +550,15 @@ Around k0_Int(Dev_Pointer Pointers, double Par[], int Temp, double k, double the
 			k0_Vaccum_ReSelf_97<<<1,130>>>(Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for Vacuum and 97th order
 			break;
 		case 1:
-			k0_194_ImSelf_97<<<1,130>>>(Par_dev, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for T=194 MeV and 97th order
-			k0_194_ReSelf_97<<<1,130>>>(Par_dev, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for T=194 MeV and 97th order
+			k0_194_ImSelf_97<<<1,130>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for T=194 MeV and 97th order
+			k0_194_ReSelf_97<<<1,130>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for T=194 MeV and 97th order
 			break;
 		}
-		k0_Ordinate_97<<<1,65>>>(Par_dev, Pointers.omega, Pointers.q, Pointers.Fermi, Pointers.ImSelf, Pointers.ReSelf, Pointers.Ordinate);	//Ordinate for 97th order
-		k0_Reduce_97<<<1,65>>>(Pointers.Ordinate, F);								//Reduce 97th order
+		k0_Ordinate_97<<<1,65>>>(Pointers.Par, Pointers.omega, Pointers.q, Pointers.Fermi, Pointers.ImSelf, Pointers.ReSelf, Pointers.Ordinate);	//Ordinate for 97th order
+		k0_Reduce_97<<<1,65>>>(Pointers.Ordinate, Pointers.F);								//Reduce 97th order
 		break;
 	case 37:
-		k0_omega_Fermi_37<<<1,25>>>(Par_dev, Pointers.omega, Pointers.q, Pointers.Fermi);	//Energy and Fermi function for 37th order
+		k0_omega_Fermi_37<<<1,25>>>(Pointers.Par, Pointers.omega, Pointers.q, Pointers.Fermi);	//Energy and Fermi function for 37th order
 		switch(Temp)
 		{
 		case 0:
@@ -464,35 +566,77 @@ Around k0_Int(Dev_Pointer Pointers, double Par[], int Temp, double k, double the
 			k0_Vaccum_ReSelf_37<<<1,50>>>(Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for Vacuum and 37th order
 			break;
 		case 1:
-			k0_194_ImSelf_37<<<1,50>>>(Par_dev, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for T=194 MeV and 37th order
-			k0_194_ReSelf_37<<<1,50>>>(Par_dev, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for T=194 MeV and 37th order
+			k0_194_ImSelf_37<<<1,50>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for T=194 MeV and 37th order
+			k0_194_ReSelf_37<<<1,50>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for T=194 MeV and 37th order
 			break;
 		}
-		k0_Ordinate_37<<<1,25>>>(Par_dev, Pointers.omega, Pointers.q, Pointers.Fermi, Pointers.ImSelf, Pointers.ReSelf, Pointers.Ordinate);	//Ordinate for 37th order
-		k0_Reduce_37<<<1,25>>>(Pointers.Ordinate, F);								//Reduce 37th order
+		k0_Ordinate_37<<<1,25>>>(Pointers.Par, Pointers.omega, Pointers.q, Pointers.Fermi, Pointers.ImSelf, Pointers.ReSelf, Pointers.Ordinate);	//Ordinate for 37th order
+		k0_Reduce_37<<<1,25>>>(Pointers.Ordinate, Pointers.F);								//Reduce 37th order
 		break;
 	case 16:
-		k0_omega_Fermi_16<<<1,11>>>(Par_dev, Pointers.omega, Pointers.q, Pointers.Fermi);	//Energy and Fermi function for 16th order
+		k0_omega_Fermi_16<<<1,11>>>(Pointers.Par, Pointers.omega, Pointers.q, Pointers.Fermi);	//Energy and Fermi function for 16th order
+#ifdef DEBUG
+		for(int i = 0; i < 11; i++)
+		{
+			double x = (Par_loc[8]+Par_loc[7]+Disp9[i]*(Par_loc[8]-Par_loc[7]))/2.;
+			Debug[0][i] = sqrt(Par_loc[4]+sq(Par_loc[3]))/2.+x;
+			Debug[0][i+11] = sqrt(Par_loc[4]+sq(Par_loc[3]))/2.-x;
+			Debug[1][i] = sqrt(sq(Par_loc[3])/4.+sq(Par_loc[5])+Par_loc[0]*Par_loc[5]*cos(Par_loc[6]));
+			Debug[1][i+11] = sqrt(sq(Par_loc[3])/4.+sq(Par_loc[5])-Par_loc[0]*Par_loc[5]*cos(Par_loc[6]));
+			Debug[2][i] = Fermi(Debug[0][i],Temp);
+			Debug[2][i+11] = Fermi(Debug[0][i+11],Temp);
+		}
+		cudaMemcpy((void*)Debug[12], (void*)Pointers.Par, 10*sizeof(double), cudaMemcpyDeviceToHost);
+		cudaMemcpy((void*)Debug[3], (void*)Pointers.omega, 22*sizeof(double), cudaMemcpyDeviceToHost);
+		cudaMemcpy((void*)Debug[4], (void*)Pointers.q, 22*sizeof(double), cudaMemcpyDeviceToHost);
+		cudaMemcpy((void*)Debug[5], (void*)Pointers.Fermi, 22*sizeof(double), cudaMemcpyDeviceToHost);
+#endif
 		switch(Temp)
 		{
 		case 0:
 			k0_Vaccum_ImSelf_16<<<1,22>>>(Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for Vacuum and 16th order
 			k0_Vaccum_ReSelf_16<<<1,22>>>(Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for Vacuum and 16th order
+#ifdef DEBUG
+			for(int i = 0; i < 11; i++)
+			{
+				double Store0[2];
+				double Store1[2];
+				double Store2[2];
+				Debug[6][i] = ImSelf_Energy(Par_loc[2], Debug[0][i], Debug[1][i], Temp);
+				Debug[6][i+11] = ImSelf_Energy(Par_loc[2], Debug[0][i+11], Debug[1][i+11], Temp);
+				Store0[0] = Debug[0][i];
+				Store0[1] = Debug[0][i+11];
+				Store1[0] = Debug[1][i];
+				Store1[1] = Debug[1][i+11];
+				George(Par_loc[2], Store0, Store1, Temp, Store2);
+				Debug[7][i] = Store2[0];
+				Debug[7][i+11] = Store2[1];
+			}
+			cudaMemcpy((void*)Debug[8], (void*)Pointers.ImSelf, 22*sizeof(double), cudaMemcpyDeviceToHost);
+			cudaMemcpy((void*)Debug[9], (void*)Pointers.ReSelf, 22*sizeof(double), cudaMemcpyDeviceToHost);
+#endif
 			break;
 		case 1:
-			k0_194_ImSelf_16<<<1,22>>>(Par_dev, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for T=194 MeV and 16th order
-			k0_194_ReSelf_16<<<1,22>>>(Par_dev, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for T=194 MeV and 16th order
+			k0_194_ImSelf_16<<<1,22>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for T=194 MeV and 16th order
+			k0_194_ReSelf_16<<<1,22>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for T=194 MeV and 16th order
 			break;
 		}
-		k0_Ordinate_16<<<1,11>>>(Par_dev, Pointers.omega, Pointers.q, Pointers.Fermi, Pointers.ImSelf, Pointers.ReSelf, Pointers.Ordinate);	//Ordinate for 16th order
-		k0_Reduce_16<<<1,11>>>(Pointers.Ordinate, F);								//Reduce 16th order
+		k0_Ordinate_16<<<1,11>>>(Pointers.Par, Pointers.omega, Pointers.q, Pointers.Fermi, Pointers.ImSelf, Pointers.ReSelf, Pointers.Ordinate);	//Ordinate for 16th order
+#ifdef DEBUG
+		for(int i = 0; i < 11; i++)
+		{
+			Debug[10][i] = -((4.*Debug[6][i]*Debug[6][i+11]*sq(Par_loc[2])*(1.-Debug[2][i]-Debug[2][i+11]))/((sq(sq(Debug[0][i])-sq(Debug[1][i])-sq(Par_loc[2])-2.*Par_loc[2]*Debug[7][i])+sq(Debug[6][i]))*(sq(sq(Debug[0][i+11])-sq(Debug[1][i+11])-sq(Par_loc[2])-2.*Par_loc[2]*Debug[7][i+11])+sq(Debug[6][i+1]))));
+			Debug[13][i] = 4.*Debug[6][i]*Debug[6][i+11]*sq(Par_loc[2])*(1.-Debug[2][i]-Debug[2][i+11]);
+			Debug[14][i] = (sq(sq(Debug[0][i])-sq(Debug[1][i])-sq(Par_loc[2])-2.*Par_loc[2]*Debug[7][i])+sq(Debug[6][i]));
+			Debug[15][i] = (sq(sq(Debug[0][i+11])-sq(Debug[1][i+11])-sq(Par_loc[2])-2.*Par_loc[2]*Debug[7][i+11])+sq(Debug[6][i+1]));
+		}
+		cudaMemcpy((void*)Debug[11], (void*)Pointers.Ordinate, 11*sizeof(double), cudaMemcpyDeviceToHost);
+#endif
+		k0_Reduce_16<<<1,11>>>(Pointers.Ordinate, Pointers.F);								//Reduce 16th order
 		break;
 	}
 
-	cudaMemcpy((void*)F, (void*)F_dev, 2*sizeof(double), cudaMemcpyDeviceToHost);
-	cudaFree(F_dev);
-	cudaFree(Par_dev);
-
+	cudaMemcpy((void*)F, (void*)Pointers.F, 2*sizeof(double), cudaMemcpyDeviceToHost);
 	Around Answer = Around(F[1], abs(F[0]-F[1]))*(b-a)/2.;//Around(F[0])*(b-a)/2.;//
 	/*if(Answer.RelErr() > 1e-8 && deep < 4 && abs(b/a-(double)(1.)) > FLT_EPSILON)
 		Answer = k0_Int(Par, Temp, k, theta, a, (a+b)/2., order, deep+1) + k0_Int(Par, Temp, k, theta, (a+b)/2., b, order, deep+1);//*/
@@ -509,14 +653,14 @@ __global__ void k0_omega_Fermi_16(double* Par_globe, double* omega, double* q, d
 {
 	__shared__ double x[11];
 	__shared__ double Par[10];
-	if(threadIdx.x < 10);
+	if(threadIdx.x < 10)
 		Par[threadIdx.x] = Par_globe[threadIdx.x];
 
 	x[threadIdx.x] = (Par[8]+Par[7]+Disp9[threadIdx.x]*(Par[8]-Par[7]))/2.;	//abscisca
 	omega[threadIdx.x] = sqrt(Par[4]+sq(Par[3]))/2.+x[threadIdx.x];
 	omega[threadIdx.x+11] = sqrt(Par[4]+sq(Par[3]))/2.-x[threadIdx.x];
-	q[threadIdx.x] = sqrt(sq(Par[3])/4.+sq(Par[5])+Par[0]*Par[5]*cos(Par[6]));
-	q[threadIdx.x+11] = sqrt(sq(Par[3])/4.+sq(Par[5])-Par[0]*Par[5]*cos(Par[6]));
+	q[threadIdx.x] = sqrt(sq(Par[3])/4.+sq(Par[5])+Par[3]*Par[5]*cos(Par[6]));
+	q[threadIdx.x+11] = sqrt(sq(Par[3])/4.+sq(Par[5])-Par[3]*Par[5]*cos(Par[6]));
 
 	if(Par[9] == 0)
 	{
@@ -570,7 +714,7 @@ __global__ void k0_194_ImSelf_16(double* Par, double* q, double* omega_globe, do
 	__shared__ static double M_T, Shift;	//Default quark mass, shfift from default quark mass to given quark mass
 	__shared__ static double k_old[2];		//Previous value of k to know if the parmeters need to recalculated
 
-	omega[threadIdx.x] = omega[threadIdx.x];
+	omega[threadIdx.x] = omega_globe[threadIdx.x];
 	k[threadIdx.x] = q[threadIdx.x];
 
 	if((k[0] != k_old[0] || k[11] != k_old[1]) && (threadIdx.x == 0 || threadIdx.x == 11))
@@ -647,14 +791,13 @@ __global__ void k0_194_ReSelf_16(double* Par, double* q, double* omega_globe, do
 __global__ void k0_Ordinate_16(double* Par, double* omega, double* q, double* fermi, double* ImSelf_globe, double* ReSelf, double* Ordinate)	//Ordinate for 16th order
 {
 	__shared__ double ImSelf[11][2];
-	__shared__ double M;
+	__shared__ double M[11];
 	
-	if(threadIdx.x == 0)
-		M = Par[2];
+	M[threadIdx.x] = Par[2];
 	ImSelf[threadIdx.x][0] = ImSelf_globe[threadIdx.x];
 	ImSelf[threadIdx.x][1] = ImSelf_globe[threadIdx.x+11];
 
-	Ordinate[threadIdx.x] = -((4.*ImSelf[threadIdx.x][0]*ImSelf[threadIdx.x][1]*sq(M)*(1.-fermi[threadIdx.x]-fermi[threadIdx.x+11]))/((sq(sq(omega[threadIdx.x])-sq(q[threadIdx.x])-sq(M)-2.*M*ReSelf[threadIdx.x])+sq(ImSelf[threadIdx.x][0]))*(sq(sq(omega[threadIdx.x+11])-sq(q[threadIdx.x+11])-sq(M)-2.*M*ReSelf[threadIdx.x+11])+sq(ImSelf[threadIdx.x][1]))));
+	Ordinate[threadIdx.x] = -((4.*ImSelf[threadIdx.x][0]*ImSelf[threadIdx.x][1]*sq(M[threadIdx.x])*(1.-fermi[threadIdx.x]-fermi[threadIdx.x+11]))/((sq(sq(omega[threadIdx.x])-sq(q[threadIdx.x])-sq(M[threadIdx.x])-2.*M[threadIdx.x]*ReSelf[threadIdx.x])+sq(ImSelf[threadIdx.x][0]))*(sq(sq(omega[threadIdx.x+11])-sq(q[threadIdx.x+11])-sq(M[threadIdx.x])-2.*M[threadIdx.x]*ReSelf[threadIdx.x+11])+sq(ImSelf[threadIdx.x][1]))));
 }
 
 __global__ void k0_Reduce_16(double* Ordinate_globe, double* Answer)	//Reduce 16th order
@@ -691,14 +834,14 @@ __global__ void k0_omega_Fermi_37(double* Par_globe, double* omega, double* q, d
 {
 	__shared__ double x[25];
 	__shared__ double Par[10];
-	if(threadIdx.x < 10);
+	if(threadIdx.x < 10)
 		Par[threadIdx.x] = Par_globe[threadIdx.x];
 
 	x[threadIdx.x] = (Par[8]+Par[7]+Disp37[threadIdx.x]*(Par[8]-Par[7]))/2.;	//abscisca
 	omega[threadIdx.x] = sqrt(Par[4]+sq(Par[3]))/2.+x[threadIdx.x];
 	omega[threadIdx.x+25] = sqrt(Par[4]+sq(Par[3]))/2.-x[threadIdx.x];
-	q[threadIdx.x] = sqrt(sq(Par[3])/4.+sq(Par[5])+Par[0]*Par[5]*cos(Par[6]));
-	q[threadIdx.x+25] = sqrt(sq(Par[3])/4.+sq(Par[5])-Par[0]*Par[5]*cos(Par[6]));
+	q[threadIdx.x] = sqrt(sq(Par[3])/4.+sq(Par[5])+Par[3]*Par[5]*cos(Par[6]));
+	q[threadIdx.x+25] = sqrt(sq(Par[3])/4.+sq(Par[5])-Par[3]*Par[5]*cos(Par[6]));
 
 	if(Par[9] == 0)
 	{
@@ -829,14 +972,13 @@ __global__ void k0_194_ReSelf_37(double* Par, double* q, double* omega_globe, do
 __global__ void k0_Ordinate_37(double* Par, double* omega, double* q, double* fermi, double* ImSelf_globe, double* ReSelf, double* Ordinate)	//Ordinate for 37th order
 {
 	__shared__ double ImSelf[25][2];
-	__shared__ double M;
+	__shared__ double M[25];
 	
-	if(threadIdx.x == 0)
-		M = Par[2];
+	M[threadIdx.x] = Par[2];
 	ImSelf[threadIdx.x][0] = ImSelf_globe[threadIdx.x];
 	ImSelf[threadIdx.x][1] = ImSelf_globe[threadIdx.x+25];
 
-	Ordinate[threadIdx.x] = -((4.*ImSelf[threadIdx.x][0]*ImSelf[threadIdx.x][1]*sq(M)*(1.-fermi[threadIdx.x]-fermi[threadIdx.x+25]))/((sq(sq(omega[threadIdx.x])-sq(q[threadIdx.x])-sq(M)-2.*M*ReSelf[threadIdx.x])+sq(ImSelf[threadIdx.x][0]))*(sq(sq(omega[threadIdx.x+25])-sq(q[threadIdx.x+25])-sq(M)-2.*M*ReSelf[threadIdx.x+25])+sq(ImSelf[threadIdx.x][1]))));
+	Ordinate[threadIdx.x] = -((4.*ImSelf[threadIdx.x][0]*ImSelf[threadIdx.x][1]*sq(M[threadIdx.x])*(1.-fermi[threadIdx.x]-fermi[threadIdx.x+25]))/((sq(sq(omega[threadIdx.x])-sq(q[threadIdx.x])-sq(M[threadIdx.x])-2.*M[threadIdx.x]*ReSelf[threadIdx.x])+sq(ImSelf[threadIdx.x][0]))*(sq(sq(omega[threadIdx.x+25])-sq(q[threadIdx.x+25])-sq(M[threadIdx.x])-2.*M[threadIdx.x]*ReSelf[threadIdx.x+25])+sq(ImSelf[threadIdx.x][1]))));
 }
 
 __global__ void k0_Reduce_37(double* Ordinate_globe, double* Answer)	//Reduce 37th order
@@ -873,14 +1015,16 @@ __global__ void k0_omega_Fermi_97(double* Par_globe, double* omega, double* q, d
 {
 	__shared__ double x[65];
 	__shared__ double Par[10];
-	if(threadIdx.x < 10);
+	if(threadIdx.x < 10)
 		Par[threadIdx.x] = Par_globe[threadIdx.x];
 
-	x[threadIdx.x] = (Par[8]+Par[7]+Disp9[threadIdx.x]*(Par[8]-Par[7]))/2.;	//abscisca
+	__syncthreads();
+
+	x[threadIdx.x] = (Par[8]+Par[7]+Disp97[threadIdx.x]*(Par[8]-Par[7]))/2.;	//abscisca
 	omega[threadIdx.x] = sqrt(Par[4]+sq(Par[3]))/2.+x[threadIdx.x];
 	omega[threadIdx.x+65] = sqrt(Par[4]+sq(Par[3]))/2.-x[threadIdx.x];
-	q[threadIdx.x] = sqrt(sq(Par[3])/4.+sq(Par[5])+Par[0]*Par[5]*cos(Par[6]));
-	q[threadIdx.x+65] = sqrt(sq(Par[3])/4.+sq(Par[5])-Par[0]*Par[5]*cos(Par[6]));
+	q[threadIdx.x] = sqrt(sq(Par[3])/4.+sq(Par[5])+Par[3]*Par[5]*cos(Par[6]));
+	q[threadIdx.x+65] = sqrt(sq(Par[3])/4.+sq(Par[5])-Par[3]*Par[5]*cos(Par[6]));
 
 	if(Par[9] == 0)
 	{
@@ -952,6 +1096,7 @@ __global__ void k0_194_ImSelf_97(double* Par, double* q, double* omega_globe, do
 		omega0[threadIdx.x/65] = sqrt(sq(1.51443+Shift)+sq(k[threadIdx.x/65]))+.232841;
 		knee[threadIdx.x/65] = 3.78956*pow(k[threadIdx.x/65]+1., (double)-.530289)+.305*(tanh((k[threadIdx.x/65]-48.4)/11.1111)+1);
 	}
+	__syncthreads();
 
 	if((omega[threadIdx.x]-omega0[threadIdx.x/65]+knee[threadIdx.x/65]*(b[threadIdx.x/65]-a[threadIdx.x/65])/(sqrt(a[threadIdx.x/65]*b[threadIdx.x/65])*(a[threadIdx.x/65]+b[threadIdx.x/65])))/knee[threadIdx.x/65] < -4.)
 		ImSigma[threadIdx.x] = a[threadIdx.x/65]*(omega[threadIdx.x]-omega0[threadIdx.x/65]+knee[threadIdx.x/65]/sqrt(a[threadIdx.x/65]*b[threadIdx.x/65]));
@@ -1000,6 +1145,7 @@ __global__ void k0_194_ReSelf_97(double* Par, double* q, double* omega_globe, do
 		x1[threadIdx.x/65] = sqrt(sq(k[threadIdx.x])+sq(1.50194+Shift))+.222526;
 		gamma[threadIdx.x/65] = .336699/sqrt(sq(k[threadIdx.x])+sq(1.87956))+.0651449;
 	}
+	__syncthreads();
 
 #ifdef HALF
 	ReSelf[threadIdx.x] = Sigma[threadIdx.x/65]*(omega[threadIdx.x]-x0[threadIdx.x/65])/(pow(omega[threadIdx.x]-x1[threadIdx.x/65], 2)+gamma[threadIdx.x/65])/2.;
@@ -1011,14 +1157,13 @@ __global__ void k0_194_ReSelf_97(double* Par, double* q, double* omega_globe, do
 __global__ void k0_Ordinate_97(double* Par, double* omega, double* q, double* fermi, double* ImSelf_globe, double* ReSelf, double* Ordinate)	//Ordinate for 97th order
 {
 	__shared__ double ImSelf[65][2];
-	__shared__ double M;
+	__shared__ double M[65];
 	
-	if(threadIdx.x == 0)
-		M = Par[2];
+	M[threadIdx.x] = Par[2];
 	ImSelf[threadIdx.x][0] = ImSelf_globe[threadIdx.x];
 	ImSelf[threadIdx.x][1] = ImSelf_globe[threadIdx.x+65];
 
-	Ordinate[threadIdx.x] = -((4.*ImSelf[threadIdx.x][0]*ImSelf[threadIdx.x][1]*sq(M)*(1.-fermi[threadIdx.x]-fermi[threadIdx.x+65]))/((sq(sq(omega[threadIdx.x])-sq(q[threadIdx.x])-sq(M)-2.*M*ReSelf[threadIdx.x])+sq(ImSelf[threadIdx.x][0]))*(sq(sq(omega[threadIdx.x+65])-sq(q[threadIdx.x+65])-sq(M)-2.*M*ReSelf[threadIdx.x+65])+sq(ImSelf[threadIdx.x][1]))));
+	Ordinate[threadIdx.x] = -((4.*ImSelf[threadIdx.x][0]*ImSelf[threadIdx.x][1]*sq(M[threadIdx.x])*(1.-fermi[threadIdx.x]-fermi[threadIdx.x+65]))/((sq(sq(omega[threadIdx.x])-sq(q[threadIdx.x])-sq(M[threadIdx.x])-2.*M[threadIdx.x]*ReSelf[threadIdx.x])+sq(ImSelf[threadIdx.x][0]))*(sq(sq(omega[threadIdx.x+65])-sq(q[threadIdx.x+65])-sq(M[threadIdx.x])-2.*M[threadIdx.x]*ReSelf[threadIdx.x+65])+sq(ImSelf[threadIdx.x][1]))));
 }
 
 __global__ void k0_Reduce_97(double* Ordinate_globe, double* Answer)	//Reduce 97th order
