@@ -753,6 +753,9 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 
 Around k0_Int(long double Par[], int Temp, long double k, long double theta)
 {
+	if(Par[4]+pow(Par[3], 2) < 0) //Can't go below zero energy for the dispersion relation.
+		return(Around(0.));
+
 	long double a, b;	//Sub-interval limits of integration
 	long double Max;	//Upper limit of integration
 
@@ -821,7 +824,7 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta)
 
 	i = 0;
 	j = 0;
-	while(Stops[j] == Stops[j]+1.)	//Remove Regions that duplicates or below the lower edge
+	while(Stops[j] == Stops[j]+1. || isnan(Stops[j]))	//Remove Regions that duplicates or below the lower edge
 		j++;
 	for(; j < l+6; j++)
 	{
