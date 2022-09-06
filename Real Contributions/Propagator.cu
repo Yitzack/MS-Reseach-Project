@@ -135,14 +135,8 @@ void Loop_Out(double Par[], int Temp, char File[])
 	double Bin_n[9];
 
 	Dev_Pointer Pointers;
-	cudaMalloc((void**)&Pointers.omega, 130*sizeof(double));
-	cudaMalloc((void**)&Pointers.Fermi, 130*sizeof(double));
-	cudaMalloc((void**)&Pointers.ImSelf, 130*sizeof(double));
-	cudaMalloc((void**)&Pointers.ReSelf, 130*sizeof(double));
-	cudaMalloc((void**)&Pointers.q, 130*sizeof(double));
-	cudaMalloc((void**)&Pointers.Ordinate, 65*sizeof(double));
 	cudaMalloc((void**)&Pointers.F, 2*sizeof(double));
-	cudaMalloc((void**)&Pointers.Par, 10*sizeof(double));
+	cudaMalloc((void**)&Pointers.Par, 11*sizeof(double));
 
 	for(i = 0; i < 702; i++)
 	{
