@@ -859,9 +859,9 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta)
 		if((abs(a-Caution) < 1 || abs(b-Caution) < 1) && Par[4] > pow(2.*Par[2], 2) && abs(k-.5*sqrt((Par[4]-pow(2.*Par[2], 2))*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)))) < 1)
 			Partial = k0_Int(Par, Temp, k, theta, a, b, 97, 0);
 		else if((abs(a-Caution) < 1 || abs(b-Caution) < 1))
-			Partial = k0_Int(Par, Temp, k, theta, a, b, 37, 0);
+			Partial = k0_Int(Par, Temp, k, theta, a, b, 97, 0);
 		else
-			Partial = k0_Int(Par, Temp, k, theta, a, b, 16, 0);
+			Partial = k0_Int(Par, Temp, k, theta, a, b, 97, 0);
 
 		Answer += Partial;		//Add the Region to the total
 		a = b;

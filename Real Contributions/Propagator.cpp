@@ -147,11 +147,12 @@ void Loop_Out(long double Par[], int Temp, char File[])
 	iTable >> Bin_c[0];
 	while(iTable.good())
 	{
-		iTable >> Bin_c[0] >> Bin_n[0] >> Bin_c[1] >> Bin_n[1] >> Bin_c[2] >> Bin_n[2];
+		iTable >> Bin_c[0] >> Bin_n[0] >> Bin_c[1] >> Bin_n[1] >> Bin_c[2] >> Bin_n[2] >> Bin_c[3] >> Bin_c[4] >> Bin_c[5];
 		iTable.ignore(200,'\n');
 		i = Bin_n[0];
 		theta = Bin_n[2];
-		Manifest[i][int(theta*200./M_PI)] = true;
+		if('0' <= Bin_c[5] && Bin_c[5] <= '9' || Bin_c[5] == '.')
+			Manifest[i][int(theta*200./M_PI)] = true;
 	}
 
 	iTable.close();
