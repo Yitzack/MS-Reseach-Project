@@ -680,7 +680,7 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 			Partial = Dispersion(Par, Temp, k0, k, theta, a, b, ImG12*Principal, 16, 0);
 		Answer += Partial;		//Add the Region to the total
 		a = b;
-	}while((a < 4.*(pow(k, 2)+pow(Par[2], 2))+50. && i < Intervals) || Partial/Answer > 1e-6);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
+	}while((a < 4.*(pow(k, 2)+pow(Par[2], 2))+50. && i < Intervals) || Partial/Answer > 1e-6 || isinf(log(abs((a-Par[4])))));	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded or until convergance
 
 	if(Max == 0)	//Just in case it terminates before getting to s+100
 		Max = a;
