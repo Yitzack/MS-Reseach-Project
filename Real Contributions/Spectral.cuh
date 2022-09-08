@@ -14,19 +14,18 @@ struct Dev_Pointer
 	pair<double,double>* ImSelf;
 	pair<double,double>* ReSelf;
 	pair<double,double>* q;
-	pair<double,double>* Answer;
 	pair<double,double>* Ordinate;
+	cudaStream_t Stream[5];
 	double* F;
 	double* Par;
-	double* a;
-	double* b;
+	pair<double,double>* Limits;
 };
 
 //Integrals that define results
 Around Dispersion(Dev_Pointer, double[], int, double, double, double);			//Dispersion relation for turning ImG_12 into ReG_12
 Around Dispersion(Dev_Pointer, double[], int, double, double, double, double, double, Around, int, int);	//Dispersion relation for turning ImG_12 into ReG_12
 Around k0_Int(Dev_Pointer, double[], int, double, double);					//k0 integral aka energy integral
-Around k0_Int(Dev_Pointer, double[], int, double, double, double[], double[], int, int);	//k0 integral aka energy integral
+Around k0_Int(Dev_Pointer, double[], int, double, double, pair<double,double>[], int, int);	//k0 integral aka energy integral
 
 __global__ void k0_omega_Fermi_16(double*, double*, double*, pair<double,double>*, pair<double,double>*);				//Energy and Fermi function for 16th order
 __global__ void k0_Vaccum_ImSelf_16(double*, double*, double*);					//ImSelf for Vacuum and 16th order
@@ -44,13 +43,13 @@ __global__ void k0_194_ReSelf_37(double*, double*, double*, double*);				//ReSel
 __global__ void k0_Ordinate_37(double*, double*, double*, double*, double*, double*, double*);	//Ordinate for 37th order
 __global__ void k0_Reduce_37(double*, double*);	//Reduce 37th order
 
-__global__ void k0_omega_Fermi_97(double*, double*, double*, pair<double,double>*, pair<double,double>*);		//Energy and Fermi function for 97th order
+__global__ void k0_omega_Fermi_97(double*, pair<double,double>*, pair<double,double>*, pair<double,double>*);		//Energy and Fermi function for 97th order
 __global__ void k0_Vaccum_ImSelf_97(double*, pair<double,double>*, pair<double,double>*, pair<double,double>*);	//ImSelf for Vacuum and 97th order
 __global__ void k0_Vaccum_ReSelf_97(double*, pair<double,double>*, pair<double,double>*, pair<double,double>*);	//ReSelf for Vacuum and 97th order
 __global__ void k0_194_ImSelf_97(double*, pair<double,double>*, pair<double,double>*, pair<double,double>*);	//ImSelf for T=194 MeV and 97th order
 __global__ void k0_194_ReSelf_97(double*, pair<double,double>*, pair<double,double>*, pair<double,double>*);	//ReSelf for T=194 MeV and 97th order
-__global__ void k0_Ordinate_97(double*, pair<double,double>*, pair<double,double>*, pair<double,double>*, pair<double,double>*, pair<double,double>*, pair<double,double>*);								//Ordinate for 97th order and multiplaction by weights
-__global__ void k0_Reduce(pair<double,double>*);				//reduction, no weights needed
+__global__ void k0_Ordinate_97(double*, pair<double,double>*, pair<double,double>*, pair<double,double>*, pair<double,double>*, pair<double,double>*, pair<double,double>*, pair<double,double>*);								//Ordinate for 97th order and multiplaction by weights
+__global__ void k0_Reduce(double*, pair<double,double>*);			//reduction, no weights needed
 
 //Functions for finding points of interest in the k0 integral
 void Characterize_k0_Int(double[], int, double, double, double[], double[], int&);	//Returns the poles of the k0 integral's integrands
@@ -417,7 +416,7 @@ Around Dispersion(Dev_Pointer Pointers, double Par[], int Temp, double k0, doubl
 
 Around k0_Int(Dev_Pointer Pointers, double Par[], int Temp, double k, double theta)
 {
-	double a[100], b[100];	//Sub-interval limits of integration
+	pair<double,double> Limits[100];	//Sub-interval limits of integration
 	double Max;			//Upper limit of integration
 
 	//Extra boundaries that insert extra intervals around peaks. Used a machine learn algorithm of sorts to minimize error to pick these values.
@@ -461,23 +460,23 @@ Around k0_Int(Dev_Pointer Pointers, double Par[], int Temp, double k, double the
 
 	if(Temp != 0)
 	{
-		a[0] = b[0] = -sqrt(Par[4]+sq(Par[3]))/2.;	//Lower edge for non-vacuum
+		Limits[0].first = Limits[0].second = -sqrt(Par[4]+sq(Par[3]))/2.;	//Lower edge for non-vacuum
 		Max = sqrt(Par[4]+sq(Par[3]))/2.;	//Upper edge for non-vacuum
 	}
 	else
 	{
-		a[0] = b[0] = Energy(0, Par[3]/2., k, theta)-sqrt(Par[4]+sq(Par[3]))/2.;	//Lower edge for vacuum
+		Limits[0].first = Limits[0].second = Energy(0, Par[3]/2., k, theta)-sqrt(Par[4]+sq(Par[3]))/2.;	//Lower edge for vacuum
 		Max = sqrt(Par[4]+sq(Par[3]))/2.-Energy(0, Par[3]/2., -k, theta);	//Upper edge for vacuum
-		if(a[0]>Max)
+		if(Limits[0].first>Max)
 		{
-			a[0] = b[0] = sqrt(Par[4]+sq(Par[3]))/2.-Energy(0, Par[3]/2., -k, theta);	//Lower edge for vacuum
+			Limits[0].first = Limits[0].second = sqrt(Par[4]+sq(Par[3]))/2.-Energy(0, Par[3]/2., -k, theta);	//Lower edge for vacuum
 			Max = Energy(0, Par[3]/2., k, theta)-sqrt(Par[4]+sq(Par[3]))/2.;	//Upper edge for vacuum
 		}
 	}
 
 	for(i = 0; i < l+6; i++)
 	{
-		if(Stops[i] < a[0])
+		if(Stops[i] < Limits[0].first)
 			Stops[i] = -Stops[i];
 	}
 
@@ -501,132 +500,86 @@ Around k0_Int(Dev_Pointer Pointers, double Par[], int Temp, double k, double the
 	j = 0;
 	do
 	{
-		if(((i < Intervals && b[j]+100 < Stops[i]) && (i > 0 && b[j]-Stops[i-1] > 100)) || Stops[Intervals-1] < a[j]-100)	//Middle of nowhere intervals not specified by Stops
-			b[j] += 100;
-		else if(((i < Intervals && 50 < Stops[i]-b[j]) && (i > 0 && b[j]-Stops[i-1] > 50)) || Stops[Intervals-1] < a[j]-50)
-			b[j] += 50;
-		else if(((i < Intervals && 10 < Stops[i]-b[j]) && (i > 0 && b[j]-Stops[i-1] > 10)) || Stops[Intervals-1] < a[j]-10)
-			b[j] += 10;
-		else if(((i < Intervals && 3 < Stops[i]-b[j]) && (i > 0 && b[j]-Stops[i-1] > 3)) || Stops[Intervals-1] < a[j]-3)
-			b[j] += 3;
+		if(((i < Intervals && Limits[j].second+100 < Stops[i]) && (i > 0 && Limits[j].second-Stops[i-1] > 100)) || Stops[Intervals-1] < Limits[j].first-100)	//Middle of nowhere intervals not specified by Stops
+			Limits[j].second += 100;
+		else if(((i < Intervals && 50 < Stops[i]-Limits[j].second) && (i > 0 && Limits[j].second-Stops[i-1] > 50)) || Stops[Intervals-1] < Limits[j].first-50)
+			Limits[j].second += 50;
+		else if(((i < Intervals && 10 < Stops[i]-Limits[j].second) && (i > 0 && Limits[j].second-Stops[i-1] > 10)) || Stops[Intervals-1] < Limits[j].first-10)
+			Limits[j].second += 10;
+		else if(((i < Intervals && 3 < Stops[i]-Limits[j].second) && (i > 0 && Limits[j].second-Stops[i-1] > 3)) || Stops[Intervals-1] < Limits[j].first-3)
+			Limits[j].second += 3;
 		else if(i < Intervals)
 		{
-			b[j] = Stops[i];
+			Limits[j].second = Stops[i];
 			i++;
 		}
 
-		if(b[j] > Max && a[j] < Max)
-			b[j] = Max;	//Be sure E/2 is and sub-interval boundary
+		if(Limits[j].second > Max && Limits[j].first < Max)
+			Limits[j].second = Max;	//Be sure E/2 is and sub-interval boundary
 
-		/*if((abs(a[j]-Caution) < 1 || abs(b[j]-Caution) < 1) && Par[4] > pow(2.*Par[2], 2) && abs(k-.5*sqrt((Par[4]-pow(2.*Par[2], 2))*(Par[4]+sq(Par[3]))/(Par[4]+pow(Par[3]*sin(theta), 2)))) < 1)
+		/*if((abs(Limits[j].first-Caution) < 1 || abs(Limits[j].second-Caution) < 1) && Par[4] > pow(2.*Par[2], 2) && abs(k-.5*sqrt((Par[4]-pow(2.*Par[2], 2))*(Par[4]+sq(Par[3]))/(Par[4]+pow(Par[3]*sin(theta), 2)))) < 1)
 			order[j] = 97;
-		else if((abs(a-Caution) < 1 || abs(b-Caution) < 1))
+		else if((abs(Limits[j].first-Caution) < 1 || abs(b-Caution) < 1))
 			order[j] = 37;
 		else
 			order[j] = 16;*/
 
 		j++;
-		a[j] = b[j-1];
-		b[j] = a[j];
-	}while((i < Intervals) && a[j] < Max && j <= 100);	//Keep going while intervals aren't exhausted and upper limit of ntegration not excceeded
+		Limits[j].first = Limits[j-1].second;
+		Limits[j].second = Limits[j].first;
+	}while((i < Intervals) && Limits[j].first < Max && j <= 100);	//Keep going while intervals aren't exhausted and upper limit of ntegration not excceeded
 
 	if(j>100)
-		cerr << "a and b arrays in k0_int(Dev_Pointers, double[], int, double, double) ran out of space: " << a[j] << " " << b[j] << " " << j << endl;
+		cerr << "a and b arrays in k0_int(Dev_Pointers, double[], int, double, double) ran out of space: " << Limits[j].first << " " << Limits[j].second << " " << j << endl;
 
-	Answer = k0_Int(Pointers, Par, Temp, k, theta, a, b, 97, j);
+	Answer = k0_Int(Pointers, Par, Temp, k, theta, Limits, 97, j);
 
 	return(Answer/M_PI);
 }
 
-Around k0_Int(Dev_Pointer Pointers, double Par[], int Temp, double k, double theta, double a[], double b[], int order, int Intervals)
+Around k0_Int(Dev_Pointer Pointers, double Par[], int Temp, double k, double theta, pair<double,double> Limits[], int order, int Intervals)
 {
-#ifdef DEBUG
-const double Disp97[] = {-0.99954590212436447863561, -0.99726386184948156354498, -0.99262803526297191268579, -0.98561151154526833540018, -0.97631028361466380719767, -0.96476225558750643077381, -0.95095468484866118538988, -0.93490607593773968917092, -0.91667726665136432427535, -0.89632115576605212396531, -0.87386976894531060612966, -0.84936761373256997013369, -0.82288295013605132164827, -0.79448379596794240696310, -0.76422825199780370415066, -0.73218211874028968038743, -0.69842655779521049288477, -0.66304426693021520097512, -0.62611293770182399782024, -0.58771575724076232904075, -0.54794631419915247868094, -0.50689990893222939002375, -0.46466930848199221775618, -0.42135127613063534536412, -0.37704942115412110544534, -0.33186860228212764977992, -0.28591245858945975941661, -0.23928736225213707454460, -0.19210360898314249727164, -0.14447196158279649348519, -0.09650269687689436580083, -0.04830766568773831623481, 0, 0.04830766568773831623481, 0.09650269687689436580083, 0.14447196158279649348519, 0.19210360898314249727164, 0.23928736225213707454460, 0.28591245858945975941661, 0.33186860228212764977992, 0.37704942115412110544534, 0.42135127613063534536412, 0.46466930848199221775618, 0.50689990893222939002375, 0.54794631419915247868094, 0.58771575724076232904075, 0.62611293770182399782024, 0.66304426693021520097512, 0.69842655779521049288477, 0.73218211874028968038743, 0.76422825199780370415066, 0.79448379596794240696310, 0.82288295013605132164827, 0.84936761373256997013369, 0.87386976894531060612966, 0.89632115576605212396531, 0.91667726665136432427535, 0.93490607593773968917092, 0.95095468484866118538988, 0.96476225558750643077381, 0.97631028361466380719767, 0.98561151154526833540018, 0.99262803526297191268579, 0.99726386184948156354498, 0.99954590212436447863561};
-double w63[] = {0, 0.0070186100094700966004071, 0, 0.0162743947309056706051706, 0, 0.025392065309262059455753, 0, 0.034273862913021433102688, 0, 0.042835898022226680656879, 0, 0.050998059262376176196163, 0, 0.058684093478535547145284, 0, 0.065822222776361846837650, 0, 0.072345794108848506225399, 0, 0.078193895787070306471741, 0, 0.083311924226946755222199, 0, 0.087652093004403811142771, 0, 0.091173878695763884712869, 0, 0.093844399080804565639180, 0, 0.09563872007927485941908, 0, 0.09654008851472780056676, 0, 0.09654008851472780056676, 0, 0.09563872007927485941908, 0, 0.093844399080804565639180, 0, 0.091173878695763884712869, 0, 0.087652093004403811142771, 0, 0.083311924226946755222199, 0, 0.078193895787070306471741, 0, 0.072345794108848506225399, 0, 0.065822222776361846837650, 0, 0.058684093478535547145284, 0, 0.050998059262376176196163, 0, 0.042835898022226680656879, 0, 0.034273862913021433102688, 0, 0.025392065309262059455753, 0, 0.0162743947309056706051706, 0, 0.0070186100094700966004071, 0};	//63rd order Gauss-Legendre weight
-double w97[] = {0.00122336081795147180029304, 0.0034268187757723709355746, 0.00584173707916669330394798, 0.0081725040385316684143438, 0.0104239873988068188280343, 0.012676054806654402859369, 0.0149361036060860273850968, 0.017149805209784253256086, 0.0192987714303268112944037, 0.021408913184821915955778, 0.0234866596721633245920879, 0.025505695480894652814529, 0.0274520984222104037831477, 0.029336956689620661368616, 0.0311633255619737371711558, 0.032915077643903600263296, 0.0345821227447330341307264, 0.036169769475642299860958, 0.0376791306456133985148960, 0.039099420133306611207482, 0.0404234923703730966723493, 0.041654019985643051398296, 0.0427911155964467469336549, 0.043827544030139749046816, 0.0447586387497669372951992, 0.045585826564547070280575, 0.0463087567380257132403813, 0.046922968281703611103481, 0.0474260618738823823628799, 0.047818908736988472212264, 0.0481009691854577469278465, 0.04827019307577738559871, 0.0483263839865677583754454, 0.04827019307577738559871, 0.0481009691854577469278465, 0.047818908736988472212264, 0.0474260618738823823628799, 0.046922968281703611103481, 0.0463087567380257132403813, 0.045585826564547070280575, 0.0447586387497669372951992, 0.043827544030139749046816, 0.0427911155964467469336549, 0.041654019985643051398296, 0.0404234923703730966723493, 0.039099420133306611207482, 0.0376791306456133985148960, 0.036169769475642299860958, 0.0345821227447330341307264, 0.032915077643903600263296, 0.0311633255619737371711558, 0.029336956689620661368616, 0.0274520984222104037831477, 0.025505695480894652814529, 0.0234866596721633245920879, 0.021408913184821915955778, 0.0192987714303268112944037, 0.017149805209784253256086, 0.0149361036060860273850968, 0.012676054806654402859369, 0.0104239873988068188280343, 0.0081725040385316684143438, 0.00584173707916669330394798, 0.0034268187757723709355746, 0.00122336081795147180029304};	//97th order Gauss-Kronrod weight
-pair<double,double> Debug_pair[20][Intervals*65];
-double Debug_single[20][Intervals*65];
-#endif
-	pair<double,double> F = pair<double,double>(Energy(0, Par[3]/2., k, theta), Energy(0, Par[3]/2., -k, theta));
+	pair<double,double> q = pair<double,double>(Energy(0, Par[3]/2., k, theta), Energy(0, Par[3]/2., -k, theta));
 	double Par_loc[] = {Par[0], Par[1], Par[2], Par[3], Par[4], k, theta, Set_Temp(Temp), double(Intervals)};
 	const int Block_size = BLOCK_SIZE;
-	
-	cudaMalloc((void**)&Pointers.omega, Intervals*65*sizeof(pair<double,double>));
-	cudaMalloc((void**)&Pointers.Fermi, Intervals*65*sizeof(pair<double,double>));
-	cudaMalloc((void**)&Pointers.ImSelf, Intervals*65*sizeof(pair<double,double>));
-	cudaMalloc((void**)&Pointers.ReSelf, Intervals*65*sizeof(pair<double,double>));
-	cudaMalloc((void**)&Pointers.Answer, (65*Intervals/Block_size+1)*sizeof(pair<double,double>));
-	cudaMalloc((void**)&Pointers.q, sizeof(pair<double,double>));
-	cudaMalloc((void**)&Pointers.Ordinate, Intervals*65*sizeof(double));
-	cudaMalloc((void**)&Pointers.a, Intervals*sizeof(double));
-	cudaMalloc((void**)&Pointers.b, Intervals*sizeof(double));
+	int Num_points = Intervals*65;
+	const int Num_blocks = Num_points/Block_size+1;
+	pair<double, double> F[Num_blocks/2+1];
 
-	cudaMemcpy((void*)Pointers.Par, (void*)Par_loc, 9*sizeof(double), cudaMemcpyHostToDevice);
-	cudaMemcpy((void*)Pointers.a, (void*)a, Intervals*sizeof(double), cudaMemcpyHostToDevice);
-	cudaMemcpy((void*)Pointers.b, (void*)b, Intervals*sizeof(double), cudaMemcpyHostToDevice);
-	cudaMemcpy((void*)Pointers.q, (void*)&F, Intervals*sizeof(pair<double,double>), cudaMemcpyHostToDevice);
+	cudaMemcpyAsync((void*)Pointers.Par, (void*)Par_loc, 9*sizeof(double), cudaMemcpyHostToDevice, Pointers.Stream[0]);
+	cudaMemcpyAsync((void*)Pointers.Limits, (void*)Limits, Intervals*sizeof(pair<double,double>), cudaMemcpyHostToDevice, Pointers.Stream[1]);
+	cudaMemcpyAsync((void*)Pointers.q, (void*)&q, sizeof(pair<double,double>), cudaMemcpyHostToDevice, Pointers.Stream[2]);
 
-	k0_omega_Fermi_97<<<65*Intervals/Block_size+1,Block_size>>>(Pointers.Par, Pointers.a, Pointers.b, Pointers.omega, Pointers.Fermi);	//Energy and Fermi function for 97th order
-#ifdef DEBUG
-cudaMemcpy((void*)Debug_pair[0],(void*)Pointers.omega,Intervals*65*sizeof(pair<double,double>), cudaMemcpyDeviceToHost);
-cudaMemcpy((void*)Debug_pair[1],(void*)Pointers.Fermi,Intervals*65*sizeof(pair<double,double>), cudaMemcpyDeviceToHost);
-for(int i = 0; i < Intervals; i++)
-{
-	for(int j = 0; j < 65; j++)
-	{
-		double k0 = (a[i]+b[i]+Disp97[j]*(a[i]-b[i]))/2.;
-		Debug_pair[2][i+65*j].first = sqrt(Par[4]+sq(Par[3]))/2.+k0;
-		Debug_pair[2][i+65*j].second = sqrt(Par[4]+sq(Par[3]))/2.-k0;
-		Debug_pair[3][i+65*j].first = Fermi(Debug_pair[2][i+65*j].first,Temp);
-		Debug_pair[3][i+65*j].second = Fermi(Debug_pair[2][i+65*j].second,Temp);
-	}
-}
-#endif
+	cudaStreamSynchronize(Pointers.Stream[1]);
+	k0_omega_Fermi_97<<<Num_blocks,Block_size,0,Pointers.Stream[0]>>>(Pointers.Par, Pointers.Limits, Pointers.omega, Pointers.Fermi);	//Energy and Fermi function for 97th order
 	switch(Temp)
 	{
 	case 0:
-		k0_Vaccum_ImSelf_97<<<65*Intervals/Block_size+1,Block_size>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for Vacuum and 97th order
-		k0_Vaccum_ReSelf_97<<<65*Intervals/Block_size+1,Block_size>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for Vacuum and 97th order
+		cudaStreamSynchronize(Pointers.Stream[0]);
+		cudaStreamSynchronize(Pointers.Stream[2]);
+		k0_Vaccum_ImSelf_97<<<Num_blocks,Block_size,0,Pointers.Stream[1]>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for Vacuum and 97th order
+		k0_Vaccum_ReSelf_97<<<Num_blocks,Block_size,0,Pointers.Stream[2]>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for Vacuum and 97th order
 		break;
 	case 1:
-		k0_194_ImSelf_97<<<65*Intervals/Block_size+1,Block_size>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for T=194 MeV and 97th order
-		k0_194_ReSelf_97<<<65*Intervals/Block_size+1,Block_size>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for T=194 MeV and 97th order
+		cudaStreamSynchronize(Pointers.Stream[0]);
+		cudaStreamSynchronize(Pointers.Stream[2]);
+		k0_194_ImSelf_97<<<Num_blocks,Block_size,0,Pointers.Stream[1]>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for T=194 MeV and 97th order
+		k0_194_ReSelf_97<<<Num_blocks,Block_size,0,Pointers.Stream[2]>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ReSelf);	//ReSelf for T=194 MeV and 97th order
 		break;
 	}
-#ifdef DEBUG
-cudaMemcpy((void*)Debug_pair[4],(void*)Pointers.ImSelf,Intervals*65*sizeof(pair<double,double>), cudaMemcpyDeviceToHost);
-cudaMemcpy((void*)Debug_pair[5],(void*)Pointers.ReSelf,Intervals*65*sizeof(pair<double,double>), cudaMemcpyDeviceToHost);
-for(int i = 0; i < Intervals; i++)
-{
-	for(int j = 0; j < 65; j++)
-	{
-		Debug_pair[6][i+65*j].first = ImSelf_Energy(Par[2], Debug_pair[2][i+65*j].first, Energy(0, Par[3]/2., k, theta), Temp);
-		Debug_pair[6][i+65*j].second = ImSelf_Energy(Par[2], Debug_pair[2][i+65*j].second, Energy(0, Par[3]/2., -k, theta), Temp);
-		Debug_pair[7][i+65*j].first = 0;
-		Debug_pair[7][i+65*j].second = 0;
-	}
-}
-#endif
-	k0_Ordinate_97<<<65*Intervals/Block_size+1,Block_size>>>(Pointers.Par, Pointers.omega, Pointers.q, Pointers.Fermi, Pointers.ImSelf, Pointers.ReSelf, Pointers.Ordinate);	//Ordinate for 97th order
-#ifdef DEBUG
-cudaMemcpy((void*)Debug_pair[8],(void*)Pointers.Ordinate,Intervals*65*sizeof(pair<double,double>), cudaMemcpyDeviceToHost);
-for(int i = 0; i < Intervals; i++)
-{
-	for(int j = 0; j < 65; j++)
-	{
-		double k0 = (a[i]+b[i]+Disp97[j]*(a[i]-b[i]))/2.;
-		Debug_single[0][i+65*j] = Imk0_Integrand(Par, k0, k, theta, Temp);
-		Debug_pair[9][i+65*j].first = Debug_single[0][i+65*j]*w63[j];
-		Debug_pair[9][i+65*j].second = Debug_single[0][i+65*j]*w97[j];
-//cout << i << " " << j << " " << Debug_single[0][i+65*j] << " " << Debug_pair[8][i+65*j].first << " " << Debug_pair[9][i+65*j].first << " " << Debug_pair[8][i+65*j].first/Debug_pair[9][i+65*j].first-1. << " " << Debug_pair[8][i+65*j].second << " " << Debug_pair[9][i+65*j].second << " " << Debug_pair[8][i+65*j].second/Debug_pair[9][i+65*j].second-1. << endl;
-	}
-}
-#endif
-	k0_Reduce<<<65*Intervals/Block_size/2+1,Block_size>>>(Pointers.Answer);	//first reduction
-	k0_Reduce<<<1,65*Intervals/Block_size+1>>>(Pointers.Answer);	//Second reduction
+	cudaStreamSynchronize(Pointers.Stream[1]);
+	cudaStreamSynchronize(Pointers.Stream[2]);
+	k0_Ordinate_97<<<Num_blocks,Block_size,0,Pointers.Stream[0]>>>(Pointers.Par, Pointers.omega, Pointers.q, Pointers.Fermi, Pointers.ImSelf, Pointers.ReSelf, Pointers.Ordinate, Pointers.Limits);	//Ordinate for 97th order
+	k0_Reduce<<<Num_blocks/2+1,Block_size,0,Pointers.Stream[0]>>>(Pointers.Par, Pointers.Ordinate);	//First reduction
+	cudaMemcpyAsync((void*)&F, (void*)Pointers.Ordinate, (Num_blocks/2+1)*sizeof(pair<double,double>), cudaMemcpyDeviceToHost,Pointers.Stream[0]);
 
-	cudaMemcpy((void*)&F, (void*)Pointers.Answer, sizeof(pair<double,double>), cudaMemcpyDeviceToHost);
-	Around Answer = Around(F.second, abs(F.first-F.second))*(b-a)/2.;//Around(F[0])*(b-a)/2.;//
+	for(int i = 1; i < Num_points/Block_size/2+1; i++)	//Final reduction (for 18 intervals, I should have 3 pairs<> left to sum)
+	{
+		F[0].first += F[i].first;
+		F[0].second += F[i].second;
+	}
+
+	Around Answer = Around(F[0].second, abs(F[0].first-F[0].second));//Around(F[0])*(b-a)/2.;//
 	/*if(Answer.RelErr() > 1e-8 && deep < 4 && abs(b/a-(double)(1.)) > FLT_EPSILON)
 		Answer = k0_Int(Par, Temp, k, theta, a, (a+b)/2., order, deep+1) + k0_Int(Par, Temp, k, theta, (a+b)/2., b, order, deep+1);//*/
 
@@ -638,7 +591,7 @@ for(int i = 0; i < Intervals; i++)
 __constant__ double Disp97[] = {-0.99954590212436447863561, -0.99726386184948156354498, -0.99262803526297191268579, -0.98561151154526833540018, -0.97631028361466380719767, -0.96476225558750643077381, -0.95095468484866118538988, -0.93490607593773968917092, -0.91667726665136432427535, -0.89632115576605212396531, -0.87386976894531060612966, -0.84936761373256997013369, -0.82288295013605132164827, -0.79448379596794240696310, -0.76422825199780370415066, -0.73218211874028968038743, -0.69842655779521049288477, -0.66304426693021520097512, -0.62611293770182399782024, -0.58771575724076232904075, -0.54794631419915247868094, -0.50689990893222939002375, -0.46466930848199221775618, -0.42135127613063534536412, -0.37704942115412110544534, -0.33186860228212764977992, -0.28591245858945975941661, -0.23928736225213707454460, -0.19210360898314249727164, -0.14447196158279649348519, -0.09650269687689436580083, -0.04830766568773831623481, 0, 0.04830766568773831623481, 0.09650269687689436580083, 0.14447196158279649348519, 0.19210360898314249727164, 0.23928736225213707454460, 0.28591245858945975941661, 0.33186860228212764977992, 0.37704942115412110544534, 0.42135127613063534536412, 0.46466930848199221775618, 0.50689990893222939002375, 0.54794631419915247868094, 0.58771575724076232904075, 0.62611293770182399782024, 0.66304426693021520097512, 0.69842655779521049288477, 0.73218211874028968038743, 0.76422825199780370415066, 0.79448379596794240696310, 0.82288295013605132164827, 0.84936761373256997013369, 0.87386976894531060612966, 0.89632115576605212396531, 0.91667726665136432427535, 0.93490607593773968917092, 0.95095468484866118538988, 0.96476225558750643077381, 0.97631028361466380719767, 0.98561151154526833540018, 0.99262803526297191268579, 0.99726386184948156354498, 0.99954590212436447863561};	//Displacement from center
 __constant__ double w63[] = {0, 0.0070186100094700966004071, 0, 0.0162743947309056706051706, 0, 0.025392065309262059455753, 0, 0.034273862913021433102688, 0, 0.042835898022226680656879, 0, 0.050998059262376176196163, 0, 0.058684093478535547145284, 0, 0.065822222776361846837650, 0, 0.072345794108848506225399, 0, 0.078193895787070306471741, 0, 0.083311924226946755222199, 0, 0.087652093004403811142771, 0, 0.091173878695763884712869, 0, 0.093844399080804565639180, 0, 0.09563872007927485941908, 0, 0.09654008851472780056676, 0, 0.09654008851472780056676, 0, 0.09563872007927485941908, 0, 0.093844399080804565639180, 0, 0.091173878695763884712869, 0, 0.087652093004403811142771, 0, 0.083311924226946755222199, 0, 0.078193895787070306471741, 0, 0.072345794108848506225399, 0, 0.065822222776361846837650, 0, 0.058684093478535547145284, 0, 0.050998059262376176196163, 0, 0.042835898022226680656879, 0, 0.034273862913021433102688, 0, 0.025392065309262059455753, 0, 0.0162743947309056706051706, 0, 0.0070186100094700966004071, 0};	//63rd order Gauss-Legendre weight
 __constant__ double w97[] = {0.00122336081795147180029304, 0.0034268187757723709355746, 0.00584173707916669330394798, 0.0081725040385316684143438, 0.0104239873988068188280343, 0.012676054806654402859369, 0.0149361036060860273850968, 0.017149805209784253256086, 0.0192987714303268112944037, 0.021408913184821915955778, 0.0234866596721633245920879, 0.025505695480894652814529, 0.0274520984222104037831477, 0.029336956689620661368616, 0.0311633255619737371711558, 0.032915077643903600263296, 0.0345821227447330341307264, 0.036169769475642299860958, 0.0376791306456133985148960, 0.039099420133306611207482, 0.0404234923703730966723493, 0.041654019985643051398296, 0.0427911155964467469336549, 0.043827544030139749046816, 0.0447586387497669372951992, 0.045585826564547070280575, 0.0463087567380257132403813, 0.046922968281703611103481, 0.0474260618738823823628799, 0.047818908736988472212264, 0.0481009691854577469278465, 0.04827019307577738559871, 0.0483263839865677583754454, 0.04827019307577738559871, 0.0481009691854577469278465, 0.047818908736988472212264, 0.0474260618738823823628799, 0.046922968281703611103481, 0.0463087567380257132403813, 0.045585826564547070280575, 0.0447586387497669372951992, 0.043827544030139749046816, 0.0427911155964467469336549, 0.041654019985643051398296, 0.0404234923703730966723493, 0.039099420133306611207482, 0.0376791306456133985148960, 0.036169769475642299860958, 0.0345821227447330341307264, 0.032915077643903600263296, 0.0311633255619737371711558, 0.029336956689620661368616, 0.0274520984222104037831477, 0.025505695480894652814529, 0.0234866596721633245920879, 0.021408913184821915955778, 0.0192987714303268112944037, 0.017149805209784253256086, 0.0149361036060860273850968, 0.012676054806654402859369, 0.0104239873988068188280343, 0.0081725040385316684143438, 0.00584173707916669330394798, 0.0034268187757723709355746, 0.00122336081795147180029304};	//97th order Gauss-Kronrod weight
-__global__ void k0_omega_Fermi_97(double* Par_globe, double* a, double* b, pair<double,double>* omega, pair<double,double>* Fermi)	//Energy and Fermi function for 97th order
+__global__ void k0_omega_Fermi_97(double* Par_globe, pair<double,double>* Limits, pair<double,double>* omega, pair<double,double>* Fermi)	//Energy and Fermi function for 97th order
 {
 	double k0;
 	int index = threadIdx.x+blockIdx.x*blockDim.x;
@@ -653,7 +606,7 @@ __global__ void k0_omega_Fermi_97(double* Par_globe, double* a, double* b, pair<
 	if(index >= Par[8]*65)
 		return;
 
-	k0 = (a[interval]+b[interval]+Disp97[point]*(a[interval]-b[interval]))/2.;	//abscisca
+	k0 = (Limits[interval].first+Limits[interval].second+Disp97[point]*(Limits[interval].second-Limits[interval].first))/2.;	//abscisca
 	omega[index].first = sqrt(Par[4]+sq(Par[3]))/2.+k0;
 	omega[index].second = sqrt(Par[4]+sq(Par[3]))/2.-k0;
 
@@ -838,30 +791,52 @@ __global__ void k0_194_ReSelf_97(double* Par, pair<double,double>* q, pair<doubl
 #endif
 }
 
-__global__ void k0_Ordinate_97(double* Par, pair<double,double>* omega, pair<double,double>* q, pair<double,double>* fermi, pair<double,double>* ImSelf, pair<double,double>* ReSelf, pair<double,double>* Weighted_Ordinate)	//Ordinate for 97th order
+__global__ void k0_Ordinate_97(double* Par, pair<double,double>* omega, pair<double,double>* q, pair<double,double>* fermi, pair<double,double>* ImSelf, pair<double,double>* ReSelf, pair<double,double>* Weighted_Ordinate, pair<double,double>* Limits)	//Ordinate for 97th order
 {
 	int index = threadIdx.x+blockIdx.x*blockDim.x;
 	int interval = index/65;
+	double interval_size;
 	int point = index-interval*65;
 	double Ordinate;
 
-	if(index < Par[8]*65)
+	if(index < int(Par[8])*65)
 	{
-		Ordinate = -((4.*ImSelf[index].first*ImSelf[index].second*sq(Par[2])*(1.-fermi[index].first-fermi[index].second))/((sq(sq(omega[index].first)-sq(q[index].first)-sq(Par[2])-2.*Par[2]*ReSelf[index].first)+sq(ImSelf[index].first))*(sq(sq(omega[index].second)-sq(q[index].second)-sq(Par[2])-2.*Par[2]* ReSelf[index].second)+sq(ImSelf[index].second))));
-		Weighted_Ordinate[index].first = w63[point]*Ordinate;
-		Weighted_Ordinate[index].second = w97[point]*Ordinate;
-//printf("%i %i %i %g %g %g\n",index,interval,point,Ordinate,Weighted_Ordinate[index].first,Weighted_Ordinate[index].second);
+		interval_size = Limits[interval].second-Limits[interval].first;
+		Ordinate = -4.*ImSelf[index].first*ImSelf[index].second*sq(Par[2])*(1.-fermi[index].first-fermi[index].second);
+		Ordinate /= sq(sq(omega[index].first)-sq(q[0].first)-sq(Par[2])-2.*Par[2]*ReSelf[index].first)+sq(ImSelf[index].first);
+		Ordinate /= sq(sq(omega[index].second)-sq(q[0].second)-sq(Par[2])-2.*Par[2]* ReSelf[index].second)+sq(ImSelf[index].second);
+		Weighted_Ordinate[index].first = w63[point]*Ordinate*interval_size/2.;
+		Weighted_Ordinate[index].second = w97[point]*Ordinate*interval_size/2.;
 	}
 }
 
-__global__ void k0_Reduce(pair<double,double>* Answer)	//Final_reduction, no weights needed
+__global__ void k0_Reduce(double* Par_globe, pair<double,double>* Answer)	//Final_reduction, no weights needed
 {
-	int init_index = threadIdx.x+blockIdx.x*blockDim.x*2;
+	int index = threadIdx.x+blockIdx.x*blockDim.x*2;
+	__shared__ int Max;
 	__shared__ double lower_order[256];
 	__shared__ double higher_order[256];
 
-	lower_order[threadIdx.x] = Answer[init_index].first+Answer[init_index+blockDim.x].first;
-	higher_order[threadIdx.x] = Answer[init_index].second+Answer[init_index+blockDim.x].second;
+	if(threadIdx.x == 0)
+		Max = int(Par_globe[8])*65;
+	__syncthreads();
+
+	if(index < Max)
+	{
+		lower_order[threadIdx.x] = Answer[index].first;
+		higher_order[threadIdx.x] = Answer[index].second;
+	}
+	else
+	{
+		lower_order[threadIdx.x] = 0;
+		higher_order[threadIdx.x] = 0;
+	}
+	if(index+blockDim.x < Max)
+	{
+		lower_order[threadIdx.x] += Answer[index+blockDim.x].first;
+		higher_order[threadIdx.x] += Answer[index+blockDim.x].second;
+	}
+	__syncthreads();
 
 	for(int s = blockDim.x/2; s > 32; s >>= 1)	//reduce
 	{
@@ -876,16 +851,21 @@ __global__ void k0_Reduce(pair<double,double>* Answer)	//Final_reduction, no wei
 	if(threadIdx.x < 32)
 	{
 		lower_order[threadIdx.x] += lower_order[threadIdx.x+32];
-		lower_order[threadIdx.x] += lower_order[threadIdx.x+16];
-		lower_order[threadIdx.x] += lower_order[threadIdx.x+8];
-		lower_order[threadIdx.x] += lower_order[threadIdx.x+4];
-		lower_order[threadIdx.x] += lower_order[threadIdx.x+2];
-		lower_order[threadIdx.x] += lower_order[threadIdx.x+1];
 		higher_order[threadIdx.x] += higher_order[threadIdx.x+32];
+		__syncthreads();
+		lower_order[threadIdx.x] += lower_order[threadIdx.x+16];
 		higher_order[threadIdx.x] += higher_order[threadIdx.x+16];
+		__syncthreads();
+		lower_order[threadIdx.x] += lower_order[threadIdx.x+8];
 		higher_order[threadIdx.x] += higher_order[threadIdx.x+8];
+		__syncthreads();
+		lower_order[threadIdx.x] += lower_order[threadIdx.x+4];
 		higher_order[threadIdx.x] += higher_order[threadIdx.x+4];
+		__syncthreads();
+		lower_order[threadIdx.x] += lower_order[threadIdx.x+2];
 		higher_order[threadIdx.x] += higher_order[threadIdx.x+2];
+		__syncthreads();
+		lower_order[threadIdx.x] += lower_order[threadIdx.x+1];
 		higher_order[threadIdx.x] += higher_order[threadIdx.x+1];
 	}
 
