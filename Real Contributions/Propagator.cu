@@ -181,7 +181,7 @@ void Loop_Out(double Par[], int Temp, char File[])
 		photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		stop = isnan(photon)?50.:photon+50.;
 
-		for(i = 0; i <= 10; i++)
+		for(i = 0; i <= 100; i++)
 		{
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{

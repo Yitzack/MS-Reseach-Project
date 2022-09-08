@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 				Number_c[l] = Number_s[l];
 			Number_c[l] = '\0';
 			strcat(FileApp, Number_c);
-			strcat(FileApp, ".m");
+			strcat(FileApp, ".csv");
 			Loop_Out(Par, Temp, FileApp);
 		}
 	}
@@ -160,8 +160,6 @@ void Loop_Out(long double Par[], int Temp, char File[])
 
 	oTable << setprecision(18);
 
-	if(!Manifest[0][0])
-		oTable << "{" << flush;
 	for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
 	{
 		on_shell = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
@@ -174,7 +172,7 @@ void Loop_Out(long double Par[], int Temp, char File[])
 			{
 				k = k_i(i,on_shell,photon,stop);
 				if(k < stop+50. && k >= 0)
-					oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}," << endl;
+					oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
 			}
 		}
 		if(!Manifest[i][int(theta*200./M_PI)])
@@ -182,14 +180,10 @@ void Loop_Out(long double Par[], int Temp, char File[])
 			k = k_i(i,on_shell,photon,stop);
 			if(k < stop+50. && k>= 0)
 			{
-				oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}" << flush;
-				if(theta != M_PI/2.)
-					oTable << "," << endl;
+				oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
 			}
 		}
 	}
-	if(!Manifest[701][100])
-		oTable << "}" << endl;
 
 	oTable.close();
 }
