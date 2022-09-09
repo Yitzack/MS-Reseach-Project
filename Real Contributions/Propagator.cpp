@@ -5,8 +5,7 @@
 #include<cstring>
 #include<string>
 #include<chrono>
-#include<thread>
-#include<future>
+#include<omp.h>
 #include"Around.h"
 #include"Spectral.h"
 using namespace std;
@@ -17,11 +16,16 @@ long double ReG12(long double, long double, long double, long double, long doubl
 long double ImG12(long double, long double, long double, long double, long double);
 long double k_i(int, long double, long double, long double);
 void Loop_Out(long double[], int, char[]);
-void Int_Re_Insert(long double[], int, long double, long double, promise<Around>&&);
-void Int_Im_Insert(long double[], int, long double, long double, promise<Around>&&);
 
 int main(int argc, char* argv[])
 {
+#ifdef _OMP_H_DEF
+cout << "OpenMP Header file exists" << endl;
+#endif
+#ifdef _OPENMP
+cout << "OpenMP is supposedly supported with the definition of _OPENMP:" << _OPENMP << endl;
+#endif
+
 #ifdef BB	//use option -D BB= to activate bottomium macro
 	char File[70] = "data/ReSpectralbb.";  //Name of the file
 #endif
@@ -131,19 +135,15 @@ int main(int argc, char* argv[])
 
 void Loop_Out(long double Par[], int Temp, char File[])
 {
-	long double k, theta;
+	long double theta;
 	long double on_shell, photon, stop;
 	bool Manifest[702][101];
-	Around Reals[702][101];
-	Around Imaginaries[702][101];
-	promise<Around> Promised_Data[702][101][2];
-	future<Around> Future_Data[702][101][2];
 	ofstream oTable;
 	ifstream iTable(File);
-	int i,j;
+	int i;
 	char Bin_c[11];
 	long double Bin_n[9];
-	thread Threads[8];
+	omp_set_num_threads(8);
 
 	for(i = 0; i < 702; i++)
 	{
@@ -169,58 +169,35 @@ void Loop_Out(long double Par[], int Temp, char File[])
 
 	oTable << setprecision(18);
 
-	for(j = 0; j < 1; j++)
+	for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
 	{
-		theta = double(j)*M_PI/200.;
 		on_shell = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		stop = isnan(photon)?50.:photon+50.;
 
-		for(i = 0; i <= 101; i++)
+		#pragma omp parallel for
+		for(i = 0; i <= 700; i++)
 		{
-			if(!Manifest[i][j])
-			{
-				k = k_i(i,on_shell,photon,stop);
-				if(k < stop+50. && k >= 0)
-				{
-					int counter = i;
-					Future_Data[i][j][0] = Promised_Data[i][j][0].get_future();
-					Future_Data[i][j][1] = Promised_Data[i][j][1].get_future();
-					Threads[counter%8] = thread(Int_Re_Insert, Par, Temp, k, theta, move(Promised_Data[i][j][0]));
-					Threads[counter%8].join();
-					Threads[counter%8] = thread(Int_Im_Insert, Par, Temp, k, theta, move(Promised_Data[i][j][1]));
-					Threads[counter%8].join();
-					Reals[i][j] = Future_Data[i][j][0].get();
-					Imaginaries[i][j] = Future_Data[i][j][1].get();
-				}
-			}
+			if(i == 0)
+				cout << "Number of threads: " << omp_get_num_threads() << endl;
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{
-				k = k_i(i,on_shell,photon,stop);
+				long double k = k_i(i,on_shell,photon,stop);
 				if(k < stop+50. && k >= 0)
-				{
-					oTable << i << "," << k << "," << theta << "," << Reals[i][int(theta*200./M_PI)] << "," << Imaginaries[i][int(theta*200./M_PI)] << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
-				}
+					oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
+			}
+		}
+		if(!Manifest[i][int(theta*200./M_PI)])
+		{
+			long double k = k_i(i,on_shell,photon,stop);
+			if(k < stop+50. && k>= 0)
+			{
+				oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
 			}
 		}
 	}
 
-	for(i = 0; i < 8; i++)
-		Threads[i].join();
-
 	oTable.close();
-}
-
-void Int_Re_Insert(long double Par[], int Temp, long double k, long double theta, promise<Around>&& Answer)
-{
-	Answer.set_value(Dispersion(Par, Temp, 0., k, theta));
-	return;
-}
-
-void Int_Im_Insert(long double Par[], int Temp, long double k, long double theta, promise<Around>&& Answer)
-{
-	Answer.set_value(k0_Int(Par, Temp, k, theta));
-	return;
 }
 
 long double ReG12(long double M, long double s, long double P, long double k, long double theta)
