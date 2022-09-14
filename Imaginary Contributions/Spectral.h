@@ -447,7 +447,7 @@ long double k0_Int(long double Par[], int Temp, long double k, long double theta
 		Partial = F*(b-a)/2.;
 		Answer += Partial;		//Add the subinterval to the total
 		a = b;
-	}while(!(Partial == 0) && (i < Intervals || abs(Partial/Answer) >= .0001) && a < Max);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded
+	}while((i < Intervals || abs(Partial/Answer) >= .0001) && a < Max);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded
 
 	return(Answer/M_PI);
 }
