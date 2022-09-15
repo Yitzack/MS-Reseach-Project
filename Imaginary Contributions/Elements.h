@@ -1,31 +1,46 @@
 #include<cstdlib>
+#include"Around.h"
 using namespace std;
 
+#ifndef ELEMENTS
+#define ELEMENTS
+
+template<class T>
 class Elements
 {
 	public:
 		Elements();				//Default constructor
-		Elements(long double, long double, long double, long double, long double, long double);	//Constructor from 5 elements
-		Elements(long double[6]);		//Array constructor
+		Elements(T, T, T, T, T, T);		//Constructor from 6 elements
+		Elements(T[6]);			//Array constructor
 		Elements(const Elements&);		//Copy constructor
 		void operator=(const Elements&);	//Assignment
 		void operator+=(const Elements &);	//Accumalate and assign
-		bool operator==(long double);		//This is looking for all components == 0, not any scalar. So, its actually looking for the 0 vector
-		bool operator>=(long double);		//This is about accuracy, so all components must pass
-		bool operator>(long double);		//This is about accuracy, so all components must pass
-		Elements operator+(Elements);		//Sum of vectors
-		Elements operator-(Elements);		//Difference of vectors
-		Elements operator/(Elements);		//This is about accuracy, not the correct definition of division, so it is an element-wise division
-		Elements operator*(long double);	//Scalar multiply
-		Elements operator/(long double);	//Scalar divide
-		Elements abs();			//Absolute value of all components
+		void operator-=(const Elements &);	//Deaccumalate and assign
+		bool operator==(T);			//This is looking for all components == 0, not any scalar. So, its actually looking for the 0 vector
+		bool operator>=(T);			//This is about accuracy, so all components must pass
+		bool operator>(const Elements<T>) const;//This is about accuracy, so all components must pass
+		bool operator<(const Elements<T>) const;//This is about accuracy, so all components must pass
+		bool operator>(T);			//This is about accuracy, so all components must pass
+		bool operator<(T);			//This is about accuracy, so all components must pass
+		bool isnan();				//Equavalent to isnan(T) but for vector but called as A.isnan instead of isnan(A)
+		Elements<T> operator+(Elements);	//Sum of vectors
+		Elements<T> operator+(T);		//Add a number to elements of vector
+		Elements<T> operator-(Elements);	//Difference of vectors
+		Elements<T> operator-(T);		//Subtract a number from elements of vector
+		Elements<T> operator/(Elements<T>) const;//This is about accuracy, not the correct definition of division, so it is an element-wise division
+		Elements<T> operator/(T);		//Scalar divide
+		Elements<T> operator*(T);		//Scalar multiply
+		Elements<T> operator*(Elements);	//Vector multiply (not to be confused with cross product, but element by element multiply
+		Elements<T> abs(const Elements<T>&);	//Absolute value of all elements
+		Elements<T> abs() const;		//Absolute value of all elements
 		void null();				//Make the element the zero vector
-		long double operator[](int);		//Returns the element at int. This is not the correct way to do this as it should return a pointer to the component so it can be altered. I can get away with it as I'm only printing the contents to an output stream.
+		T operator[](int);			//Returns the element at int. This is not the correct way to do this as it should return a pointer to the component so it can be altered. I can get away with it as I'm only printing the the contents to an output stream.
 	private:
-		long double Array[6];			//The vector itself
+		T Array[6];			//The vector itself
 };
 
-Elements::Elements()
+template <class T>
+Elements<T>::Elements()
 {
 	Array[0] = 0;
 	Array[1] = 0;
@@ -35,7 +50,8 @@ Elements::Elements()
 	Array[5] = 0;
 }
 
-Elements::Elements(long double A, long double B, long double C, long double D, long double E, long double F)
+template <class T>
+Elements<T>::Elements(T A, T B, T C, T D, T E, T F)
 {
 	Array[0] = A;
 	Array[1] = B;
@@ -45,7 +61,8 @@ Elements::Elements(long double A, long double B, long double C, long double D, l
 	Array[5] = F;
 }
 
-Elements::Elements(long double A[6])
+template <class T>
+Elements<T>::Elements(T A[6])
 {
 	Array[0] = A[0];
 	Array[1] = A[1];
@@ -55,7 +72,8 @@ Elements::Elements(long double A[6])
 	Array[5] = A[5];
 }
 
-Elements::Elements(const Elements &A)
+template <class T>
+Elements<T>::Elements(const Elements<T> &A)
 {
 	Array[0] = A.Array[0];
 	Array[1] = A.Array[1];
@@ -65,7 +83,8 @@ Elements::Elements(const Elements &A)
 	Array[5] = A.Array[5];
 }
 
-void Elements::operator=(const Elements &A)
+template <class T>
+void Elements<T>::operator=(const Elements<T> &A)
 {
 	Array[0] = A.Array[0];
 	Array[1] = A.Array[1];
@@ -75,7 +94,8 @@ void Elements::operator=(const Elements &A)
 	Array[5] = A.Array[5];
 }
 
-void Elements::operator+=(const Elements &A)
+template <class T>
+void Elements<T>::operator+=(const Elements<T> &A)
 {
 	Array[0] += A.Array[0];
 	Array[1] += A.Array[1];
@@ -85,7 +105,19 @@ void Elements::operator+=(const Elements &A)
 	Array[5] += A.Array[5];
 }
 
-bool Elements::operator==(long double A)
+template <class T>
+void Elements<T>::operator-=(const Elements<T> &A)
+{
+	Array[0] -= A.Array[0];
+	Array[1] -= A.Array[1];
+	Array[2] -= A.Array[2];
+	Array[3] -= A.Array[3];
+	Array[4] -= A.Array[4];
+	Array[5] -= A.Array[5];
+}
+
+template <class T>
+bool Elements<T>::operator==(T A)
 {
 	return(Array[0] == A &&
 		Array[1] == A &&
@@ -95,29 +127,76 @@ bool Elements::operator==(long double A)
 		Array[5] == A);
 }
 
-bool Elements::operator>=(long double A)
+template <class T>
+bool Elements<T>::operator>=(T A)
 {
-	return(std::abs(Array[0]) >= A ||
-		std::abs(Array[1]) >= A ||
-		std::abs(Array[2]) >= A ||
-		std::abs(Array[3]) >= A ||
-		std::abs(Array[4]) >= A ||
-		std::abs(Array[5]) >= A);
+	using std::abs;
+	return(abs(Array[0]) >= A ||
+		abs(Array[1]) >= A ||
+		abs(Array[2]) >= A ||
+		abs(Array[3]) >= A ||
+		abs(Array[4]) >= A ||
+		abs(Array[5]) >= A);
 }
 
-bool Elements::operator>(long double A)
+template <class T>
+bool Elements<T>::operator>(const Elements<T> A) const
 {
-	return(std::abs(Array[0]) > A ||
-		std::abs(Array[1]) > A ||
-		std::abs(Array[2]) > A ||
-		std::abs(Array[3]) > A ||
-		std::abs(Array[4]) > A ||
-		std::abs(Array[5]) > A);
+	T lhs, rhs;	//The error of the elements remain roughly propitional to each other throught out the execution of the algorithm. The sum of the elements does a better job of ordering the objects than an or operation on the elements individually.
+	lhs = Array[0]+Array[1]+Array[2]+Array[3]+Array[4]+Array[5];
+	rhs = A.Array[0]+A.Array[1]+A.Array[2]+A.Array[3]+A.Array[4]+A.Array[5];
+	return(lhs > rhs);
 }
 
-Elements Elements::operator+(Elements A)
+template <class T>
+bool Elements<T>::operator<(const Elements<T> A) const
 {
-	Elements B;
+	T lhs, rhs;	//The error of the elements remain roughly propitional to each other throught out the execution of the algorithm. The sum of the elements does a better job of ordering the objects than an or operation on the elements individually.
+	lhs = Array[0]+Array[1]+Array[2]+Array[3]+Array[4]+Array[5];
+	rhs = A.Array[0]+A.Array[1]+A.Array[2]+A.Array[3]+A.Array[4]+A.Array[5];
+	return(lhs < rhs);
+}
+
+template <class T>
+bool Elements<T>::operator>(T A)
+{
+	using std::abs;
+	return(abs(Array[0]) > A ||
+		abs(Array[1]) > A ||
+		abs(Array[2]) > A ||
+		abs(Array[3]) > A ||
+		abs(Array[4]) > A ||
+		abs(Array[5]) > A);
+}
+
+template <class T>
+bool Elements<T>::operator<(T A)
+{
+	using std::abs;
+	return(abs(Array[0]) < A ||
+		abs(Array[1]) < A ||
+		abs(Array[2]) < A ||
+		abs(Array[3]) < A ||
+		abs(Array[4]) < A ||
+		abs(Array[5]) < A);
+}
+
+template <class T>
+bool Elements<T>::isnan()
+{
+	using std::isnan;
+	return(isnan(Array[0]) ||
+		isnan(Array[1]) ||
+		isnan(Array[2]) ||
+		isnan(Array[3]) ||
+		isnan(Array[4]) ||
+		isnan(Array[5]));
+}
+
+template <class T>
+Elements<T> Elements<T>::operator+(Elements<T> A)
+{
+	Elements<T> B;
 	B.Array[0] = Array[0] + A.Array[0];
 	B.Array[1] = Array[1] + A.Array[1];
 	B.Array[2] = Array[2] + A.Array[2];
@@ -127,9 +206,23 @@ Elements Elements::operator+(Elements A)
 	return(B);
 }
 
-Elements Elements::operator-(Elements A)
+template <class T>
+Elements<T> Elements<T>::operator+(T A)
 {
-	Elements B;
+	Elements<T> B;
+	B.Array[0] = Array[0] + A;
+	B.Array[1] = Array[1] + A;
+	B.Array[2] = Array[2] + A;
+	B.Array[3] = Array[3] + A;
+	B.Array[4] = Array[4] + A;
+	B.Array[5] = Array[5] + A;
+	return(B);
+}
+
+template <class T>
+Elements<T> Elements<T>::operator-(Elements<T> A)
+{
+	Elements<T> B;
 	B.Array[0] = Array[0] - A.Array[0];
 	B.Array[1] = Array[1] - A.Array[1];
 	B.Array[2] = Array[2] - A.Array[2];
@@ -139,9 +232,23 @@ Elements Elements::operator-(Elements A)
 	return(B);
 }
 
-Elements Elements::operator/(Elements A)
+template <class T>
+Elements<T> Elements<T>::operator-(T A)
 {
-	Elements B;
+	Elements<T> B;
+	B.Array[0] = Array[0] - A;
+	B.Array[1] = Array[1] - A;
+	B.Array[2] = Array[2] - A;
+	B.Array[3] = Array[3] - A;
+	B.Array[4] = Array[4] - A;
+	B.Array[5] = Array[5] - A;
+	return(B);
+}
+
+template <class T>
+Elements<T> Elements<T>::operator/(Elements<T> A) const
+{
+	Elements<T> B;
 	B.Array[0] = Array[0] / A.Array[0];
 	B.Array[1] = Array[1] / A.Array[1];
 	B.Array[2] = Array[2] / A.Array[2];
@@ -151,9 +258,16 @@ Elements Elements::operator/(Elements A)
 	return(B);
 }
 
-Elements Elements::operator*(long double A)
+template <class T>
+Elements<T> operator*(long double A, Elements<T> B)
 {
-	Elements B;
+	return(B*A);
+}
+
+template <class T>
+Elements<T> Elements<T>::operator*(T A)
+{
+	Elements<T> B;
 	B.Array[0] = Array[0] * A;
 	B.Array[1] = Array[1] * A;
 	B.Array[2] = Array[2] * A;
@@ -163,9 +277,23 @@ Elements Elements::operator*(long double A)
 	return(B);
 }
 
-Elements Elements::operator/(long double A)
+template <class T>
+Elements<T> Elements<T>::operator*(Elements<T> A)
 {
-	Elements B;
+	Elements<T> B;
+	B.Array[0] = Array[0] * A.Array[0];
+	B.Array[1] = Array[1] * A.Array[1];
+	B.Array[2] = Array[2] * A.Array[2];
+	B.Array[3] = Array[3] * A.Array[3];
+	B.Array[4] = Array[4] * A.Array[4];
+	B.Array[5] = Array[5] * A.Array[5];
+	return(B);
+}
+
+template <class T>
+Elements<T> Elements<T>::operator/(T A)
+{
+	Elements<T> B;
 	B.Array[0] = Array[0] / A;
 	B.Array[1] = Array[1] / A;
 	B.Array[2] = Array[2] / A;
@@ -175,34 +303,41 @@ Elements Elements::operator/(long double A)
 	return(B);
 }
 
-Elements abs(Elements A)
+template <typename T>
+Elements<T> Elements<T>::abs(const Elements<T>& A)
+{
+	using std::abs;
+	return(Elements<T>(abs(A[0]),abs(A[1]),abs(A[2]),abs(A[3]),abs(A[4]),abs(A[5])));
+}
+
+template <typename T>
+Elements<T> Elements<T>::abs() const
+{
+	using std::abs;
+	return(Elements<T>(abs(Array[0]),abs(Array[1]),abs(Array[2]),abs(Array[3]),abs(Array[4]),abs(Array[5])));
+}
+
+template <typename T>
+Elements<T> abs(const Elements<T>& A)
 {
 	return(A.abs());
 }
 
-Elements Elements::abs()
+template <class T>
+void Elements<T>::null()
 {
-	Elements B;
-	B.Array[0] = std::abs(Array[0]);
-	B.Array[1] = std::abs(Array[1]);
-	B.Array[2] = std::abs(Array[2]);
-	B.Array[3] = std::abs(Array[3]);
-	B.Array[4] = std::abs(Array[4]);
-	B.Array[5] = std::abs(Array[5]);
-	return(B);
+	Array[0] = T(0);
+	Array[1] = T(0);
+	Array[2] = T(0);
+	Array[3] = T(0);
+	Array[4] = T(0);
+	Array[5] = T(0);
 }
 
-void Elements::null()
-{
-	Array[0] = 0;
-	Array[1] = 0;
-	Array[2] = 0;
-	Array[3] = 0;
-	Array[4] = 0;
-	Array[5] = 0;
-}
-
-long double Elements::operator[](int i)
+template <class T>
+T Elements<T>::operator[](int i)
 {
 	return(Array[i]);
 }
+
+#endif
