@@ -296,7 +296,7 @@ void Eval_Integral(long double Par[], Region& Stuff)
 	Stuff.yErr = Elements<Around>(0,0,0,0);;
 	Stuff.Err = Elements<Around>(0,0,0,0);;
 
-	if(i_k_wrap(d, Par, a) > 700 || i_k_wrap(d, Par, b) > 700)	//Interpolation excceeded
+	if(i_k_wrap(d, Par, a) > ReG.MaxX() || i_k_wrap(d, Par, b) > ReG.MaxX())	//Interpolation excceeded
 		return;
 
 	if(Stuff.order == 37)
