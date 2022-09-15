@@ -13,6 +13,8 @@ class Interpolation
 		Interpolation(T**, int xSize, int ySize);	//Constructor with long double array
 		T operator()(long double x, long double y);	//Interpolation evaluation
 		void operator=(Interpolation<T>);		//Assignment operator
+		int MaxX();					//Return the largest x
+		int MaxY();					//Return the largest Y
 		bool is_ready();
 	private:
 		bool ready;
@@ -329,6 +331,18 @@ long double Interpolation<T>::Basisn(long double x)
 	else if(2 <= x && x <= 6)
 		return(-pow((x-6.),3)/6.);
 	return(0);
+}
+
+template <class T>
+int Interpolation<T>::MaxX()
+{
+	return(xRange);
+}
+
+template <class T>
+int Interpolation<T>::MaxY()
+{
+	return(yRange);
 }
 
 long double i_k_wrap(long double k, long double Par[], long double theta)
