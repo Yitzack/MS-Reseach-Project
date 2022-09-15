@@ -5,6 +5,7 @@
 #include<cstring>
 #include<string>
 #include<chrono>
+#include<omp.h>
 #include"Around.h"
 #include"Spectral.cuh"
 using namespace std;
@@ -15,6 +16,8 @@ double ReG12(double, double, double, double, double);
 double ImG12(double, double, double, double, double);
 double k_i(int, double, double, double);
 void Loop_Out(double[], int, char[]);
+Around Int_Re_Insert(double Par[], int Temp, double k, double theta);
+Around Int_Im_Insert(double Par[], int Temp, double k, double theta);
 
 int main(int argc, char* argv[])
 {
@@ -115,7 +118,7 @@ int main(int argc, char* argv[])
 				Number_c[l] = Number_s[l];
 			Number_c[l] = '\0';
 			strcat(FileApp, Number_c);
-			strcat(FileApp, ".m");
+			strcat(FileApp, ".csv");
 			Loop_Out(Par, Temp, FileApp);
 		}
 	}
@@ -133,22 +136,6 @@ void Loop_Out(double Par[], int Temp, char File[])
 	int i;
 	char Bin_c[11];
 	double Bin_n[9];
-
-	Dev_Pointer Pointers;
-	cudaMalloc((void**)&Pointers.Par, 11*sizeof(double));
-	cudaMalloc((void**)&Pointers.q, sizeof(pair<double,double>));
-	cudaMalloc((void**)&Pointers.omega, 6500*sizeof(pair<double,double>));
-	cudaMalloc((void**)&Pointers.Fermi, 6500*sizeof(pair<double,double>));
-	cudaMalloc((void**)&Pointers.ImSelf, 6500*sizeof(pair<double,double>));
-	cudaMalloc((void**)&Pointers.ReSelf, 6500*sizeof(pair<double,double>));
-	cudaMalloc((void**)&Pointers.Ordinate, 6500*sizeof(pair<double,double>));
-	cudaMalloc((void**)&Pointers.Limits, 100*sizeof(pair<double,double>));
-
-	cudaStreamCreate(&Pointers.Stream[0]);
-	cudaStreamCreate(&Pointers.Stream[1]);
-	cudaStreamCreate(&Pointers.Stream[2]);
-	cudaStreamCreate(&Pointers.Stream[3]);
-	cudaStreamCreate(&Pointers.Stream[4]);
 
 	for(i = 0; i < 702; i++)
 	{
@@ -173,38 +160,43 @@ void Loop_Out(double Par[], int Temp, char File[])
 
 	oTable << setprecision(18);
 
-	if(!Manifest[0][0])
-		oTable << "{" << flush;
 	for(theta = 0; theta < M_PI*.0025; theta += M_PI/200.)
 	{
 		on_shell = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		stop = isnan(photon)?50.:photon+50.;
 
-		for(i = 0; i <= 100; i++)
+		for(i = 0; i <= 7; i++)
 		{
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{
 				k = k_i(i,on_shell,photon,stop);
 				if(k < stop+50. && k >= 0)
 				{
-					oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Pointers, Par, Temp, 0, k, theta) << "," << k0_Int(Pointers, Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}," << endl;
+					oTable << i << "," << k << "," << theta << "," << Int_Re_Insert(Par, Temp, k, theta) << "," << Int_Im_Insert(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) <<  endl;
 				}
 			}
 		}
-		if(!Manifest[i][int(theta*200./M_PI)])
-		{
-			k = k_i(i,on_shell,photon,stop);
-			if(k < stop+50. && k>= 0)
-			{
-				oTable << "{" << i << "," << k << "," << theta << "," << Dispersion(Pointers, Par, Temp, 0, k, theta) << "," << k0_Int(Pointers, Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "}" << flush;
-				if(theta != M_PI/2.)
-					oTable << "," << endl;
-			}
-		}
 	}
-	if(!Manifest[701][100])
-		oTable << "}" << endl;
+
+	oTable.close();
+}
+
+Around Int_Re_Insert(double Par[], int Temp, double k, double theta)
+{
+	Dev_Pointer Pointers;
+	cudaMalloc((void**)&Pointers.Par, 11*sizeof(double));
+	cudaMalloc((void**)&Pointers.q, sizeof(pair<double,double>));
+	cudaMalloc((void**)&Pointers.omega, 1950*sizeof(pair<double,double>));
+	cudaMalloc((void**)&Pointers.Fermi, 1950*sizeof(pair<double,double>));
+	cudaMalloc((void**)&Pointers.ImSelf, 1950*sizeof(pair<double,double>));
+	cudaMalloc((void**)&Pointers.ReSelf, 1950*sizeof(pair<double,double>));
+	cudaMalloc((void**)&Pointers.Ordinate, 1950*sizeof(pair<double,double>));
+	cudaMalloc((void**)&Pointers.Limits, 30*sizeof(pair<double,double>));
+
+	cudaStreamCreate(&Pointers.Stream);
+
+	Around Answer = Dispersion(Pointers, Par, Temp, 0, k, theta);
 
 	cudaFree(Pointers.Par);
 	cudaFree(Pointers.q);
@@ -214,13 +206,38 @@ void Loop_Out(double Par[], int Temp, char File[])
 	cudaFree(Pointers.ReSelf);
 	cudaFree(Pointers.Ordinate);
 	cudaFree(Pointers.Limits);
-	cudaStreamDestroy(Pointers.Stream[0]);
-	cudaStreamDestroy(Pointers.Stream[1]);
-	cudaStreamDestroy(Pointers.Stream[2]);
-	cudaStreamDestroy(Pointers.Stream[3]);
-	cudaStreamDestroy(Pointers.Stream[4]);
+	cudaStreamDestroy(Pointers.Stream);
 
-	oTable.close();
+	return(Answer);
+}
+
+Around Int_Im_Insert(double Par[], int Temp, double k, double theta)
+{
+	Dev_Pointer Pointers;
+	cudaMalloc((void**)&Pointers.Par, 11*sizeof(double));
+	cudaMalloc((void**)&Pointers.q, sizeof(pair<double,double>));
+	cudaMalloc((void**)&Pointers.omega, 1950*sizeof(pair<double,double>));
+	cudaMalloc((void**)&Pointers.Fermi, 1950*sizeof(pair<double,double>));
+	cudaMalloc((void**)&Pointers.ImSelf, 1950*sizeof(pair<double,double>));
+	cudaMalloc((void**)&Pointers.ReSelf, 1950*sizeof(pair<double,double>));
+	cudaMalloc((void**)&Pointers.Ordinate, 1950*sizeof(pair<double,double>));
+	cudaMalloc((void**)&Pointers.Limits, 30*sizeof(pair<double,double>));
+
+	cudaStreamCreate(&Pointers.Stream);
+
+	Around Answer = k0_Int(Pointers, Par, Temp, k, theta);
+
+	cudaFree(Pointers.Par);
+	cudaFree(Pointers.q);
+	cudaFree(Pointers.omega);
+	cudaFree(Pointers.Fermi);
+	cudaFree(Pointers.ImSelf);
+	cudaFree(Pointers.ReSelf);
+	cudaFree(Pointers.Ordinate);
+	cudaFree(Pointers.Limits);
+	cudaStreamDestroy(Pointers.Stream);
+
+	return(Answer);
 }
 
 double ReG12(double M, double s, double P, double k, double theta)

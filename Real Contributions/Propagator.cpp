@@ -5,7 +5,6 @@
 #include<cstring>
 #include<string>
 #include<chrono>
-#include<omp.h>
 #include"Around.h"
 #include"Spectral.h"
 using namespace std;
@@ -19,13 +18,6 @@ void Loop_Out(long double[], int, char[]);
 
 int main(int argc, char* argv[])
 {
-#ifdef _OMP_H_DEF
-cout << "OpenMP Header file exists" << endl;
-#endif
-#ifdef _OPENMP
-cout << "OpenMP is supposedly supported with the definition of _OPENMP:" << _OPENMP << endl;
-#endif
-
 #ifdef BB	//use option -D BB= to activate bottomium macro
 	char File[70] = "data/ReSpectralbb.";  //Name of the file
 #endif
@@ -143,7 +135,6 @@ void Loop_Out(long double Par[], int Temp, char File[])
 	int i;
 	char Bin_c[11];
 	long double Bin_n[9];
-	omp_set_num_threads(8);
 
 	for(i = 0; i < 702; i++)
 	{
@@ -175,11 +166,8 @@ void Loop_Out(long double Par[], int Temp, char File[])
 		photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		stop = isnan(photon)?50.:photon+50.;
 
-		#pragma omp parallel for
 		for(i = 0; i <= 700; i++)
 		{
-			if(i == 0)
-				cout << "Number of threads: " << omp_get_num_threads() << endl;
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{
 				long double k = k_i(i,on_shell,photon,stop);
