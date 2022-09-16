@@ -158,17 +158,17 @@ Elements<Around> theta_Int(long double Par[], int Temp)
 			Holder = k_Int(Par, Temp, x1);
 			F[0] += Holder*sin(x1)*wl[j+1];
 			F[1] += Holder*sin(x1)*wh[j+1];
-cerr << Par[3] << " " << Par[4] << " " << x1 << " " << Holder[0].Value() << " " << Holder[1].Value() << " " << Holder[2].Value() << " " << Holder[3].Value() << " " << Holder[4].Value() << " " << Holder[5].Value() << endl;
+//cerr << Par[3] << " " << Par[4] << " " << x1 << " " << Holder[0].Value() << " " << Holder[1].Value() << " " << Holder[2].Value() << " " << Holder[3].Value() << " " << Holder[4].Value() << " " << Holder[5].Value() << endl;
 
 			Holder = k_Int(Par, Temp, x2);
 			F[0] += Holder*sin(x2)*wl[j+1];
 			F[1] += Holder*sin(x2)*wh[j+1];
-cerr << Par[3] << " " << Par[4] << " " << x2 << " " << Holder[0].Value() << " " << Holder[1].Value() << " " << Holder[2].Value() << " " << Holder[3].Value() << " " << Holder[4].Value() << " " << Holder[5].Value() << endl;
+//cerr << Par[3] << " " << Par[4] << " " << x2 << " " << Holder[0].Value() << " " << Holder[1].Value() << " " << Holder[2].Value() << " " << Holder[3].Value() << " " << Holder[4].Value() << " " << Holder[5].Value() << endl;
 		}
 		Holder = k_Int(Par, Temp, (a+b)/2.);
 		F[0] += Holder*sin((a+b)/2.)*wl[0];
 		F[1] += Holder*sin((a+b)/2.)*wh[0];
-cerr << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << Holder[0].Value() << " " << Holder[1].Value() << " " << Holder[2].Value() << " " << Holder[3].Value() << " " << Holder[4].Value() << " " << Holder[5].Value() << endl;
+//cerr << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << Holder[0].Value() << " " << Holder[1].Value() << " " << Holder[2].Value() << " " << Holder[3].Value() << " " << Holder[4].Value() << " " << Holder[5].Value() << endl;
 
 		Answer += Elements<Around>(Around(F[1][0],abs(F[0][0]-F[1][0])),Around(F[1][1],abs(F[0][1]-F[1][1])),Around(F[1][2],abs(F[0][2]-F[1][2])),Around(F[1][3],abs(F[0][3]-F[1][3])),Around(F[1][4],abs(F[0][4]-F[1][4])),Around(F[1][5],abs(F[0][5]-F[1][5])))*(b-a)/2.;	//Add the subinterval to total of the integral
 
@@ -284,11 +284,6 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 	return(Answer);
 }
 
-long double ImG12(long double M, long double s, long double P, long double k, long double theta)
-{
-	return((2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)))*.14/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(pow(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2),2)+pow(.14,2))));
-}
-
 Elements<Around> k_Int(long double Par[], int Temp, long double theta, long double a, long double b, int deep)
 {
 #if ORDER == 37	//37th order Gauss-Legendre integration
@@ -324,24 +319,21 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 		x1 = (b+a-Disp[l]*(b-a))/2.;
 		x2 = (b+a+Disp[l]*(b-a))/2.;
 
-		k01 = (Energy(0, Par[3]/2., x1, theta)-Energy(0, Par[3]/2., -x1, theta))/2.;
-		k02 = (Energy(0, Par[3]/2., x2, theta)-Energy(0, Par[3]/2., -x2, theta))/2.;
+		k01 = (Energy(Par[2], Par[3]/2., x1, theta)-Energy(Par[2], Par[3]/2., -x1, theta))/2.;
+		k02 = (Energy(Par[2], Par[3]/2., x2, theta)-Energy(Par[2], Par[3]/2., -x2, theta))/2.;
 
-		Holder = (Elements<Around>(2., Non_Interacting_Trace(Par, k01, x1, theta), Potential1(Par,k01, x1), Interacting_Linear_Trace(Par, k01, x1, theta)*Potential1(Par,k01, x1), Interacting_Quad_Trace(Par, k01, x1, theta)*Potential1(Par,k01, x1), Potential2(Par,k01, x1)))*k0_Int(Par, Temp, x1, theta);//ImG12(Par[2], Par[4], Par[3], x1, theta);//
+		Holder = (Elements<Around>(2., Non_Interacting_Trace(Par, k01, x1, theta), Potential1(Par,k01, x1), Interacting_Linear_Trace(Par, k01, x1, theta)*Potential1(Par,k01, x1), Interacting_Quad_Trace(Par, k01, x1, theta)*Potential1(Par,k01, x1), Potential2(Par,k01, x1)))*k0_Int(Par, Temp, x1, theta);
 		F[0] += Holder*pow(x1,2)*wl[l+1];
 		F[1] += Holder*pow(x1,2)*wh[l+1];
-//cerr << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << k01 << " " << Holder[0].Value() << " " << Holder[1].Value() << " " << Holder[2].Value() << " " << Holder[3].Value() << " " << Holder[4].Value() << " " << Holder[5].Value() << endl;
 
-		Holder = (Elements<Around>(2., Non_Interacting_Trace(Par, k02, x2, theta), Potential1(Par,k02, x2), Interacting_Linear_Trace(Par, k02, x2, theta)*Potential1(Par,k02, x2), Interacting_Quad_Trace(Par, k02, x2, theta)*Potential1(Par,k02, x2), Potential2(Par,k02, x2)))*k0_Int(Par, Temp, x2, theta);//ImG12(Par[2], Par[4], Par[3], x2, theta);//
+		Holder = (Elements<Around>(2., Non_Interacting_Trace(Par, k02, x2, theta), Potential1(Par,k02, x2), Interacting_Linear_Trace(Par, k02, x2, theta)*Potential1(Par,k02, x2), Interacting_Quad_Trace(Par, k02, x2, theta)*Potential1(Par,k02, x2), Potential2(Par,k02, x2)))*k0_Int(Par, Temp, x2, theta);
 		F[0] += Holder*pow(x2,2)*wl[l+1];
 		F[1] += Holder*pow(x2,2)*wh[l+1];
-//cerr << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << k02 << " " << Holder[0].Value() << " " << Holder[1].Value() << " " << Holder[2].Value() << " " << Holder[3].Value() << " " << Holder[4].Value() << " " << Holder[5].Value() << endl;
 	}
-	k01 = (Energy(0, Par[3]/2., (a+b)/2., theta)-Energy(0, Par[3]/2., -(a+b)/2., theta))/2.;
-	Holder = (Elements<Around>(2., Non_Interacting_Trace(Par, k01, (a+b)/2., theta), Potential1(Par,k01, (a+b)/2.), Interacting_Linear_Trace(Par, k01, (a+b)/2., theta)*Potential1(Par,k01, (a+b)/2.), Interacting_Quad_Trace(Par, k01, (a+b)/2., theta)*Potential1(Par,k01, (a+b)/2.), Potential2(Par,k01, (a+b)/2.)))*k0_Int(Par, Temp, (a+b)/2., theta);//ImG12(Par[2], Par[4], Par[3], (a+b)/2., theta);//
+	k01 = (Energy(Par[2], Par[3]/2., (a+b)/2., theta)-Energy(Par[2], Par[3]/2., -(a+b)/2., theta))/2.;
+	Holder = (Elements<Around>(2., Non_Interacting_Trace(Par, k01, (a+b)/2., theta), Potential1(Par,k01, (a+b)/2.), Interacting_Linear_Trace(Par, k01, (a+b)/2., theta)*Potential1(Par,k01, (a+b)/2.), Interacting_Quad_Trace(Par, k01, (a+b)/2., theta)*Potential1(Par,k01, (a+b)/2.), Potential2(Par,k01, (a+b)/2.)))*k0_Int(Par, Temp, (a+b)/2., theta);
 	F[0] += Holder*pow(x2,2)*wl[0];
 	F[1] += Holder*pow(x2,2)*wh[0];
-//cerr << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << k01 << " " << Holder[0].Value() << " " << Holder[1].Value() << " " << Holder[2].Value() << " " << Holder[3].Value() << " " << Holder[4].Value() << " " << Holder[5].Value() << endl;
 
 	Answer = Elements<Around>(Around(F[1][0],abs(F[0][0]-F[1][0])),Around(F[1][1],abs(F[0][1]-F[1][1])),Around(F[1][2],abs(F[0][2]-F[1][2])),Around(F[1][3],abs(F[0][3]-F[1][3])),Around(F[1][4],abs(F[0][4]-F[1][4])),Around(F[1][5],abs(F[0][5]-F[1][5])))*(b-a)/2.;	//Record the subinterval to total of the integral
 
@@ -458,12 +450,12 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta)
 
 Around k0_Int(long double Par[], int Temp, long double k, long double theta, long double a, long double b, int deep)
 {
-#if ORDER == 97	//37th order Gauss-Legendre integration
+#if ORDER == 37	//37th order Gauss-Legendre integration
 //23th order Gauss-Legendre/37th order Gauss-Kronrod integration
 	long double Disp[] = {0.1252334085114689154724414, 0.2485057483204692762677910, 0.3678314989981801937526915, 0.4813394504781570929359436, 0.5873179542866174472967024, 0.6840598954700558939449291, 0.7699026741943046870368938, 0.8435581241611532447921419, 0.9041172563704748566784659, 0.9505377959431212965490602, 0.9815606342467192506905491, 0.9969339225295954269123502};	//Displacement from center
 	long double wl[] = {0, 0.2491470458134027850005624, 0, 0.2334925365383548087608499, 0, 0.2031674267230659217490645, 0, 0.1600783285433462263346525, 0, 0.10693932599531843096025472, 0, 0.04717533638651182719461596, 0};	//23rd order Gauss-Legendre weight
 	long double wh[] =  {0.12555689390547433530429613, 0.1245841645361560734373125, 0.12162630352394838324609976, 0.1167120535017568262935807, 0.11002260497764407263590740, 0.10164973227906027771568877, 0.091549468295049210528171940, 0.07992027533360170149339261, 0.067250907050839930304940940, 0.05369701760775625122888916, 0.038915230469299477115089632, 0.02303608403898223259108458, 0.0082577114331683957576939224};	//37th order Gauss-Kronrod weight
-#elif ORDER == 37
+#elif ORDER == 97
 //63rd order Gauss-Legendre/97th order Gauss-Kronrod integration
 	long double Disp[] = {0.0483076656877383162348126, 0.0965026968768943658008313, 0.1444719615827964934851864, 0.1921036089831424972716416, 0.2392873622521370745446032, 0.2859124585894597594166071, 0.3318686022821276497799168, 0.3770494211541211054453355, 0.4213512761306353453641194, 0.4646693084819922177561782, 0.5068999089322293900237475, 0.5479463141991524786809395, 0.5877157572407623290407455, 0.6261129377018239978202384, 0.6630442669302152009751152, 0.6984265577952104928847701, 0.7321821187402896803874267, 0.7642282519978037041506601, 0.7944837959679424069630973, 0.8228829501360513216482688, 0.8493676137325699701336930, 0.8738697689453106061296618, 0.8963211557660521239653072, 0.9166772666513643242753457, 0.9349060759377396891709191, 0.9509546848486611853898828, 0.9647622555875064307738119, 0.9763102836146638071976696, 0.9856115115452683354001750, 0.9926280352629719126857912, 0.9972638618494815635449811, 0.9995459021243644786356103};	//Displacement from center
 	long double wl[] = {0, 0.0965400885147278005667648, 0, 0.0956387200792748594190820, 0, 0.09384439908080456563918024, 0, 0.09117387869576388471286858, 0, 0.08765209300440381114277146, 0, 0.08331192422694675522219907, 0, 0.07819389578707030647174092, 0, 0.07234579410884850622539936, 0, 0.06582222277636184683765006, 0, 0.05868409347853554714528364, 0, 0.05099805926237617619616324, 0, 0.04283589802222668065687865, 0, 0.03427386291302143310268773, 0, 0.02539206530926205945575259, 0, 0.016274394730905670605170562, 0, 0.007018610009470096600407064, 0};	//63rd order Gauss-Legendre weight
@@ -480,23 +472,20 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta, lon
 	F[0] = 0;	//Zero out F for next sub-interval
 	F[1] = 0;	//Zero out F for next sub-interval
 
-#if ORDER == 97
+#if ORDER == 37
 	for(l = 0; l < 12; l++) //Count through points away from center
-#elif ORDER == 37
+#elif ORDER == 97
 	for(l = 0; l < 32; l++)
 #endif
 	{
 		x1 = (b+a-Disp[l]*(b-a))/2.;
 		x2 = (b+a+Disp[l]*(b-a))/2.;
 
-//cerr << Par[3] << " " << Par[4] << " " << x1 << " " << k << " " << theta << " " << Imk0_Integrand(Par,x1,k,theta,Temp, 0) << " " << Imk0_Integrand(Par,x1,k,theta,Temp, 1) << " " << Imk0_Integrand(Par,x1,k,theta,Temp, 2) << endl;
-//cerr << Par[3] << " " << Par[4] << " " << x2 << " " << k << " " << theta << " " << Imk0_Integrand(Par,x2,k,theta,Temp, 0) << " " << Imk0_Integrand(Par,x2,k,theta,Temp, 1) << " " << Imk0_Integrand(Par,x2,k,theta,Temp, 2) << endl;
 		F[0] += Imk0_Integrand(Par,x1,k,theta,Temp, 0)*wl[l+1];
 		F[0] += Imk0_Integrand(Par,x2,k,theta,Temp, 0)*wl[l+1];
 		F[1] += Imk0_Integrand(Par,x1,k,theta,Temp, 0)*wh[l+1];
 		F[1] += Imk0_Integrand(Par,x2,k,theta,Temp, 0)*wh[l+1];
 	}
-//cerr << Par[3] << " " << Par[4] << " " << (a+b)/2. << " " << k << " " << theta << " " << Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0) << " " << Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp, 1) << " " << Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp, 2) << endl;
 	F[0] += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0)*wl[0];
 	F[1] += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0)*wh[0];
 

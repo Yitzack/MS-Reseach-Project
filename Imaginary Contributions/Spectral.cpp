@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 	const int Temp = atoi(argv[3]);			//Temprature enumeration
 	long double Table[616][5];				//Table of calculated values
 	long double Par[5];					//Parameters to be used in calculation {Coupling constant, potential cutoff, quark mass, P, s}
-	Elements holder;					//Calculated value before distribution to Table
+	Elements<Around> holder;					//Calculated value before distribution to Table
 	time_t Start_Time, End_Time;				//Time at the start and end of calculation
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
