@@ -291,10 +291,10 @@ void Eval_Integral(long double Par[], Region& Stuff)
 
 	Elements<Around>Holder[4];	//4 holder varibles
 
-	Stuff.Int = Elements<Around>(0,0,0,0);;	//Intialize integration varibles
-	Stuff.xErr = Elements<Around>(0,0,0,0);;
-	Stuff.yErr = Elements<Around>(0,0,0,0);;
-	Stuff.Err = Elements<Around>(0,0,0,0);;
+	Stuff.Int = Elements<Around>(0,0,0,0);	//Intialize integration varibles
+	Stuff.xErr = Elements<Around>(0,0,0,0);
+	Stuff.yErr = Elements<Around>(0,0,0,0);
+	Stuff.Err = Elements<Around>(0,0,0,0);
 
 	if(i_k_wrap(d, Par, a) > ReG.MaxX() || i_k_wrap(d, Par, b) > ReG.MaxX())	//Interpolation excceeded
 		return;
@@ -314,6 +314,15 @@ void Eval_Integral(long double Par[], Region& Stuff)
 				k012 = (Energy(Par[2], Par[3]/2., y2, x1)-Energy(Par[2], Par[3]/2., -y2, x1))/2.;
 				k021 = (Energy(Par[2], Par[3]/2., y1, x2)-Energy(Par[2], Par[3]/2., -y1, x2))/2.;
 				k022 = (Energy(Par[2], Par[3]/2., y2, x2)-Energy(Par[2], Par[3]/2., -y2, x2))/2.;
+
+				if(i_k_wrap(y1, Par, x1) > ReG.MaxX() || i_k_wrap(y2, Par, x1) > ReG.MaxX() || i_k_wrap(y1, Par, x2) > ReG.MaxX() || i_k_wrap(y2, Par, x2) > ReG.MaxX())
+				{
+					Stuff.Int = Elements<Around>(0,0,0,0);	//Reintialize integration varibles and exit before segfault
+					Stuff.xErr = Elements<Around>(0,0,0,0);
+					Stuff.yErr = Elements<Around>(0,0,0,0);
+					Stuff.Err = Elements<Around>(0,0,0,0);
+					return;
+				}
 
 				Holder[0] = (Elements<Around>(Potential1(Par, k011, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k011, y1), Interacting_Quad_Trace(Par, k011, y1)*Potential1(Par, k011, y1), Potential2(Par, k011, y1)))*Around(ReG(i_k_wrap(y1, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x1), x1*200./M_PI))*pow(y1,2)*sin(x1);
 				Holder[1] = (Elements<Around>(Potential1(Par, k012, y2), Interacting_Linear_Trace(Par)*Potential1(Par, k012, y2), Interacting_Quad_Trace(Par, k012, y2)*Potential1(Par, k012, y2), Potential2(Par, k012, y2)))*Around(ReG(i_k_wrap(y2, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y2, Par, x1), x1*200./M_PI))*pow(y2,2)*sin(x1);
@@ -346,6 +355,16 @@ void Eval_Integral(long double Par[], Region& Stuff)
 			k011 = (Energy(Par[2], Par[3]/2., y1, x1)-Energy(Par[2], Par[3]/2., -y1, x1))/2.;
 			k021 = (Energy(Par[2], Par[3]/2., y1, x2)-Energy(Par[2], Par[3]/2., -y1, x2))/2.;
 
+			if(i_k_wrap(y1, Par, x1) > ReG.MaxX() || i_k_wrap(y1, Par, x2) > ReG.MaxX())
+			{
+				Stuff.Int = Elements<Around>(0,0,0,0);	//Reintialize integration varibles and exit before segfault
+				Stuff.xErr = Elements<Around>(0,0,0,0);
+				Stuff.yErr = Elements<Around>(0,0,0,0);
+				Stuff.Err = Elements<Around>(0,0,0,0);
+				return;
+			}
+
+
 			Holder[0] = (Elements<Around>(Potential1(Par, k011, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k011, y1), Interacting_Quad_Trace(Par, k011, y1)*Potential1(Par, k011, y1), Potential2(Par, k011, y1)))*Around(ReG(i_k_wrap(y1, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x1), x1*200./M_PI))*pow(y1,2)*sin(x1);
 			Holder[2] = (Elements<Around>(Potential1(Par, k021, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k021, y1), Interacting_Quad_Trace(Par, k021, y1)*Potential1(Par, k021, y1), Potential2(Par, k021, y1)))*Around(ReG(i_k_wrap(y1, Par, x2), x2*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x2), x2*200./M_PI))*pow(y1,2)*sin(x2);
 
@@ -371,6 +390,16 @@ void Eval_Integral(long double Par[], Region& Stuff)
 			k011 = (Energy(Par[2], Par[3]/2., y1, x1)-Energy(Par[2], Par[3]/2., -y1, x1))/2.;
 			k012 = (Energy(Par[2], Par[3]/2., y2, x1)-Energy(Par[2], Par[3]/2., -y2, x1))/2.;
 
+			if(i_k_wrap(y1, Par, x1) > ReG.MaxX() || i_k_wrap(y2, Par, x1) > ReG.MaxX())
+			{
+				Stuff.Int = Elements<Around>(0,0,0,0);	//Reintialize integration varibles and exit before segfault
+				Stuff.xErr = Elements<Around>(0,0,0,0);
+				Stuff.yErr = Elements<Around>(0,0,0,0);
+				Stuff.Err = Elements<Around>(0,0,0,0);
+				return;
+			}
+
+
 			Holder[0] = (Elements<Around>(Potential1(Par, k011, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k011, y1), Interacting_Quad_Trace(Par, k011, y1)*Potential1(Par, k011, y1), Potential2(Par, k011, y1)))*Around(ReG(i_k_wrap(y1, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x1), x1*200./M_PI))*pow(y1,2)*sin(x1);
 			Holder[1] = (Elements<Around>(Potential1(Par, k012, y2), Interacting_Linear_Trace(Par)*Potential1(Par, k012, y2), Interacting_Quad_Trace(Par, k012, y2)*Potential1(Par, k012, y2), Potential2(Par, k012, y2)))*Around(ReG(i_k_wrap(y2, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y2, Par, x1), x1*200./M_PI))*pow(y2,2)*sin(x1);
 
@@ -389,6 +418,16 @@ void Eval_Integral(long double Par[], Region& Stuff)
 
 		y1 = (c+d)/2.;
 		k011 = (Energy(Par[2], Par[3]/2., y1, x1)-Energy(Par[2], Par[3]/2., -y1, x1))/2.;
+
+		if(i_k_wrap(y1, Par, x1) > ReG.MaxX())
+		{
+			Stuff.Int = Elements<Around>(0,0,0,0);	//Reintialize integration varibles and exit before segfault
+			Stuff.xErr = Elements<Around>(0,0,0,0);
+			Stuff.yErr = Elements<Around>(0,0,0,0);
+			Stuff.Err = Elements<Around>(0,0,0,0);
+			return;
+		}
+
 		Holder[0] = (Elements<Around>(Potential1(Par, k011, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k011, y1), Interacting_Quad_Trace(Par, k011, y1)*Potential1(Par, k011, y1), Potential2(Par, k011, y1)))*Around(ReG(i_k_wrap(y1, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x1), x1*200./M_PI))*pow(y1,2)*sin(x1);
 
 		Stuff.Int += w37[0]*w37[0]*Holder[0];
@@ -411,6 +450,15 @@ void Eval_Integral(long double Par[], Region& Stuff)
 				k012 = (Energy(Par[2], Par[3]/2., y2, x1)-Energy(Par[2], Par[3]/2., -y2, x1))/2.;
 				k021 = (Energy(Par[2], Par[3]/2., y1, x2)-Energy(Par[2], Par[3]/2., -y1, x2))/2.;
 				k022 = (Energy(Par[2], Par[3]/2., y2, x2)-Energy(Par[2], Par[3]/2., -y2, x2))/2.;
+
+				if(i_k_wrap(y1, Par, x1) > ReG.MaxX() || i_k_wrap(y2, Par, x1) > ReG.MaxX() || i_k_wrap(y1, Par, x2) > ReG.MaxX() || i_k_wrap(y2, Par, x2) > ReG.MaxX())
+				{
+					Stuff.Int = Elements<Around>(0,0,0,0);	//Reintialize integration varibles and exit before segfault
+					Stuff.xErr = Elements<Around>(0,0,0,0);
+					Stuff.yErr = Elements<Around>(0,0,0,0);
+					Stuff.Err = Elements<Around>(0,0,0,0);
+					return;
+				}
 
 				Holder[0] = (Elements<Around>(Potential1(Par, k011, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k011, y1), Interacting_Quad_Trace(Par, k011, y1)*Potential1(Par, k011, y1), Potential2(Par, k011, y1)))*Around(ReG(i_k_wrap(y1, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x1), x1*200./M_PI))*pow(y1,2)*sin(x1);
 				Holder[1] = (Elements<Around>(Potential1(Par, k012, y2), Interacting_Linear_Trace(Par)*Potential1(Par, k012, y2), Interacting_Quad_Trace(Par, k012, y2)*Potential1(Par, k012, y2), Potential2(Par, k012, y2)))*Around(ReG(i_k_wrap(y2, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y2, Par, x1), x1*200./M_PI))*pow(y2,2)*sin(x1);
@@ -443,6 +491,15 @@ void Eval_Integral(long double Par[], Region& Stuff)
 			k011 = (Energy(Par[2], Par[3]/2., y1, x1)-Energy(Par[2], Par[3]/2., -y1, x1))/2.;
 			k021 = (Energy(Par[2], Par[3]/2., y1, x2)-Energy(Par[2], Par[3]/2., -y1, x2))/2.;
 
+			if(i_k_wrap(y1, Par, x1) > ReG.MaxX() || i_k_wrap(y1, Par, x2) > ReG.MaxX())
+			{
+				Stuff.Int = Elements<Around>(0,0,0,0);	//Reintialize integration varibles and exit before segfault
+				Stuff.xErr = Elements<Around>(0,0,0,0);
+				Stuff.yErr = Elements<Around>(0,0,0,0);
+				Stuff.Err = Elements<Around>(0,0,0,0);
+				return;
+			}
+
 			Holder[0] = (Elements<Around>(Potential1(Par, k011, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k011, y1), Interacting_Quad_Trace(Par, k011, y1)*Potential1(Par, k011, y1), Potential2(Par, k011, y1)))*Around(ReG(i_k_wrap(y1, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x1), x1*200./M_PI))*pow(y1,2)*sin(x1);
 			Holder[2] = (Elements<Around>(Potential1(Par, k021, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k021, y1), Interacting_Quad_Trace(Par, k021, y1)*Potential1(Par, k021, y1), Potential2(Par, k021, y1)))*Around(ReG(i_k_wrap(y1, Par, x2), x2*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x2), x2*200./M_PI))*pow(y1,2)*sin(x2);
 
@@ -468,6 +525,15 @@ void Eval_Integral(long double Par[], Region& Stuff)
 			k011 = (Energy(Par[2], Par[3]/2., y1, x1)-Energy(Par[2], Par[3]/2., -y1, x1))/2.;
 			k012 = (Energy(Par[2], Par[3]/2., y2, x1)-Energy(Par[2], Par[3]/2., -y2, x1))/2.;
 
+			if(i_k_wrap(y1, Par, x1) > ReG.MaxX() || i_k_wrap(y2, Par, x1) > ReG.MaxX())
+			{
+				Stuff.Int = Elements<Around>(0,0,0,0);	//Reintialize integration varibles and exit before segfault
+				Stuff.xErr = Elements<Around>(0,0,0,0);
+				Stuff.yErr = Elements<Around>(0,0,0,0);
+				Stuff.Err = Elements<Around>(0,0,0,0);
+				return;
+			}
+
 			Holder[0] = (Elements<Around>(Potential1(Par, k011, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k011, y1), Interacting_Quad_Trace(Par, k011, y1)*Potential1(Par, k011, y1), Potential2(Par, k011, y1)))*Around(ReG(i_k_wrap(y1, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x1), x1*200./M_PI))*pow(y1,2)*sin(x1);
 			Holder[1] = (Elements<Around>(Potential1(Par, k012, y2), Interacting_Linear_Trace(Par)*Potential1(Par, k012, y2), Interacting_Quad_Trace(Par, k012, y2)*Potential1(Par, k012, y2), Potential2(Par, k012, y2)))*Around(ReG(i_k_wrap(y2, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y2, Par, x1), x1*200./M_PI))*pow(y2,2)*sin(x1);
 
@@ -486,6 +552,16 @@ void Eval_Integral(long double Par[], Region& Stuff)
 
 		y1 = (c+d)/2.;
 		k011 = (Energy(Par[2], Par[3]/2., y1, x1)-Energy(Par[2], Par[3]/2., -y1, x1))/2.;
+
+		if(i_k_wrap(y1, Par, x1) > ReG.MaxX())
+		{
+			Stuff.Int = Elements<Around>(0,0,0,0);	//Reintialize integration varibles and exit before segfault
+			Stuff.xErr = Elements<Around>(0,0,0,0);
+			Stuff.yErr = Elements<Around>(0,0,0,0);
+			Stuff.Err = Elements<Around>(0,0,0,0);
+			return;
+		}
+
 		Holder[0] = (Elements<Around>(Potential1(Par, k011, y1), Interacting_Linear_Trace(Par)*Potential1(Par, k011, y1), Interacting_Quad_Trace(Par, k011, y1)*Potential1(Par, k011, y1), Potential2(Par, k011, y1)))*Around(ReG(i_k_wrap(y1, Par, x1), x1*200./M_PI), ReG_Err(i_k_wrap(y1, Par, x1), x1*200./M_PI))*pow(y1,2)*sin(x1);
 
 		Stuff.Int += w97[0]*w97[0]*Holder[0];
