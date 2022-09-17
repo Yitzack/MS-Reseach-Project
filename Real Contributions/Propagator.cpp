@@ -13,7 +13,7 @@ int Start_Point(int, char[70]);						//Find highest line calculated and returns 
 bool Restart_Check(char[70], char*, char*, char*, char*, char*);		//Checks to see if file header matches input parameters and clears it if not
 long double ReG12(long double, long double, long double, long double, long double);
 long double ImG12(long double, long double, long double, long double, long double);
-long double k_i(int, long double, long double, long double);
+long double k_i(int, long double, long double, long double, long double, long double);
 void Loop_Out(long double[], int, char[]);
 
 int main(int argc, char* argv[])
@@ -163,20 +163,22 @@ void Loop_Out(long double Par[], int Temp, char File[])
 	{
 		on_shell = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
+		on_shell_0 = .5*sqrt(Par[4]-pow(2.*Par[2],2));
+		photon_0 = .5*sqrt(Par[4]);
 		stop = isnan(photon)?50.:photon+50.;
 
 		for(i = 0; i <= 700; i++)
 		{
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{
-				long double k = k_i(i,on_shell,photon,stop);
+				long double k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
 				if(k < stop+50. && k >= 0)
 					oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
 			}
 		}
 		if(!Manifest[i][int(theta*200./M_PI)])
 		{
-			long double k = k_i(i,on_shell,photon,stop);
+			long double k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
 			if(k < stop+50. && k>= 0)
 			{
 				oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
@@ -197,13 +199,13 @@ long double ImG12(long double M, long double s, long double P, long double k, lo
 	return((2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)))*.14/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(pow(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2),2)+pow(.14,2))));
 }
 
-long double k_i(int i, long double x1, long double x2, long double x3)
+long double k_i(int i, long double x1, long double x2, long double x3, long double x2_0, long double x3_0)
 {
-	if(isnan(x2) || x2 < .5)
+	if(isnan(x2_0) || x2_0 < .5)	//It needs to follow the policy of the smallest x2 or x3 that it can calculate
 	{
 		return(.1*i);
 	}
-	else if(isnan(x1) || x1 < .5)
+	else if(isnan(x1_0) || x1_0 < .5)
 	{
 		long double a = -x2*x3/(120.*(x2-x3));
 		long double b = (-6.*x2+x3)/(600.*(x2-x3));
