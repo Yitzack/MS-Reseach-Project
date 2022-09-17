@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
 void Loop_Out(long double Par[], int Temp, char File[])
 {
 	long double theta;
-	long double on_shell, photon, ,on_shell_0, photon_0, stop;
+	long double on_shell, photon, on_shell_0, photon_0, stop;
 	bool Manifest[702][101];
 	ofstream oTable;
 	ifstream iTable(File);
