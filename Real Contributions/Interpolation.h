@@ -347,9 +347,9 @@ int Interpolation<T>::MaxY()
 
 long double i_k_wrap(long double k, long double Par[], long double theta)
 {
-	if(Par[4] > pow(Par[2]*2.,2) && sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)))/2. >= .5)
+	if(Par[4] > pow(Par[2]*2.,2) && sqrt(Par[4]-pow(2.*Par[2],2))/2. >= .5)	//Must always use the pi/2 policy for the k to i conversion
 		return(i_k(k, Par[4], Par[3], theta, Par[2]));
-	else if(Par[4] > 0 && sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)))/2. >= .5)
+	else if(Par[4] > 0 && sqrt(Par[4])/2. >= .5)
 		return(i_k(k, Par[4], Par[3], theta));
 	else
 		return(k*10.);
