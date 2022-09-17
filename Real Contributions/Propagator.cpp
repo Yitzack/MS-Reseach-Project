@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
 void Loop_Out(long double Par[], int Temp, char File[])
 {
 	long double theta;
-	long double on_shell, photon, stop;
+	long double on_shell, photon, ,on_shell_0, photon_0, stop;
 	bool Manifest[702][101];
 	ofstream oTable;
 	ifstream iTable(File);
@@ -199,7 +199,7 @@ long double ImG12(long double M, long double s, long double P, long double k, lo
 	return((2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)))*.14/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(pow(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2),2)+pow(.14,2))));
 }
 
-long double k_i(int i, long double x1, long double x2, long double x3, long double x2_0, long double x3_0)
+long double k_i(int i, long double x1, long double x2, long double x3, long double x1_0, long double x2_0)
 {
 	if(isnan(x2_0) || x2_0 < .5)	//It needs to follow the policy of the smallest x2 or x3 that it can calculate
 	{
