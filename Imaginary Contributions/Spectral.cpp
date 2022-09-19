@@ -134,20 +134,20 @@ int main(int argc, char* argv[])
 int Start_Point(int Start, char File[70])	//Go through and find largest starting point in file and return it, causes it to repeat last line
 {
 	ifstream TPlot(File);
-	char Line[200];
+	char Line[400];
 	int Test;
 
-	TPlot.getline(Line, 200);
+	TPlot.getline(Line, 400);
 	if(!TPlot.is_open())
 		return(Start);
 
-	TPlot.getline(Line, 200);
+	TPlot.getline(Line, 400);
 	while(!TPlot.eof())
 	{
 		Test = atoi(Line);
 		if(Test > Start)
 			Start = Test;
-		TPlot.getline(Line,200);
+		TPlot.getline(Line,400);
 	}
 
 	return(Start);
