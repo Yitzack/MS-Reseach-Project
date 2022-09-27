@@ -136,7 +136,7 @@ void Loop_Out(long double Par[], int Temp, char File[])
 	char Bin_c[11];
 	long double Bin_n[9];
 
-	for(i = 0; i < 702; i++)
+	for(i = 0; i < 202; i++)
 	{
 		for(int j = 0; j < 101; j++)
 		{
