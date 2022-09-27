@@ -150,7 +150,7 @@ void Loop_Out(long double Par[], int Temp, char File[])
 		iTable.ignore(200,'\n');
 		i = Bin_n[0];
 		theta = Bin_n[2];
-		if((('0' <= Bin_c[4] && Bin_c[4] <= '9') || Bin_c[4] == '.' ) && 0 <= i && i < 702 && 0 <= theta && theta <= M_PI)
+		if((('0' <= Bin_c[4] && Bin_c[4] <= '9') || Bin_c[4] == '.' ) && 0 <= i && i < 202 && 0 <= theta && theta <= M_PI)
 			Manifest[i][int(theta*200./M_PI)] = true;
 	}
 
