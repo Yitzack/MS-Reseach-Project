@@ -28,7 +28,7 @@ class Elements
 		Elements<T> operator-(Elements);	//Difference of vectors
 		Elements<T> operator-(T);		//Subtract a number from elements of vector
 		Elements<T> operator/(Elements<T>) const;//This is about accuracy, not the correct definition of division, so it is an element-wise division
-		Elements<T> operator/(T);		//Scalar divide
+		Elements<T> operator/(T) const;	//Scalar divide
 		Elements<T> operator*(T);		//Scalar multiply
 		Elements<T> operator*(Elements);	//Vector multiply (not to be confused with cross product, but element by element multiply
 		Elements<T> abs(const Elements<T>&);	//Absolute value of all elements
@@ -291,7 +291,7 @@ Elements<T> Elements<T>::operator*(Elements<T> A)
 }
 
 template <class T>
-Elements<T> Elements<T>::operator/(T A)
+Elements<T> Elements<T>::operator/(T A) const
 {
 	Elements<T> B;
 	B.Array[0] = Array[0] / A;
