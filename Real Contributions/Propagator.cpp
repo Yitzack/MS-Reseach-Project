@@ -129,14 +129,14 @@ void Loop_Out(long double Par[], int Temp, char File[])
 {
 	long double theta;
 	long double on_shell, photon, on_shell_0, photon_0, stop;
-	bool Manifest[702][101];
+	bool Manifest[202][101];
 	ofstream oTable;
 	ifstream iTable(File);
 	int i;
 	char Bin_c[11];
 	long double Bin_n[9];
 
-	for(i = 0; i < 702; i++)
+	for(i = 0; i < 202; i++)
 	{
 		for(int j = 0; j < 101; j++)
 		{
@@ -150,7 +150,7 @@ void Loop_Out(long double Par[], int Temp, char File[])
 		iTable.ignore(200,'\n');
 		i = Bin_n[0];
 		theta = Bin_n[2];
-		if((('0' <= Bin_c[4] && Bin_c[4] <= '9') || Bin_c[4] == '.' ) && 0 <= i && i < 702 && 0 <= theta && theta <= M_PI)
+		if((('0' <= Bin_c[4] && Bin_c[4] <= '9') || Bin_c[4] == '.' ) && 0 <= i && i < 202 && 0 <= theta && theta <= M_PI)
 			Manifest[i][int(theta*200./M_PI)] = true;
 	}
 
@@ -167,19 +167,19 @@ void Loop_Out(long double Par[], int Temp, char File[])
 		photon_0 = .5*sqrt(Par[4]);
 		stop = isnan(photon)?50.:photon+50.;
 
-		for(i = 0; i <= 700; i++)
+		for(i = 0; i <= 200; i++)
 		{
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{
 				long double k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
-				if(k < stop+50. && k >= 0)
+				if(k < 50 && k >= 0)
 					oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
 			}
 		}
 		if(!Manifest[i][int(theta*200./M_PI)])
 		{
 			long double k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
-			if(k < stop+50. && k>= 0)
+			if(k < 50 && k>= 0)
 			{
 				oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
 			}
