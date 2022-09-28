@@ -701,12 +701,11 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 
 	for(i = 0; Stops[i] < Min+3 || Holder == Around(0); i++)	//Remove any stops below the minimum of the limit of integration. Faster to illiminate here than by popping
 	{
-		i++;
 		ParLoc[4] = Stops[i];
 		Holder = k0_Int(ParLoc, Temp, k, theta);
 		if(!(Holder == Around(0)))
 		{
-			i--;
+			if(i!=0) i--;
 			Min = a = b = Stops[i];
 			break;
 		}
@@ -829,7 +828,7 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 
 Around k0_Int(long double Par[], int Temp, long double k, long double theta)
 {
-	if(Par[4]+pow(Par[3], 2) < 0) //Can't go below zero energy for the dispersion relation.
+	if(Par[4]+pow(Par[3], 2) <= 0) //Can't go below zero energy for the dispersion relation.
 		return(Around(0.));
 
 	long double a, b;	//Sub-interval limits of integration
@@ -1505,7 +1504,7 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	static long double a[2], b[2];	//Slope of exponential decrease to left and right
 	static long double knee[2];		//Interval to change from left to right side of peak
 	static long double M_T, Shift;	//Default quark mass, shfift from default quark mass to given quark mass
-	static long double k_old[2];		//Previous value of k to know if the parmeters need to recalculated
+	static long double k_old[2] = {-1,-1}; //Previous value of k to know if the parmeters need to recalculated
 
 	if(pow(omega[0], 2)>=pow(k[0], 2) && omega[0] >= 0)	//Vacuum width
 		Results[0] = sqrt(pow(omega[0], 2)-pow(k[0], 2))*GAMMA;
