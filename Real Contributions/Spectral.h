@@ -11,8 +11,10 @@ using namespace std;
 Elements<Around> theta_Int(long double[], int);			//Theta integral
 Elements<Around> theta_Int(long double[], int, long double, long double, int);
 Elements<Around> k_Int(long double[], int, long double, bool);	//k integral
-Elements<Around> k0_Int(long double[], int, long double, long double);		//k0 integral aka energy integral
-Elements<Around> k0_Int(long double[], int, long double, long double, long double, long double, int);
+Around Dispersion(long double[], int, long double, long double, long double);	//Dispersion relation for turning ImG_12 into ReG_12
+Around Dispersion(long double[], int, long double, long double, long double, long double, long double, Around, int, int);	//Dispersion relation for turning ImG_12 into ReG_12
+Around k0_Int(long double[], int, long double, long double);			//k0 integral aka energy integral
+Around k0_Int(long double[], int, long double, long double, long double, long double, int, int);			//k0 integral aka energy integral
 long double ImG12(long double, long double, long double, long double, long double);	//Fast standin for k0_Int
 long double ReG12(long double, long double, long double, long double, long double);	//Fast standin for k0_Int
 
