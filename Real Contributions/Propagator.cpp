@@ -19,10 +19,12 @@ void Loop_Out(long double[], int, char[]);
 int main(int argc, char* argv[])
 {
 #ifdef BB	//use option -D BB= to activate bottomium macro
-	char File[70] = "data/ReSpectralbb.";  //Name of the file
+	//char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralbb.";  //Name of the file
+	char File[130] = "data/ReSpectralbb.";  //Name of the file
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
-	char File[70] = "data/ReSpectralcc.";
+	//char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.";
+	char File[130] = "data/ReSpectralcc.";
 #endif
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
@@ -30,7 +32,7 @@ int main(int argc, char* argv[])
 #endif
 
 	char* Process = argv[1];
-	char FileApp[70];
+	char FileApp[130];
 	char Number_c[5];
 	string Number_s;
 	strcat(File, argv[3]);	//Appends the temprature to the file name
@@ -187,16 +189,6 @@ void Loop_Out(long double Par[], int Temp, char File[])
 	}
 
 	oTable.close();
-}
-
-long double ReG12(long double M, long double s, long double P, long double k, long double theta)
-{
-	return((2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)))*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(pow(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2),2)+pow(.14,2))));
-}
-
-long double ImG12(long double M, long double s, long double P, long double k, long double theta)
-{
-	return((2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)))*.14/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(pow(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2),2)+pow(.14,2))));
 }
 
 long double k_i(int i, long double x1, long double x2, long double x3, long double x1_0, long double x2_0)
