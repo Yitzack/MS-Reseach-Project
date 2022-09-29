@@ -34,23 +34,27 @@ long double Lower_Bound(long double, long double, long double, long double, long
 
 //Functions for finding points of interest in the k0 integral
 void Characterize_k0_Int(long double[], int, long double, long double, long double[], long double[], int&);	//Returns the poles of the k0 integral's integrands
-long double Newton_Method_k0(long double, long double[], long double, long double, int, int, long double (*)(long double[], long double, long double, long double, int, int));	//Returns the k0 of the on-shell peak using Newton's method on 1/f
-long double omega_Width(long double, long double[], long double, long double, int, int, long double (*)(long double[], long double, long double, long double, int, int));	//Returns the width of on-shell peak using the assumption of a breit-wigner peak 
+long double Newton_Method_k0(long double, long double[], long double, long double, int, long double (*)(long double[], long double, long double, long double, int));	//Returns the k0 of the on-shell peak using Newton's method on 1/f
+long double omega_Width(long double, long double[], long double, long double, int, long double (*)(long double[], long double, long double, long double, int));	//Returns the width of on-shell peak using the assumption of a breit-wigner peak 
+
+//Functions for finding points of interest in the dispersion integral
+void Characterize_Dispersion(long double[], int, long double, long double, long double, long double[], long double[], int&);
+long double sp_Width(long double[], long double, long double, long double, int, long double (*)(long double[], long double, long double, long double, int));	//Breit-Wigner width of the peak
 
 //Functions that return physics for the integrand
-void ImSelf_Energy(long double, long double, long double[], long double[],int, long double[]);			//Returns the imaginary single quark self-energies for both quarks, contains an alternate T=194 MeV solution
-long double ImSelf_Energy(long double, long double, long double, long double[], int);				//Returns the imaginary single quark self-energies for one quark, contains an alternate T=194 MeV solution
-void ReSelf_Energy(long double, long double[], long double[], int, long double[]);					//Returns the real single quark self-energies for both quarks, contains an alternate T=194 MeV solution
-void Self_Energy(long double, long double, long double[], long double[],int, long double[], long double[]);	//Returns the complex single quark self-energies for both quarks, is a simple Breit-Wigner self-energy and alternate to those above
-long double Energy(long double, long double, long double, long double);						//Single quark energy, also used to return total momentum by setting M=0
-long double Fermi(long double, int);											//Fermi function
-long double Set_Temp(int);												//Decodes 0-4 into numeric temprature for Fermi factor
-long double Potential1(long double[], long double, long double);							//One vertex of the potiential
-long double Potential2(long double[], long double, long double);							//Two vertices of the potiential
-long double Non_Interacting_Trace(long double[], long double, long double, long double);				//Non-interacting trace, depends on quantum numbers of boson (scalar, pseudo-scalar, vector, axial vector)
-long double Interacting_Linear_Trace(long double[], long double, long double, long double);				//Linear (linear in sqrt(s)) contribution to the interacting trace
-long double Interacting_Quad_Trace(long double[], long double, long double, long double);				//Quadratic contribution to the interacting trace
-long double Imk0_Integrand(long double[], long double, long double, long double, int, int);				//Integrand of the k0 integral for positive energy
+void ImSelf_Energy(long double, long double, long double[], int, long double[]);			//Returns the imaginary single quark self-energies for both quarks, contains an alternate T=194 MeV solution
+long double ImSelf_Energy(long double, long double, long double, int);				//Returns the imaginary single quark self-energies for one quark, contains an alternate T=194 MeV solution
+void ReSelf_Energy(long double, long double, long double[], int, long double[]);			//Returns the real single quark self-energies for both quarks, contains an alternate T=194 MeV solution
+void Self_Energy(long double, long double, long double[], int, long double[], long double[]);	//Returns the complex single quark self-energies for both quarks, is a simple Breit-Wigner self-energy and alternate to those above
+long double Energy(long double, long double, long double, long double);				//Single quark energy, also used to return total momentum by setting M=0
+long double Fermi(long double, int);									//Fermi function
+long double Set_Temp(int);										//Decodes 0-4 into numeric temprature for Fermi factor
+long double Potential1(long double[], long double, long double);					//One vertex of the potiential
+long double Potential2(long double[], long double, long double);					//Two vertices of the potiential
+long double Interacting_Linear_Trace(long double[]);							//Linear (linear in sqrt(s)) contribution to the interacting trace
+long double Interacting_Quad_Trace(long double[], long double, long double);				//Quadratic contribution to the interacting trace
+long double Imk0_Integrand(long double[], long double, long double, long double, int);		//Integrand of the k0 integral for positive energy
+
 
 //Merge Sort. There are a number of semi-sorted lists that need sorting. This will probably beat quick sort under similar conditions.
 void mergeSort(long double List[], int a, int b)
@@ -242,7 +246,7 @@ Elements<Around> Integrand(long double Par[], long double k, long double theta, 
 	long double k0 = (Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2., -k, theta))/2.;
 	if(i_k_wrap(k, Par, theta) > ReG.MaxX() || i_k_wrap(k, Par, theta) < 0)
 		return(Elements<Around>(0,0,0,0));
-	return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par, k0, k, theta)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k, theta)*Potential1(Par, k0, k), Potential2(Par, k0, k))*Around(ReG(i_k_wrap(k, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(k, Par, theta), theta*200./M_PI))*pow(k,2));
+	return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*Around(ReG(i_k_wrap(k, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(k, Par, theta), theta*200./M_PI))*pow(k,2));
 }
 
 Elements<Around> k_Int(long double Par[], int Temp, long double theta, bool fancy)
