@@ -14,7 +14,7 @@ You must selet bottomium or charmonium with the -D BB or -D CC macro.
 
 You must select 37th order or 97th order with the -D ORDER= macro. You must use 97th order for time-like mesons or your results will not be accurate enough for the spatial correlation function. If you don't need the spatial correlation function, 37th order may be good enough. You may use 37th order for space-like mesons.
 
-You must select the potential version with the -D VERSION= macro. I do recommend that you correct the zero/cusp/maximum of the potiential on Spectral.h lines 657, 662, and 722-725 to match the selected potential. I was not exceedingly hindered by them being wrong, but it is probably detectable in the relative error of the spectral function and spatial correlation. These are set for the 42 VERSION. It is the only potential that is impecable up to 1.2 fm, the others start fail around 1-1.1 fm. The 22 VERSION also does fairly well without correct examination.
+You must select the potential version with the -D VERSION= macro.
 
 You may select half of the in-medium self-energy with -D HALF=.
 
@@ -22,11 +22,11 @@ You may select half of the in-medium self-energy with -D HALF=.
 
 ./program\_name ProcessID Number\_of\_Threads Temprature Fraction\_of\_Coupling\_Constant Debye\_Mass Quark\_Mass Starting\_Point Ending\_Point Momentum\_Scale Fraction\_to\_Vacuum
 
-The output will land in ./data/Spectral\*.Temprature.ProcessID as space seperated values. To collect all of the output I recommend using bash command `sort -unk2 -unk1 data/Spectral\*.Temprature.\* | sed 's/ /,/g' > data/Spectral\*.Temrature.csv`.
+The output will land in ./data/Spectral\*.Temprature.ProcessID as space seperated values. The output now includes error estimation, which are seperated by commas. To collect all of the output I recommend using bash command `sort -unk2 -unk1 data/Spectral\*.Temprature.\* | sed 's/ /,/g' > data/Spectral\*.Temprature.csv`. This will make central values followed by error estimates.
 
-The number of threads used should be between 1 and 616. I don't recommend going higher as that won't help anything even if you're lying to it. There are only 616 columns and you can use the starting and stopping points to break up the columns. Mod(ProcessID,Number\_of\_Threads) will tell you which processes are working on the same set of columns.
+The number of threads used should be between 1 and 575. I don't recommend going higher as that won't help anything even if you're lying to it. There are only 616 columns and you can use the starting and stopping points to break up the columns. Mod(ProcessID,Number\_of\_Threads) will tell you which processes are working on the same set of columns.
 
-Starting\_Point and Ending\_Point are see tin, the starting and ending points. What the exactly means in terms of invariant mass and center of mass momentum will have to reference from the code or an appendix in the thesis.
+Starting\_Point and Ending\_Point are see tin, the starting and ending points. What that exactly means in terms of invariant mass and center of mass momentum will have to reference from the code or an appendix in the thesis.
 
 Temprature is an integer between 0 and 4 inclusive that represents vacuum, T=194, 258, 320, and 400 MeV.
 
