@@ -1,6 +1,6 @@
 # Real Contributions
 
-The files contained here calculate the imaginary contributions to the spectral functions.
+The files contained here calculate the real contributions to the spectral functions.
 
 ## Compile Directions
 
@@ -20,9 +20,9 @@ You may select half of the in-medium self-energy with -D HALF=.
 
 ./program\_name ProcessID Number\_of\_Threads Temprature Fraction\_of\_Coupling\_Constant Debye\_Mass Quark\_Mass Starting\_Point Ending\_Point Momentum\_Scale Fraction\_to\_Vacuum
 
-The output will land in ./data/Spectral\*.Temprature.ProcessID as space seperated values. To collect all of the output I recommend using bash command `sort -unk2 -unk1 data/Spectral\*.Temprature.\* | sed 's/ /,/g' > data/Spectral\*.Temrature.csv`.
+The output will land in ./data/Spectral\*.Temprature.ProcessID as space seperated values. The output includes error estimates after the mode value, which are comma seperated. To collect all of the output I recommend using bash command `sort -unk2 -unk1 data/Spectral\*.Temprature.\* | sed 's/ /,/g' > data/Spectral\*.Temrature.csv`. This will put mode values and error values in seperate fields.
 
-The number of threads used should be between 1 and 616. I don't recommend going higher as that won't help anything even if you're lying to it. There are only 616 columns and you can use the starting and stopping points to break up the columns. Mod(ProcessID,Number\_of\_Threads) will tell you which processes are working on the same set of columns.
+The number of threads used should be between 1 and 575. I don't recommend going higher as that won't help anything even if you're lying to it. There are only 575 columns and you can use the starting and stopping points to break up the columns. Mod(ProcessID,Number\_of\_Threads) will tell you which processes are working on the same set of columns.
 
 Starting\_Point and Ending\_Point are see tin, the starting and ending points. What that exactly means in terms of invariant mass and center of mass momentum will have to be determined from the code or an appendix in the thesis.
 
@@ -38,3 +38,11 @@ Fraction\_to\_Vacuum is how far to vacuum the system goes at the infinite moment
 
 Momentum\_Scale is how fast the system goes the infinite momentum limit. At the momentum of the momentum scale, it is half way there.
 
+## Around.h
+This is the uncertain value object. It should be able to substitute for long double in most situtations. You may find that it lacks support for most floating point functions. But it does cover the basic four functions, abs(), and comparison. Not all constant methods are declared as such.
+
+## Elements.h
+Basically an array of 4 quantities to be integrated together. Element<> to Element<> comparison is done to the sum of elements. Element<> to scalar comarison requires the set to pass as it is used in integration and all elements need to pass the test. The basic 4 functions and abs() are included for integration. Not all constant methods are declared as such.
+
+## Interpolation.h
+This is a 2D interpolation object. It uses a dumbed down version of the NURBS (Non-Uniform Ratio B-Spline) algorithm. It needs an array of control points that are precalculated either by you or Mathematica. Mathematica will provide them with `Interpolation[table,Method->"Spline"][[4,1,2,1]]`. It expects the control points to be evenly spaced in both dimensions. It is a bicubic spline.
