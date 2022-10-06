@@ -43,3 +43,10 @@ Momentum\_Scale is how fast the system goes the infinite momentum limit. At the 
 ## Physics
 
 See paper and thesis repositories stored elsewhere.
+
+
+## Around.h
+This is the uncertain value object. It should be able to substitute for long double in most situtations. You may find that it lacks support for most floating point functions. But it does cover the basic four functions, abs(), and comparison. Not all constant methods are declared as such.
+
+## Elements.h
+Basically an array of 6 quantities to be integrated together. Element<> to Element<> comparison is done to the sum of elements. Element<> to scalar comarison requires the set to pass as it is used in integration and all elements need to pass the test. The basic 4 functions and abs() are included for integration. Not all constant methods are declared as such.
