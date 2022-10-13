@@ -1243,8 +1243,8 @@ long double ImG12Reverse(long double M, long double s, long double P, long doubl
 
 	ImSelf[0] = ImSelf_Energy(M, omega[0], q[0], Temp)/5.;
 	ImSelf[1] = ImSelf_Energy(M, omega[1], q[1], Temp)/5.;
-	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp)/2.+Energy(M, P/2., k, theta);
-	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.+Energy(M, P/2., k, theta);
+	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp)/2.;
+	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
 
 	if(s >= 0)
 		Vacuum_Width = GAMMA*((125.+25.*sqrt(s)+(25.*sqrt(s)-125.)*tanh(10.-4.*s))/(-201.+49.*tanh(6.30336)));
