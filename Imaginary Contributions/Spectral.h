@@ -263,7 +263,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, bool fanc
 	}
 
 	//More intervals from features not already considered
-	Max = Stops[l] = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//k for which quarks are simultanous light-like, highest k needed for vacuum
+	Stops[l] = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));	//k for which quarks are simultanous light-like, highest k needed for vacuum
 	if(isnan(Stops[l]))	//If meson is space-like, keep absolute value of it anyways even though it probably does nothing
 		Stops[l] = .5*sqrt(-Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
 	Stops[l+1] = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]-pow(2.*Par[2],2)+pow(Par[3]*cos(theta),2)));	//On-shells leaving the positive energy range
@@ -276,6 +276,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, bool fanc
 	Stops[l+8] = .5*abs(Par[3]*cos(theta)+sqrt(3.*pow(Par[3],2)+4.*Par[4]+pow(Par[3]*cos(theta),2)));
 	Stops[l+9] = .5*abs(Par[3]*cos(theta)-sqrt(3.*pow(Par[3],2)+4.*Par[4]+pow(Par[3]*cos(theta),2)));
 	Stops[l+10] = (Par[1]*sqrt(pow(2.*Par[2],2)+pow(Par[3],2)+2.*pow(Par[1],2)))/sqrt(8.*pow(Par[2],2)+2.*pow(Par[3],2)+pow(2.*Par[1],2)-2.*pow(Par[3]*cos(theta),2));
+	Stops[l+11] = Max = 100;
 
 	for(i = 0; i < l+11; i++)	//Removes stops that are NaN or bigger than necessary
 	{
@@ -328,7 +329,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, bool fanc
 
 		Partial = k_Int(Par, Temp, theta, a, b, 0, fancy);	//Record the subinterval to total of the integral
 		Answer += Partial;	//Add the subinterval to total of the integral
-	}while((i < Intervals || abs(Partial/Answer)/(b-a) >= .0001) && a <= 20.*sqrt(Par[4]+pow(Par[3],2)) && ((Temp == 0 && a < Max) || Temp != 0)); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
+	}while((i < Intervals || abs(Partial/Answer)/(b-a) >= .0001) && a < Max); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }
@@ -463,7 +464,7 @@ long double ImG12Reverse(long double M, long double s, long double P, long doubl
 
 	if(s >= 0)
 		Vacuum_Width = GAMMA*((125.+25.*sqrt(s)+(25.*sqrt(s)-125.)*tanh(10.-4.*s))/(-201.+49.*tanh(6.30336)));
-
+cout << s << " " << P << " " << k << " " << theta << " " << ReSelf[0] << " " << ReSelf[1] << " " << ImSelf[0] << " " << ImSelf[1] << " " << Vacuum_Width << " " << (-2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).imag() << endl;
 	return(-2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).imag();
 }
 
