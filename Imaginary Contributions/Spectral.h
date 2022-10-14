@@ -43,7 +43,6 @@ long double Potential2(long double[], long double, long double);							//Two ver
 long double Non_Interacting_Trace(long double[], long double, long double, long double);				//Non-interacting trace, depends on quantum numbers of boson (scalar, pseudo-scalar, vector, axial vector)
 long double Interacting_Linear_Trace(long double[]);									//Linear (linear in sqrt(s)) contribution to the interacting trace
 long double Interacting_Quad_Trace(long double[], long double, long double);						//Quadratic contribution to the interacting trace
-long double Imk0_Integrand(long double[], long double, long double, long double, int, int);				//Integrand of the k0 integral for positive energy
 
 //Merge Sort. There are a number of semi-sorted lists that need sorting. This will probably beat quick sort under similar conditions.
 void mergeSort(long double List[], int a, int b)
@@ -1278,80 +1277,3 @@ long double Interacting_Quad_Trace(long double Par[], long double k0, long doubl
 {
 	return(Par[4]/4.-pow(k0,2)+pow(k,2))/(2.*pow(Par[2],2));
 }
-
-long double Imk0_Integrand(long double Par[], long double k0, long double k, long double theta, int Temp, int Factor)	//Integrand of the folding integral for positive energy
-{
-	static long double q[2] = {Energy(0, Par[3]/2., k, theta),Energy(0, Par[3]/2., -k, theta)};
-	static long double k_old = k;
-	long double omega[2] = {sqrt(Par[4]+pow(Par[3],2))/2.+k0,sqrt(Par[4]+pow(Par[3],2))/2.-k0};
-	long double fermi[2] = {Fermi(omega[0], Temp),Fermi(omega[1], Temp)};
-	long double ImSelf[2];
-	long double ReSelf[2];
-	complex<long double> M(Par[2],0);
-	complex<long double> gamma(GAMMA,0);
-
-	if(k_old != k)
-	{
-		k_old = k;
-		q[0] = Energy(0, Par[3]/2., k, theta);
-		q[1] = Energy(0, Par[3]/2., -k, theta);
-	}
-
-	//Self_Energy(Par[2], omega, q, Par, Temp, ImSelf, ReSelf);
-	ImSelf_Energy(Par[2], omega, q, Par, Temp, ImSelf);
-	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
-
-	switch(Factor)
-	{
-	default:
-	case 0:
-		return(-((4.*ImSelf[0]*ImSelf[1]*pow(Par[2],2)*(1.-fermi[0]-fermi[1]))/((pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2))*(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2)+pow(ImSelf[1],2)))));
-		break;
-	case 1:
-		return(ImSelf[0]/(pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2)));
-		break;
-	case 2:
-		return(ImSelf[1]/(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2)+pow(ImSelf[1],2)));
-		break;//*/
-	}
-}
-
-/*long double Imk0_Integrand(long double Par[], long double k0, long double k, long double theta, int Temp, int Factor)	//Integrand of the folding integral for positive energy
-{
-	static long double q[2] = {Energy(0, Par[3]/2., k, theta),Energy(0, Par[3]/2., -k, theta)};
-	static long double k_old = k;
-	long double omegap[2] = {sqrt(Par[4]+pow(Par[3],2))/2.+k0,sqrt(Par[4]+pow(Par[3],2))/2.-k0};
-	long double omegan[2] = {-omegap[0],-omegap[1]};
-	long double fermi[2] = {Fermi(omegap[0], Temp),Fermi(omegap[1], Temp)};
-	long double ImSelfp[2];
-	long double ReSelfp[2];
-	long double ImSelfn[2];
-	long double ReSelfn[2];
-
-	if(k_old != k)
-	{
-		k_old = k;
-		q[0] = Energy(0, Par[3]/2., k, theta);
-		q[1] = Energy(0, Par[3]/2., -k, theta);
-	}
-
-	//Self_Energy(Par[2], omega, q, Par, Temp, ImSelf, ReSelf);
-	ImSelf_Energy(Par[2], omegap, q, Par, Temp, ImSelfp);
-	ReSelf_Energy(Par[2], omegap, q, Temp, ReSelfp);
-	ImSelf_Energy(Par[2], omegan, q, Par, Temp, ImSelfn);
-	ReSelf_Energy(Par[2], omegan, q, Temp, ReSelfn);
-
-	switch(Factor)
-	{
-	default:
-	case 0:
-		return(-((4.*(ImSelfp[0]+ImSelfn[0])*(ImSelfp[1]+ImSelfn[1])*pow(Par[2],2)*(1.-fermi[0]-fermi[1]))/((pow(pow(omegap[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*(ReSelfp[0]-ReSelfn[0]),2)+pow(ImSelfn[0]+ImSelfp[0],2))*(pow(pow(omegap[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*(ReSelfp[1]-ReSelfn[1]),2)+pow(ImSelfp[1]+ImSelfn[1],2)))));
-		break;
-	case 1:
-		return((ImSelfp[0]+ImSelfn[0])/(pow(pow(omegap[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*(ReSelfp[0]-ReSelfn[0]),2)+pow(ImSelfp[0]+ImSelfn[0],2)));
-		break;
-	case 2:
-		return((ImSelfp[1]+ImSelfn[1])/(pow(pow(omegap[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*(ReSelfp[1]-ReSelfn[1]),2)+pow(ImSelfp[1]+ImSelfn[1],2)));
-		break;
-	}
-}*/
