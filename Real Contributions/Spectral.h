@@ -361,7 +361,7 @@ void Eval_Integral(long double Par[], Region& Stuff, int Temp)
 
 			Stuff.yErr += w37[i+1]*errw37[0]*Holder[0];
 			Stuff.yErr += w37[i+1]*errw37[0]*Holder[2];
-		
+
 			Stuff.Err += errw37[i+1]*errw37[0]*Holder[0];
 			Stuff.Err += errw37[i+1]*errw37[0]*Holder[2];
 		}
@@ -447,7 +447,7 @@ void Eval_Integral(long double Par[], Region& Stuff, int Temp)
 
 			Stuff.yErr += w97[i+1]*errw97[0]*Holder[0];
 			Stuff.yErr += w97[i+1]*errw97[0]*Holder[2];
-		
+
 			Stuff.Err += errw97[i+1]*errw97[0]*Holder[0];
 			Stuff.Err += errw97[i+1]*errw97[0]*Holder[2];
 		}
@@ -717,7 +717,7 @@ Elements<long double> Integrand(long double Par[], long double k, long double th
 	long double k0 = (Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2., -k, theta))/2.;
 //	Elements<long double> Holder = Elements<long double>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp);
 //cerr << Par[3] << "," << Par[4] << "," << k << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp) << endl;
-	return(Elements<long double>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp)*pow(k,2)*sin(theta));
+	return(Elements<long double>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ImG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp)*pow(k,2)*sin(theta));
 }
 
 Elements<Around> k_Int_old(long double Par[], int Temp, long double theta)
@@ -757,7 +757,7 @@ Elements<Around> k_Int_old(long double Par[], int Temp, long double theta)
 			{
 				x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 				x2 = (b+a+Disp[i]*(b-a))/2.;
-	
+
 				F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
 				F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
 				F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
@@ -777,7 +777,7 @@ Elements<Around> k_Int_old(long double Par[], int Temp, long double theta)
 		{
 			x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x2 = (b+a+Disp[i]*(b-a))/2.;
-	
+
 			F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
 			F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
 			F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
@@ -798,7 +798,7 @@ Elements<Around> k_Int_old(long double Par[], int Temp, long double theta)
 			{
 				x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 				x2 = (b+a+Disp[i]*(b-a))/2.;
-	
+
 				F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
 				F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
 				F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
@@ -818,7 +818,7 @@ Elements<Around> k_Int_old(long double Par[], int Temp, long double theta)
 		{
 			x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x2 = (b+a+Disp[i]*(b-a))/2.;
-	
+
 			F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
 			F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
 			F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
@@ -839,7 +839,7 @@ Elements<Around> k_Int_old(long double Par[], int Temp, long double theta)
 			{
 				x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 				x2 = (b+a+Disp[i]*(b-a))/2.;
-	
+
 				F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
 				F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
 				F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
@@ -859,7 +859,7 @@ Elements<Around> k_Int_old(long double Par[], int Temp, long double theta)
 		{
 			x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x2 = (b+a+Disp[i]*(b-a))/2.;
-	
+
 			F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
 			F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
 			F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
@@ -880,7 +880,7 @@ Elements<Around> k_Int_old(long double Par[], int Temp, long double theta)
 			{
 				x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 				x2 = (b+a+Disp[i]*(b-a))/2.;
-	
+
 				F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
 				F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
 				F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
@@ -900,7 +900,7 @@ Elements<Around> k_Int_old(long double Par[], int Temp, long double theta)
 		{
 			x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
 			x2 = (b+a+Disp[i]*(b-a))/2.;
-	
+
 			F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
 			F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
 			F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1

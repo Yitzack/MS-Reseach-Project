@@ -49,14 +49,14 @@ int main(int argc, char* argv[])
 
 	bool Restart = Restart_Check(File, argv[4], argv[5], argv[6], argv[9], argv[10]);	//True if scrapping the file contents and restarting, only if all args are already in file header
 
-	ofstream TPlot;
+	/*ofstream TPlot;
 	if(Restart)	//If starting from the beginning, overwrite
 	{
 		TPlot.open(File);
 		TPlot << argv[4] << " " << argv[5] << " " << argv[6] << " " << argv[9] << " " << argv[10] << endl;
 	}
 	else	//If not starting from the beginning, append
-		TPlot.open(File, ios::app);
+		TPlot.open(File, ios::app);*/
 
 	int i,j,l;					//Counters
 	int Start, Finish;
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 	long double Par[5];					//Parameters to be used in calculation {Coupling constant, potential cutoff, quark mass, P, s}
 	Elements<Around> holder;					//Calculated value before distribution to Table
 
-	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
+	cout << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = Start; i <= Finish; i++)
 	{
 		for(j = iProcess; j < 576; j+=Total)	//Does the subset of j that has been assigned to this process
@@ -125,9 +125,9 @@ int main(int argc, char* argv[])
 			catch(...)
 			{return(0);}
 			auto End_Time = chrono::system_clock::now();
-			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
+			cout << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
 		}
-		TPlot << endl;
+		//TPlot << endl;
 	}
 
 	return(0);
