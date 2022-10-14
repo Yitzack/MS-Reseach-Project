@@ -401,7 +401,7 @@ complex<long double> G12Reverse(long double M, long double s, long double P, lon
 {
 	long double q[2] = {Energy(0, P/2., k, theta), Energy(0, P/2., -k, theta)};
 	long double omega[2] = {sqrt(s+pow(P,2))-Energy(M, P/2., -k, theta), sqrt(s+pow(P,2))-Energy(M, P/2., k, theta)};
-	long double fermi[2] = {Fermi(omega[0], Temp), Fermi(omega[1], Temp)};
+	long double fermi[2] = {Fermi(Energy(M, P/2., k, theta), Temp), Fermi(Energy(M, P/2., -k, theta), Temp)};
 	long double ImSelf[2];
 	long double ReSelf[2];
 	long double Vacuum_Width = 0;
@@ -414,14 +414,14 @@ complex<long double> G12Reverse(long double M, long double s, long double P, lon
 	if(s >= 0)
 		Vacuum_Width = GAMMA*((125.+25.*sqrt(s)+(25.*sqrt(s)-125.)*tanh(10.-4.*s))/(-201.+49.*tanh(6.30336)));
 
-	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width))));
+	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))*(1.-fermi[0]-fermi[1])/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width))));
 }
 
 long double ImG12Reverse(long double M, long double s, long double P, long double k, long double theta, int Temp)
 {
 	long double q[2] = {Energy(0, P/2., k, theta), Energy(0, P/2., -k, theta)};
 	long double omega[2] = {sqrt(s+pow(P,2))-Energy(M, P/2., -k, theta), sqrt(s+pow(P,2))-Energy(M, P/2., k, theta)};
-	long double fermi[2] = {Fermi(omega[0], Temp), Fermi(omega[1], Temp)};
+	long double fermi[2] = {Fermi(Energy(M, P/2., k, theta), Temp), Fermi(Energy(M, P/2., -k, theta), Temp)};
 	long double ImSelf[2];
 	long double ReSelf[2];
 	long double Vacuum_Width = 0;
@@ -434,7 +434,7 @@ long double ImG12Reverse(long double M, long double s, long double P, long doubl
 	if(s >= 0)
 		Vacuum_Width = GAMMA*((125.+25.*sqrt(s)+(25.*sqrt(s)-125.)*tanh(10.-4.*s))/(-201.+49.*tanh(6.30336)));
 //cerr << s << " " << P << " " << k << " " << theta << " " << ReSelf[0] << " " << ReSelf[1] << " " << ImSelf[0] << " " << ImSelf[1] << " " << Vacuum_Width << " " << (-2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).imag() << endl;
-	return(-2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).imag();
+	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))*(1.-fermi[0]-fermi[1])/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).imag();
 }
 
 Elements<long double> Integrand(long double Par[], long double k, long double theta, int Temp)
