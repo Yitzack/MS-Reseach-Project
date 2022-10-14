@@ -57,7 +57,6 @@ long double Interacting_Linear_Trace(long double[]);							//Linear (linear in s
 long double Interacting_Quad_Trace(long double[], long double, long double);				//Quadratic contribution to the interacting trace
 long double Imk0_Integrand(long double[], long double, long double, long double, int);		//Integrand of the k0 integral for positive energy
 
-
 //Merge Sort. There are a number of semi-sorted lists that need sorting. This will probably beat quick sort under similar conditions.
 void mergeSort(long double List[], int a, int b)
 {
