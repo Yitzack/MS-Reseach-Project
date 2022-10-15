@@ -97,7 +97,7 @@ void mergeSort(long double List[], int a, int b)
 }
 
 #ifndef GAMMA	//use option -D GAMMA=<number> to alter single particle vacuum width, default value is 15MeV
-#define GAMMA -.015	//Width of single quark propagator
+#define GAMMA -.2386913639177066	//Width of single quark propagator
 #endif
 
 Elements<Around> theta_Int(long double Par[], int Temp)
@@ -503,7 +503,7 @@ complex<long double> G12Reverse(long double M, long double s, long double P, lon
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.+Energy(M, P/2., k, theta);
 
 	if(s >= 0)
-		Vacuum_Width = GAMMA*((125.+25.*sqrt(s)+(25.*sqrt(s)-125.)*tanh(10.-4.*s))/(-201.+49.*tanh(6.30336)));
+		Vacuum_Width = -GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width))));
 }
@@ -523,7 +523,7 @@ long double ReG12Reverse(long double M, long double s, long double P, long doubl
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
 
 	if(s >= 0)
-		Vacuum_Width = GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
+		Vacuum_Width = -GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).real();
 }
@@ -543,7 +543,7 @@ long double ImG12Reverse(long double M, long double s, long double P, long doubl
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
 
 	if(s >= 0)
-		Vacuum_Width = GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
+		Vacuum_Width = -GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).imag();
 }
