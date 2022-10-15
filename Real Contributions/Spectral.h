@@ -5,18 +5,12 @@
 #include<complex>
 #include<queue>
 #include"Elements.h"
-#include"Region.h"
 using namespace std;
 
 //Integrals that define results
-Elements<Around> Int(long double[], int);				//Theta/k 2D integral
-void Eval_Integral(long double[], Region&, int);
-long double* k_Int(long double[], int, long double, int&);		//Find the stops in k for the 2D integral
-
 Elements<Around> theta_Int(long double[], int);			//Theta integral
 Elements<Around> theta_Int(long double[], int, long double, long double, int);
-Elements<Around> k_Int_old(long double[], int, long double);
-Elements<Around> k_Int_new(long double[], int, long double);
+Elements<Around> k_Int(long double[], int, long double);
 Elements<Around> k_Int(long double[], int, long double, long double, long double, int, int);
 Around Dispersion(long double[], int, long double, long double, long double);	//Dispersion relation for turning ImG_12 into ReG_12
 Around Dispersion(long double[], int, long double, long double, long double, long double, long double, Around, int, int);	//Dispersion relation for turning ImG_12 into ReG_12
@@ -116,439 +110,6 @@ void mergeSort(long double List[], int a, int b)
 #define GAMMA -.2386913639177066	//Width of single quark propagator
 #endif
 
-Elements<Around> Int(long double Par[], int Temp)
-{
-	//if(Par[4] > 1 && Par[4] < pow(2.*Par[2],2))	//This 2-D adaptive algorithm is better at s between 0 and 1 and s above threashold. For s between 1 and threashold, theta_Int is the better algorithm
-#if METHOD==2 || METHOD==1
-		return(theta_Int(Par, Temp));
-#else
-	long double Boundary_theta[] = {1./17., 0.3, 0.08};	//Extra boundary values
-	long double x1;
-	long double a, b, c, d;				//Boundaries
-	Elements<long double> Total = Elements<long double>(0, 0, 0, 0);
-	Elements<long double> Error = Elements<long double>(0, 0, 0, 0);
-	Elements<Around> Answer(0, 0, 0, 0);
-	int i, j;						//Counters
-
-	if(Par[4] > 0 && Par[3] > sqrt(Par[4]/2.)) //Where the maximum of the theta integral ought to land. It might only be correct for BbS reduction, but is close enough for all other cases. Only valid for s>0 and P>sqrt(s/2)
-		x1 = asin(sqrt(Par[4]/2.)/Par[3]);
-	else
-		x1 = M_PI/10.;	//If it isn't valid, value is needed anyways to split up the integral
-
-	//Don't get too close to the pole or details might get lost
-	if(x1>M_PI/10.)
-		x1 = M_PI/10.;
-
-	//List of boundaries between intial Regions
-	long double Range_theta[] = {x1*Boundary_theta[0], x1*Boundary_theta[1], x1, x1*(2.-Boundary_theta[1]), x1*(2.-Boundary_theta[1])*(1.-Boundary_theta[2])+M_PI/2.*Boundary_theta[2], M_PI/2., asin(sqrt(-Par[4])/Par[3]), 0, 0};
-	long double* Range_k;
-	int Range_k_Elements;	//counter to get values out of Range_k and into k_Stops
-	priority_queue<long double, vector<long double>, greater<long double>> k_Stops;	//List of all k_Stops with the smallest listed first
-	queue<Region> Initial_Regions;		//List of intial regions
-	priority_queue<Region> Evaluated_Regions;	//List of regions that have been evaluated with the one with the most error listed first
-	queue<Region> Indivisible_Regions;		//List of regions that can no longer be divided because they are a certain number of steps deep into the recursion
-	Region Consideration[5];			//Array of regions under consideration
-
-	//Some kind of intersection, probably between the simultanous on-shell and potential peak, don't rightly remember
-	Range_theta[7] = sqrt(4.*pow(Par[3], 4)+8.*pow(Par[3], 2)*Par[4]+4.*pow(Par[4], 2)-pow(Par[1], 4))/pow(256.*pow(Par[3], 4)+512.*pow(Par[3], 2)*Par[4]+256.*pow(Par[4], 2), (long double).25);
-	Range_theta[7] = acos((pow(Range_theta[7], 2)+pow(Par[2], 2)-Par[4]-(long double).75*pow(Par[3], 2))/(Range_theta[7]*Par[3]));
-	Range_theta[8] = sqrt(4.*pow(Par[3], 4)+8.*pow(Par[3], 2)*Par[4]+4.*pow(Par[4], 2)-pow(Par[1], 4))/pow(256.*pow(Par[3], 4)+512.*pow(Par[3], 2)*Par[4]+256.*pow(Par[4], 2), (long double).25);
-	Range_theta[8] = acos((pow(Range_theta[8], 2)+pow(Par[2], 2)-Par[4]-(long double).75*pow(Par[3], 2))/(-Range_theta[8]*Par[3]));
-
-	//Bad data trap for NaN and negative boundaries. These are only ones that can NaN or return negative numbers
-	if(isnan(Range_theta[6]) || Range_theta[6] < 0) Range_theta[6] = M_PI;
-	if(isnan(Range_theta[7])) Range_theta[7] = M_PI;
-	if(isnan(Range_theta[8])) Range_theta[8] = M_PI;
-
-	//Put in asending order
-	mergeSort(Range_theta, 0, 8);
-
-	for(i = 0; i < 9 && Range_theta[i] <= M_PI/2.; i++)	//Count through pre-determined intervals
-	{
-		Range_k = k_Int(Par, Temp, Range_theta[i], Range_k_Elements);	//Get the list of points of interest for each theta
-		for(j = 0; j < Range_k_Elements; j++)					//And move them into k_Stops priority queue
-		{
-			while(Range_k[j] < 0) j++;
-			k_Stops.push(Range_k[j]);
-		}
-		delete Range_k;
-	}
-
-	c = 0;
-	do
-	{
-		a = 0;
-		while((abs(k_Stops.top()/c-1.) < FLT_EPSILON || k_Stops.top()==c) && !k_Stops.empty())	//Work through the list k_Stops
-			k_Stops.pop();
-		if(k_Stops.empty())	//Being sure not to pop and empty queue (that eats RAM and is unhelpful
-			break;
-		d = k_Stops.top();
-		k_Stops.pop();
-		for(i = 1; i < 9 && Range_theta[i] <= M_PI/2.; i++)	//Work through the list of theta
-		{
-			b = Range_theta[i];
-			if(abs(.5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(a),2)))-c) < 1.5 || 
-				abs(.5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(b),2)))-c) < 1.5 || 
-				abs(.5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(a),2)))-d) < 1.5 || 
-				abs(.5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(b),2)))-d) < 1.5)	//If any corner of a region is within 1.5 GeV of the simultaous on-shell, it and all of its descendants shall use the 97th order integral
-			{
-				Initial_Regions.emplace(a, b, c, d, 97);	//Add the region to the list of initial regions
-			}
-			else{Initial_Regions.emplace(a, b, c, d);}	//Default to 37th order for all descendants
-			a = b;
-		}
-		c = d;
-	}while(!k_Stops.empty());
-
-	while(!Initial_Regions.empty())	//Go through the list of regions and give them an intial evaluation before storing them to the evaluated region list
-	{
-		Consideration[0] = Initial_Regions.front();
-		Initial_Regions.pop();
-		Eval_Integral(Par, Consideration[0], Temp);
-		Evaluated_Regions.push(Consideration[0]);
-		Total += Consideration[0].Int;	//Establish a running total for the total and error
-		Error += Consideration[0].Err;
-	}
-
-	while((Error/Total >= 1e-6) && !Evaluated_Regions.empty() && abs(Evaluated_Regions.top().Err/Error)/Evaluated_Regions.top().Area() >= 1e-6)
-	{//While the evaluated regions aren't empty and accuracy goals aren't reached (absolute error on left and all regions relative error condition on right)
-		Consideration[0] = Evaluated_Regions.top();	//Consider the top region
-		Evaluated_Regions.pop();
-		Total -= Consideration[0].Int;	//Running total update
-		Error -= Consideration[0].Err;
-		if((abs(Consideration[0].xErr/Consideration[0].yErr-1.) < 1. || Consideration[0].Err == 0.) && Consideration[0].yDeep < 4 && Consideration[0].xDeep < 4)	//Divide both dimensions, they're roughly equally bad. Consideration[0].Err == Around(0) subdivides unevaluated regions only if they aren't 4 levels deep
-		{
-			Consideration[1] = Region(Consideration[0].x1, (Consideration[0].x1+Consideration[0].x2)/2., Consideration[0].y1, (Consideration[0].y1+Consideration[0].y2)/2., Consideration[0].order);
-			Consideration[2] = Region((Consideration[0].x1+Consideration[0].x2)/2., Consideration[0].x2, Consideration[0].y1, (Consideration[0].y1+Consideration[0].y2)/2., Consideration[0].order);
-			Consideration[3] = Region(Consideration[0].x1, (Consideration[0].x1+Consideration[0].x2)/2., (Consideration[0].y1+Consideration[0].y2)/2., Consideration[0].y2, Consideration[0].order);
-			Consideration[4] = Region((Consideration[0].x1+Consideration[0].x2)/2., Consideration[0].x2, (Consideration[0].y1+Consideration[0].y2)/2., Consideration[0].y2, Consideration[0].order);
-			for(i = 1; i <= 4; i++)
-			{
-				Eval_Integral(Par, Consideration[i], Temp);			//Evaluate the subdivided regions
-				Consideration[i].xDeep = Consideration[0].xDeep+1;	//Increament the depth
-				Consideration[i].yDeep = Consideration[0].yDeep+1;
-				Total += Consideration[i].Int;			//Update the running total
-				Error += Consideration[i].Err;
-				Evaluated_Regions.push(Consideration[i]);		//Push the subdivided regions to the queue
-			}
-		}
-		else if(Consideration[0].xErr-Consideration[0].yErr > 0. && Consideration[0].xDeep < 4)	//x is worse, divide x
-		{
-			Consideration[1] = Region(Consideration[0].x1, (Consideration[0].x1+Consideration[0].x2)/2., Consideration[0].y1, Consideration[0].y2, Consideration[0].order);
-			Consideration[2] = Region((Consideration[0].x1+Consideration[0].x2)/2., Consideration[0].x2, Consideration[0].y1, Consideration[0].y2, Consideration[0].order);
-			for(i = 1; i <= 2; i++)
-			{
-				Eval_Integral(Par, Consideration[i], Temp);
-				Consideration[i].xDeep = Consideration[0].xDeep+1;
-				Total += Consideration[i].Int;
-				Error += Consideration[i].Err;
-				Evaluated_Regions.push(Consideration[i]);
-			}
-		}
-		else if(Consideration[0].xErr-Consideration[0].yErr < 0. && Consideration[0].yDeep < 4)	//x is better, divide y
-		{
-			Consideration[1] = Region(Consideration[0].x1, Consideration[0].x2, Consideration[0].y1, (Consideration[0].y1+Consideration[0].y2)/2., Consideration[0].order);
-			Consideration[2] = Region(Consideration[0].x1, Consideration[0].x2, (Consideration[0].y1+Consideration[0].y2)/2., Consideration[0].y2, Consideration[0].order);
-			for(i = 1; i <= 2; i++)
-			{
-				Eval_Integral(Par, Consideration[i], Temp);
-				Consideration[i].yDeep = Consideration[0].yDeep+1;
-				Total += Consideration[i].Int;
-				Error += Consideration[i].Err;
-				Evaluated_Regions.push(Consideration[i]);
-			}
-		}
-		else	//if none of the above happen, the region is propbably indivisible, store it that queue so it doesn't come back to the top of the priority queue
-		{
-			Indivisible_Regions.push(Consideration[0]);
-			Total += Consideration[0].Int;
-			Error += Consideration[0].Err;
-		}
-	}
-
-	Total = Elements<long double>(0,0,0,0);	//Total's error estimate has probably been messed up by adding and subtracting regions of the running total
-	Error = Elements<long double>(0,0,0,0);
-	while(!Indivisible_Regions.empty())	//Retotal the running total so that the error estimates aren't inflated
-	{
-		Total += Indivisible_Regions.front().Int;
-		Error += Indivisible_Regions.front().Err;
-		Indivisible_Regions.pop();
-	}
-	while(!Evaluated_Regions.empty())
-	{
-		Total += Evaluated_Regions.top().Int;
-		Error += Evaluated_Regions.top().Err;
-		Evaluated_Regions.pop();
-	}
-	Answer = Elements<Around>(Around(Total[0], Error[0]), Around(Total[1], Error[1]), Around(Total[2], Error[2]), Around(Total[3], Error[3]));//Assemble the answer
-	return(Answer/pow(2.*M_PI, 2)*2.);
-#endif
-}
-
-void Eval_Integral(long double Par[], Region& Stuff, int Temp)
-{
-//Displacements, weights, and error weights for 37th order Guass-Kronrod
-	const long double Disp37[] = {0.1252334085114689154724414, 0.2485057483204692762677910, 0.3678314989981801937526915, 0.4813394504781570929359436, 0.5873179542866174472967024, 0.6840598954700558939449291, 0.7699026741943046870368938, 0.8435581241611532447921419, 0.9041172563704748566784659, 0.9505377959431212965490602, 0.9815606342467192506905491, 0.9969339225295954269123502};
-	const long double w37[] = {0.12555689390547433530429613, 0.1245841645361560734373125, 0.12162630352394838324609976, 0.1167120535017568262935807, 0.11002260497764407263590740, 0.10164973227906027771568877, 0.091549468295049210528171940, 0.07992027533360170149339261, 0.067250907050839930304940940, 0.05369701760775625122888916, 0.038915230469299477115089632, 0.02303608403898223259108458, 0.0082577114331683957576939224};
-	const long double errw37[] = {0.12555689390547433530429613, -0.1245628812772467115632500, 0.12162630352394838324609976, -0.11678048303659798246726915, 0.11002260497764407263590740, -0.10151769444400564403337569, 0.091549468295049210528171940, -0.08015805320974452484125992, 0.067250907050839930304940940, -0.05324230838756217973136555, 0.038915230469299477115089632, -0.024139252347529594603531381, 0.0082577114331683957576939224};
-//Displacements, weights, and error weights for 97th order Guass-Kronrod
-	const long double Disp97[] = {0.0483076656877383162348126, 0.0965026968768943658008313, 0.1444719615827964934851864, 0.1921036089831424972716416, 0.2392873622521370745446032, 0.2859124585894597594166071, 0.3318686022821276497799168, 0.3770494211541211054453355, 0.4213512761306353453641194, 0.4646693084819922177561782, 0.5068999089322293900237475, 0.5479463141991524786809395, 0.5877157572407623290407455, 0.6261129377018239978202384, 0.6630442669302152009751152, 0.6984265577952104928847701, 0.7321821187402896803874267, 0.7642282519978037041506601, 0.7944837959679424069630973, 0.8228829501360513216482688, 0.8493676137325699701336930, 0.8738697689453106061296618, 0.8963211557660521239653072, 0.9166772666513643242753457, 0.9349060759377396891709191, 0.9509546848486611853898828, 0.9647622555875064307738119, 0.9763102836146638071976696, 0.9856115115452683354001750, 0.9926280352629719126857912, 0.9972638618494815635449811, 0.9995459021243644786356103};
-	const long double w97[] = {0.048326383986567758375445434, 0.0482701930757773855987121, 0.048100969185457746927846544, 0.04781890873698847221226358, 0.047426061873882382362879950, 0.04692296828170361110348071, 0.046308756738025713240381298, 0.04558582656454707028057546, 0.044758638749766937295199192, 0.04382754403013974904681615, 0.042791115596446746933654925, 0.04165401998564305139829641, 0.040423492370373096672349269, 0.03909942013330661120748213, 0.037679130645613398514895974, 0.03616976947564229986095839, 0.034582122744733034130726383, 0.03291507764390360026329648, 0.031163325561973737171155849, 0.02933695668962066136861561, 0.027452098422210403783147707, 0.02550569548089465281452890, 0.023486659672163324592087913, 0.02140891318482191595577752, 0.019298771430326811294403740, 0.01714980520978425325608583, 0.014936103606086027385096751, 0.01267605480665440285936888, 0.010423987398806818828034251, 0.008172504038531668414343805, 0.0058417370791666933039479766, 0.003426818775772370935574576, 0.0012233608179514718002930372};
-	const long double errw97[] = {0.048326383986567758375445434, -0.0482698954389504149680528, 0.048100969185457746927846544, -0.04781981134228638720681842, 0.047426061873882382362879950, -0.04692143079910095453569952, 0.046308756738025713240381298, -0.04558805213121681443229312, 0.044758638749766937295199192, -0.04382454897426406209595531, 0.042791115596446746933654925, -0.04165790424130370382390266, 0.040423492370373096672349269, -0.03909447565376369526425879, 0.037679130645613398514895974, -0.03617602463320620636444097, 0.034582122744733034130726383, -0.03290714513245824657435359, 0.031163325561973737171155849, -0.02934713678891488577666802, 0.027452098422210403783147707, -0.02549236378148152338163434, 0.023486659672163324592087913, -0.021426984837404764701101129, 0.019298771430326811294403740, -0.017124057703237179846601906, 0.014936103606086027385096751, -0.012716010502607656596383706, 0.010423987398806818828034251, -0.008101890692374002190826757, 0.0058417370791666933039479766, -0.003591791233697725664832488, 0.0012233608179514718002930372};
-
-	long double x1, x2, y1, y2;		//Abscissa
-	long double k011, k012, k021, k022;	//On-shell energy transfer at abscissa
-
-	long double a = Stuff.x1;	//Limits of integration
-	long double b = Stuff.x2;
-	long double c = Stuff.y1;
-	long double d = Stuff.y2;
-
-	Elements<long double>Holder[4];	//4 holder varibles
-
-	Stuff.Int = Elements<long double>(0,0,0,0);	//Intialize integration varibles
-	Stuff.xErr = Elements<long double>(0,0,0,0);
-	Stuff.yErr = Elements<long double>(0,0,0,0);
-	Stuff.Err = Elements<long double>(0,0,0,0);
-
-	if(Stuff.order == 37)
-	{
-		for(int i = 0; i < 12; i++)//for(int l = 0; l < 12; l+=2)// //Count through points away from center
-		{
-			x1 = (b+a-Disp37[i]*(b-a))/2.;
-			x2 = (b+a+Disp37[i]*(b-a))/2.;
-			for(int j = 0; j < 12; j++)
-			{
-				y1 = (d+c-Disp37[j]*(d-c))/2.;
-				y2 = (d+c+Disp37[j]*(d-c))/2.;
-
-				Holder[0] = Integrand(Par, y1, x1, Temp);	//Integrand(Par, k, theta, Temp)
-				Holder[1] = Integrand(Par, y1, x2, Temp);
-				Holder[2] = Integrand(Par, y2, x1, Temp);
-				Holder[3] = Integrand(Par, y2, x2, Temp);
-
-				Stuff.Int += w37[i+1]*w37[j+1]*Holder[0];
-				Stuff.Int += w37[i+1]*w37[j+1]*Holder[1];
-				Stuff.Int += w37[i+1]*w37[j+1]*Holder[2];
-				Stuff.Int += w37[i+1]*w37[j+1]*Holder[3];
-
-				Stuff.xErr += errw37[i+1]*w37[j+1]*Holder[0];
-				Stuff.xErr += errw37[i+1]*w37[j+1]*Holder[1];
-				Stuff.xErr += errw37[i+1]*w37[j+1]*Holder[2];
-				Stuff.xErr += errw37[i+1]*w37[j+1]*Holder[3];
-
-				Stuff.yErr += w37[i+1]*errw37[j+1]*Holder[0];
-				Stuff.yErr += w37[i+1]*errw37[j+1]*Holder[1];
-				Stuff.yErr += w37[i+1]*errw37[j+1]*Holder[2];
-				Stuff.yErr += w37[i+1]*errw37[j+1]*Holder[3];
-
-				Stuff.Err += errw37[i+1]*errw37[j+1]*Holder[0];
-				Stuff.Err += errw37[i+1]*errw37[j+1]*Holder[1];
-				Stuff.Err += errw37[i+1]*errw37[j+1]*Holder[2];
-				Stuff.Err += errw37[i+1]*errw37[j+1]*Holder[3];
-			}
-
-			y1 = (d+c)/2.;
-
-			Holder[0] = Integrand(Par, y1, x1, Temp);
-			Holder[2] = Integrand(Par, y2, x1, Temp);
-
-			Stuff.Int += w37[i+1]*w37[0]*Holder[0];
-			Stuff.Int += w37[i+1]*w37[0]*Holder[2];
-
-			Stuff.xErr += errw37[i+1]*w37[0]*Holder[0];
-			Stuff.xErr += errw37[i+1]*w37[0]*Holder[2];
-
-			Stuff.yErr += w37[i+1]*errw37[0]*Holder[0];
-			Stuff.yErr += w37[i+1]*errw37[0]*Holder[2];
-
-			Stuff.Err += errw37[i+1]*errw37[0]*Holder[0];
-			Stuff.Err += errw37[i+1]*errw37[0]*Holder[2];
-		}
-
-		x1 = (a+b)/2.;
-		for(int j = 0; j < 12; j++)
-		{
-			y1 = (d+c-Disp37[j]*(d-c))/2.;
-			y2 = (d+c+Disp37[j]*(d-c))/2.;
-
-			Holder[0] = Integrand(Par, y1, x1, Temp);
-			Holder[1] = Integrand(Par, y1, x2, Temp);
-
-			Stuff.Int += w37[0]*w37[j+1]*Holder[0];
-			Stuff.Int += w37[0]*w37[j+1]*Holder[1];
-
-			Stuff.xErr += errw37[0]*w37[j+1]*Holder[0];
-			Stuff.xErr += errw37[0]*w37[j+1]*Holder[1];
-
-			Stuff.yErr += w37[0]*errw37[j+1]*Holder[0];
-			Stuff.yErr += w37[0]*errw37[j+1]*Holder[1];
-
-			Stuff.Err += errw37[0]*errw37[j+1]*Holder[0];
-			Stuff.Err += errw37[0]*errw37[j+1]*Holder[1];
-		}
-
-		y1 = (c+d)/2.;
-
-		Holder[0] = Integrand(Par, y1, x1, Temp);
-
-		Stuff.Int += w37[0]*w37[0]*Holder[0];
-		Stuff.xErr += errw37[0]*w37[0]*Holder[0];
-		Stuff.yErr += w37[0]*errw37[0]*Holder[0];
-		Stuff.Err += errw37[0]*errw37[0]*Holder[0];
-	}
-	else if(Stuff.order == 97)
-	{
-		for(int i = 0; i < 32; i++)//for(int l = 0; l < 32; l+=2)// //Count through points away from center
-		{
-			x1 = (b+a-Disp97[i]*(b-a))/2.;
-			x2 = (b+a+Disp97[i]*(b-a))/2.;
-			for(int j = 0; j < 32; j++)
-			{
-				y1 = (d+c-Disp97[j]*(d-c))/2.;
-				y2 = (d+c+Disp97[j]*(d-c))/2.;
-
-				Holder[0] = Integrand(Par, y1, x1, Temp);	//Integrand(Par, k, theta, Temp)
-				Holder[1] = Integrand(Par, y1, x2, Temp);
-				Holder[2] = Integrand(Par, y2, x1, Temp);
-				Holder[3] = Integrand(Par, y2, x2, Temp);
-
-				Stuff.Int += w97[i+1]*w97[j+1]*Holder[0];
-				Stuff.Int += w97[i+1]*w97[j+1]*Holder[1];
-				Stuff.Int += w97[i+1]*w97[j+1]*Holder[2];
-				Stuff.Int += w97[i+1]*w97[j+1]*Holder[3];
-
-				Stuff.xErr += errw97[i+1]*w97[j+1]*Holder[0];
-				Stuff.xErr += errw97[i+1]*w97[j+1]*Holder[1];
-				Stuff.xErr += errw97[i+1]*w97[j+1]*Holder[2];
-				Stuff.xErr += errw97[i+1]*w97[j+1]*Holder[3];
-
-				Stuff.yErr += w97[i+1]*errw97[j+1]*Holder[0];
-				Stuff.yErr += w97[i+1]*errw97[j+1]*Holder[1];
-				Stuff.yErr += w97[i+1]*errw97[j+1]*Holder[2];
-				Stuff.yErr += w97[i+1]*errw97[j+1]*Holder[3];
-
-				Stuff.Err += errw97[i+1]*errw97[j+1]*Holder[0];
-				Stuff.Err += errw97[i+1]*errw97[j+1]*Holder[1];
-				Stuff.Err += errw97[i+1]*errw97[j+1]*Holder[2];
-				Stuff.Err += errw97[i+1]*errw97[j+1]*Holder[3];
-			}
-
-			y1 = (d+c)/2.;
-
-			Holder[0] = Integrand(Par, y1, x1, Temp);	//Integrand(Par, k, theta, Temp)
-			Holder[2] = Integrand(Par, y2, x1, Temp);
-
-			Stuff.Int += w97[i+1]*w97[0]*Holder[0];
-			Stuff.Int += w97[i+1]*w97[0]*Holder[2];
-
-			Stuff.xErr += errw97[i+1]*w97[0]*Holder[0];
-			Stuff.xErr += errw97[i+1]*w97[0]*Holder[2];
-
-			Stuff.yErr += w97[i+1]*errw97[0]*Holder[0];
-			Stuff.yErr += w97[i+1]*errw97[0]*Holder[2];
-
-			Stuff.Err += errw97[i+1]*errw97[0]*Holder[0];
-			Stuff.Err += errw97[i+1]*errw97[0]*Holder[2];
-		}
-
-		x1 = (a+b)/2.;
-		for(int j = 0; j < 32; j++)
-		{
-			y1 = (d+c-Disp97[j]*(d-c))/2.;
-			y2 = (d+c+Disp97[j]*(d-c))/2.;
-
-			Holder[0] = Integrand(Par, y1, x1, Temp);	//Integrand(Par, k, theta, Temp)
-			Holder[1] = Integrand(Par, y1, x2, Temp);
-
-			Stuff.Int += w97[0]*w97[j+1]*Holder[0];
-			Stuff.Int += w97[0]*w97[j+1]*Holder[1];
-
-			Stuff.xErr += errw97[0]*w97[j+1]*Holder[0];
-			Stuff.xErr += errw97[0]*w97[j+1]*Holder[1];
-
-			Stuff.yErr += w97[0]*errw97[j+1]*Holder[0];
-			Stuff.yErr += w97[0]*errw97[j+1]*Holder[1];
-
-			Stuff.Err += errw97[0]*errw97[j+1]*Holder[0];
-			Stuff.Err += errw97[0]*errw97[j+1]*Holder[1];
-		}
-
-		y1 = (c+d)/2.;
-
-		Holder[0] = Integrand(Par, y1, x1, Temp);	//Integrand(Par, k, theta, Temp)
-
-		Stuff.Int += w97[0]*w97[0]*Holder[0];
-		Stuff.xErr += errw97[0]*w97[0]*Holder[0];
-		Stuff.yErr += w97[0]*errw97[0]*Holder[0];
-		Stuff.Err += errw97[0]*errw97[0]*Holder[0];
-	}
-
-	Stuff.Int = Stuff.Int*(b-a)*(d-c)/4.;		//final weights for size and abs() for error estimates
-	Stuff.xErr = abs(Stuff.xErr)*(b-a)*(d-c)/4.;
-	Stuff.yErr = abs(Stuff.yErr)*(b-a)*(d-c)/4.;
-	Stuff.Err = abs(Stuff.Err)*(b-a)*(d-c)/4.;
-
-	return;
-}
-
-long double* k_Int(long double Par[], int Temp, long double theta, int &Stop_Num)
-{
-	long double a, b;	//Sub-interval limits of integration
-
-	Elements<Around> Answer(0, 0, 0, 0);	//Answer to be returned
-	Elements<Around> Partial;		//Answer for sub-interval for determining completeness
-
-	int Poles;		//Number of poles
-	long double zero[26];	//The real part of the signular pole
-	long double gamma[26];	//The distance to the singular, maybe
-	long double Max;
-	int i, j, l;		//Counters, would use 'k', but 'k' is occupied by relative 3-momenta in other parts of program
-	int Intervals;		//Number of intervals recorded in Stops
-
-	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);	//Find the location of the complex poles
-	long double* Stops = new long double[Poles+22];				//List of pre-determined Regions
-
-	for(l = 0; l < Poles; l++)	//Counting through the poles
-	{
-		Stops[l] = zero[l];
-	}
-
-	//More intervals from features not already considered
-	Stops[l] = .5*sqrt(Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));	//k for which quarks are simultanous light-like, highest k needed for vacuum
-	if(isnan(Stops[l]))	//If meson is space-like, keep absolute value of it anyways even though it probably does nothing
-		Stops[l] = .5*sqrt(-Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));
-	Stops[l+1] = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]-pow(2.*Par[2], 2)+pow(Par[3]*cos(theta), 2)));	//On-shells leaving the positive energy range
-	Stops[l+2] = .5*abs(Par[3]*cos(theta)-sqrt(Par[4]-pow(2.*Par[2], 2)+pow(Par[3]*cos(theta), 2)));
-	Stops[l+3] = sqrt(4.*pow(Par[3], 4)+8.*pow(Par[3], 2)*Par[4]+4.*pow(Par[4], 2)-pow(Par[1], 4))/pow(256.*pow(Par[3], 4)+512.*pow(Par[3], 2)*Par[4]+256.*pow(Par[4], 2), (long double).25);	//Potiential leaving the positive energy range
-	Stops[l+4] = abs((pow(Par[2], 2)*Par[3]*cos(theta)+sqrt((Par[4]+pow(Par[3], 2))*(pow(Par[2], 4)+(Par[4]+pow(Par[3]*sin(theta), 2))*(Par[4]-2.*pow(Par[2], 2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta), 2))));	//On-shell leaving the time-like range
-	Stops[l+5] = abs((pow(Par[2], 2)*Par[3]*cos(theta)-sqrt((Par[4]+pow(Par[3], 2))*(pow(Par[2], 4)+(Par[4]+pow(Par[3]*sin(theta), 2))*(Par[4]-2.*pow(Par[2], 2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta), 2))));
-	Stops[l+6] = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]+pow(Par[3]*cos(theta), 2)));	//Photon point leaving positive energy range. Not sure what photon point
-	Stops[l+7] = .5*abs(Par[3]*cos(theta)-sqrt(Par[4]+pow(Par[3]*cos(theta), 2)));
-	Stops[l+8] = .5*abs(Par[3]*cos(theta)+sqrt(3.*pow(Par[3], 2)+4.*Par[4]+pow(Par[3]*cos(theta), 2)));
-	Stops[l+9] = .5*abs(Par[3]*cos(theta)-sqrt(3.*pow(Par[3], 2)+4.*Par[4]+pow(Par[3]*cos(theta), 2)));
-	Stops[l+10] = .5*sqrt((Par[4]+pow(Par[3], 2))*(Par[4]-pow(2.*Par[2], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)))+5.*GAMMA;
-
-	for(i = 1; i <= 10; i++)
-	{
-		Stops[i+l+10] = 10*i;
-	}
-
-	for(i = 0; i < l+21; i++)	//Removes stops that are NaN or bigger than necessary
-	{
-		if(isnan(Stops[i]))
-			Stops[i] = -1;
-		else if(isinf(Stops[i]) || Stops[i] > 100)
-			Stops[i] = 100;
-	}
-
-	mergeSort(Stops, 0, l+20);	//Sort the list of sub-intervals
-	Stops[l+21] = 100;
-	Stop_Num = l+22;
-
-	return(Stops);
-}
-
 Elements<Around> theta_Int(long double Par[], int Temp)
 {
 	//if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
@@ -601,11 +162,11 @@ Elements<Around> theta_Int(long double Par[], int Temp)
 
 Elements<Around> theta_Int(long double Par[], int Temp, long double a, long double b, int deep)
 {
-/*9th order Gauss-Legendre integration/16th order Gauss-Kronrod weight
+//9th order Gauss-Legendre integration/16th order Gauss-Kronrod weight
 	long double Disp9[] = {0.2796304131617831934134665, sqrt(5.-2.*sqrt(10./7.))/3., 0.7541667265708492204408172, sqrt(5.+2.*sqrt(10./7.))/3., 0.9840853600948424644961729};	//Displacement from center
 	long double w9[] = {128./225., 0., (322.+13.*sqrt(70.))/900., 0., (322.-13.*sqrt(70.))/900., 0.};	//9th order Gauss-Legendre weights
 	long double w16[]= {0.2829874178574912132042556, 0.27284980191255892234099326, 0.2410403392286475866999426, 0.18680079655649265746780003, 0.11523331662247339402462685, 0.042582036751081832864509451}; //16th order Gauss-Kronrod weights*/
-//1st/2nd order Newton-Coates integration
+/*1st/2nd order Newton-Coates integration
 	long double Disp9[] = {1};	//Displacement from center
 	long double w9[] = {0,1.};	//1st order Newton-Coates weights
 	long double w16[]= {4./3.,1./3.}; //2nd order Newton-Coates weights*/
@@ -629,40 +190,23 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 	F[0].null();	//Zero out F for a new round
 	F[1].null();	//Zero out F for a new round
 
-	//for(j = 0; j < 5; j++)	//Count through points away from center
+	for(j = 0; j < 5; j++)	//Count through points away from center
 	{
 		x1 = (b+a-Disp[j]*(b-a))/2.;
 		x2 = (b+a+Disp[j]*(b-a))/2.;
 
-#if METHOD==1
-		Holder = k_Int_old(Par, Temp, x1);
-#elif METHOD==2
-		Holder = k_Int_new(Par, Temp, x1);
-#endif
+		Holder = k_Int(Par, Temp, x1);
 		F[0] += Holder*w9[j+1];
 		F[1] += Holder*w16[j+1];
-//cerr << Par[3] << "," << Par[4] << "," << x1 << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
 
-#if METHOD==1
-		Holder = k_Int_old(Par, Temp, x2);
-#elif METHOD==2
-		Holder = k_Int_new(Par, Temp, x2);
-#endif
+		Holder = k_Int(Par, Temp, x2);
 
 		F[0] += Holder*w9[j+1];
 		F[1] += Holder*w16[j+1];
-//cerr << Par[3] << "," << Par[4] << "," << x2 << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
 	}
-#if METHOD==1
-		Holder = k_Int_old(Par, Temp, (a+b)/2.);
-#elif METHOD==2
-		Holder = k_Int_new(Par, Temp, (a+b)/2.);
-#endif
+	Holder = k_Int(Par, Temp, (a+b)/2.);
 	F[0] += Holder*w9[0];
 	F[1] += Holder*w16[0];
-//cerr << Par[3] << "," << Par[4] << "," << (a+b)/2. << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
-
-	//Answer = Elements<Around>(Around(F[1][0].Value(),abs(F[0][0].Value()-F[1][0].Value())),Around(F[1][1].Value(),abs(F[0][1].Value()-F[1][1].Value())),Around(F[1][2].Value(),abs(F[0][2].Value()-F[1][2].Value())),Around(F[1][3].Value(),abs(F[0][3].Value()-F[1][3].Value())),Around(F[1][4].Value(),abs(F[0][4].Value()-F[1][4].Value())),Around(F[1][5].Value(),abs(F[0][5].Value()-F[1][5].Value())))*(b-a)/2.;	//Add the subinterval to total of the integral
 
 	if(abs(F[0]-F[1])*2./abs(F[0]+F[1]) > 1 && abs(b-a) > FLT_EPSILON)
 		Answer = theta_Int(Par, Temp, a, (a+b)/2., deep+1) + theta_Int(Par, Temp, (a+b)/2., b, deep+1);
@@ -680,33 +224,19 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 			x1 = (b+a-Disp[j]*(b-a))/2.;
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-#if METHOD==1
-			Holder = k_Int_old(Par, Temp, x1);
-#elif METHOD==2
-			Holder = k_Int_new(Par, Temp, x1);
-#endif
+			Holder = k_Int(Par, Temp, x1);
 			F[0] += Holder*wl[j+1];
 			F[1] += Holder*wh[j+1];
-//cerr << Par[3] << "," << Par[4] << "," << x1 << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
 
-#if METHOD==1
-			Holder = k_Int_old(Par, Temp, x2);
-#elif METHOD==2
-			Holder = k_Int_new(Par, Temp, x2);
-#endif
+			Holder = k_Int(Par, Temp, x2);
 			F[0] += Holder*wl[j+1];
 			F[1] += Holder*wh[j+1];
-//cerr << Par[3] << "," << Par[4] << "," << x2 << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
 		}
-#if METHOD==1
-		Holder = k_Int_old(Par, Temp, (a+b)/2.);
-#elif METHOD==2
-		Holder = k_Int_new(Par, Temp, (a+b)/2.);
-#endif
+		Holder = k_Int(Par, Temp, (a+b)/2.);
 		F[0] += Holder*wl[0];
 		F[1] += Holder*wh[0];
-//cerr << Par[3] << "," << Par[4] << "," << (a+b)/2. << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
-	Answer = Elements<Around>(Around(F[1][0],abs(F[0][0]-F[1][0])),Around(F[1][1],abs(F[0][1]-F[1][1])),Around(F[1][2],abs(F[0][2]-F[1][2])),Around(F[1][3],abs(F[0][3]-F[1][3])))*(b-a)/2.;	//Add the subinterval to total of the integral
+
+		Answer = Elements<Around>(Around(F[1][0],abs(F[0][0]-F[1][0])),Around(F[1][1],abs(F[0][1]-F[1][1])),Around(F[1][2],abs(F[0][2]-F[1][2])),Around(F[1][3],abs(F[0][3]-F[1][3])))*(b-a)/2.;	//Add the subinterval to total of the integral
 	}
 
 	return(Answer);
@@ -941,7 +471,7 @@ Elements<Around> k_Int_old(long double Par[], int Temp, long double theta)
 	return(Answer);	//return the best estimate of the integral on the interval*/
 }
 
-Elements<Around> k_Int_new(long double Par[], int Temp, long double theta)
+Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 {
 	long double a, b;	//Sub-interval limits of integration
 

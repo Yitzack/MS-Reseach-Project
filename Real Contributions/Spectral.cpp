@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 
 			auto Start_Time = chrono::system_clock::now();
 			try{
-			holder = Int(Par, Temp);
+			holder = theta_Int(Par, Temp);
 			}
 			catch(...)
 			{return(0);}
