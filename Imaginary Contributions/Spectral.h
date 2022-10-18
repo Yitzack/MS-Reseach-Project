@@ -97,7 +97,7 @@ void mergeSort(long double List[], int a, int b)
 }
 
 #ifndef GAMMA	//use option -D GAMMA=<number> to alter single particle vacuum width, default value is 15MeV
-#define GAMMA -0.1193456819588533	//Width of single quark propagator
+#define GAMMA -0.0984979859583147	//Width of single quark propagator
 #endif
 
 Elements<Around> theta_Int(long double Par[], int Temp)
