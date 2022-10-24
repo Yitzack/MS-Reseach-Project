@@ -306,7 +306,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 	j = 0;
 	while(Stops[j] <= 0)	//Skip past negative sub-intervals and form NaN
 		j++;
-	for(; j < l+21; j++)
+	for(; j < l+22; j++)
 	{
 		if((i > 0 && Stops[i-1] != Stops[j]) || i == 0)	//Removes duplicates, faster to remove duplicates than to evaluate zero width interval
 		{
@@ -343,12 +343,12 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 			b += 3;
 
 		if(b-a < 1)	//use a higher order when the interval is large
-			Partial = k_Int(Par, Temp, theta, a, b, 37, 0);
+			Partial = k_Int(Par, Temp, theta, a, b, 97, 0);
 		else
 			Partial = k_Int(Par, Temp, theta, a, b, 97, 0);
 
 		Answer += Partial;	//Add the subinterval to total of the integral
-	}while(!(Partial[0] == 0) && (i < Intervals || abs(Partial/Answer)/(b-a) >= .0001) && (a <= Max || a <= 20.*sqrt(Par[4]+pow(Par[3], 2)))); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
+	}while((i < Intervals) || (a <= Max)); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }
