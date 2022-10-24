@@ -96,8 +96,11 @@ void mergeSort(long double List[], int a, int b)
 	return;
 }
 
+#ifndef BBS_GAMMA	//use option -D BBS_GAMMA=<number> to alter BbS vacuum width, default value 2.03 MeV short of pi*32MeV
+#define BBS_GAMMA -0.0984979859583147	//Width of single quark propagator
+#endif
 #ifndef GAMMA	//use option -D GAMMA=<number> to alter single particle vacuum width, default value is 15MeV
-#define GAMMA -0.0984979859583147	//Width of single quark propagator
+#define GAMMA -0.015	//Width of single quark propagator
 #endif
 
 Elements<Around> theta_Int(long double Par[], int Temp)
@@ -248,221 +251,104 @@ Elements<long double> Integrand(long double Par[], long double k, long double th
 
 Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 {
-//63rd order Gauss-Legendre/97th order Gauss-Kronrod integration
-	long double Disp[] = {0.0483076656877383162348126, 0.0965026968768943658008313, 0.1444719615827964934851864, 0.1921036089831424972716416, 0.2392873622521370745446032, 0.2859124585894597594166071, 0.3318686022821276497799168, 0.3770494211541211054453355, 0.4213512761306353453641194, 0.4646693084819922177561782, 0.5068999089322293900237475, 0.5479463141991524786809395, 0.5877157572407623290407455, 0.6261129377018239978202384, 0.6630442669302152009751152, 0.6984265577952104928847701, 0.7321821187402896803874267, 0.7642282519978037041506601, 0.7944837959679424069630973, 0.8228829501360513216482688, 0.8493676137325699701336930, 0.8738697689453106061296618, 0.8963211557660521239653072, 0.9166772666513643242753457, 0.9349060759377396891709191, 0.9509546848486611853898828, 0.9647622555875064307738119, 0.9763102836146638071976696, 0.9856115115452683354001750, 0.9926280352629719126857912, 0.9972638618494815635449811, 0.9995459021243644786356103};	//Displacement from center
-	long double w63[] = {0, 0.0965400885147278005667648, 0, 0.0956387200792748594190820, 0, 0.09384439908080456563918024, 0, 0.09117387869576388471286858, 0, 0.08765209300440381114277146, 0, 0.08331192422694675522219907, 0, 0.07819389578707030647174092, 0, 0.07234579410884850622539936, 0, 0.06582222277636184683765006, 0, 0.05868409347853554714528364, 0, 0.05099805926237617619616324, 0, 0.04283589802222668065687865, 0, 0.03427386291302143310268773, 0, 0.02539206530926205945575259, 0, 0.016274394730905670605170562, 0, 0.007018610009470096600407064, 0};	//63rd order Gauss-Legendre weight
-	long double w97[] = {0.048326383986567758375445434, 0.0482701930757773855987121, 0.048100969185457746927846544, 0.04781890873698847221226358, 0.047426061873882382362879950, 0.04692296828170361110348071, 0.046308756738025713240381298, 0.04558582656454707028057546, 0.044758638749766937295199192, 0.04382754403013974904681615, 0.042791115596446746933654925, 0.04165401998564305139829641, 0.040423492370373096672349269, 0.03909942013330661120748213, 0.037679130645613398514895974, 0.03616976947564229986095839, 0.034582122744733034130726383, 0.03291507764390360026329648, 0.031163325561973737171155849, 0.02933695668962066136861561, 0.027452098422210403783147707, 0.02550569548089465281452890, 0.023486659672163324592087913, 0.02140891318482191595577752, 0.019298771430326811294403740, 0.01714980520978425325608583, 0.014936103606086027385096751, 0.01267605480665440285936888, 0.010423987398806818828034251, 0.008172504038531668414343805, 0.0058417370791666933039479766, 0.003426818775772370935574576, 0.0012233608179514718002930372};	//97th order Gauss-Kronrod weight
-	long double x1;	//These are the two other points required for 5th order Gaussian quadrature for this interval
-	long double x2;	//x1 is extended for use in Gauss-Laguerre integration
-	Elements<long double> F[2];
-	Elements<long double> Partial[2] = {Elements<long double>(0,0,0,0,0,0),Elements<long double>(0,0,0,0,0,0)};
-	Elements<Around> Answer;
-	int i, j, start = 0;
-	long double a, b;
+	long double a, b;	//Sub-interval limits of integration
 
-	a = b = 0;
+	Elements<Around> Answer(0,0,0,0,0,0);	//Answer to be returned
+	Elements<Around> Partial;		//Answer for sub-interval for determining completeness
 
-	if(Par[4] > pow(2.*Par[2],2))	//If above threshold, execute this method designed for divisions by zero closely approching the real number line
+	int Poles;		//Number of poles
+	long double zero[26];	//The real part of the signular pole
+	long double gamma[26];	//The distance to the singular, maybe
+	long double Max;
+	int i, j, l;		//Counters, would use 'k', but 'k' is occupied by relative 3-momenta in other parts of program
+	int Intervals;		//Number of intervals recorded in Stops
+
+	Characterize_k_Int(Par, Temp, theta, zero, gamma, Poles);	//Find the location of the complex poles
+	long double Stops[Poles+22];				//List of pre-determined subintervals
+
+	for(l = 0; l < Poles; l++)	//Counting through the poles
 	{
-		long double k;	//Values locating the various values of k where the division by zero gets closest to the real number line
-		long double distance[] = {1e-1, 7.5e-2, 5e-2, 2.5e-2, 1e-2, 7.5e-3, 5e-3, 2.5e-3, 1e-3, 5e-4, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 1e-16, 1e-17};	//magic numbers that indicates the distance from the near division by zero.
-		k = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(Par[3]*sin(theta),2)));
-		while(2.*distance[start] > k && start < 24)	//Finds the starting value that won't over run the 0 lower boundary
-		{
-			start++;
-		}
-
-		a = b = 0;	//0GeV to near divsion by zero line
-
-		while(b+1 < k-2.*distance[start])	//Do the interval 25GeV at a time until k-25 is reached, k may be out a fair distance
-		{
-			b += 10;
-			F[0].null();
-			F[1].null();	//Start integration at 0
-			for(i = 0; i < 32; i++)
-			{
-				x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-				x2 = (b+a+Disp[i]*(b-a))/2.;
-
-				F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
-				F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
-				F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
-				F[1] += Integrand(Par, x2, theta, Temp)*w97[i+1];	//Evaluate function at x2
-			}
-			F[0] += Integrand(Par, (a+b)/2., theta, Temp)*w63[0];	//Evaluate the function at the center
-			F[1] += Integrand(Par, (a+b)/2., theta, Temp)*w97[0];	//Evaluate the function at the center
-			Partial[0] += F[0]*(b-a)/(2.);
-			Partial[1] += F[1]*(b-a)/(2.);
-			a = b;
-		}
-
-		b = k-2.*distance[start];
-		F[0].null();
-		F[1].null();	//Start integration at 0
-		for(i = 0; i < 32; i++)
-		{
-			x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x2 = (b+a+Disp[i]*(b-a))/2.;
-
-			F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
-			F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
-			F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
-			F[1] += Integrand(Par, x2, theta, Temp)*w97[i+1];	//Evaluate function at x2
-		}
-		F[0] += Integrand(Par, (a+b)/2., theta, Temp)*w63[0];	//Evaluate the function at the center
-		F[1] += Integrand(Par, (a+b)/2., theta, Temp)*w97[0];	//Evaluate the function at the center
-		Partial[0] += F[0]*(b-a)/(2.);
-		Partial[1] += F[1]*(b-a)/(2.);
-
-		for(j = start; j < 24; j++)
-		{
-			a = b;	//previous location to set distance from division by zero
-			b = k-distance[j];
-			F[0].null();
-			F[1].null();	//Start integration at 0
-			for(i = 0; i < 32; i++)
-			{
-				x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-				x2 = (b+a+Disp[i]*(b-a))/2.;
-
-				F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
-				F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
-				F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
-				F[1] += Integrand(Par, x2, theta, Temp)*w97[i+1];	//Evaluate function at x2
-			}
-			F[0] += Integrand(Par, (a+b)/2., theta, Temp)*w63[0];	//Evaluate the function at the center
-			F[1] += Integrand(Par, (a+b)/2., theta, Temp)*w97[0];	//Evaluate the function at the center
-			Partial[0] += F[0]*(b-a)/(2.);
-			Partial[1] += F[1]*(b-a)/(2.);
-		}
-
-		a = b;	//last near divsion by zero to division by zero
-		b = k;
-		F[0].null();
-		F[1].null();	//Start integration at 0
-		for(i = 0; i < 32; i++)
-		{
-			x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x2 = (b+a+Disp[i]*(b-a))/2.;
-
-			F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
-			F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
-			F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
-			F[1] += Integrand(Par, x2, theta, Temp)*w97[i+1];	//Evaluate function at x2
-		}
-		F[0] += Integrand(Par, (a+b)/2., theta, Temp)*w63[0];	//Evaluate the function at the center
-		F[1] += Integrand(Par, (a+b)/2., theta, Temp)*w97[0];	//Evaluate the function at the center
-		Partial[0] += F[0]*(b-a)/(2.);
-		Partial[1] += F[1]*(b-a)/(2.);
-
-		for(j = 23; j >= 0; j--)
-		{
-			a = b;	//last value to set distance from division by zero
-			b = k+distance[j];
-			F[0].null();
-			F[1].null();	//Start integration at 0
-			for(i = 0; i < 32; i++)
-			{
-				x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-				x2 = (b+a+Disp[i]*(b-a))/2.;
-
-				F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
-				F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
-				F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
-				F[1] += Integrand(Par, x2, theta, Temp)*w97[i+1];	//Evaluate function at x2
-			}
-			F[0] += Integrand(Par, (a+b)/2., theta, Temp)*w63[0];	//Evaluate the function at the center
-			F[1] += Integrand(Par, (a+b)/2., theta, Temp)*w97[0];	//Evaluate the function at the center
-			Partial[0] += F[0]*(b-a)/(2.);
-			Partial[1] += F[1]*(b-a)/(2.);
-		}
-
-		a = b;	//near divsion by zero to near division by zero line
-		b = k+distance[0]*2.;
-		F[0].null();
-		F[1].null();	//Start integration at 0
-		for(i = 0; i < 32; i++)
-		{
-			x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x2 = (b+a+Disp[i]*(b-a))/2.;
-
-			F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
-			F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
-			F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
-			F[1] += Integrand(Par, x2, theta, Temp)*w97[i+1];	//Evaluate function at x2
-		}
-		F[0] += Integrand(Par, (a+b)/2., theta, Temp)*w63[0];	//Evaluate the function at the center
-		F[1] += Integrand(Par, (a+b)/2., theta, Temp)*w97[0];	//Evaluate the function at the center
-		Partial[0] += F[0]*(b-a)/(2.);
-		Partial[1] += F[1]*(b-a)/(2.);
-
-		while(b < 100)	//Do the integration 25GeV at time until 500GeV is reached. k_max may be a fair distance from 660GeV
-		{
-			a = b;	//near divsion by zero line to +100GeV
-			b += 10;
-			F[0].null();
-			F[1].null();	//Start integration at 0
-			for(i = 0; i < 32; i++)
-			{
-				x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-				x2 = (b+a+Disp[i]*(b-a))/2.;
-
-				F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
-				F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
-				F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
-				F[1] += Integrand(Par, x2, theta, Temp)*w97[i+1];	//Evaluate function at x2
-			}
-			F[0] += Integrand(Par, (a+b)/2., theta, Temp)*w63[0];	//Evaluate the function at the center
-			F[1] += Integrand(Par, (a+b)/2., theta, Temp)*w97[0];	//Evaluate the function at the center
-			Partial[0] += F[0]*(b-a)/(2.);
-			Partial[1] += F[1]*(b-a)/(2.);
-		}
-
-		a = b;	//near divsion by zero line+100GeV to 500GeV, or back to 500GeV according to P and if the last integral came up short or when past 500GeV
-		b = 100;
-		F[0].null();
-		F[1].null();	//Start integration at 0
-		for(i = 0; i < 32; i++)
-		{
-			x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-			x2 = (b+a+Disp[i]*(b-a))/2.;
-
-			F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
-			F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
-			F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
-			F[1] += Integrand(Par, x2, theta, Temp)*w97[i+1];	//Evaluate function at x2
-		}
-		F[0] += Integrand(Par, (a+b)/2., theta, Temp)*w63[0];	//Evaluate the function at the center
-		F[1] += Integrand(Par, (a+b)/2., theta, Temp)*w97[0];	//Evaluate the function at the center
-		Partial[0] += F[0]*(b-a)/(2.);
-		Partial[1] += F[1]*(b-a)/(2.);
-	}
-	else
-	{
-		while(a < 100)	//Do the integration an interval at time until end of table is reached
-		{
-			a = b;	//near divsion by zero line to +100GeV
-			b += 1;
-			F[0].null();	//Start integration at 0
-			F[1].null();	//Start integration at 0
-			for(i = 0; i < 32; i++)
-			{
-				x1 = (b+a-Disp[i]*(b-a))/2.;	//Actual evaluation points
-				x2 = (b+a+Disp[i]*(b-a))/2.;
-
-				F[0] += Integrand(Par, x1, theta, Temp)*w63[i+1];	//Evaluate function at x1
-				F[0] += Integrand(Par, x2, theta, Temp)*w63[i+1];	//Evaluate function at x2
-				F[1] += Integrand(Par, x1, theta, Temp)*w97[i+1];	//Evaluate function at x1
-				F[1] += Integrand(Par, x2, theta, Temp)*w97[i+1];	//Evaluate function at x2
-			}
-			F[0] += Integrand(Par, (a+b)/2., theta, Temp)*w63[0];	//Evaluate the function at the center
-			F[1] += Integrand(Par, (a+b)/2., theta, Temp)*w97[0];	//Evaluate the function at the center
-			Partial[0] += F[0]*(b-a)/(2.);
-			Partial[1] += F[1]*(b-a)/(2.);
-		}
+		Stops[l] = zero[l];
 	}
 
-	Answer = Elements<Around>(Around(Partial[1][0],abs(Partial[0][0]-Partial[1][0])),Around(Partial[1][1],abs(Partial[0][1]-Partial[1][1])),Around(Partial[1][2],abs(Partial[0][2]-Partial[1][2])),Around(Partial[1][3],abs(Partial[0][3]-Partial[1][3])),Around(Partial[1][4],abs(Partial[0][4]-Partial[1][4])),Around(Partial[1][5],abs(Partial[0][5]-Partial[1][5])));	//Add the subinterval to total of the integral
+	//More intervals from features not already considered
+	Stops[l] = .5*sqrt(Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));	//k for which quarks are simultanous light-like, highest k needed for vacuum
+	if(isnan(Stops[l]))	//If meson is space-like, keep absolute value of it anyways even though it probably does nothing
+		Stops[l] = .5*sqrt(-Par[4]*(Par[4]+pow(Par[3], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)));
+	Stops[l+1] = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]-pow(2.*Par[2], 2)+pow(Par[3]*cos(theta), 2)));	//On-shells leaving the positive energy range
+	Stops[l+2] = .5*abs(Par[3]*cos(theta)-sqrt(Par[4]-pow(2.*Par[2], 2)+pow(Par[3]*cos(theta), 2)));
+	Stops[l+3] = sqrt(4.*pow(Par[3], 4)+8.*pow(Par[3], 2)*Par[4]+4.*pow(Par[4], 2)-pow(Par[1], 4))/pow(256.*pow(Par[3], 4)+512.*pow(Par[3], 2)*Par[4]+256.*pow(Par[4], 2), (long double).25);	//Potiential leaving the positive energy range
+	Stops[l+4] = abs((pow(Par[2], 2)*Par[3]*cos(theta)+sqrt((Par[4]+pow(Par[3], 2))*(pow(Par[2], 4)+(Par[4]+pow(Par[3]*sin(theta), 2))*(Par[4]-2.*pow(Par[2], 2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta), 2))));	//On-shell leaving the time-like range
+	Stops[l+5] = abs((pow(Par[2], 2)*Par[3]*cos(theta)-sqrt((Par[4]+pow(Par[3], 2))*(pow(Par[2], 4)+(Par[4]+pow(Par[3]*sin(theta), 2))*(Par[4]-2.*pow(Par[2], 2)))))/(2.*(Par[4]+pow(Par[3]*sin(theta), 2))));
+	Stops[l+6] = .5*abs(Par[3]*cos(theta)+sqrt(Par[4]+pow(Par[3]*cos(theta), 2)));	//Photon point leaving positive energy range. Not sure what photon point
+	Stops[l+7] = .5*abs(Par[3]*cos(theta)-sqrt(Par[4]+pow(Par[3]*cos(theta), 2)));
+	Stops[l+8] = .5*abs(Par[3]*cos(theta)+sqrt(3.*pow(Par[3], 2)+4.*Par[4]+pow(Par[3]*cos(theta), 2)));
+	Stops[l+9] = .5*abs(Par[3]*cos(theta)-sqrt(3.*pow(Par[3], 2)+4.*Par[4]+pow(Par[3]*cos(theta), 2)));
+	Stops[l+10] = .5*sqrt((Par[4]+pow(Par[3], 2))*(Par[4]-pow(2.*Par[2], 2))/(Par[4]+pow(Par[3]*sin(theta), 2)))+5.*GAMMA;
+
+	for(i = 1; i <= 10; i++)
+	{
+		Stops[i+l+10] = Stops[l+10]-i*GAMMA;
+	}
+
+	for(i = 0; i < l+21; i++)	//Removes stops that are NaN or bigger than necessary
+	{
+		if(isnan(Stops[i]))
+			Stops[i] = -1;
+		else if(isinf(Stops[i]) || Stops[i] > 100)
+			Stops[i] = 100;
+	}
+
+	mergeSort(Stops, 0, l+20);	//Sort the list of sub-intervals
+	Stops[l+21] = 660;
+
+	i = 0;
+	j = 0;
+	while(Stops[j] <= 0)	//Skip past negative sub-intervals and form NaN
+		j++;
+	for(; j < l+21; j++)
+	{
+		if((i > 0 && Stops[i-1] != Stops[j]) || i == 0)	//Removes duplicates, faster to remove duplicates than to evaluate zero width interval
+		{
+			Stops[i] = Stops[j];
+			i++;
+		}
+		else if(Stops[j] != Stops[j])
+			break;
+	}
+	Intervals = i;	//Record number of intervals in Stops
+	Max = Stops[i-1];
+
+	if(j == 0)
+		Intervals = 1;
+
+	a = b = i = 0;
+	do
+	{
+		a = b;
+		if(((i < Intervals && b+100 < Stops[i]) && (i > 0 && b-Stops[i-1] > 100)) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
+			b += 100;
+		else if(((i < Intervals && 50 < Stops[i]-b) && (i > 0 && b-Stops[i-1] > 50)) || Stops[Intervals-1] < a-50)
+			b += 50;
+		else if(((i < Intervals && 10 < Stops[i]-b) && (i > 0 && b-Stops[i-1] > 10)) || Stops[Intervals-1] < a-10)
+			b += 10;
+		else if(((i < Intervals && 3 < Stops[i]-b) && (i > 0 && b-Stops[i-1] > 3)) || Stops[Intervals-1] < a-3)
+			b += 3;
+		else if(i < Intervals)
+		{
+			b = Stops[i];
+			i++;
+		}
+		else
+			b += 3;
+
+		if(b-a < 1)	//use a higher order when the interval is large
+			Partial = k_Int(Par, Temp, theta, a, b, 37, 0);
+		else
+			Partial = k_Int(Par, Temp, theta, a, b, 97, 0);
+
+		Answer += Partial;	//Add the subinterval to total of the integral
+	}while(!(Partial[0] == 0) && (i < Intervals || abs(Partial/Answer)/(b-a) >= .0001) && (a <= Max || a <= 20.*sqrt(Par[4]+pow(Par[3], 2)))); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }
@@ -547,7 +433,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 	}
 
 	Answer = Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])), Around(F[1][4], abs(F[0][4]-F[1][4])), Around(F[1][5], abs(F[0][5]-F[1][5])))*(b-a)/2.;//F[0]*(b-a)/2.;//	//Record the subinterval to total of the integral
-	if((Answer[0].RelErr() > 1e-9 || Answer[1].RelErr() > 1e-9 || Answer[2].RelErr() > 1e-9 || Answer[3].RelErr() > 1e-9) && deep < 10 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
+	if((Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9) && deep < 10 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
 		Answer = k_Int(Par, Temp, theta, a, (a+b)/2., order, deep+1) + k_Int(Par, Temp, theta, (a+b)/2., b, order, deep+1);//*/
 
 	return(Answer);
@@ -600,7 +486,7 @@ complex<long double> G12BbS(long double M, long double s, long double P, long do
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp);
 
 	if(s >= 0)
-		Vacuum_Width = GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
+		Vacuum_Width = BBS_GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width))));
 }
@@ -620,7 +506,7 @@ complex<long double> G12Reverse(long double M, long double s, long double P, lon
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.+Energy(M, P/2., k, theta);
 
 	if(s >= 0)
-		Vacuum_Width = -GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
+		Vacuum_Width = -BBS_GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width))));
 }
@@ -640,7 +526,7 @@ long double ReG12Reverse(long double M, long double s, long double P, long doubl
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
 
 	if(s >= 0)
-		Vacuum_Width = -GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
+		Vacuum_Width = -BBS_GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).real();
 }
@@ -660,7 +546,7 @@ long double ImG12Reverse(long double M, long double s, long double P, long doubl
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
 
 	if(s >= 0)
-		Vacuum_Width = -GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
+		Vacuum_Width = -BBS_GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).imag();
 }
