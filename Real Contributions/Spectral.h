@@ -4,6 +4,7 @@
 #include<cfloat>
 #include<complex>
 #include<queue>
+#include"Interpolation.h"
 #include"Elements.h"
 using namespace std;
 
@@ -17,7 +18,7 @@ Around Dispersion(long double[], int, long double, long double, long double, lon
 Around k0_Int(long double[], int, long double, long double);			//k0 integral aka energy integral
 Around k0_Int(long double[], int, long double, long double, long double, long double, int, int);			//k0 integral aka energy integral
 
-Elements<long double> Integrand(long double[], long double, long double, int);
+Elements<Around> Integrand(long double[], long double, long double, int);
 long double ReG12(long double, long double, long double, long double, long double);
 long double ImG12(long double, long double, long double, long double, long double);
 complex<long double> G12Reverse(long double, long double, long double, long double, long double, int);
@@ -66,6 +67,8 @@ long double Interacting_Linear_Trace(long double[]);							//Linear (linear in s
 long double Interacting_Quad_Trace(long double[], long double, long double);				//Quadratic contribution to the interacting trace
 long double Imk0_Integrand(long double[], long double, long double, long double, int);		//Integrand of the k0 integral for positive energy
 
+Interpolation<long double> ReG;
+Interpolation<long double> ReG_Err;
 
 //Merge Sort. There are a number of semi-sorted lists that need sorting. This will probably beat quick sort under similar conditions.
 void mergeSort(long double List[], int a, int b)
@@ -245,12 +248,30 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 	return(Answer);
 }
 
-Elements<long double> Integrand(long double Par[], long double k, long double theta, int Temp)
+Elements<Around> Integrand(long double Par[], long double k, long double theta, int Temp)
 {
 	long double k0 = (Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2., -k, theta))/2.;
 //	Elements<long double> Holder = Elements<long double>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp);
 //cerr << Par[3] << "," << Par[4] << "," << k << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp) << endl;
-	return(Elements<long double>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp)*pow(k,2)*sin(theta));
+	return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*pow(k,2)*sin(theta)*Around(ReG(i_k_wrap(k, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(k, Par, theta), theta*200./M_PI)));	//In-medium propagator
+	//return(Elements<long double>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp)*pow(k,2)*sin(theta));	//Vacuum propagator
+}
+
+long double k_i(int i, long double x1, long double x2, long double x3, long double x1_0, long double x2_0)
+{
+	if(isnan(x2_0) || x2_0 < .5)	//It needs to follow the policy of the smallest x2 or x3 that it can calculate
+	{
+		return(.1*i);
+	}
+	else if(isnan(x1_0) || x1_0 < .5)
+	{
+		long double a = -x2*x3/(120.*(x2-x3));
+		long double b = (-6.*x2+x3)/(600.*(x2-x3));
+		return(a*i/(1.+b*i));
+	}
+	long double a = -x1*x3/(120.*(x1-x3));
+	long double b = (-6.*x1+x3)/(600.*(x1-x3));
+	return(a*i/(1.+b*i));
 }
 
 Elements<Around> k_Int(long double Par[], int Temp, long double theta)
@@ -304,7 +325,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 	}
 
 	mergeSort(Stops, 0, l+20);	//Sort the list of sub-intervals
-	Stops[l+21] = 660;
+	Stops[l+21] = 100;
 
 	i = 0;
 	j = 0;
@@ -321,7 +342,15 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 			break;
 	}
 	Intervals = i;	//Record number of intervals in Stops
-	Max = Stops[i-1];
+	//Max = Stops[i-1];
+
+	long double on_shell = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));	//Calculate the max k in interpolation
+	long double photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
+	long double on_shell_0 = .5*sqrt(Par[4]-pow(2.*Par[2],2));
+	long double photon_0 = .5*sqrt(Par[4]);
+	long double stop = isnan(photon)?50.:photon+50.;
+	Max = k_i(ReG.MaxX(), on_shell, photon, stop, on_shell_0, photon_0);
+	Max = (Max>100)?100:Max;	//Max is the lesser of the calucated end point in the interpolation or 100 GeV
 
 	if(j == 0)
 		Intervals = 1;
@@ -346,13 +375,15 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 		else
 			b += 3;
 
+		if(b > Max) b = Max;
+
 		if(b-a < 1)	//use a higher order when the interval is large
 			Partial = k_Int(Par, Temp, theta, a, b, 37, 0);
 		else
 			Partial = k_Int(Par, Temp, theta, a, b, 97, 0);
 
 		Answer += Partial;	//Add the subinterval to total of the integral
-	}while(i < Intervals || a <= Max); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
+	}while(/*i < Intervals || */a < Max); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }
@@ -373,9 +404,9 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 	long double x1, x2;	//Abscissa
 	long double k01, k02;	//On-shell relative energy at the abscissa
 
-	Elements<long double> F[2] = {Elements<long double>(0, 0, 0, 0),Elements<long double>(0, 0, 0, 0)};	//Sum of ordinates*weights
+	Elements<Around> F[2] = {Elements<Around>(0, 0, 0, 0),Elements<Around>(0, 0, 0, 0)};	//Sum of ordinates*weights
 	Elements<Around> Answer(0, 0, 0, 0);	//Answer to be returned
-	Elements<long double> Holder;
+	Elements<Around> Holder;
 
 	switch(order)
 	{
