@@ -18,6 +18,8 @@ Around Dispersion(long double[], int, long double, long double, long double, lon
 Around k0_Int(long double[], int, long double, long double);			//k0 integral aka energy integral
 Around k0_Int(long double[], int, long double, long double, long double, long double, int, int);			//k0 integral aka energy integral
 
+long double k_i(int, long double, long double, long double, long double, long double);
+
 Elements<Around> Integrand(long double[], long double, long double, int);
 long double ReG12(long double, long double, long double, long double, long double);
 long double ImG12(long double, long double, long double, long double, long double);
