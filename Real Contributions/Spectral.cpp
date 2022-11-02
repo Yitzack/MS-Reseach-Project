@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 	char File[70] = "data/ReSpectralbb";	//Name of the file
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
-	char File[70] = "data/RePropSpectralcc";
+	char File[70] = "data/ReSpectralcc";
 #endif
 	strcpy(FileApp,File);
 	strcat(FileApp,".");
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
 	strcat(File, "Half.");
-	strcat(FileApp, ".Half.");
+	strcat(FileApp, "Half.");
 #endif
 
 	char Number_c[5];
@@ -123,7 +123,6 @@ int main(int argc, char* argv[])
 			Par[0] = -Set_C(atof(argv[4]), Par[3], atof(argv[9]), Par[1], atof(argv[10]));
 			Par[2] = atof(argv[6]);
 
-			strcpy(FileApp, File);
 			strcat(FileApp, ".");
 			Number_s = to_string(i);
 			for(l = 0; l < Number_s.length(); l++)
@@ -161,7 +160,7 @@ void Load_File(char* File_Name)
 	long double Holder[2];
 	char Bin;
 	//char Full_File_Name[210] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/";
-	char Full_File_Name[210] = "/home/rfrgroup/isarver/data/";
+	char Full_File_Name[210] = "/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/";
 	strncpy(&Full_File_Name[strlen(Full_File_Name)],&File_Name[5],64<210-strlen(Full_File_Name)?64:210-strlen(Full_File_Name));	//64 is the max amount of string in File_Name, 210-strlen() is the space avalible. Hopefully, the File_name will fit in Full_File_Name. This should only be a question on my desktop when "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralccProp.0/" is the base directory.
 	ifstream File(Full_File_Name);
 
