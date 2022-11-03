@@ -174,12 +174,12 @@ void Load_File(char* File_Name)
 	strncpy(&Full_File_Name[strlen(Full_File_Name)],&File_Name[17],64<210-strlen(Full_File_Name)?64:210-strlen(Full_File_Name));	//64 is the max amount of string in File_Name, 210-strlen() is the space avalible. Hopefully, the File_name will fit in Full_File_Name. This should only be a question on my desktop when "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralccProp.0/" is the base directory.
 	ifstream File(Full_File_Name);
 
+	if(!File.is_open() || !File.good())
+		throw;
+
 	File >> xSize;
 	File >> Bin;
 	File >> ySize;
-
-	if(!File.is_open() || File.bad())
-		throw;
 
 	long double** Control = new long double*[xSize];
 	long double** Control_Err = new long double*[xSize];
