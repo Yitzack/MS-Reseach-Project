@@ -136,14 +136,24 @@ int main(int argc, char* argv[])
 			Number_c[l] = '\0';
 			strcat(FileApp, Number_c);
 			strcat(FileApp, ".csv");
-			Load_File(FileApp);
-
-			auto Start_Time = chrono::system_clock::now();
-			try{
-			holder = theta_Int(Par, Temp);
+			try
+			{
+				Load_File(FileApp);
 			}
 			catch(...)
-			{return(0);}
+			{
+				continue;
+			}
+
+			auto Start_Time = chrono::system_clock::now();
+			try
+			{
+				holder = theta_Int(Par, Temp);
+			}
+			catch(...)
+			{
+				continue;
+			}
 			auto End_Time = chrono::system_clock::now();
 			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
 		}
@@ -167,6 +177,9 @@ void Load_File(char* File_Name)
 	File >> xSize;
 	File >> Bin;
 	File >> ySize;
+
+	if(!File.is_open() || File.bad())
+		throw;
 
 	long double** Control = new long double*[xSize];
 	long double** Control_Err = new long double*[xSize];
