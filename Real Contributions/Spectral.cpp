@@ -20,6 +20,7 @@ long double i_k_wrap(long double, long double[], long double);
 int main(int argc, char* argv[])
 {
 	char FileApp[70];
+	char FileReserved[70];
 #ifdef BB	//use option -D BB= to activate bottomium macro
 	char File[70] = "data/ReSpectralbb";	//Name of the file
 #endif
@@ -77,6 +78,7 @@ int main(int argc, char* argv[])
 	long double Par[5];					//Parameters to be used in calculation {Coupling constant, potential cutoff, quark mass, P, s}
 	Elements<Around> holder;					//Calculated value before distribution to Table
 
+	strcpy(FileReserved, FileApp);
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = Start; i <= Finish; i++)
 	{
@@ -123,6 +125,7 @@ int main(int argc, char* argv[])
 			Par[0] = -Set_C(atof(argv[4]), Par[3], atof(argv[9]), Par[1], atof(argv[10]));
 			Par[2] = atof(argv[6]);
 
+			strcpy(FileApp, FileReserved);
 			strcat(FileApp, ".");
 			Number_s = to_string(i);
 			for(l = 0; l < Number_s.length(); l++)
@@ -169,8 +172,8 @@ void Load_File(char* File_Name)
 	int ySize;
 	long double Holder[2];
 	char Bin;
-	//char Full_File_Name[210] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReProp";
-	char Full_File_Name[210] = "/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReProp";
+	char Full_File_Name[210] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReProp";
+	//char Full_File_Name[210] = "/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReProp";
 	strncpy(&Full_File_Name[strlen(Full_File_Name)],&File_Name[17],64<210-strlen(Full_File_Name)?64:210-strlen(Full_File_Name));	//64 is the max amount of string in File_Name, 210-strlen() is the space avalible. Hopefully, the File_name will fit in Full_File_Name. This should only be a question on my desktop when "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralccProp.0/" is the base directory.
 	ifstream File(Full_File_Name);
 
