@@ -159,9 +159,9 @@ void Load_File(char* File_Name)
 	int ySize;
 	long double Holder[2];
 	char Bin;
-	//char Full_File_Name[210] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/";
-	char Full_File_Name[210] = "/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/";
-	strncpy(&Full_File_Name[strlen(Full_File_Name)],&File_Name[5],64<210-strlen(Full_File_Name)?64:210-strlen(Full_File_Name));	//64 is the max amount of string in File_Name, 210-strlen() is the space avalible. Hopefully, the File_name will fit in Full_File_Name. This should only be a question on my desktop when "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralccProp.0/" is the base directory.
+	char Full_File_Name[210] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReProp";
+	//char Full_File_Name[210] = "/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReProp";
+	strncpy(&Full_File_Name[strlen(Full_File_Name)],&File_Name[17],64<210-strlen(Full_File_Name)?64:210-strlen(Full_File_Name));	//64 is the max amount of string in File_Name, 210-strlen() is the space avalible. Hopefully, the File_name will fit in Full_File_Name. This should only be a question on my desktop when "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralccProp.0/" is the base directory.
 	ifstream File(Full_File_Name);
 
 	File >> xSize;
