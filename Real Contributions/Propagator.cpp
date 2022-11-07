@@ -23,8 +23,8 @@ int main(int argc, char* argv[])
 	char File[130] = "data/ReSpectralbb.";  //Name of the file
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
-	//char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.";
-	char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReSpectralcc.";
+	//char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReSpectralcc.";
+	char File[130] = "data/ReSpectralcc.Half.1/ReSpectralcc.";
 #endif
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
@@ -218,7 +218,7 @@ void Loop_Out2(long double Par[], int Temp, char File[])
 		iTable.ignore(300,'\n');
 		i = Bin_n[0];
 		theta = Bin_n[2];
-		if((('0' <= Bin_c[4] && Bin_c[4] <= '9') || Bin_c[4] == '.' ) && 0 <= i && i < 202 && 0 <= theta && theta <= M_PI)
+		if((('0' <= Bin_c[4] && Bin_c[4] <= '9') || Bin_c[4] == '.' ) && 0 <= i && i < 303 && 0 <= theta && theta <= M_PI)
 			Manifest[i][int(theta*200./M_PI)] = true;
 	}
 
