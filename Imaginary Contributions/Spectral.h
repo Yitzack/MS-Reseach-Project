@@ -442,30 +442,12 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 	}
 
 	Answer = Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])), Around(F[1][4], abs(F[0][4]-F[1][4])), Around(F[1][5], abs(F[0][5]-F[1][5])))*(b-a)/2.;//F[0]*(b-a)/2.;//	//Record the subinterval to total of the integral
-	if((Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9) && deep < 3 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
+	if((Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9) && deep < 4 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
 		Answer = k_Int(Par, Temp, theta, a, (a+b)/2., order, deep+1) + k_Int(Par, Temp, theta, (a+b)/2., b, order, deep+1);//*/
 	else
-		switch(order)
+	{
+		switch(ORDER)
 		{
-		case 16:
-			for(int l = 0; l < 5; l++)//for(int l = 0; l < 12; l+=2)// //Count through points away from center
-			{
-				x1 = (b+a-Disp16[l]*(b-a))/2.;
-				x2 = (b+a+Disp16[l]*(b-a))/2.;
-
-				Holder = Integrand(Par, x1, theta, Temp, true);
-				F[0] += Holder*w9[l+1];
-				F[1] += Holder*w16[l+1];
-
-				Holder = Integrand(Par, x2, theta, Temp, true);
-				F[0] += Holder*w9[l+1];
-				F[1] += Holder*w16[l+1];
-			}
-			x1 = (a+b)/2.;
-			Holder = Integrand(Par, x1, theta, Temp, true);
-			F[0] += Holder*pow((a+b)/2., 2)*w9[0];
-			F[1] += Holder*pow((a+b)/2., 2)*w16[0];
-			break;
 		case 37:
 			for(int l = 0; l < 12; l++)//for(int l = 0; l < 12; l+=2)// //Count through points away from center
 			{
@@ -504,7 +486,8 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 			break;
 		}
 
-	Answer = Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])), Around(F[1][4], abs(F[0][4]-F[1][4])), Around(F[1][5], abs(F[0][5]-F[1][5])))*(b-a)/2.;//F[0]*(b-a)/2.;//	//Record the subinterval to total of the integral
+		Answer = Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])), Around(F[1][4], abs(F[0][4]-F[1][4])), Around(F[1][5], abs(F[0][5]-F[1][5])))*(b-a)/2.;//F[0]*(b-a)/2.;//	//Record the subinterval to total of the integral
+	}
 
 	return(Answer);
 }

@@ -13,8 +13,8 @@ int Start_Point(int, char[70]);						//Find highest line calculated and returns 
 bool Restart_Check(char[70], char*, char*, char*, char*, char*);		//Checks to see if file header matches input parameters and clears it if not
 long double ReG12(long double, long double, long double, long double, long double);
 long double ImG12(long double, long double, long double, long double, long double);
-long double k_i(int, long double, long double, long double, long double, long double);
-void Loop_Out(long double[], int, char[]);
+void Loop_Out1(long double[], int, char[]);
+void Loop_Out2(long double[], int, char[]);
 
 int main(int argc, char* argv[])
 {
@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
 	//char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.";
-	char File[130] = "data/ReSpectralcc.";
+	char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReSpectralcc.";
 #endif
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
@@ -120,14 +120,15 @@ int main(int argc, char* argv[])
 			Number_c[l] = '\0';
 			strcat(FileApp, Number_c);
 			strcat(FileApp, ".csv");
-			Loop_Out(Par, Temp, FileApp);
+			Loop_Out1(Par, Temp, FileApp);
+			Loop_Out2(Par, Temp, FileApp);
 		}
 	}
 
 	return(0);
 }
 
-void Loop_Out(long double Par[], int Temp, char File[])
+void Loop_Out1(long double Par[], int Temp, char File[])
 {
 	long double theta;
 	long double on_shell, photon, on_shell_0, photon_0, stop;
@@ -149,7 +150,7 @@ void Loop_Out(long double Par[], int Temp, char File[])
 	while(iTable.good())
 	{
 		iTable >> Bin_n[0] >> Bin_c[0] >> Bin_n[1] >> Bin_c[1] >> Bin_n[2] >> Bin_c[2] >> Bin_c[3] >> Bin_c[4];
-		iTable.ignore(200,'\n');
+		iTable.ignore(300,'\n');
 		i = Bin_n[0];
 		theta = Bin_n[2];
 		if((('0' <= Bin_c[4] && Bin_c[4] <= '9') || Bin_c[4] == '.' ) && 0 <= i && i < 202 && 0 <= theta && theta <= M_PI)
@@ -174,14 +175,14 @@ void Loop_Out(long double Par[], int Temp, char File[])
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{
 				long double k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
-				if(k < 50 && k >= 0)
+				if(k < 100 && k >= 0)
 					oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
 			}
 		}
 		if(!Manifest[i][int(theta*200./M_PI)])
 		{
 			long double k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
-			if(k < 50 && k>= 0)
+			if(k < 100 && k>= 0)
 			{
 				oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
 			}
@@ -191,21 +192,75 @@ void Loop_Out(long double Par[], int Temp, char File[])
 	oTable.close();
 }
 
-long double k_i(int i, long double x1, long double x2, long double x3, long double x1_0, long double x2_0)
+void Loop_Out2(long double Par[], int Temp, char File[])
 {
-	if(isnan(x2_0) || x2_0 < .5)	//It needs to follow the policy of the smallest x2 or x3 that it can calculate
+	long double theta;
+	long double on_shell, photon, on_shell_0, photon_0, stop;
+	bool Manifest[303][101];
+	ofstream oTable;
+	ifstream iTable(File);
+	int i, j;
+	long double Min = 201;
+	char Bin_c[11];
+	long double Bin_n[9];
+
+	for(i = 0; i < 303; i++)
 	{
-		return(.1*i);
+		for(j = 0; j < 101; j++)
+		{
+			Manifest[i][j] = false;
+		}
 	}
-	else if(isnan(x1_0) || x1_0 < .5)
+
+	while(iTable.good())
 	{
-		long double a = -x2*x3/(120.*(x2-x3));
-		long double b = (-6.*x2+x3)/(600.*(x2-x3));
-		return(a*i/(1.+b*i));
+		iTable >> Bin_n[0] >> Bin_c[0] >> Bin_n[1] >> Bin_c[1] >> Bin_n[2] >> Bin_c[2] >> Bin_c[3] >> Bin_c[4];
+		iTable.ignore(300,'\n');
+		i = Bin_n[0];
+		theta = Bin_n[2];
+		if((('0' <= Bin_c[4] && Bin_c[4] <= '9') || Bin_c[4] == '.' ) && 0 <= i && i < 202 && 0 <= theta && theta <= M_PI)
+			Manifest[i][int(theta*200./M_PI)] = true;
 	}
-	long double a = -x1*x3/(120.*(x1-x3));
-	long double b = (-6.*x1+x3)/(600.*(x1-x3));
-	return(a*i/(1.+b*i));
+
+	iTable.close();
+	oTable.open(File, ios::app);
+
+	for(i = 201; i >= 0; i--)
+	{
+		for(j = 0; j < 101; j++)
+		{
+			if(i < Min && !Manifest[i][j])
+				Min = i;
+		}
+	}
+
+	i = Min;
+	Min = 100;
+	for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
+	{
+		on_shell = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
+		photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
+		on_shell_0 = .5*sqrt(Par[4]-pow(2.*Par[2],2));
+		photon_0 = .5*sqrt(Par[4]);
+		stop = isnan(photon)?50.:photon+50.;
+		if(Min > k_i(i,on_shell,photon,stop,on_shell_0,photon_0))
+			Min = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
+	}
+
+	oTable << setprecision(18);
+	for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
+	{
+		for(i = 0; i <= 100; i++)
+		{
+			if(!Manifest[i+202][int(theta*200./M_PI)])
+			{
+				long double k = Min+i*(100.-Min)/100.;
+				oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
+			}
+		}
+	}
+
+	oTable.close();
 }
 
 int Start_Point(int Start, char File[70])	//Go through and find largest starting point in file and return it, causes it to repeat last line

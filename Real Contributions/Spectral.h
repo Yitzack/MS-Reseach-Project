@@ -250,13 +250,14 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 	return(Answer);
 }
 
-Elements<Around> Integrand(long double Par[], long double k, long double theta, int Temp)
+Elements<Around> Integrand(long double Par[], long double k, long double theta, int Temp, bool fancy)
 {
 	long double k0 = (Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2., -k, theta))/2.;
 //	Elements<long double> Holder = Elements<long double>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp);
 //cerr << Par[3] << "," << Par[4] << "," << k << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp) << endl;
-	return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*pow(k,2)*sin(theta)*Around(ReG(i_k_wrap(k, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(k, Par, theta), theta*200./M_PI)));	//In-medium propagator
-	//return(Elements<long double>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp)*pow(k,2)*sin(theta));	//Vacuum propagator
+	if(fancy)
+		return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*pow(k,2)*sin(theta)*Around(ReG(i_k_wrap(k, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(k, Par, theta), theta*200./M_PI)));	//In-medium propagator
+	return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*Around(ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp))*pow(k,2)*sin(theta));	//Vacuum propagator
 }
 
 long double k_i(int i, long double x1, long double x2, long double x3, long double x1_0, long double x2_0)
@@ -418,16 +419,16 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 			x1 = (b+a-Disp16[l]*(b-a))/2.;
 			x2 = (b+a+Disp16[l]*(b-a))/2.;
 
-			Holder = Integrand(Par, x1, theta, Temp);
+			Holder = Integrand(Par, x1, theta, Temp, false);
 			F[0] += Holder*w9[l+1];
 			F[1] += Holder*w16[l+1];
 
-			Holder = Integrand(Par, x2, theta, Temp);
+			Holder = Integrand(Par, x2, theta, Temp, false);
 			F[0] += Holder*w9[l+1];
 			F[1] += Holder*w16[l+1];
 		}
 		x1 = (a+b)/2.;
-		Holder = Integrand(Par, x1, theta, Temp);
+		Holder = Integrand(Par, x1, theta, Temp, false);
 		F[0] += Holder*pow((a+b)/2., 2)*w9[0];
 		F[1] += Holder*pow((a+b)/2., 2)*w16[0];
 		break;
@@ -437,15 +438,15 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 			x1 = (b+a-Disp37[l]*(b-a))/2.;
 			x2 = (b+a+Disp37[l]*(b-a))/2.;
 
-			Holder = Integrand(Par, x1, theta, Temp);
+			Holder = Integrand(Par, x1, theta, Temp, false);
 			F[0] += Holder*w23[l+1];
 			F[1] += Holder*w37[l+1];
-			Holder = Integrand(Par, x2, theta, Temp);
+			Holder = Integrand(Par, x2, theta, Temp, false);
 			F[0] += Holder*w23[l+1];
 			F[1] += Holder*w37[l+1];
 		}
 		x1 = (a+b)/2.;
-		Holder = Integrand(Par, x1, theta, Temp);
+		Holder = Integrand(Par, x1, theta, Temp, false);
 		F[0] += Holder*w23[0];
 		F[1] += Holder*w37[0];
 		break;
@@ -455,15 +456,15 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 			x1 = (b+a-Disp97[l]*(b-a))/2.;
 			x2 = (b+a+Disp97[l]*(b-a))/2.;
 
-			Holder = Integrand(Par, x1, theta, Temp);
+			Holder = Integrand(Par, x1, theta, Temp, false);
 			F[0] += Holder*w63[l+1];
 			F[1] += Holder*w97[l+1];
-			Holder = Integrand(Par, x2, theta, Temp);
+			Holder = Integrand(Par, x2, theta, Temp, false);
 			F[0] += Holder*w63[l+1];
 			F[1] += Holder*w97[l+1];
 		}
 		x1 = (a+b)/2.;
-		Holder = Integrand(Par, x1, theta, Temp);
+		Holder = Integrand(Par, x1, theta, Temp, false);
 		F[0] += Holder*w63[0];
 		F[1] += Holder*w97[0];
 		break;
@@ -472,6 +473,50 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 	Answer = Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])))*(b-a)/2.;//F[0]*(b-a)/2.;//	//Record the subinterval to total of the integral
 	if((Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9) && deep < 4 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
 		Answer = k_Int(Par, Temp, theta, a, (a+b)/2., order, deep+1) + k_Int(Par, Temp, theta, (a+b)/2., b, order, deep+1);//*/
+	else
+	{
+		switch(ORDER)
+		{
+			case 37:
+				for(int l = 0; l < 12; l++)//for(int l = 0; l < 12; l+=2)// //Count through points away from center
+				{
+					x1 = (b+a-Disp37[l]*(b-a))/2.;
+					x2 = (b+a+Disp37[l]*(b-a))/2.;
+
+					Holder = Integrand(Par, x1, theta, Temp, true);
+					F[0] += Holder*w23[l+1];
+					F[1] += Holder*w37[l+1];
+					Holder = Integrand(Par, x2, theta, Temp, true);
+					F[0] += Holder*w23[l+1];
+					F[1] += Holder*w37[l+1];
+				}
+				x1 = (a+b)/2.;
+				Holder = Integrand(Par, x1, theta, Temp, true);
+				F[0] += Holder*w23[0];
+				F[1] += Holder*w37[0];
+				break;
+			case 97:
+				for(int l = 0; l < 32; l++)//for(int l = 0; l < 32; l+=2)// //Count through points away from center
+				{
+					x1 = (b+a-Disp97[l]*(b-a))/2.;
+					x2 = (b+a+Disp97[l]*(b-a))/2.;
+
+					Holder = Integrand(Par, x1, theta, Temp, true);
+					F[0] += Holder*w63[l+1];
+					F[1] += Holder*w97[l+1];
+					Holder = Integrand(Par, x2, theta, Temp, true);
+					F[0] += Holder*w63[l+1];
+					F[1] += Holder*w97[l+1];
+				}
+				x1 = (a+b)/2.;
+				Holder = Integrand(Par, x1, theta, Temp, true);
+				F[0] += Holder*w63[0];
+				F[1] += Holder*w97[0];
+				break;
+		}
+		Answer = Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])))*(b-a)/2.;//F[0]*(b-a)/2.;//	//Record the subinterval to total of the integral
+
+	}
 
 	return(Answer);
 }
