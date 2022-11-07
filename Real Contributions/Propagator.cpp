@@ -255,7 +255,7 @@ void Loop_Out2(long double Par[], int Temp, char File[])
 			if(!Manifest[i+202][int(theta*200./M_PI)])
 			{
 				long double k = Min+i*(100.-Min)/100.;
-				oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
+				oTable << i+202 << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
 			}
 		}
 	}
