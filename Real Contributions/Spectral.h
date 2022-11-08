@@ -19,6 +19,9 @@ Around k0_Int(long double[], int, long double, long double);			//k0 integral aka
 Around k0_Int(long double[], int, long double, long double, long double, long double, int, int);			//k0 integral aka energy integral
 
 long double k_i(int, long double, long double, long double, long double, long double);
+long double i_k(long double, long double, long double, long double);			//Conversion from k to i counter that may be needed with the interpolation.
+long double i_k(long double, long double, long double, long double, long double);	//Interpolation doesn't need it to be an interpolation, therefor their not methods of the class.
+long double i_k_wrap(long double, long double[], long double);			//Wrapper for i_k() to select the correct one.
 
 Elements<Around> Integrand(long double[], long double, long double, int);
 long double ReG12(long double, long double, long double, long double, long double);
@@ -69,8 +72,9 @@ long double Interacting_Linear_Trace(long double[]);							//Linear (linear in s
 long double Interacting_Quad_Trace(long double[], long double, long double);				//Quadratic contribution to the interacting trace
 long double Imk0_Integrand(long double[], long double, long double, long double, int);		//Integrand of the k0 integral for positive energy
 
-Interpolation<long double> ReG;
-Interpolation<long double> ReG_Err;
+Interpolation<long double> ReG[2];		//Interpolation of ReG
+Interpolation<long double> ReG_Err[2];	//Interpolation of the error in ReG
+long double Common_k;				//The value of k which is common between ReG[0] and ReG[1]. Sets the scale in the k direction for data recall.
 
 //Merge Sort. There are a number of semi-sorted lists that need sorting. This will probably beat quick sort under similar conditions.
 void mergeSort(long double List[], int a, int b)
@@ -253,10 +257,13 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 Elements<Around> Integrand(long double Par[], long double k, long double theta, int Temp, bool fancy)
 {
 	long double k0 = (Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2., -k, theta))/2.;
+	long double i = i_k_wrap(k, Par, theta);
 //	Elements<long double> Holder = Elements<long double>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp);
 //cerr << Par[3] << "," << Par[4] << "," << k << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp) << endl;
-	if(fancy)
-		return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*pow(k,2)*sin(theta)*Around(ReG(i_k_wrap(k, Par, theta), theta*200./M_PI), ReG_Err(i_k_wrap(k, Par, theta), theta*200./M_PI)));	//In-medium propagator
+	if(fancy && i <= 201)
+		return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*pow(k,2)*sin(theta)*Around(ReG[0](i, theta*200./M_PI), ReG_Err[0](i, theta*200./M_PI)));	//In-medium propagator
+	else if(fancy && i > 201)
+		return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*pow(k,2)*sin(theta)*Around(ReG[1](i, theta*200./M_PI), ReG_Err[1](i, theta*200./M_PI)));	//In-medium propagator
 	return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*Around(ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp))*pow(k,2)*sin(theta));	//Vacuum propagator
 }
 
@@ -275,6 +282,36 @@ long double k_i(int i, long double x1, long double x2, long double x3, long doub
 	long double a = -x1*x3/(120.*(x1-x3));
 	long double b = (-6.*x1+x3)/(600.*(x1-x3));
 	return(a*i/(1.+b*i));
+}
+
+long double i_k_wrap(long double k, long double Par[], long double theta)
+{
+	int counter;
+	if(Par[4] > pow(Par[2]*2.,2) && sqrt(Par[4]-pow(2.*Par[2],2))/2. >= .5)	//Must always use the pi/2 policy for the k to i conversion
+		counter = i_k(k, Par[4], Par[3], theta, Par[2]);
+	else if(Par[4] > 0 && sqrt(Par[4])/2. >= .5)
+		counter = i_k(k, Par[4], Par[3], theta);
+	else
+		counter = k*10.;
+
+	if(counter > ReG[0].MaxX())
+	{
+		counter = 100.*(Common_k-k)/(Common_k-100.)+201.;
+	}
+
+	return(counter);
+}
+
+long double i_k(long double k, long double s, long double P, long double theta)
+{
+	return((24000.*k)/(40.*k+100.*sqrt((s*(pow(P,2)+s))/(s+pow(P,2)*pow(sin(theta),2)))-2.*k*sqrt((s*(pow(P,2)+s))/(s+pow(P,2)*pow(sin(theta),2)))+(s*(pow(P,2)+s))/(s+pow(P,2)*pow(sin(theta),2))));
+}
+
+long double i_k(long double k, long double s, long double P, long double theta, long double M)
+{
+	long double on_shell = sqrt((s-pow(2.*M,2))*(s+pow(P,2))/(s+pow(P*sin(theta),2)));
+	long double photon = sqrt(s*(s+pow(P,2))/(s+pow(P*sin(theta),2)));
+	return(1200.*k*(100.-on_shell+photon)/(200.*k+2.*k*photon+500.*on_shell-12.*k*on_shell+5.*on_shell*photon));
 }
 
 Elements<Around> k_Int(long double Par[], int Temp, long double theta)
@@ -352,8 +389,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 	long double on_shell_0 = .5*sqrt(Par[4]-pow(2.*Par[2],2));
 	long double photon_0 = .5*sqrt(Par[4]);
 	long double stop = isnan(photon)?50.:photon+50.;
-	Max = k_i(ReG.MaxX(), on_shell, photon, stop, on_shell_0, photon_0);
-	Max = (Max>100)?100:Max;	//Max is the lesser of the calucated end point in the interpolation or 100 GeV
+	Max = 100;//k_i(ReG.MaxX[0](), on_shell, photon, stop, on_shell_0, photon_0);
 
 	if(j == 0)
 		Intervals = 1;

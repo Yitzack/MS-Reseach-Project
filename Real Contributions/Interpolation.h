@@ -1,8 +1,5 @@
 #ifndef INTERPOLATION
 #define INTERPOLATION
-long double i_k(long double, long double, long double, long double);			//Conversion from k to i counter that may be needed with the interpolation.
-long double i_k(long double, long double, long double, long double, long double);	//Interpolation doesn't need it to be an interpolation, therefor their not methods of the class.
-long double i_k_wrap(long double, long double[], long double);			//Wrapper for i_k() to select the correct one.
 
 template <class T>
 class Interpolation
@@ -51,12 +48,44 @@ Interpolation<T>::~Interpolation()
 template <class T>
 Interpolation<T>::Interpolation()
 {
-	ready = false;
+	if(ready)	//delete the interpolation in *this if it exists
+	{
+		for(int i = 0; i <= xRange; i++)
+		{
+			for(int j = 0; j < yRange; j++)
+			{
+				delete offset[i][j];
+			}
+			delete offset[i];
+			delete control_points[i];
+		}
+		delete offset;
+		delete control_points;
+
+		ready = false;
+	}
 }
 
 template <class T>
 Interpolation<T>::Interpolation(T** Control, int xSize, int ySize)	//I really wanted to derive the control points myself, but it is a lot easier to scrape them from Mathematica than figure out the matrix coefficents and inversion.
 {
+	if(ready)	//delete the interpolation in *this if it exists
+	{
+		for(int i = 0; i <= xRange; i++)
+		{
+			for(int j = 0; j < yRange; j++)
+			{
+				delete offset[i][j];
+			}
+			delete offset[i];
+			delete control_points[i];
+		}
+		delete offset;
+		delete control_points;
+
+		ready = false;
+	}
+
 	xRange = xSize-1;
 	yRange = ySize-1;
 
@@ -345,25 +374,9 @@ int Interpolation<T>::MaxY()
 	return(yRange);
 }
 
-long double i_k_wrap(long double k, long double Par[], long double theta)
+template <class T>
+bool Interpolation<T>::is_ready()
 {
-	if(Par[4] > pow(Par[2]*2.,2) && sqrt(Par[4]-pow(2.*Par[2],2))/2. >= .5)	//Must always use the pi/2 policy for the k to i conversion
-		return(i_k(k, Par[4], Par[3], theta, Par[2]));
-	else if(Par[4] > 0 && sqrt(Par[4])/2. >= .5)
-		return(i_k(k, Par[4], Par[3], theta));
-	else
-		return(k*10.);
-}
-
-long double i_k(long double k, long double s, long double P, long double theta)
-{
-	return((24000.*k)/(40.*k+100.*sqrt((s*(pow(P,2)+s))/(s+pow(P,2)*pow(sin(theta),2)))-2.*k*sqrt((s*(pow(P,2)+s))/(s+pow(P,2)*pow(sin(theta),2)))+(s*(pow(P,2)+s))/(s+pow(P,2)*pow(sin(theta),2))));
-}
-
-long double i_k(long double k, long double s, long double P, long double theta, long double M)
-{
-	long double on_shell = sqrt((s-pow(2.*M,2))*(s+pow(P,2))/(s+pow(P*sin(theta),2)));
-	long double photon = sqrt(s*(s+pow(P,2))/(s+pow(P*sin(theta),2)));
-	return(1200.*k*(100.-on_shell+photon)/(200.*k+2.*k*photon+500.*on_shell-12.*k*on_shell+5.*on_shell*photon));
+	return(ready);
 }
 #endif

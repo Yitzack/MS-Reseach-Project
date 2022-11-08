@@ -15,7 +15,6 @@ long double Set_Mq(long double, long double, long double);				//Momentum depende
 long double Set_Lambda(long double, long double, long double, long double, int);	//Momentum dependence for the potential cutoff, <number> 0 causes it to be constant
 long double Set_C(long double, long double, long double, long double, long double);	//Momentum dependence for the coupling constant, <number> 0 causes it to be constant
 void Load_File(char*);									//Load File from disk to RAM for ReG and ReG_Err
-long double i_k_wrap(long double, long double[], long double);
 
 int main(int argc, char* argv[])
 {
@@ -139,26 +138,22 @@ int main(int argc, char* argv[])
 			Number_c[l] = '\0';
 			strcat(FileApp, Number_c);
 			strcat(FileApp, ".csv");
-			try
-			{
-				Load_File(FileApp);
-			}
-			catch(...)
-			{
-				continue;
-			}
+			Load_File(FileApp);
 
-			auto Start_Time = chrono::system_clock::now();
-			try
+			if(ReG[0].is_ready())
 			{
-				holder = theta_Int(Par, Temp);
+				auto Start_Time = chrono::system_clock::now();
+				try
+				{
+					holder = theta_Int(Par, Temp);
+				}
+				catch(...)
+				{
+					continue;
+				}
+				auto End_Time = chrono::system_clock::now();
+				TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
 			}
-			catch(...)
-			{
-				continue;
-			}
-			auto End_Time = chrono::system_clock::now();
-			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
 		}
 		TPlot << endl;
 	}
@@ -178,7 +173,16 @@ void Load_File(char* File_Name)
 	ifstream File(Full_File_Name);
 
 	if(!File.is_open() || !File.good())
-		throw;
+	{
+		if(ReG[0].is_ready())
+		{
+			delete &ReG[0];
+			delete &ReG_Err[0];
+			delete &ReG[1];
+			delete &ReG_Err[1];
+		}
+		return;
+	}
 
 	File >> xSize;
 	File >> Bin;
@@ -200,10 +204,50 @@ void Load_File(char* File_Name)
 		}
 	}
 
-	File.close();
+	ReG[0] = Interpolation<long double>(Control, xSize, ySize);
+	ReG_Err[0] = Interpolation<long double>(Control_Err, xSize, ySize);
 
-	ReG = Interpolation<long double>(Control, xSize, ySize);
-	ReG_Err = Interpolation<long double>(Control_Err, xSize, ySize);
+	for(int i = 0; i < xSize; i++)
+	{
+		delete Control[i];
+		delete Control_Err[i];
+
+		for(int j = 0; j < ySize; j++)
+		{
+			File >> Holder[0] >> Bin >> Holder[1];
+			Control[i][j] = Holder[0];
+			Control_Err[i][j] = Holder[1];
+		}
+	}
+	delete Control;
+	delete Control_Err;
+
+	File >> xSize;
+	File >> Bin;
+	File >> ySize;
+
+	Control = new long double*[xSize];
+	Control_Err = new long double*[xSize];
+
+	for(int i = 0; i < xSize; i++)
+	{
+		Control[i] = new long double[ySize];
+		Control_Err[i] = new long double[ySize];
+
+		for(int j = 0; j < ySize; j++)
+		{
+			File >> Holder[0] >> Bin >> Holder[1];
+			Control[i][j] = Holder[0];
+			Control_Err[i][j] = Holder[1];
+		}
+	}
+
+	File >> Common_k;
+
+	ReG[1] = Interpolation<long double>(Control, xSize, ySize);
+	ReG_Err[1] = Interpolation<long double>(Control_Err, xSize, ySize);
+
+	File.close();
 
 	return;
 }
