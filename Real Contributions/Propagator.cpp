@@ -248,9 +248,9 @@ void Loop_Out2(long double Par[], int Temp, char File[])
 	}
 
 	oTable << setprecision(18);
-	for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
+	for(i = 0; i <= 100; i++)
 	{
-		for(i = 0; i <= 100; i++)
+		for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
 		{
 			if(!Manifest[i+202][int(theta*200./M_PI)])
 			{
