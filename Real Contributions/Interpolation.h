@@ -48,44 +48,12 @@ Interpolation<T>::~Interpolation()
 template <class T>
 Interpolation<T>::Interpolation()
 {
-	if(ready)	//delete the interpolation in *this if it exists
-	{
-		for(int i = 0; i <= xRange; i++)
-		{
-			for(int j = 0; j < yRange; j++)
-			{
-				delete offset[i][j];
-			}
-			delete offset[i];
-			delete control_points[i];
-		}
-		delete offset;
-		delete control_points;
-
-		ready = false;
-	}
+	ready = false;
 }
 
 template <class T>
 Interpolation<T>::Interpolation(T** Control, int xSize, int ySize)	//I really wanted to derive the control points myself, but it is a lot easier to scrape them from Mathematica than figure out the matrix coefficents and inversion.
 {
-	if(ready)	//delete the interpolation in *this if it exists
-	{
-		for(int i = 0; i <= xRange; i++)
-		{
-			for(int j = 0; j < yRange; j++)
-			{
-				delete offset[i][j];
-			}
-			delete offset[i];
-			delete control_points[i];
-		}
-		delete offset;
-		delete control_points;
-
-		ready = false;
-	}
-
 	xRange = xSize-1;
 	yRange = ySize-1;
 
@@ -109,23 +77,6 @@ Interpolation<T>::Interpolation(T** Control, int xSize, int ySize)	//I really wa
 template <class T>
 void Interpolation<T>::operator=(Interpolation<T> A)
 {
-	if(ready)	//delete the interpolation in *this if it exists
-	{
-		for(int i = 0; i <= xRange; i++)
-		{
-			for(int j = 0; j < yRange; j++)
-			{
-				delete offset[i][j];
-			}
-			delete offset[i];
-			delete control_points[i];
-		}
-		delete offset;
-		delete control_points;
-
-		ready = false;
-	}
-
 	if(A.ready)	//Assign the interpolation in A if it exists
 	{
 		xRange = A.xRange;
