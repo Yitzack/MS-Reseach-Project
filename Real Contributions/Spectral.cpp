@@ -211,13 +211,6 @@ void Load_File(char* File_Name)
 	{
 		delete Control[i];
 		delete Control_Err[i];
-
-		for(int j = 0; j < ySize; j++)
-		{
-			File >> Holder[0] >> Bin >> Holder[1];
-			Control[i][j] = Holder[0];
-			Control_Err[i][j] = Holder[1];
-		}
 	}
 	delete Control;
 	delete Control_Err;
