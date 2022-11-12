@@ -263,7 +263,7 @@ Elements<Around> Integrand(long double Par[], long double k, long double theta, 
 	if(fancy && i <= 201)
 		return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*pow(k,2)*sin(theta)*Around(ReG[0](i, theta*200./M_PI), ReG_Err[0](i, theta*200./M_PI)));	//In-medium propagator
 	else if(fancy && i > 201)
-		return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*pow(k,2)*sin(theta)*Around(ReG[1](i-202, theta*200./M_PI), ReG_Err[1](i-202, theta*200./M_PI)));	//In-medium propagator
+		return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*pow(k,2)*sin(theta)*Around(ReG[1](i-201, theta*200./M_PI), ReG_Err[1](i-201, theta*200./M_PI)));	//In-medium propagator
 	return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*Around(ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp))*pow(k,2)*sin(theta));	//Vacuum propagator
 }
 
