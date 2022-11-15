@@ -112,8 +112,8 @@ void mergeSort(long double List[], int a, int b)
 
 Elements<Around> theta_Int(long double Par[], int Temp)
 {
-	//if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
-	//	return(k_Int(Par, Temp, M_PI/2., true)/pow(2.*M_PI,2)*2.);
+	if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
+		return(k_Int(Par, Temp, M_PI/2.)/pow(2.*M_PI,2)*2.);
 
 	long double x1;
 	long double a = 0, b;					//Sub-interval limits of integration
@@ -253,8 +253,10 @@ Elements<Around> Integrand(long double Par[], long double k, long double theta, 
 	long double k0 = (Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2., -k, theta))/2.;
 //	Elements<long double> Holder = Elements<long double>(2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ImG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp);
 //cerr << Par[3] << "," << Par[4] << "," << k << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp) << endl;
-	if(fancy)
+	if(fancy && Temp != 0)
+	{
 		return(Elements<Around>(2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*k0_Int(Par,Temp,k,theta)*pow(k,2)*sin(theta));
+	}
 	return(Elements<Around>(2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*Around(ImG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp))*pow(k,2)*sin(theta));
 }
 
@@ -446,6 +448,8 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 		Answer = k_Int(Par, Temp, theta, a, (a+b)/2., order, deep+1) + k_Int(Par, Temp, theta, (a+b)/2., b, order, deep+1);//*/
 	else
 	{
+		F[0] = Elements<Around>(0,0,0,0,0,0);
+		F[1] = Elements<Around>(0,0,0,0,0,0);
 		switch(ORDER)
 		{
 		case 37:
@@ -1183,12 +1187,17 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	static long double M_T, Shift;	//Default quark mass, shfift from default quark mass to given quark mass
 	static long double k_old[2] = {-1,-1}; //Previous value of k to know if the parmeters need to recalculated
 
-	Results[0] = 0;
-	Results[1] = 0;
+	if(pow(omega[0],2)>=pow(k[0],2))
+		Results[0] = sqrt(pow(omega[0],2)-pow(k[0],2))*GAMMA;
+	else
+		Results[0] = 0;
+	if(pow(omega[1],2)>=pow(k[1],2))
+		Results[1] = sqrt(pow(omega[1],2)-pow(k[1],2))*GAMMA;
+	else
+		Results[1] = 0;
 
 	if(Temp == 0)
 		return;
-
 	if(k[0] != k_old[0] || k[1] != k_old[1])	//If either of the relative momenta have been altered
 	{
 		k_old[0] = k[0];
@@ -1309,7 +1318,10 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	long double M_T, Shift=0;
 	long double answer;
 
-	answer = 0;
+	if(pow(omega,2)>=pow(k,2))
+		answer = sqrt(pow(omega,2)-pow(k,2))*GAMMA;
+	else
+		answer = 0;
 
 	if(Temp == 0)
 		return(answer);
