@@ -23,8 +23,8 @@ int main(int argc, char* argv[])
 	char File[130] = "data/ReSpectralbb.";  //Name of the file
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
-	//char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReSpectralcc.";
-	char File[130] = "data/ReSpectralcc.Half.1/ReSpectralcc.";
+	char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReSpectralcc.";
+	//char File[130] = "data/ReSpectralcc.Half.1/ReSpectralcc.";
 #endif
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
@@ -150,12 +150,15 @@ void Loop_Out1(long double Par[], int Temp, char File[])
 
 	while(iTable.good())
 	{
-		iTable >> Bin_n[0] >> Bin_c[0] >> Bin_n[1] >> Bin_c[1] >> Bin_n[2] >> Bin_c[2] >> Bin_c[3] >> Bin_c[4];
+		iTable >> Bin_n[0] >> Bin_c[0] >> Bin_n[1] >> Bin_c[1] >> Bin_n[2] >> Bin_c[2] >> Bin_n[3];
 		iTable.ignore(300,'\n');
 		i = Bin_n[0];
 		theta = Bin_n[2];
 		if((('0' <= Bin_c[4] && Bin_c[4] <= '9') || Bin_c[4] == '.' ) && 0 <= i && i < 202 && 0 <= theta && theta <= M_PI)
 			Manifest[i][int(theta*200./M_PI)] = true;
+		if((Bin_n[0] == 0 || Bin_n[0] == 201 || Bin_n[0] == 202 || Bin_n[0] == 302) && (Bin_n[2] == 0 || Bin_n[2] > 1.57))
+			if(abs(Bin_n[3]/Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2])-1.) > 1e-7)
+				cerr << "Error in " << File << " at (i,theta)=(" << Bin_n[0] << "," << Bin_n[2] << ")" << endl;
 	}
 	i = 201;
 
@@ -177,16 +180,16 @@ void Loop_Out1(long double Par[], int Temp, char File[])
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{
 				k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
-				if(k < 1.4884 && k > 1.481089)//k < 100 && k >= 0)
-					oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "," << Par[3] << "," << Par[4] << "," << Par[5] << "," << Temp << "," << k << "," << theta << endl;
+				if(k < 100 && k >= 0)
+					oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
 			}
 		}
 		if(!Manifest[i][int(theta*200./M_PI)])
 		{
 			k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
-			if(k < 1.4884 && k > 1.481089)//(k < 100 && k>= 0)
+			if(k < 100 && k>= 0)
 			{
-				oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "," << Par[3] << "," << Par[4] << "," << Par[5] << "," << Temp << "," << k << "," << theta << endl;
+				oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
 			}
 		}
 	}
@@ -258,7 +261,7 @@ void Loop_Out2(long double Par[], int Temp, char File[])
 			if(!Manifest[i+202][int(theta*200./M_PI)])
 			{
 				k = Min+i*(100.-Min)/100.;
-				oTable << i+202 << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "," << Par[3] << "," << Par[4] << "," << Par[5] << "," << Temp << "," << k << "," << theta << endl;
+				oTable << i+202 << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
 			}
 		}
 	}
