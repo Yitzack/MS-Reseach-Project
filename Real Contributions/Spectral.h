@@ -510,6 +510,8 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 		Answer = k_Int(Par, Temp, theta, a, (a+b)/2., order, deep+1) + k_Int(Par, Temp, theta, (a+b)/2., b, order, deep+1);//*/
 	else
 	{
+		F[0] = Elements<Around>(0,0,0,0);
+		F[1] = Elements<Around>(0,0,0,0);
 		switch(ORDER)
 		{
 			case 37:
