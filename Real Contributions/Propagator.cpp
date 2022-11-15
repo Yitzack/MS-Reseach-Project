@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
 	//char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReSpectralcc.";
-	char File[130] = "data/ReSpectralcc.Half.1/ReSpectralcc.";
+	char File[130] = "data/ReSpectralcc.";
 #endif
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 	if(Restart)	//If starting from the beginning, overwrite
 	{
 		TPlot.open(File);
-		TPlot << argv[4] << " " << argv[5] << " " << argv[6] << " " << argv[9] << " " << argv[10] << endl;
+		TPlot << argv[4] << "," << argv[5] << "," << argv[6] << "," << argv[9] << "," << argv[10] << endl;
 	}
 	else	//If not starting from the beginning, append
 		TPlot.open(File, ios::app);
@@ -130,16 +130,17 @@ int main(int argc, char* argv[])
 
 void Loop_Out1(long double Par[], int Temp, char File[])
 {
-	long double theta;
+	long double theta = M_PI/2.;
 	long double on_shell, photon, on_shell_0, photon_0, stop;
 	bool Manifest[202][101];
-	ofstream oTable;
+	//ofstream oTable;
 	ifstream iTable(File);
 	int i;
 	char Bin_c[11];
 	long double Bin_n[9];
+	long double k;
 
-	for(i = 0; i < 202; i++)
+	/*for(i = 0; i < 202; i++)
 	{
 		for(int j = 0; j < 101; j++)
 		{
@@ -155,12 +156,14 @@ void Loop_Out1(long double Par[], int Temp, char File[])
 		theta = Bin_n[2];
 		if((('0' <= Bin_c[4] && Bin_c[4] <= '9') || Bin_c[4] == '.' ) && 0 <= i && i < 202 && 0 <= theta && theta <= M_PI)
 			Manifest[i][int(theta*200./M_PI)] = true;
-	}
+	}*/
+	i = 201;
 
 	iTable.close();
-	oTable.open(File, ios::app);
+	//oTable.open(File, ios::app);
 
-	oTable << setprecision(18);
+	//oTable << setprecision(18);
+	cout << setprecision(18);
 
 	for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
 	{
@@ -172,24 +175,24 @@ void Loop_Out1(long double Par[], int Temp, char File[])
 
 		for(i = 0; i <= 200; i++)
 		{
-			if(!Manifest[i][int(theta*200./M_PI)])
+			if(true)//!Manifest[i][int(theta*200./M_PI)])
 			{
-				long double k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
-				if(k < 100 && k >= 0)
-					oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
+				k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
+				if(k < 1.4884 && k > 1.481089)//k < 100 && k >= 0)
+					cout << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "," << Par[3] << "," << Par[4] << "," << Par[5] << "," << Temp << "," << k << "," << theta << endl;
 			}
 		}
-		if(!Manifest[i][int(theta*200./M_PI)])
+		if(true)//!Manifest[i][int(theta*200./M_PI)])
 		{
-			long double k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
-			if(k < 100 && k>= 0)
+			k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
+			if(k < 1.4884 && k > 1.481089)//(k < 100 && k>= 0)
 			{
-				oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
+				cout << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "," << Par[3] << "," << Par[4] << "," << Par[5] << "," << Temp << "," << k << "," << theta << endl;
 			}
 		}
 	}
 
-	oTable.close();
+	//oTable.close();
 }
 
 void Loop_Out2(long double Par[], int Temp, char File[])
@@ -197,14 +200,15 @@ void Loop_Out2(long double Par[], int Temp, char File[])
 	long double theta;
 	long double on_shell, photon, on_shell_0, photon_0, stop;
 	bool Manifest[303][101];
-	ofstream oTable;
+	//ofstream oTable;
 	ifstream iTable(File);
-	int i, j;
+	int i = 201, j;
 	long double Min = 201;
 	char Bin_c[11];
 	long double Bin_n[9];
+	long double k;
 
-	for(i = 0; i < 303; i++)
+	/*for(i = 0; i < 303; i++)
 	{
 		for(j = 0; j < 101; j++)
 		{
@@ -232,7 +236,7 @@ void Loop_Out2(long double Par[], int Temp, char File[])
 			if(i < Min && !Manifest[i][j])
 				Min = i;
 		}
-	}
+	}*/
 
 	i = Min;
 	Min = 100;
@@ -247,20 +251,21 @@ void Loop_Out2(long double Par[], int Temp, char File[])
 			Min = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
 	}
 
-	oTable << setprecision(18);
-	for(i = 0; i <= 100; i++)
+	//oTable << setprecision(18);
+	cout << setprecision(18);
+	for(i = 0; i <= 0; i++)
 	{
 		for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
 		{
-			if(!Manifest[i+202][int(theta*200./M_PI)])
+			if(true)//!Manifest[i+202][int(theta*200./M_PI)])
 			{
-				long double k = Min+i*(100.-Min)/100.;
-				oTable << i+202 << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
+				k = Min+i*(100.-Min)/100.;
+				cout << i+202 << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << "," << Par[3] << "," << Par[4] << "," << Par[5] << "," << Temp << "," << k << "," << theta << endl;
 			}
 		}
 	}
 
-	oTable.close();
+	//oTable.close();
 }
 
 int Start_Point(int Start, char File[70])	//Go through and find largest starting point in file and return it, causes it to repeat last line

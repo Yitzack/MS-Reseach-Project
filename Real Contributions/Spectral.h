@@ -693,6 +693,7 @@ long double ReG12(long double M, long double s, long double P, long double k, lo
 
 Around Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta)
 {
+cerr << Par[0] << " " << Par[1] << " " << Par[2] << " " << Par[3] << " " << Par[4] << " " << Par[5] << " " << Temp << " " << k0 << " " << k << " " << theta << endl;
 	long double a, b;	//Sub-interval limits of integration
 	long double Min;	//Lower limit of integration
 	long double Max = 0;	//Upper limit of principal value integration
