@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
 	//char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReSpectralcc.";
-	char File[130] = "data/ReSpectralcc.";
+	char File[130] = "data/ReSpectralcc.Half.1/ReSpectralcc.";
 #endif
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
