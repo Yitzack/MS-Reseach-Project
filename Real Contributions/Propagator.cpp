@@ -235,7 +235,7 @@ void Loop_Out2(long double Par[], int Temp, char File[])
 			if(i < Min && !Manifest[i][j])
 				Min = i;
 		}
-	}*/
+	}
 
 	i = Min;
 	Min = 100;
