@@ -258,8 +258,7 @@ Elements<Around> Integrand(long double Par[], long double k, long double theta, 
 {
 	long double k0 = (Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2., -k, theta))/2.;
 	long double i = i_k_wrap(k, Par, theta);
-//	Elements<long double> Holder = Elements<long double>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp);
-//cerr << Par[3] << "," << Par[4] << "," << k << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp) << endl;
+
 	if(fancy && i <= 201)
 		return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*pow(k,2)*sin(theta)*Around(ReG[0](i, theta*200./M_PI), ReG_Err[0](i, theta*200./M_PI)));	//In-medium propagator
 	else if(fancy && i > 201)
@@ -693,7 +692,6 @@ long double ReG12(long double M, long double s, long double P, long double k, lo
 
 Around Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta)
 {
-cerr << Par[0] << " " << Par[1] << " " << Par[2] << " " << Par[3] << " " << Par[4] << " " << Par[5] << " " << Temp << " " << k0 << " " << k << " " << theta << endl;
 	long double a, b;	//Sub-interval limits of integration
 	long double Min;	//Lower limit of integration
 	long double Max = 0;	//Upper limit of principal value integration
@@ -848,6 +846,7 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 			Holder = k0_Int(ParLoc, Temp, k, theta);
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w9[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w16[l+1];
+
 			ParLoc[4] = (b+a+Disp9[l]*(b-a))/2.;
 			Holder = k0_Int(ParLoc, Temp, k, theta);
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w9[l+1];
@@ -865,6 +864,7 @@ Around Dispersion(long double Par[], int Temp, long double k0, long double k, lo
 			Holder = k0_Int(ParLoc, Temp, k, theta);
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w63[l+1];
 			F[1] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w97[l+1];
+
 			ParLoc[4] = (b+a+Disp97[l]*(b-a))/2.;
 			Holder = k0_Int(ParLoc, Temp, k, theta);
 			F[0] += (Holder-ImG12)/(ParLoc[4]-Par[4])*w63[l+1];
@@ -1564,8 +1564,14 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	static long double M_T, Shift;	//Default quark mass, shfift from default quark mass to given quark mass
 	static long double k_old[2] = {-1,-1}; //Previous value of k to know if the parmeters need to recalculated
 
-	Results[0] = 0;
-	Results[1] = 0;
+	if(pow(omega[0],2)>=pow(k[0],2))
+		Results[0] = sqrt(pow(omega[0],2)-pow(k[0],2))*GAMMA;
+	else
+		Results[0] = 0;
+	if(pow(omega[1],2)>=pow(k[1],2))
+		Results[1] = sqrt(pow(omega[1],2)-pow(k[1],2))*GAMMA;
+	else
+		Results[1] = 0;
 
 	if(Temp == 0)
 		return;
@@ -1690,7 +1696,10 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	long double M_T, Shift=0;
 	long double answer;
 
-	answer = 0;
+	if(pow(omega,2)>=pow(k,2))
+		answer = sqrt(pow(omega,2)-pow(k,2))*GAMMA;
+	else
+		answer = 0;
 
 	if(Temp == 0)
 		return(answer);
@@ -1946,10 +1955,14 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 
 void Self_Energy(long double M, long double omega[], long double k[], int Temp, long double ImSelf[], long double ReSelf[])	//Single quark self energy for both quarks. This one has both imaginary and real parts. It is a simple Breit-Wigner peak and simplier than the other provisioned version
 {
-	static long double omega0[2];	//location of central peak
+	/*static long double omega0[2];	//location of central peak
 	static long double Sigma[2];	//size of energy dependance
 	static long double gamma[2];	//space to change from left to right side of peak
-	static long double k_old[2];
+	static long double k_old[2];*/
+	long double omega0[2];	//location of central peak
+	long double Sigma[2];	//size of energy dependance
+	long double gamma[2];	//space to change from left to right side of peak
+	long double k_old[2];
 
 	if(pow(omega[0], 2)>=pow(k[0], 2))
 		ImSelf[0] = sqrt(pow(omega[0], 2)-pow(k[0], 2))*GAMMA;
@@ -2094,19 +2107,14 @@ long double Interacting_Quad_Trace(long double Par[], long double k0, long doubl
 
 long double Imk0_Integrand(long double Par[], long double k0, long double k, long double theta, int Temp)	//Integrand of the folding integral for positive energy
 {
-	static long double q[2] = {Energy(0, Par[3]/2., k, theta), Energy(0, Par[3]/2., -k, theta)};
-	static long double k_old = k;
+	long double q[2] = {Energy(0, Par[3]/2., k, theta), Energy(0, Par[3]/2., -k, theta)};
 	long double omega[2] = {sqrt(Par[4]+pow(Par[3], 2))/2.+k0, sqrt(Par[4]+pow(Par[3], 2))/2.-k0};
 	long double fermi[2] = {Fermi(omega[0], Temp), Fermi(omega[1], Temp)};
 	long double ImSelf[2];
 	long double ReSelf[2];
 
-	if(k_old != k)
-	{
-		k_old = k;
-		q[0] = Energy(0, Par[3]/2., k, theta);
-		q[1] = Energy(0, Par[3]/2., -k, theta);
-	}
+	q[0] = Energy(0, Par[3]/2., k, theta);
+	q[1] = Energy(0, Par[3]/2., -k, theta);
 
 	//Self_Energy(Par[2], omega, q, Temp, ImSelf, ReSelf);
 	ImSelf_Energy(Par[2], omega, q, Temp, ImSelf);

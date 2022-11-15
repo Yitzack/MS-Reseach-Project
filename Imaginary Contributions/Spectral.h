@@ -1198,6 +1198,7 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 
 	if(Temp == 0)
 		return;
+
 	if(k[0] != k_old[0] || k[1] != k_old[1])	//If either of the relative momenta have been altered
 	{
 		k_old[0] = k[0];
