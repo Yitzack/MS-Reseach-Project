@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 			strcat(FileApp, ".csv");
 			Load_File(FileApp);
 
-			if(ReG[0].is_ready())
+			if(ReG[0].is_ready() || Temp == 0)
 			{
 				auto Start_Time = chrono::system_clock::now();
 				try
