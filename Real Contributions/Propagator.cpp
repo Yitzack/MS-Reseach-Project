@@ -158,7 +158,7 @@ void Loop_Out1(long double Par[], int Temp, char File[])
 			Manifest[i][int(theta*200./M_PI)] = true;
 		if((Bin_n[0] == 0 || Bin_n[0] == 201 || Bin_n[0] == 202 || Bin_n[0] == 302) && (Bin_n[2] == 0 || Bin_n[2] > 1.57) || float(rand())/float(RAND_MAX) < .002)
 			if(abs(Bin_n[3]/Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2])-1.) > 1e-7)
-				cerr << "Error in " << File << " at (i,theta)=(" << Bin_n[0] << "," << Bin_n[2] << ")" << endl;
+				cerr << "Error in " << File << " at (i,theta)=(" << Bin_n[0] << "," << Bin_n[2] << ") of " << Bin_n[3] << " and " << Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2]) << endl;
 	}
 	i = 201;
 
