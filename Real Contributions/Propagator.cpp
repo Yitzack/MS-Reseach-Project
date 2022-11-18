@@ -25,6 +25,7 @@ int main(int argc, char* argv[])
 #ifdef CC	//use option -D CC= to activate charmonium macro
 	//char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReSpectralcc.";
 	char File[130] = "data/ReSpectralcc.Half.1/ReSpectralcc.";
+	//char File[130] = "data/ReSpectralcc.";
 #endif
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
@@ -132,7 +133,7 @@ void Loop_Out1(long double Par[], int Temp, char File[])
 {
 	long double theta = M_PI/2.;
 	long double on_shell, photon, on_shell_0, photon_0, stop;
-	bool Manifest[202][101];
+	bool Manifest[303][101];
 	ofstream oTable;
 	ifstream iTable(File);
 	int i;
@@ -148,17 +149,19 @@ void Loop_Out1(long double Par[], int Temp, char File[])
 		}
 	}
 
+	cerr << setprecision(18);
 	while(iTable.good())
 	{
 		iTable >> Bin_n[0] >> Bin_c[0] >> Bin_n[1] >> Bin_c[1] >> Bin_n[2] >> Bin_c[2] >> Bin_n[3];
 		iTable.ignore(300,'\n');
 		i = Bin_n[0];
 		theta = Bin_n[2];
-		if((('0' <= Bin_c[4] && Bin_c[4] <= '9') || Bin_c[4] == '.' ) && 0 <= i && i < 202 && 0 <= theta && theta <= M_PI)
+		if(0 <= i && i < 303 && 0 <= theta && theta <= M_PI)
 			Manifest[i][int(theta*200./M_PI)] = true;
-		if((Bin_n[0] == 0 || Bin_n[0] == 201 || Bin_n[0] == 202 || Bin_n[0] == 302) && (Bin_n[2] == 0 || Bin_n[2] > 1.57) || float(rand())/float(RAND_MAX) < .002)
-			if(abs(Bin_n[3]/Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2])-1.) > 1e-7)
-				cerr << "Error in " << File << " at (i,theta)=(" << Bin_n[0] << "," << Bin_n[2] << ") of " << Bin_n[3] << " and " << Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2]) << endl;
+		if((Bin_n[0] == 0 || Bin_n[0] == 201 || Bin_n[0] == 202 || Bin_n[0] == 302) && (Bin_n[2] == 0 || Bin_n[2] > 1.57))
+			cerr << File << "," << Bin_n[0] << "," << Bin_n[2] << "," << Bin_n[3] << "," << endl;//Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2]).Value() << endl;
+		if(float(rand())/float(RAND_MAX) < .002)// && abs(Bin_n[3]/Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2])-1.) > 1e-7)
+			cerr << File << "," << Bin_n[0] << "," << Bin_n[2] << "," << Bin_n[3] << "," << endl;//Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2]).Value() << endl;
 	}
 	i = 201;
 
@@ -254,7 +257,7 @@ void Loop_Out2(long double Par[], int Temp, char File[])
 	}
 
 	oTable << setprecision(18);
-	for(i = 0; i <= 0; i++)
+	for(i = 0; i <= 100; i++)
 	{
 		for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
 		{
