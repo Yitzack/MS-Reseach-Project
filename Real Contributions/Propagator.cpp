@@ -159,9 +159,9 @@ void Loop_Out1(long double Par[], int Temp, char File[])
 		if(0 <= i && i < 303 && 0 <= theta && theta <= M_PI)
 			Manifest[i][int(theta*200./M_PI)] = true;
 		if((Bin_n[0] == 0 || Bin_n[0] == 201 || Bin_n[0] == 202 || Bin_n[0] == 302) && (Bin_n[2] == 0 || Bin_n[2] > 1.57))
-			cerr << File << "," << Bin_n[0] << "," << Bin_n[2] << "," << Bin_n[3] << "," << endl;//Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2]).Value() << endl;
+			cerr << File << "," << Bin_n[0] << "," << Bin_n[2] << "," << Bin_n[3] << "," << Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2]).Value() << endl;
 		if(float(rand())/float(RAND_MAX) < .002 && abs(Bin_n[3]/Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2])-1.) > 1e-7)
-			cerr << File << "," << Bin_n[0] << "," << Bin_n[2] << "," << Bin_n[3] << "," << endl;//Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2]).Value() << endl;
+			cerr << File << "," << Bin_n[0] << "," << Bin_n[2] << "," << Bin_n[3] << "," << Dispersion(Par, Temp, 0, Bin_n[1], Bin_n[2]).Value() << endl;
 	}
 	i = 201;
 
