@@ -2,7 +2,6 @@
 #include<cmath>
 #include<cstdlib>
 #include<cfloat>
-#include<complex>
 #include<queue>
 #include"Interpolation.h"
 #include"Elements.h"
@@ -24,15 +23,8 @@ long double i_k(long double, long double, long double, long double, long double)
 long double i_k_wrap(long double, long double[], long double);			//Wrapper for i_k() to select the correct one.
 
 Elements<Around> Integrand(long double[], long double, long double, int);
-long double ReG12(long double, long double, long double, long double, long double);
-long double ImG12(long double, long double, long double, long double, long double);
-complex<long double> G12Reverse(long double, long double, long double, long double, long double, int);
 long double ReG12Reverse(long double, long double, long double, long double, long double, int);
 long double ImG12Reverse(long double, long double, long double, long double, long double, int);
-complex<long double> G12BbS(long double, long double, long double, long double, long double, int);
-complex<long double> SigmaReverse(long double, long double, long double, long double, long double, int);
-complex<long double> SigmaBbS(long double, long double, long double, long double, long double, int);
-complex<long double> ReBuiltSigma(long double[], int, long double, long double);
 
 //Functions for finding points of interest in the k integral
 void Characterize_k_Int(long double[], int, long double, long double[], long double[], int&);	//Returns the poles of the k integral's integrands
@@ -116,7 +108,7 @@ void mergeSort(long double List[], int a, int b)
 }
 
 #ifndef BBS_GAMMA	//use option -D BBS_GAMMA=<number> to alter BbS vacuum width, default value 2.03 MeV short of pi*32MeV
-#define BBS_GAMMA -0.0984979859583147	//Width of single quark propagator
+#define BBS_GAMMA -0.032400653275761415	//Width of single quark propagator
 #endif
 #ifndef GAMMA	//use option -D GAMMA=<number> to alter single particle vacuum width, default value is 15MeV
 #define GAMMA -0.015	//Width of single quark propagator
@@ -507,7 +499,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 
 	Answer = Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])))*(b-a)/2.;//F[0]*(b-a)/2.;//	//Record the subinterval to total of the integral
 	if((Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9) && deep < 4 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
-		Answer = k_Int(Par, Temp, theta, a, (a+b)/2., order, deep+1) + k_Int(Par, Temp, theta, (a+b)/2., b, order, deep+1);//*/
+		Answer = k_Int(Par, Temp, theta, a, (a+b)/2., order, deep+1) + k_Int(Par, Temp, theta, (a+b)/2., b, order, deep+1);
 	else
 	{
 		F[0] = Elements<Around>(0,0,0,0);
@@ -558,90 +550,6 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 	return(Answer);
 }
 
-complex<long double> ReBuiltSigma(long double Par[], int Temp, long double k, long double theta)
-{
-	complex<long double> G12 = complex<long double>(Dispersion(Par, Temp, (Energy(1.9, Par[3]/2., k, 0)-Energy(1.9, Par[3]/2., -k, 0))/2., k, theta).Value(),k0_Int(Par, Temp, k, theta).Value());
-	long double omega[2] = {Energy(Par[2], Par[3]/2., k, theta), Energy(Par[2], Par[3]/2., -k, theta)};
-	complex<long double> Sigma = (-G12*(pow(omega[1],2)*omega[0]-omega[1]*pow(omega[0],2))+sqrt(-(long double)(2.)*G12*pow(Par[2]*omega[1],2)*omega[0]-(long double)(2.)*G12*omega[1]*pow(Par[2]*omega[0],2)+pow(G12*Par[3]*omega[1]*omega[0],2)+Par[4]*pow(G12*omega[1]*omega[0],2)))/(G12*omega[1]*omega[0]);
-
-	if(Sigma.imag() > 0)
-		Sigma = (-G12*(pow(omega[1],2)*omega[0]-omega[1]*pow(omega[0],2))-sqrt(-(long double)(2.)*G12*pow(Par[2]*omega[1],2)*omega[0]-(long double)(2.)*G12*omega[1]*pow(Par[2]*omega[0],2)+pow(G12*Par[3]*omega[1]*omega[0],2)+Par[4]*pow(G12*omega[1]*omega[0],2)))/(G12*omega[1]*omega[0]);
-
-	return(Sigma);
-}
-
-complex<long double> SigmaBbS(long double M, long double s, long double P, long double k, long double theta, int Temp)
-{
-	long double q[2] = {Energy(0, P/2., k, theta), Energy(0, P/2., -k, theta)};
-	long double omega[2] = {Energy(M, P/2., k, theta), Energy(M, P/2., -k, theta)};
-	long double fermi[2] = {Fermi(omega[0], Temp), Fermi(omega[1], Temp)};
-	long double ImSelf[2];
-	long double ReSelf[2];
-
-	ImSelf[0] = ImSelf_Energy(M, omega[0], q[0], Temp);
-	ImSelf[1] = ImSelf_Energy(M, omega[1], q[1], Temp);
-	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp);
-	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp);
-
-	return(complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]));
-}
-
-complex<long double> SigmaReverse(long double M, long double s, long double P, long double k, long double theta, int Temp)
-{
-	long double q[2] = {Energy(0, P/2., k, theta), Energy(0, P/2., -k, theta)};
-	long double omega[2] = {sqrt(s+pow(P,2))-Energy(M, P/2., -k, theta), sqrt(s+pow(P,2))-Energy(M, P/2., k, theta)};
-	long double fermi[2] = {Fermi(omega[0], Temp), Fermi(omega[1], Temp)};
-	long double ImSelf[2];
-	long double ReSelf[2];
-
-	ImSelf[0] = ImSelf_Energy(M, omega[0], q[0], Temp)/5.;
-	ImSelf[1] = ImSelf_Energy(M, omega[1], q[1], Temp)/5.;
-	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp)/2.;
-	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
-
-	return(complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]));
-}
-
-complex<long double> G12BbS(long double M, long double s, long double P, long double k, long double theta, int Temp)
-{
-	long double q[2] = {Energy(0, P/2., k, theta), Energy(0, P/2., -k, theta)};
-	long double omega[2] = {Energy(M, P/2., k, theta), Energy(M, P/2., -k, theta)};
-	long double fermi[2] = {Fermi(omega[0], Temp), Fermi(omega[1], Temp)};
-	long double ImSelf[2];
-	long double ReSelf[2];
-	long double Vacuum_Width = 0;
-
-	ImSelf[0] = ImSelf_Energy(M, omega[0], q[0], Temp);
-	ImSelf[1] = ImSelf_Energy(M, omega[1], q[1], Temp);
-	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp);
-	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp);
-
-	if(s >= 0)
-		Vacuum_Width = BBS_GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
-
-	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width))));
-}
-
-complex<long double> G12Reverse(long double M, long double s, long double P, long double k, long double theta, int Temp)
-{
-	long double q[2] = {Energy(0, P/2., k, theta), Energy(0, P/2., -k, theta)};
-	long double omega[2] = {sqrt(s+pow(P,2))-Energy(M, P/2., -k, theta), sqrt(s+pow(P,2))-Energy(M, P/2., k, theta)};
-	long double fermi[2] = {Fermi(omega[0], Temp), Fermi(omega[1], Temp)};
-	long double ImSelf[2];
-	long double ReSelf[2];
-	long double Vacuum_Width = 0;
-
-	ImSelf[0] = ImSelf_Energy(M, omega[0], q[0], Temp)/5.;
-	ImSelf[1] = ImSelf_Energy(M, omega[1], q[1], Temp)/5.;
-	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp)/2.;
-	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
-
-	if(s >= 0)
-		Vacuum_Width = -BBS_GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
-
-	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width))));
-}
-
 long double ReG12Reverse(long double M, long double s, long double P, long double k, long double theta, int Temp)
 {
 	long double q[2] = {Energy(0, P/2., k, theta), Energy(0, P/2., -k, theta)};
@@ -656,8 +564,8 @@ long double ReG12Reverse(long double M, long double s, long double P, long doubl
 	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp)/2.;
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
 
-	if(s >= 0.6859734802602255)
-		Vacuum_Width = -BBS_GAMMA*pow((s-0.6859734802602255)/(9.2416-0.6859734802602255),2.5)*pow((.36+9.2416)/(.36+s),2)*sqrt(s)/3.04;
+	if(s >= pow(M_TH,2))
+		Vacuum_Width = -BBS_GAMMA*pow((s-pow(M_TH,2))/(9.2416-pow(M_TH,2)),POWER)*pow((9.2416+9.2416)/(s+9.2416),POWER)*sqrt(s);
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).real();
 }
@@ -676,20 +584,10 @@ long double ImG12Reverse(long double M, long double s, long double P, long doubl
 	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp)/2.;
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
 
-	if(s >= 0)
-		Vacuum_Width = -BBS_GAMMA*(25.*(sqrt(s)+2.*M*tanh((80.*pow(M,2))/73.)+(2.*M-sqrt(s))*tanh((20.*(-4.*pow(M,2)+s))/73.)))/(76.+50.*M*tanh((80.*pow(M,2))/73.)+(-76.+50.*M)*tanh(23104./9125.-(80.*pow(M,2))/73.));
+	if(s >= pow(M_TH,2))
+		Vacuum_Width = -BBS_GAMMA*pow((s-pow(M_TH,2))/(9.2416-pow(M_TH,2)),POWER)*pow((9.2416+9.2416)/(s+9.2416),POWER)*sqrt(s);
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).imag();
-}
-
-long double ImG12(long double M, long double s, long double P, long double k, long double theta)
-{
-	return((-2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)))*.14/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(pow(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2),2)+pow(.14,2))));
-}
-
-long double ReG12(long double M, long double s, long double P, long double k, long double theta)
-{
-	return((2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)))*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(pow(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2),2)+pow(.14,2))));
 }
 
 Around Dispersion(long double Par[], int Temp, long double k0, long double k, long double theta)

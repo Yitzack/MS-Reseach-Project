@@ -3,6 +3,7 @@
 #include<iomanip>
 #include<fstream>
 #include<cstring>
+#include<complex>
 #include<chrono>
 #include"Spectral.h"
 using namespace std;
