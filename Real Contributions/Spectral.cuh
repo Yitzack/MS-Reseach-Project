@@ -21,6 +21,9 @@ struct Dev_Pointer
 	pair<double,double>* Limits;
 };
 
+double ReG12(double M, double s, double P, double k, double theta, int Temp);
+double ImG12(double M, double s, double P, double k, double theta, int Temp);
+
 //Integrals that define results
 Around Dispersion(Dev_Pointer, double[], int, double, double, double);			//Dispersion relation for turning ImG_12 into ReG_12
 Around Dispersion(Dev_Pointer, double[], int, double, double, double, double, double, Around, int, int);	//Dispersion relation for turning ImG_12 into ReG_12
@@ -62,9 +65,10 @@ void Characterize_Dispersion(double[], int, double, double, double, double[], do
 double sp_Width(double[], double, double, double, int, double (*)(double[], double, double, double, int));	//Breit-Wigner width of the peak
 
 //Functions that return physics for the integrand
-void ImSelf_Energy(double, double, double[], int, double[]);		//Returns the imaginary single quark self-energies for both quarks, contains an alternate T=194 MeV solution
+void ImSelf_Energy(double, double[], double[], int, double[]);	//Returns the imaginary single quark self-energies for both quarks, contains an alternate T=194 MeV solution
 double ImSelf_Energy(double, double, double, int);			//Returns the imaginary single quark self-energies for one quark, contains an alternate T=194 MeV solution
-void ReSelf_Energy(double, double, double[], int, double[]);		//Returns the real single quark self-energies for both quarks, contains an alternate T=194 MeV solution
+void ReSelf_Energy(double, double[], double[], int, double[]);	//Returns the real single quark self-energies for both quarks, contains an alternate T=194 MeV solution
+double ReSelf_Energy(double, double, double, int);			//Single quark self energy
 void Self_Energy(double, double, double[], int, double[], double[]);	//Returns the complex single quark self-energies for both quarks, is a simple Breit-Wigner self-energy and alternate to those above
 __device__ __host__ double Energy(double, double, double, double);	//Single quark energy, also used to return total momentum by setting M=0
 double Fermi(double, int);						//Fermi function
@@ -72,104 +76,6 @@ double Set_Temp(int);							//Decodes 0-4 into numeric temprature for Fermi fact
 double Imk0_Integrand(double[], double, double, double, int);	//Integrand of the k0 integral for positive energy
 __device__ __host__ double sq(double);
 
-void George(double M, double omega[], double k[], int Temp, double Results[])	//Single quark self energy
-{
-	static double Sigma[2];		//Strength
-	static double x0[2], x1[2];	//Centrality markers
-	static double gamma[2];		//Width
-	static double Shift, M_T;
-	static double k_old[2];		//Note on validity of k
-
-	if(Temp == 0 || Temp == 5)
-	{
-		Results[0] = 0;
-		Results[1] = 0;
-		return;
-	}
-
-	if(k[0] != k_old[0] || k[1] != k_old[1])
-	{
-		k_old[0] = k[0];
-		k_old[1] = k[1];
-		switch(Temp)
-		{
-			/*case 1://194MeV
-				M_T = 1.84184;
-				Shift = M-M_T;
-				Sigma[0] = .257498/sqrt(sq(k[0])+pow(1.33201, 2))+.00762638;
-				Sigma[1] = .257498/sqrt(sq(k[1])+pow(1.33201, 2))+.00762638;
-				x0[0] = sqrt(sq(k[0])+pow(1.54778+Shift, 2))+.276509;
-				x0[1] = sqrt(sq(k[1])+pow(1.54778+Shift, 2))+.276509;
-				x1[0] = sqrt(sq(k[0])+pow(1.49799+Shift, 2))+.246719;
-				x1[1] = sqrt(sq(k[1])+pow(1.49799+Shift, 2))+.246719;
-				gamma[0] = .658734/sqrt(sq(k[0])+pow(3.35217, 2))+.0815109;
-				gamma[1] = .658734/sqrt(sq(k[1])+pow(3.35217, 2))+.0815109;
-				break;*/
-			case 1://194MeV
-				M_T = 1.84184;
-				Shift = M-M_T;
-				Sigma[0] = .212571/sqrt(sq(k[0])+pow(1.17821, 2))+.00762638;
-				Sigma[1] = .212571/sqrt(sq(k[1])+pow(1.17821, 2))+.00762638;
-				x0[0] = sqrt(sq(k[0])+pow(1.57536+Shift, 2))+.259147;
-				x0[1] = sqrt(sq(k[1])+pow(1.57536+Shift, 2))+.259147;
-				x1[0] = sqrt(sq(k[0])+pow(1.50194+Shift, 2))+.222526;
-				x1[1] = sqrt(sq(k[1])+pow(1.50194+Shift, 2))+.222526;
-				gamma[0] = .336699/sqrt(sq(k[0])+pow(1.87956, 2))+.0651449;
-				gamma[1] = .336699/sqrt(sq(k[1])+pow(1.87956, 2))+.0651449;
-				break;
-			case 2://258MeV
-				M_T = 1.69584;
-				Shift = M-M_T;
-				Sigma[0] = .307972/sqrt(sq(k[0])+pow(1.41483, 2))+.0101423;
-				Sigma[1] = .307972/sqrt(sq(k[1])+pow(1.41483, 2))+.0101423;
-				x0[0] = sqrt(sq(k[0])+pow(1.56476+Shift, 2))+.251031;
-				x0[1] = sqrt(sq(k[1])+pow(1.56476+Shift, 2))+.251031;
-				x1[0] = sqrt(sq(k[0])+pow(1.50194+Shift, 2))+.222526;
-				x1[1] = sqrt(sq(k[1])+pow(1.50194+Shift, 2))+.222526;
-				gamma[0] = .550628/sqrt(sq(k[0])+pow(2.43968, 2))+.0981269;
-				gamma[1] = .550628/sqrt(sq(k[1])+pow(2.43968, 2))+.0981269;
-				break;
-			case 3://320MeV
-				M_T = 1.59439;
-				Shift = M-M_T;
-				Sigma[0] = .339131/sqrt(sq(k[0])+pow(1.43308, 2))+.0125796;
-				Sigma[1] = .339131/sqrt(sq(k[1])+pow(1.43308, 2))+.0125796;
-				x0[0] = sqrt(sq(k[0])+pow(1.55034+Shift, 2))+.257788;
-				x0[1] = sqrt(sq(k[1])+pow(1.55034+Shift, 2))+.257788;
-				x1[0] = sqrt(sq(k[0])+pow(1.46999+Shift, 2))+.231821;
-				x1[1] = sqrt(sq(k[1])+pow(1.46999+Shift, 2))+.231821;
-				gamma[0] = .615278/sqrt(sq(k[0])+pow(2.22298, 2))+.143376;
-				gamma[1] = .615278/sqrt(sq(k[1])+pow(2.22298, 2))+.143376;
-				break;
-			case 4://400MeV
-				M_T = 1.48038;
-				Shift = M-M_T;
-				Sigma[0] = .304841/sqrt(sq(k[0])+pow(1.42911, 2))+.0157245;
-				Sigma[1] = .304841/sqrt(sq(k[1])+pow(1.42911, 2))+.0157245;
-				x0[0] = sqrt(sq(k[0])+pow(1.55511+Shift, 2))+.231105;
-				x0[1] = sqrt(sq(k[1])+pow(1.55511+Shift, 2))+.231105;
-				x1[0] = sqrt(sq(k[0])+pow(1.44714+Shift, 2))+.20956;
-				x1[1] = sqrt(sq(k[1])+pow(1.44714+Shift, 2))+.20956;
-				gamma[0] = .862629/sqrt(sq(k[0])+pow(2.67193, 2))+.189598;
-				gamma[1] = .862629/sqrt(sq(k[1])+pow(2.67193, 2))+.189598;
-				break;
-			default:
-				Sigma[0] = Sigma[1] = .188045;
-				x0[0] = x0[1] = 1.83451;
-				x1[0] = x1[1] = 1.72447;
-				gamma[0] = gamma[1] = .244282;
-		}
-	}
-
-#ifdef HALF
-	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0], 2)+gamma[0])/2.;
-	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1], 2)+gamma[1])/2.;
-#else
-	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0], 2)+gamma[0]);
-	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1], 2)+gamma[1]);
-#endif
-	return;
-}
 
 auto Start_Time = chrono::system_clock::now();
 int Allotment = 90;
@@ -217,6 +123,9 @@ void mergeSort(double List[], int a, int b)
 
 #ifndef GAMMA	//use option -D GAMMA=<number> to alter single particle vacuum width, default value is 15MeV
 #define GAMMA -.015	//Width of single quark propagator
+#endif
+#ifndef BBS_GAMMA	//use option -D BBS_GAMMA=<number> to alter BbS vacuum width, default value 2.03 MeV short of pi*32MeV
+#define BBS_GAMMA -0.032400653275761415	//Width of single quark propagator
 #endif
 #ifndef BLOCK_SIZE
 #define BLOCK_SIZE 256;
@@ -351,6 +260,46 @@ Around Dispersion(Dev_Pointer Pointers, double Par[], int Temp, double k0, doubl
 	if(abs(ImG12) >= 1e-12)
 		return((Answer+ImG12*log(abs((Max-Par[4])/(Par[4]-Min))))/M_PI);
 	return(Answer/M_PI);
+}
+
+double ReG12(double M, double s, double P, double k, double theta, int Temp)
+{
+	double q[2] = {Energy(0, P/2., k, theta), Energy(0, P/2., -k, theta)};
+	double omega[2] = {sqrt(s+pow(P,2))-Energy(M, P/2., -k, theta), sqrt(s+pow(P,2))-Energy(M, P/2., k, theta)};
+	double fermi[2] = {Fermi(omega[0], Temp), Fermi(omega[1], Temp)};
+	double ImSelf[2];
+	double ReSelf[2];
+	double Vacuum_Width = 0;
+
+	ImSelf[0] = ImSelf_Energy(M, omega[0], q[0], Temp)/5.;
+	ImSelf[1] = ImSelf_Energy(M, omega[1], q[1], Temp)/5.;
+	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp)/2.;
+	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
+
+	if(s >= pow(M_TH,2))
+		Vacuum_Width = -BBS_GAMMA*pow((s-pow(M_TH,2))/(9.2416-pow(M_TH,2)),POWER)*pow((9.2416+9.2416)/(s+9.2416),POWER)*sqrt(s);
+
+	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<double>(ReSelf[0],ImSelf[0])+complex<double>(ReSelf[1],ImSelf[1]),2)+complex<double>(0,Vacuum_Width)))).real();
+}
+
+double ImG12(double M, double s, double P, double k, double theta, int Temp)
+{
+	double q[2] = {Energy(0, P/2., k, theta), Energy(0, P/2., -k, theta)};
+	double omega[2] = {sqrt(s+pow(P,2))-Energy(M, P/2., -k, theta), sqrt(s+pow(P,2))-Energy(M, P/2., k, theta)};
+	double fermi[2] = {Fermi(omega[0], Temp), Fermi(omega[1], Temp)};
+	double ImSelf[2];
+	double ReSelf[2];
+	double Vacuum_Width = 0;
+
+	ImSelf[0] = ImSelf_Energy(M, omega[0], q[0], Temp)/5.;
+	ImSelf[1] = ImSelf_Energy(M, omega[1], q[1], Temp)/5.;
+	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp)/2.;
+	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
+
+	if(s >= pow(M_TH,2))
+		Vacuum_Width = -BBS_GAMMA*pow((s-pow(M_TH,2))/(9.2416-pow(M_TH,2)),POWER)*pow((9.2416+9.2416)/(s+9.2416),POWER)*sqrt(s);
+
+	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<double>(ReSelf[0],ImSelf[0])+complex<double>(ReSelf[1],ImSelf[1]),2)+complex<double>(0,Vacuum_Width)))).imag();
 }
 
 Around Dispersion(Dev_Pointer Pointers, double Par[], int Temp, double k0, double k, double theta, double a, double b, Around ImG12, int order, int deep)
@@ -549,12 +498,12 @@ Around k0_Int(Dev_Pointer Pointers, double Par[], int Temp, double k, double the
 	cudaMemcpy((void*)Pointers.Par, (void*)Par_loc, 9*sizeof(double), cudaMemcpyHostToDevice);
 	cudaMemcpy((void*)Pointers.Limits, (void*)Limits, Intervals*sizeof(pair<double,double>), cudaMemcpyHostToDevice);
 
-	//k0_omega_Fermi_97<<<Num_blocks,Block_size>>>(Pointers.Par, Pointers.Limits, Pointers.omega, Pointers.Fermi, Pointers.q);	//Energy and Fermi function for 97th order
-	k0_Vacuum<<<Num_blocks,Block_size>>>(Pointers.Par, Pointers.Limits);
+	k0_omega_Fermi_97<<<Num_blocks,Block_size>>>(Pointers.Par, Pointers.Limits, Pointers.omega, Pointers.Fermi, Pointers.q);	//Energy and Fermi function for 97th order
+	//k0_Vacuum<<<Num_blocks,Block_size>>>(Pointers.Par, Pointers.Limits);
 cudaError_t Error = cudaGetLastError();
 if(Error != cudaSuccess)
 	cout << cudaGetErrorName(Error) << " " << cudaGetErrorString(Error) << endl;
-	/*switch(Temp)
+	switch(Temp)
 	{
 	case 0:
 		k0_Vaccum_ImSelf_97<<<Num_blocks,Block_size>>>(Pointers.Par, Pointers.q, Pointers.omega, Pointers.ImSelf);	//ImSelf for Vacuum and 97th order
@@ -717,43 +666,45 @@ __global__ void k0_omega_Fermi_97(double* Par_globe, pair<double,double>* Limits
 	int index = threadIdx.x+blockIdx.x*blockDim.x;
 	int interval = index/65;
 	int point = index-interval*65;
+	int Max;
 	__shared__ double Par[9];
 	if(threadIdx.x < 9)
 		Par[threadIdx.x] = Par_globe[threadIdx.x];
 
 	__syncthreads();
 
-	if(index >= Par[8]*65)
-		return;
-
-	k0 = (Limits[interval].first+Limits[interval].second+Disp97[point]*(Limits[interval].second-Limits[interval].first))/2.;	//abscisca
-	omega[index].first = sqrt(Par[4]+sq(Par[3]))/2.+k0;
-	omega[index].second = sqrt(Par[4]+sq(Par[3]))/2.-k0;
-
-	if(Par[7] == 0)
-	{
-		if(omega[index].first >= 0)	//Fermi factor for vacuum
-			Fermi[index].first = 0;
-		else
-			Fermi[index].first = 1;
-	}
-	else
-		Fermi[index].first = 1./(1.+exp(omega[index].first/Par[7]));
-
-	if(Par[7] == 0)
-	{
-		if(omega[index].second >= 0)	//Fermi factor for vacuum
-			Fermi[index].second = 0;
-		else
-			Fermi[index].second = 1;
-	}
-	else
-		Fermi[index].second = 1./(1.+exp(omega[index].second/Par[7]));
-
 	if(index == 0)
 	{
+		Max = 65*int(Par[8]);
 		q[0].first = Energy(0, Par[3]/2., Par[5], Par[6]);
 		q[0].second = Energy(0, Par[3]/2., -Par[5], Par[6]);
+	}
+
+	k0 = (Limits[interval].first+Limits[interval].second+Disp97[point]*(Limits[interval].second-Limits[interval].first))/2.;	//abscisca
+	if(index < Max)
+	{
+		omega[index].first = sqrt(Par[4]+sq(Par[3]))/2.+k0;
+		omega[index].second = sqrt(Par[4]+sq(Par[3]))/2.-k0;
+
+		if(Par[7] == 0)
+		{
+			if(omega[index].first >= 0)	//Fermi factor for vacuum
+				Fermi[index].first = 0;
+			else
+				Fermi[index].first = 1;
+		}
+		else
+			Fermi[index].first = 1./(1.+exp(omega[index].first/Par[7]));
+
+		if(Par[7] == 0)
+		{
+			if(omega[index].second >= 0)	//Fermi factor for vacuum
+				Fermi[index].second = 0;
+			else
+				Fermi[index].second = 1;
+		}
+		else
+			Fermi[index].second = 1./(1.+exp(omega[index].second/Par[7]));
 	}
 }
 
@@ -843,7 +794,6 @@ __global__ void k0_194_ImSelf_97(double* Par, pair<double,double>* q, pair<doubl
 		ImSigma[0] = b[0]*(omega0[0]-omega[0]+knee[0]/sqrt(a[0]*b[0]));
 	else	//Lost of precision having been circumvented, the actual value
 		ImSigma[0] = -.5*((a[0]-b[0])*omega0[0]-((a[0]+b[0])*knee[0])/sqrt(a[0]*b[0]))+(a[0]-b[0])*omega[0]/2-sqrt(pow(((a[0]+b[0])/2.)*(omega[0]-omega0[0]+((a[0]-b[0])*knee[0])/(sqrt(a[0]*b[0])*(a[0]+b[0]))), 2)+pow(knee[0], 2));
-
 	if((omega[1]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] < -4.)
 		ImSigma[1] = a[1]*(omega[1]-omega0[1]+knee[1]/sqrt(a[1]*b[1]));
 	else if((omega[1]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] > 4.)
@@ -940,7 +890,7 @@ __global__ void k0_Ordinate_97(double* Par, pair<double,double>* omega, pair<dou
 		interval_size = Limits[interval].second-Limits[interval].first;
 		Ordinate = -4.*ImSelf[index].first*ImSelf[index].second*sq(Par[2])*(1.-fermi[index].first-fermi[index].second);
 		Ordinate /= sq(sq(omega[index].first)-sq(q[0].first)-sq(Par[2])-2.*Par[2]*ReSelf[index].first)+sq(ImSelf[index].first);
-		Ordinate /= sq(sq(omega[index].second)-sq(q[0].second)-sq(Par[2])-2.*Par[2]* ReSelf[index].second)+sq(ImSelf[index].second);
+		Ordinate /= sq(sq(omega[index].second)-sq(q[0].second)-sq(Par[2])-2.*Par[2]*ReSelf[index].second)+sq(ImSelf[index].second);
 		lower_order[threadIdx.x] = w63[point]*Ordinate*interval_size/2.;
 		higher_order[threadIdx.x] = w97[point]*Ordinate*interval_size/2.;
 	}
@@ -949,6 +899,7 @@ __global__ void k0_Ordinate_97(double* Par, pair<double,double>* omega, pair<dou
 		lower_order[threadIdx.x] = 0;
 		higher_order[threadIdx.x] = 0;
 	}
+
 	if(index+blockDim.x < Max)
 	{
 		interval = (index+blockDim.x)/65;
@@ -1677,8 +1628,8 @@ double ImSelf_Energy(double M, double omega, double k, int Temp)	//Single quark 
 	double M_T, Shift=0;
 	double answer;
 
-	if(pow(omega, 2)>=sq(k) && omega >= 0)
-		answer = sqrt(pow(omega, 2)-sq(k))*GAMMA;
+	if(pow(omega,2)>=pow(k,2))
+		answer = sqrt(pow(omega,2)-pow(k,2))*GAMMA;
 	else
 		answer = 0;
 
@@ -1690,46 +1641,46 @@ double ImSelf_Energy(double M, double omega, double k, int Temp)	//Single quark 
 		/*case 1://194MeV
 			M_T = 1.84184;
 			Shift = M-M_T;
-			Sigma = .569969/sqrt(sq(k)+pow(1.75236, 2))+.0187484;
-			a = 4.689/(sq(k)+pow(1.18, 2))+4.59495;
+			Sigma = .569969/sqrt(pow(k, 2)+pow(1.75236, 2))+.0187484;
+			a = 4.689/(pow(k, 2)+pow(1.18, 2))+4.59495;
 			b = -70400/(pow(k+20, 2)+pow(130, 2))+6.24;
-			omega0 = sqrt(pow(1.51443+Shift, 2)+sq(k))+.232841;
+			omega0 = sqrt(pow(1.51443+Shift, 2)+pow(k, 2))+.232841;
 			knee = 3.78956*pow(k+1., (double)-.530289)+.305*(tanh((k-48.4)/11.1111)+1);
 			break;*/
 		case 1://194MeV
 			M_T = 1.84184;
 			Shift = M-M_T;
-			Sigma = .569969/sqrt(sq(k)+pow(1.75236, 2))+.0187484;
-			a = 12.5349/(sq(k)+pow(1.63711, 2))+5.026;
+			Sigma = .569969/sqrt(pow(k, 2)+pow(1.75236, 2))+.0187484;
+			a = 12.5349/(pow(k, 2)+pow(1.63711, 2))+5.026;
 			b = -291.579/(pow(k+15.2519, 2)+pow(.0614821, 2))+3.36681;
-			omega0 = sqrt(pow(1.51443+Shift, 2)+sq(k))+.232841;
+			omega0 = sqrt(pow(1.51443+Shift, 2)+pow(k, 2))+.232841;
 			knee = 3.78956*pow(k+1., (double)-.530289)+.305*(tanh((k-48.4)/11.1111)+1);
 			break;
 		case 2://285MeV
 			M_T = 1.69584;
 			Shift = M-M_T;
-			Sigma = .625855/sqrt(sq(k)+pow(1.8429, 2))+.0249334;
-			a = 3.3971/(sq(k)+pow(1.01744, 2))+3.99561;
+			Sigma = .625855/sqrt(pow(k, 2)+pow(1.8429, 2))+.0249334;
+			a = 3.3971/(pow(k, 2)+pow(1.01744, 2))+3.99561;
 			b = -65187.5/(pow(k+3.11711, 2)+pow(101.697, 2))+8.15532;
-			omega0 = sqrt(pow(1.5065+Shift, 2)+sq(k))+.209135;
+			omega0 = sqrt(pow(1.5065+Shift, 2)+pow(k, 2))+.209135;
 			knee = 3.1568*pow(k+1., (double)-.624827)+.197004*(tanh((k-27.1743)/10.0192)+1);
 			break;
 		case 3://320MeV
 			M_T = 1.59439;
 			Shift = M-M_T;
-			Sigma = .587509/sqrt(sq(k)+pow(1.84447, 2))+.0309251;
-			a = 2.44943/(sq(k)+pow(.887313, 2))+3.32859;
+			Sigma = .587509/sqrt(pow(k, 2)+pow(1.84447, 2))+.0309251;
+			a = 2.44943/(pow(k, 2)+pow(.887313, 2))+3.32859;
 			b = -4439.38/(pow(k-7.23198, 2)+pow(38.9387, 2))+4.55531;
-			omega0 = sqrt(pow(1.47725+Shift, 2)+sq(k))+.219181;
+			omega0 = sqrt(pow(1.47725+Shift, 2)+pow(k, 2))+.219181;
 			knee = 3.28564*pow(k+1., (double)-.721321)+.330483*(tanh((k-22.9096)/10.7139)+1);
 			break;
 		case 4://400MeV
 			M_T = 1.48038;
 			Shift = M-M_T;
-			Sigma = .459303/sqrt(sq(k)+pow(1.84321, 2))+.0386564;
-			a = 1.79149/(sq(k)+pow(.764836, 2))+2.66209;
+			Sigma = .459303/sqrt(pow(k, 2)+pow(1.84321, 2))+.0386564;
+			a = 1.79149/(pow(k, 2)+pow(.764836, 2))+2.66209;
 			b = -1856.16/(pow(k-8.69519, 2)+pow(26.3551, 2))+3.94631;
-			omega0 = sqrt(pow(1.45428+Shift, 2)+sq(k))+.197493;
+			omega0 = sqrt(pow(1.45428+Shift, 2)+pow(k, 2))+.197493;
 			knee = 3.06296*pow(k+1., (double)-.917081)+.394833*(tanh((k-19.5932)/12.0494)+1);
 			break;
 		case 5://40MeV
@@ -1738,7 +1689,7 @@ double ImSelf_Energy(double M, double omega, double k, int Temp)	//Single quark 
 			Sigma = .00386564;
 			a = 6.2;
 			b = 2.8;
-			omega0 = sqrt(pow(1.53+Shift, 2)+sq(k));
+			omega0 = sqrt(pow(1.53+Shift, 2)+pow(k, 2));
 			knee = .56;
 			break;
 		default:
@@ -1864,6 +1815,74 @@ void ReSelf_Energy(double M, double omega[], double k[], int Temp, double Result
 	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1], 2)+gamma[1]);
 #endif
 	return;
+}
+
+double ReSelf_Energy(double M, double omega, double k, int Temp)	//Single quark self energy
+{
+	double Sigma;	//Strength
+	double x0, x1;	//Centrality markers
+	double gamma;	//Width
+	double Shift, M_T;
+	double Results;
+
+	if(Temp == 0 || Temp == 5)
+		return(0);
+
+	switch(Temp)
+	{
+		/*case 1://194MeV
+			M_T = 1.84184;
+			Shift = M-M_T;
+			Sigma = .257498/sqrt(pow(k, 2)+pow(1.33201, 2))+.00762638;
+			x0 = sqrt(pow(k, 2)+pow(1.54778+Shift, 2))+.276509;
+			x1 = sqrt(pow(k, 2)+pow(1.49799+Shift, 2))+.246719;
+			gamma = .658734/sqrt(pow(k, 2)+pow(3.35217, 2))+.0815109;
+			break;*/
+		case 1://194MeV
+			M_T = 1.84184;
+			Shift = M-M_T;
+			Sigma = .212571/sqrt(pow(k, 2)+pow(1.17821, 2))+.00762638;
+			x0 = sqrt(pow(k, 2)+pow(1.57536+Shift, 2))+.259147;
+			x1 = sqrt(pow(k, 2)+pow(1.50194+Shift, 2))+.222526;
+			gamma = .336699/sqrt(pow(k, 2)+pow(1.87956, 2))+.0651449;
+			break;
+		case 2://258MeV
+			M_T = 1.69584;
+			Shift = M-M_T;
+			Sigma = .307972/sqrt(pow(k, 2)+pow(1.41483, 2))+.0101423;
+			x0 = sqrt(pow(k, 2)+pow(1.56476+Shift, 2))+.251031;
+			x1 = sqrt(pow(k, 2)+pow(1.50194+Shift, 2))+.222526;
+			gamma = .550628/sqrt(pow(k, 2)+pow(2.43968, 2))+.0981269;
+			break;
+		case 3://320MeV
+			M_T = 1.59439;
+			Shift = M-M_T;
+			Sigma = .339131/sqrt(pow(k, 2)+pow(1.43308, 2))+.0125796;
+			x0 = sqrt(pow(k, 2)+pow(1.55034+Shift, 2))+.257788;
+			x1 = sqrt(pow(k, 2)+pow(1.46999+Shift, 2))+.231821;
+			gamma = .615278/sqrt(pow(k, 2)+pow(2.22298, 2))+.143376;
+			break;
+		case 4://400MeV
+			M_T = 1.48038;
+			Shift = M-M_T;
+			Sigma = .304841/sqrt(pow(k, 2)+pow(1.42911, 2))+.0157245;
+			x0 = sqrt(pow(k, 2)+pow(1.55511+Shift, 2))+.231105;
+			x1 = sqrt(pow(k, 2)+pow(1.44714+Shift, 2))+.20956;
+			gamma = .862629/sqrt(pow(k, 2)+pow(2.67193, 2))+.189598;
+			break;
+		default:
+			Sigma = .188045;
+			x0 = 1.83451;
+			x1 = 1.72447;
+			gamma = .244282;
+	}
+
+#ifdef HALF
+	Results = Sigma*(omega-x0)/(pow(omega-x1, 2)+gamma)/2.;
+#else
+	Results = Sigma*(omega-x0)/(pow(omega-x1, 2)+gamma);
+#endif
+	return(Results);
 }
 
 void Self_Energy(double M, double omega[], double k[], int Temp, double ImSelf[], double ReSelf[])	//Single quark self energy for both quarks. This one has both imaginary and real parts. It is a simple Breit-Wigner peak and simplier than the other provisioned version

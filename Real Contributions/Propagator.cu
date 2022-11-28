@@ -14,25 +14,29 @@ int Start_Point(int, char[70]);						//Find highest line calculated and returns 
 bool Restart_Check(char[70], char*, char*, char*, char*, char*);		//Checks to see if file header matches input parameters and clears it if not
 double ReG12(double, double, double, double, double);
 double ImG12(double, double, double, double, double);
-double k_i(int, double, double, double);
-void Loop_Out(double[], int, char[]);
+double k_i(int, double, double, double, double, double);
+void Loop_Out1(double[], int, char[]);
+void Loop_Out2(double[], int, char[]);
 Around Int_Re_Insert(double Par[], int Temp, double k, double theta);
 Around Int_Im_Insert(double Par[], int Temp, double k, double theta);
 
 int main(int argc, char* argv[])
 {
 #ifdef BB	//use option -D BB= to activate bottomium macro
-	char File[70] = "data/ReSpectralbb.";  //Name of the file
+	//char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralbb.";  //Name of the file
+	char File[130] = "data/ReSpectralbb.";  //Name of the file
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
-	char File[70] = "data/ReSpectralcc.";
+	//char File[130] = "/run/user/1000/gvfs/sftp:host=ccomp.tamu.edu/home/rfrgroup/isarver/data/ReSpectralcc.Half.1/ReSpectralcc.";
+	char File[130] = "data/ReSpectralcc.Half.1/ReSpectralcc.";
+	//char File[130] = "data/ReSpectralcc.";
 #endif
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
 	strcat(File, "Half.");
 #endif
 
-	char FileApp[70];
+	char FileApp[130];
 	char Number_c[5];
 	string Number_s;
 	strcat(File, argv[3]);	//Appends the temprature to the file name
@@ -119,25 +123,27 @@ int main(int argc, char* argv[])
 			Number_c[l] = '\0';
 			strcat(FileApp, Number_c);
 			strcat(FileApp, ".csv");
-			Loop_Out(Par, Temp, FileApp);
+			Loop_Out1(Par, Temp, FileApp);
+			//Loop_Out2(Par, Temp, FileApp);
 		}
 	}
 
 	return(0);
 }
 
-void Loop_Out(double Par[], int Temp, char File[])
+void Loop_Out1(double Par[], int Temp, char File[])
 {
-	double k, theta;
-	double on_shell, photon, stop;
-	bool Manifest[702][101];
-	ofstream oTable;
+	double theta = M_PI/2.;
+	double on_shell, photon, on_shell_0, photon_0, stop;
+	bool Manifest[303][101];
+	//ofstream oTable;
 	ifstream iTable(File);
 	int i;
 	char Bin_c[11];
 	double Bin_n[9];
+	double k;
 
-	for(i = 0; i < 702; i++)
+	for(i = 0; i < 303; i++)
 	{
 		for(int j = 0; j < 101; j++)
 		{
@@ -156,25 +162,105 @@ void Loop_Out(double Par[], int Temp, char File[])
 	}
 
 	iTable.close();
-	oTable.open(File, ios::app);
+	//oTable.open(File, ios::app);
 
-	oTable << setprecision(18);
+	cout << setprecision(18);
 
 	for(theta = 0; theta < M_PI*.0025; theta += M_PI/200.)
 	{
 		on_shell = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
 		photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
+		on_shell_0 = .5*sqrt(Par[4]-pow(2.*Par[2],2));
+		photon_0 = .5*sqrt(Par[4]);
 		stop = isnan(photon)?50.:photon+50.;
 
-		for(i = 0; i <= 7; i++)
+		for(i = 0; i <= 200; i++)
 		{
 			if(!Manifest[i][int(theta*200./M_PI)])
 			{
-				k = k_i(i,on_shell,photon,stop);
-				if(k < stop+50. && k >= 0)
-				{
-					oTable << i << "," << k << "," << theta << "," << Int_Re_Insert(Par, Temp, k, theta) << "," << Int_Im_Insert(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) <<  endl;
-				}
+				k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
+				if(k < 100 && k >= 0)
+					cout << i << "," << k << "," << theta << "," << Int_Re_Insert(Par, Temp, k, theta) << "," << Int_Im_Insert(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta, Temp) << "," << ImG12(Par[2], Par[4], Par[3], k, theta, Temp) <<  endl;
+			}
+		}
+		if(!Manifest[i][int(theta*200./M_PI)])
+		{
+			k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
+			if(k < 100 && k>= 0)
+			{
+				cout << i << "," << k << "," << theta << "," << Int_Re_Insert(Par, Temp, k, theta) << "," << Int_Im_Insert(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta, Temp) << "," << ImG12(Par[2], Par[4], Par[3], k, theta, Temp) <<  endl;
+			}
+		}
+	}
+
+	//oTable.close();
+}
+
+void Loop_Out2(double Par[], int Temp, char File[])
+{
+	double theta;
+	double on_shell, photon, on_shell_0, photon_0, stop;
+	bool Manifest[303][101];
+	ofstream oTable;
+	ifstream iTable(File);
+	int i = 201, j;
+	double Min = 201;
+	char Bin_c[11];
+	double Bin_n[9];
+	double k;
+
+	for(i = 0; i < 303; i++)
+	{
+		for(j = 0; j < 101; j++)
+		{
+			Manifest[i][j] = false;
+		}
+	}
+
+	while(iTable.good())
+	{
+		iTable >> Bin_n[0] >> Bin_c[0] >> Bin_n[1] >> Bin_c[1] >> Bin_n[2] >> Bin_c[2] >> Bin_c[3] >> Bin_c[4];
+		iTable.ignore(300,'\n');
+		i = Bin_n[0];
+		theta = Bin_n[2];
+		if((('0' <= Bin_c[4] && Bin_c[4] <= '9') || Bin_c[4] == '.' ) && 0 <= i && i < 303 && 0 <= theta && theta <= M_PI)
+			Manifest[i][int(theta*200./M_PI)] = true;
+	}
+
+	iTable.close();
+	oTable.open(File, ios::app);
+
+	for(i = 201; i >= 0; i--)
+	{
+		for(j = 0; j < 101; j++)
+		{
+			if(i < Min && !Manifest[i][j])
+				Min = i;
+		}
+	}
+
+	i = Min;
+	Min = 100;
+	for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
+	{
+		on_shell = .5*sqrt((Par[4]-pow(2.*Par[2],2))*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
+		photon = .5*sqrt(Par[4]*(Par[4]+pow(Par[3],2))/(Par[4]+pow(sin(theta)*Par[3],2)));
+		on_shell_0 = .5*sqrt(Par[4]-pow(2.*Par[2],2));
+		photon_0 = .5*sqrt(Par[4]);
+		stop = isnan(photon)?50.:photon+50.;
+		if(Min > k_i(i,on_shell,photon,stop,on_shell_0,photon_0))
+			Min = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
+	}
+
+	oTable << setprecision(18);
+	for(i = 0; i <= 100; i++)
+	{
+		for(theta = 0; theta < M_PI*.502; theta += M_PI/200.)
+		{
+			if(!Manifest[i+202][int(theta*200./M_PI)])
+			{
+				k = Min+i*(100.-Min)/100.;
+				oTable << i << "," << k << "," << theta << "," << Int_Re_Insert(Par, Temp, k, theta) << "," << Int_Im_Insert(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta, Temp) << "," << ImG12(Par[2], Par[4], Par[3], k, theta, Temp) <<  endl;
 			}
 		}
 	}
@@ -240,23 +326,13 @@ Around Int_Im_Insert(double Par[], int Temp, double k, double theta)
 	return(Answer);
 }
 
-double ReG12(double M, double s, double P, double k, double theta)
+double k_i(int i, double x1, double x2, double x3, double x1_0, double x2_0)
 {
-	return((2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)))*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(pow(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2),2)+pow(.14,2))));
-}
-
-double ImG12(double M, double s, double P, double k, double theta)
-{
-	return((2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)))*.14/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(pow(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta),2),2)+pow(.14,2))));
-}
-
-double k_i(int i, double x1, double x2, double x3)
-{
-	if(isnan(x2) || x2 < .5)
+	if(isnan(x2_0) || x2_0 < .5)	//It needs to follow the policy of the smallest x2 or x3 that it can calculate
 	{
 		return(.1*i);
 	}
-	else if(isnan(x1) || x1 < .5)
+	else if(isnan(x1_0) || x1_0 < .5)
 	{
 		double a = -x2*x3/(120.*(x2-x3));
 		double b = (-6.*x2+x3)/(600.*(x2-x3));
