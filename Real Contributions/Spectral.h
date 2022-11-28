@@ -3,6 +3,7 @@
 #include<cstdlib>
 #include<cfloat>
 #include<queue>
+#include<complex>
 #include"Interpolation.h"
 #include"Elements.h"
 using namespace std;
@@ -23,8 +24,8 @@ long double i_k(long double, long double, long double, long double, long double)
 long double i_k_wrap(long double, long double[], long double);			//Wrapper for i_k() to select the correct one.
 
 Elements<Around> Integrand(long double[], long double, long double, int);
-long double ReG12Reverse(long double, long double, long double, long double, long double, int);
-long double ImG12Reverse(long double, long double, long double, long double, long double, int);
+long double ReG12(long double, long double, long double, long double, long double, int);
+long double ImG12(long double, long double, long double, long double, long double, int);
 
 //Functions for finding points of interest in the k integral
 void Characterize_k_Int(long double[], int, long double, long double[], long double[], int&);	//Returns the poles of the k integral's integrands
@@ -255,7 +256,7 @@ Elements<Around> Integrand(long double Par[], long double k, long double theta, 
 		return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*pow(k,2)*sin(theta)*Around(ReG[0](i, theta*200./M_PI), ReG_Err[0](i, theta*200./M_PI)));	//In-medium propagator
 	else if(fancy && i > 201 && Temp != 0)
 		return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*pow(k,2)*sin(theta)*Around(ReG[1](i-201, theta*200./M_PI), ReG_Err[1](i-201, theta*200./M_PI)));	//In-medium propagator
-	return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*Around(ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp))*pow(k,2)*sin(theta));	//3D reduced propagator
+	return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*Around(ReG12(Par[2], Par[4], Par[3], k, theta, Temp))*pow(k,2)*sin(theta));	//3D reduced propagator
 }
 
 long double k_i(int i, long double x1, long double x2, long double x3, long double x1_0, long double x2_0)
@@ -302,7 +303,7 @@ long double i_k(long double k, long double s, long double P, long double theta, 
 {
 	long double on_shell = sqrt((s-pow(2.*M,2))*(s+pow(P,2))/(s+pow(P*sin(theta),2)));
 	long double photon = sqrt(s*(s+pow(P,2))/(s+pow(P*sin(theta),2)));
-	return(1200.*k*(100.-on_shell+photon)/(200.*k+2.*k*photon+500.*on_shell-12.*k*on_shell+5.*on_shell*photon));
+	return((600.*k*(-50.+on_shell-photon))/(6.*k*on_shell-k*(50.+photon)-5.*on_shell*(50.+photon)));
 }
 
 Elements<Around> k_Int(long double Par[], int Temp, long double theta)
@@ -550,7 +551,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 	return(Answer);
 }
 
-long double ReG12Reverse(long double M, long double s, long double P, long double k, long double theta, int Temp)
+long double ReG12(long double M, long double s, long double P, long double k, long double theta, int Temp)
 {
 	long double q[2] = {Energy(0, P/2., k, theta), Energy(0, P/2., -k, theta)};
 	long double omega[2] = {sqrt(s+pow(P,2))-Energy(M, P/2., -k, theta), sqrt(s+pow(P,2))-Energy(M, P/2., k, theta)};
@@ -570,7 +571,7 @@ long double ReG12Reverse(long double M, long double s, long double P, long doubl
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).real();
 }
 
-long double ImG12Reverse(long double M, long double s, long double P, long double k, long double theta, int Temp)
+long double ImG12(long double M, long double s, long double P, long double k, long double theta, int Temp)
 {
 	long double q[2] = {Energy(0, P/2., k, theta), Energy(0, P/2., -k, theta)};
 	long double omega[2] = {sqrt(s+pow(P,2))-Energy(M, P/2., -k, theta), sqrt(s+pow(P,2))-Energy(M, P/2., k, theta)};

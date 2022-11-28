@@ -61,7 +61,6 @@ int main(int argc, char* argv[])
 	const int Total = atoi(argv[2]);			//Number of concurent threads
 	const int Temp = atoi(argv[3]);			//Temprature enumeration
 	long double Par[5];					//Parameters to be used in calculation {Coupling constant, potential cutoff, quark mass, P, s}
-	Elements<Around> holder;					//Calculated value before distribution to Table
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = Start; i <= Finish; i++)
@@ -186,7 +185,7 @@ void Loop_Out1(long double Par[], int Temp, char File[])
 			{
 				k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
 				if(k < 100 && k >= 0)
-					oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
+					oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta, Temp) << "," << ImG12(Par[2], Par[4], Par[3], k, theta, Temp) << endl;
 			}
 		}
 		if(!Manifest[i][int(theta*200./M_PI)])
@@ -194,7 +193,7 @@ void Loop_Out1(long double Par[], int Temp, char File[])
 			k = k_i(i,on_shell,photon,stop,on_shell_0,photon_0);
 			if(k < 100 && k>= 0)
 			{
-				oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
+				oTable << i << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta, Temp) << "," << ImG12(Par[2], Par[4], Par[3], k, theta, Temp) << endl;
 			}
 		}
 	}
@@ -266,7 +265,7 @@ void Loop_Out2(long double Par[], int Temp, char File[])
 			if(!Manifest[i+202][int(theta*200./M_PI)])
 			{
 				k = Min+i*(100.-Min)/100.;
-				oTable << i+202 << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta) << "," << ImG12(Par[2], Par[4], Par[3], k, theta) << endl;
+				oTable << i+202 << "," << k << "," << theta << "," << Dispersion(Par, Temp, 0, k, theta) << "," << k0_Int(Par, Temp, k, theta) << "," << ReG12(Par[2], Par[4], Par[3], k, theta, Temp) << "," << ImG12(Par[2], Par[4], Par[3], k, theta, Temp) << endl;
 			}
 		}
 	}
