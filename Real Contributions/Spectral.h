@@ -259,27 +259,27 @@ Elements<Around> Integrand(long double Par[], long double k, long double theta, 
 	return(Elements<Around>(Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*Around(ReG12(Par[2], Par[4], Par[3], k, theta, Temp))*pow(k,2)*sin(theta));	//3D reduced propagator
 }
 
-long double k_i(int i, long double x1, long double x2, long double x3, long double x1_0, long double x2_0)
+long double k_i(int i, long double on_shell, long double photon, long double stop, long double on_shell_0, long double photon_0)
 {
-	if(isnan(x2_0) || x2_0 < .5)	//It needs to follow the policy of the smallest x2 or x3 that it can calculate
+	if(isnan(photon_0) || photon_0 < .5)	//It needs to follow the policy of the smallest x2 or x3 that it can calculate
 	{
 		return(.1*i);
 	}
-	else if(isnan(x1_0) || x1_0 < .5)
+	else if(isnan(on_shell_0) || on_shell_0 < 1.)
 	{
-		long double a = -x2*x3/(120.*(x2-x3));
-		long double b = (-6.*x2+x3)/(600.*(x2-x3));
+		long double a = -photon*stop/(120.*(photon-stop));
+		long double b = (-6.*photon+stop)/(600.*(photon-stop));
 		return(a*i/(1.+b*i));
 	}
-	long double a = -x1*x3/(120.*(x1-x3));
-	long double b = (-6.*x1+x3)/(600.*(x1-x3));
+	long double a = -on_shell*stop/(120.*(on_shell-stop));
+	long double b = (-6.*on_shell+stop)/(600.*(on_shell-stop));
 	return(a*i/(1.+b*i));
 }
 
 long double i_k_wrap(long double k, long double Par[], long double theta)
 {
 	int counter;
-	if(Par[4] > pow(Par[2]*2.,2) && sqrt(Par[4]-pow(2.*Par[2],2))/2. >= .5)	//Must always use the pi/2 policy for the k to i conversion
+	if(Par[4] > pow(Par[2]*2.,2) && sqrt(Par[4]-pow(2.*Par[2],2))/2. >= 1.)	//Must always use the pi/2 policy for the k to i conversion
 		counter = i_k(k, Par[4], Par[3], theta, Par[2]);
 	else if(Par[4] > 0 && sqrt(Par[4])/2. >= .5)
 		counter = i_k(k, Par[4], Par[3], theta);
