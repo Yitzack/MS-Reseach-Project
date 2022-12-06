@@ -267,7 +267,7 @@ Elements<Around> Integrand(long double Par[], long double k, long double theta, 
 	Elements<Around> ReElements, ImElements;
 //	Elements<long double> Holder = Elements<long double>(2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ImG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp);
 //cerr << Par[3] << "," << Par[4] << "," << k << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp) << endl;
-	if(fancy && Temp != 0)
+	if(fancy)
 	{
 		return(k0_Int(Par,Temp,k,theta));
 	}
@@ -669,7 +669,7 @@ Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double 
 	long double x1, x2;	//Abscissa
 	long double Max;	//Upper limit of integration
 
-	Elements<long double> F[2];	//Sum of ordinates*weights
+	Elements<long double> F[2] = {Elements<long double>(10),Elements<long double>(10)};	//Sum of ordinates*weights
 	Elements<Around> Answer(10);	//Results to be returned
 
 	int i, j, l;		//Counting varibles
