@@ -54,6 +54,7 @@ template <class T>
 Elements<T>::Elements()
 {
 	Size = 0;
+	Array = new T[1];
 }
 
 template <class T>
@@ -90,7 +91,6 @@ Elements<T> Elements<T>::operator=(const Elements<T> &A)
 	if(&A != this)
 	{
 		Size = A.Size;
-		delete Array;
 		Array = new T[Size];
 		for(int i = 0; i < Size; i++)
 			Array[i] = A.Array[i];
