@@ -1762,7 +1762,7 @@ Elements<long double> k0_Integrand(long double Par[], long double k0, long doubl
 	{
 	default:
 	case 0:
-		ReElements = ((Prop[0].imag()+Prop[1].imag())*(Prop[2].real()+Prop[3].real())+(Prop[0].real()+Prop[1].real())*(Prop[2].imag()+Prop[3].imag()))* Elements<long double>(&Array[2], 4);
+		ReElements = -((Prop[0].imag()+Prop[1].imag())*(Prop[2].real()+Prop[3].real())+(Prop[0].real()+Prop[1].real())*(Prop[2].imag()+Prop[3].imag()))* Elements<long double>(&Array[2], 4);
 		ImElements = (Prop[0]+Prop[1]).imag()*(Prop[2]+Prop[3]).imag()*(1.-fermi[0]-fermi[2])*Elements<long double>(Array, 6);
 		return(ReElements.concat(ImElements));
 		break;
