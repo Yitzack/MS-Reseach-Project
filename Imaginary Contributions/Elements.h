@@ -212,7 +212,7 @@ Elements<T> Elements<T>::concat(Elements<T> A) const
 		B.Array[i] = Array[i];
 
 	j = i;
-	for(i = 0; i < Size; i++)
+	for(i = 0; i < A.Size; i++)
 	{
 		B.Array[j] = A.Array[i];
 		j++;
