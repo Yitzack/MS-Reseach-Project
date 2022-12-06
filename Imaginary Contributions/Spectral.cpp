@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 			auto Start_Time = chrono::system_clock::now();
 			holder = theta_Int(Par, Temp);
 			auto End_Time = chrono::system_clock::now();
-			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << holder[4] << " " << holder[5] << " " << holder[6] << " " << holder[7] << " " << holder[8] << " " << holder[9] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
+			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << *holder[0] << " " << *holder[1] << " " << *holder[2] << " " << *holder[3] << " " << *holder[4] << " " << *holder[5] << " " << *holder[6] << " " << *holder[7] << " " << *holder[8] << " " << *holder[9] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
 		}
 		TPlot << endl;
 	}
