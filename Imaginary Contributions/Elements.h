@@ -122,6 +122,7 @@ bool Elements<T>::operator==(T A)
 	{
 		if(Array[i] != A)
 			return(false);
+		i++;
 	}
 	return(true);
 }
@@ -135,6 +136,7 @@ bool Elements<T>::operator>=(T A)
 	{
 		if(abs(Array[i]) >= A)
 			return(true);
+		i++;
 	}
 	return(false);
 }
@@ -172,6 +174,7 @@ bool Elements<T>::operator>(T A)
 	{
 		if(abs(Array[i]) > A)
 			return(true);
+		i++;
 	}
 	return(false);
 }
@@ -185,6 +188,7 @@ bool Elements<T>::operator<(T A)
 	{
 		if(abs(Array[i]) < A)
 			return(true);
+		i++;
 	}
 	return(false);
 }
@@ -198,6 +202,7 @@ bool Elements<T>::isnan()
 	{
 		if(isnan(Array[i]))
 			return(true);
+		i++;
 	}
 	return(false);
 }
