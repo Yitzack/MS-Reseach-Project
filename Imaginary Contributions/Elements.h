@@ -9,151 +9,157 @@ template<class T>
 class Elements
 {
 	public:
-		Elements();				//Default constructor
-		Elements(T, T, T, T, T, T);		//Constructor from 6 elements
-		Elements(T[6]);			//Array constructor
-		Elements(const Elements&);		//Copy constructor
-		void operator=(const Elements&);	//Assignment
-		void operator+=(const Elements &);	//Accumalate and assign
-		void operator-=(const Elements &);	//Deaccumalate and assign
-		bool operator==(T);			//This is looking for all components == 0, not any scalar. So, its actually looking for the 0 vector
-		bool operator>=(T);			//This is about accuracy, so all components must pass
-		bool operator>(const Elements<T>) const;//This is about accuracy, so all components must pass
-		bool operator<(const Elements<T>) const;//This is about accuracy, so all components must pass
-		bool operator>(T);			//This is about accuracy, so all components must pass
-		bool operator<(T);			//This is about accuracy, so all components must pass
-		bool isnan();				//Equavalent to isnan(T) but for vector but called as A.isnan instead of isnan(A)
-		Elements<T> operator+(Elements);	//Sum of vectors
-		Elements<T> operator+(T);		//Add a number to elements of vector
-		Elements<T> operator-(Elements);	//Difference of vectors
-		Elements<T> operator-(T);		//Subtract a number from elements of vector
-		Elements<T> operator/(Elements<T>) const;//This is about accuracy, not the correct definition of division, so it is an element-wise division
-		Elements<T> operator/(T) const;	//Scalar divide
-		Elements<T> operator*(T);		//Scalar multiply
-		Elements<T> operator*(Elements);	//Vector multiply (not to be confused with cross product, but element by element multiply
-		Elements<T> abs(const Elements<T>&);	//Absolute value of all elements
-		Elements<T> abs() const;		//Absolute value of all elements
-		void null();				//Make the element the zero vector
-		T operator[](int);			//Returns the element at int. This is not the correct way to do this as it should return a pointer to the component so it can be altered. I can get away with it as I'm only printing the the contents to an output stream.
+		~Elements();					//Deconstructor
+		Elements();					//Default constructor
+		Elements(int);					//Null constructor with a size of array
+		Elements(T[], int);				//Array constructor
+		Elements(const Elements&);			//Copy constructor
+		Elements<T> operator=(const Elements&);	//Assignment
+		Elements<T> operator+=(const Elements &);	//Accumalate and assign
+		Elements<T> operator-=(const Elements &);	//Deaccumalate and assign
+		bool operator==(T);				//This is looking for all components == 0, not any scalar. So, its actually looking for the 0 vector
+		bool operator>=(T);				//This is about accuracy, so all components must pass
+		bool operator>(const Elements<T>) const;	//This is about accuracy, so all components must pass
+		bool operator<(const Elements<T>) const;	//This is about accuracy, so all components must pass
+		bool operator>(T);				//This is about accuracy, so all components must pass
+		bool operator<(T);				//This is about accuracy, so all components must pass
+		bool isnan();					//Equavalent to isnan(T) but for vector but called as A.isnan instead of isnan(A)
+		Elements<T> concat(const Elements<T>) const;	//Concats two elements together and then returns the result
+		Elements<T> operator+(Elements);		//Sum of vectors
+		Elements<T> operator+(T);			//Add a number to elements of vector
+		Elements<T> operator-(Elements);		//Difference of vectors
+		Elements<T> operator-(T);			//Subtract a number from elements of vector
+		Elements<T> operator/(Elements<T>) const;	//This is about accuracy, not the correct definition of division, so it is an element-wise division
+		Elements<T> operator/(T) const;		//Scalar divide
+		Elements<T> operator*(T);			//Scalar multiply
+		Elements<T> operator*(Elements);		//Vector multiply (not to be confused with cross product, but element by element multiply
+		Elements<T> abs(const Elements<T>&) const;	//Absolute value of all elements
+		Elements<T> abs() const;			//Absolute value of all elements
+		void null();					//Make Array the zero vector
+		int size(){return(Size);};			//returns the size of Array
+		T* operator[](int);				//Returns the element at int. This is not the correct way to do this as it should return a pointer to the component so it can be altered. I can get away with it as I'm only printing the the contents to an output stream.
 	private:
-		T Array[6];			//The vector itself
+		T* Array;	//The vector itself
+		int Size;	//Size of the vector
 };
+
+template <class T>
+Elements<T>::~Elements()
+{
+	Size = 0;
+	delete Array;
+}
 
 template <class T>
 Elements<T>::Elements()
 {
-	Array[0] = 0;
-	Array[1] = 0;
-	Array[2] = 0;
-	Array[3] = 0;
-	Array[4] = 0;
-	Array[5] = 0;
+	Size = 0;
 }
 
 template <class T>
-Elements<T>::Elements(T A, T B, T C, T D, T E, T F)
+Elements<T>::Elements(int N)
 {
-	Array[0] = A;
-	Array[1] = B;
-	Array[2] = C;
-	Array[3] = D;
-	Array[4] = E;
-	Array[5] = F;
+	Size = N;
+	Array = new T[Size];
 }
 
 template <class T>
-Elements<T>::Elements(T A[6])
+Elements<T>::Elements(T A[], int N)
 {
-	Array[0] = A[0];
-	Array[1] = A[1];
-	Array[2] = A[2];
-	Array[3] = A[3];
-	Array[4] = A[4];
-	Array[5] = A[5];
+	Size = N;
+	Array = new T[Size];
+	for(int i = 0; i < Size; i++)
+		Array[i] = A[i];
 }
 
 template <class T>
 Elements<T>::Elements(const Elements<T> &A)
 {
-	Array[0] = A.Array[0];
-	Array[1] = A.Array[1];
-	Array[2] = A.Array[2];
-	Array[3] = A.Array[3];
-	Array[4] = A.Array[4];
-	Array[5] = A.Array[5];
+	if(&A != this)
+	{
+		Size = A.Size;
+		Array = new T[Size];
+		for(int i = 0; i < Size; i++)
+			Array[i] = A.Array[i];
+	}
 }
 
 template <class T>
-void Elements<T>::operator=(const Elements<T> &A)
+Elements<T> Elements<T>::operator=(const Elements<T> &A)
 {
-	Array[0] = A.Array[0];
-	Array[1] = A.Array[1];
-	Array[2] = A.Array[2];
-	Array[3] = A.Array[3];
-	Array[4] = A.Array[4];
-	Array[5] = A.Array[5];
+	if(&A != this)
+	{
+		Size = A.Size;
+		delete Array;
+		Array = new T[Size];
+		for(int i = 0; i < Size; i++)
+			Array[i] = A.Array[i];
+	}
+	return(*this);
 }
 
 template <class T>
-void Elements<T>::operator+=(const Elements<T> &A)
+Elements<T> Elements<T>::operator+=(const Elements<T> &A)
 {
-	Array[0] += A.Array[0];
-	Array[1] += A.Array[1];
-	Array[2] += A.Array[2];
-	Array[3] += A.Array[3];
-	Array[4] += A.Array[4];
-	Array[5] += A.Array[5];
+	for(int i = 0; i < Size; i++)
+		Array[i] += A.Array[i];
+	return(*this);
 }
 
 template <class T>
-void Elements<T>::operator-=(const Elements<T> &A)
+Elements<T> Elements<T>::operator-=(const Elements<T> &A)
 {
-	Array[0] -= A.Array[0];
-	Array[1] -= A.Array[1];
-	Array[2] -= A.Array[2];
-	Array[3] -= A.Array[3];
-	Array[4] -= A.Array[4];
-	Array[5] -= A.Array[5];
+	for(int i = 0; i < Size; i++)
+		Array[i] -= A.Array[i];
+	return(*this);
 }
 
 template <class T>
 bool Elements<T>::operator==(T A)
 {
-	return(Array[0] == A &&
-		Array[1] == A &&
-		Array[2] == A &&
-		Array[3] == A &&
-		Array[4] == A &&
-		Array[5] == A);
+	int i = 0;
+	while(i < Size)
+	{
+		if(Array[i] != A)
+			return(false);
+	}
+	return(true);
 }
 
 template <class T>
 bool Elements<T>::operator>=(T A)
 {
 	using std::abs;
-	return(abs(Array[0]) >= A ||
-		abs(Array[1]) >= A ||
-		abs(Array[2]) >= A ||
-		abs(Array[3]) >= A ||
-		abs(Array[4]) >= A ||
-		abs(Array[5]) >= A);
+	int i = 0;
+	while(i < Size)
+	{
+		if(abs(Array[i]) >= A)
+			return(true);
+	}
+	return(false);
 }
 
 template <class T>
 bool Elements<T>::operator>(const Elements<T> A) const
 {
-	T lhs, rhs;	//The error of the elements remain roughly propitional to each other throught out the execution of the algorithm. The sum of the elements does a better job of ordering the objects than an or operation on the elements individually.
-	lhs = Array[0]+Array[1]+Array[2]+Array[3]+Array[4]+Array[5];
-	rhs = A.Array[0]+A.Array[1]+A.Array[2]+A.Array[3]+A.Array[4]+A.Array[5];
+	T lhs = T(0), rhs = T(0);	//The error of the elements remain roughly propitional to each other through out the execution of the algorithm. The sum of the elements does a better job of ordering the objects than an || operation on the elements individually.
+	for(int i = 0; i < Size; i++)
+	{
+		lhs += Array[i];
+		rhs += A.Array[i];
+	}
 	return(lhs > rhs);
 }
 
 template <class T>
 bool Elements<T>::operator<(const Elements<T> A) const
 {
-	T lhs, rhs;	//The error of the elements remain roughly propitional to each other throught out the execution of the algorithm. The sum of the elements does a better job of ordering the objects than an or operation on the elements individually.
-	lhs = Array[0]+Array[1]+Array[2]+Array[3]+Array[4]+Array[5];
-	rhs = A.Array[0]+A.Array[1]+A.Array[2]+A.Array[3]+A.Array[4]+A.Array[5];
+	T lhs = T(0), rhs = T(0);	//The error of the elements remain roughly propitional to each other through out the execution of the algorithm. The sum of the elements does a better job of ordering the objects than an || operation on the elements individually.
+	for(int i = 0; i < Size; i++)
+	{
+		lhs += Array[i];
+		rhs += A.Array[i];
+	}
 	return(lhs < rhs);
 }
 
@@ -161,100 +167,102 @@ template <class T>
 bool Elements<T>::operator>(T A)
 {
 	using std::abs;
-	return(abs(Array[0]) > A ||
-		abs(Array[1]) > A ||
-		abs(Array[2]) > A ||
-		abs(Array[3]) > A ||
-		abs(Array[4]) > A ||
-		abs(Array[5]) > A);
+	int i = 0;
+	while(i < Size)
+	{
+		if(abs(Array[i]) > A)
+			return(true);
+	}
+	return(false);
 }
 
 template <class T>
 bool Elements<T>::operator<(T A)
 {
 	using std::abs;
-	return(abs(Array[0]) < A ||
-		abs(Array[1]) < A ||
-		abs(Array[2]) < A ||
-		abs(Array[3]) < A ||
-		abs(Array[4]) < A ||
-		abs(Array[5]) < A);
+	int i = 0;
+	while(i < Size)
+	{
+		if(abs(Array[i]) < A)
+			return(true);
+	}
+	return(false);
 }
 
 template <class T>
 bool Elements<T>::isnan()
 {
 	using std::isnan;
-	return(isnan(Array[0]) ||
-		isnan(Array[1]) ||
-		isnan(Array[2]) ||
-		isnan(Array[3]) ||
-		isnan(Array[4]) ||
-		isnan(Array[5]));
+	int i = 0;
+	while(i < Size)
+	{
+		if(isnan(Array[i]))
+			return(true);
+	}
+	return(false);
+}
+
+template <class T>
+Elements<T> Elements<T>::concat(Elements<T> A) const
+{
+	Elements<T> B(Size+A.Size);
+	int i, j;
+
+	for(i = 0; i < Size; i++)
+		B.Array[i] = Array[i];
+
+	j = i;
+	for(i = 0; i < Size; i++)
+	{
+		B.Array[j] = A.Array[i];
+		j++;
+	}
+
+	return(B);
 }
 
 template <class T>
 Elements<T> Elements<T>::operator+(Elements<T> A)
 {
-	Elements<T> B;
-	B.Array[0] = Array[0] + A.Array[0];
-	B.Array[1] = Array[1] + A.Array[1];
-	B.Array[2] = Array[2] + A.Array[2];
-	B.Array[3] = Array[3] + A.Array[3];
-	B.Array[4] = Array[4] + A.Array[4];
-	B.Array[5] = Array[5] + A.Array[5];
+	Elements<T> B(A.Size);
+	for(int i = 0; i < Size; i++)
+		B.Array[i] = Array[i] + A.Array[i];
 	return(B);
 }
 
 template <class T>
 Elements<T> Elements<T>::operator+(T A)
 {
-	Elements<T> B;
-	B.Array[0] = Array[0] + A;
-	B.Array[1] = Array[1] + A;
-	B.Array[2] = Array[2] + A;
-	B.Array[3] = Array[3] + A;
-	B.Array[4] = Array[4] + A;
-	B.Array[5] = Array[5] + A;
+	Elements<T> B(A.Size);
+	for(int i = 0; i < Size; i++)
+		B.Array[i] = Array[i] + A;
 	return(B);
 }
 
 template <class T>
 Elements<T> Elements<T>::operator-(Elements<T> A)
 {
-	Elements<T> B;
-	B.Array[0] = Array[0] - A.Array[0];
-	B.Array[1] = Array[1] - A.Array[1];
-	B.Array[2] = Array[2] - A.Array[2];
-	B.Array[3] = Array[3] - A.Array[3];
-	B.Array[4] = Array[4] - A.Array[4];
-	B.Array[5] = Array[5] - A.Array[5];
+	Elements<T> B(A.Size);
+	for(int i = 0; i < Size; i++)
+		B.Array[i] = Array[i] - A.Array[i];
 	return(B);
 }
 
 template <class T>
 Elements<T> Elements<T>::operator-(T A)
 {
-	Elements<T> B;
-	B.Array[0] = Array[0] - A;
-	B.Array[1] = Array[1] - A;
-	B.Array[2] = Array[2] - A;
-	B.Array[3] = Array[3] - A;
-	B.Array[4] = Array[4] - A;
-	B.Array[5] = Array[5] - A;
+	Elements<T> B(A.Size);
+	for(int i = 0; i < Size; i++)
+		B.Array[i] = Array[i] - A;
 	return(B);
 }
 
 template <class T>
 Elements<T> Elements<T>::operator/(Elements<T> A) const
 {
-	Elements<T> B;
-	B.Array[0] = Array[0] / A.Array[0];
-	B.Array[1] = Array[1] / A.Array[1];
-	B.Array[2] = Array[2] / A.Array[2];
-	B.Array[3] = Array[3] / A.Array[3];
-	B.Array[4] = Array[4] / A.Array[4];
-	B.Array[5] = Array[5] / A.Array[5];
+	Elements<T> B(A.Size);
+	for(int i = 0; i < Size; i++)
+		B.Array[i] = Array[i] / A.Array[i];
 	return(B);
 }
 
@@ -267,54 +275,48 @@ Elements<T> operator*(long double A, Elements<T> B)
 template <class T>
 Elements<T> Elements<T>::operator*(T A)
 {
-	Elements<T> B;
-	B.Array[0] = Array[0] * A;
-	B.Array[1] = Array[1] * A;
-	B.Array[2] = Array[2] * A;
-	B.Array[3] = Array[3] * A;
-	B.Array[4] = Array[4] * A;
-	B.Array[5] = Array[5] * A;
+	Elements<T> B(Size);
+	for(int i = 0; i < Size; i++)
+		B.Array[i] = Array[i]*A;
 	return(B);
 }
 
 template <class T>
 Elements<T> Elements<T>::operator*(Elements<T> A)
 {
-	Elements<T> B;
-	B.Array[0] = Array[0] * A.Array[0];
-	B.Array[1] = Array[1] * A.Array[1];
-	B.Array[2] = Array[2] * A.Array[2];
-	B.Array[3] = Array[3] * A.Array[3];
-	B.Array[4] = Array[4] * A.Array[4];
-	B.Array[5] = Array[5] * A.Array[5];
+	Elements<T> B(A.Size);
+	for(int i = 0; i < Size; i++)
+		B.Array[i] = Array[i] * A.Array[i];
 	return(B);
 }
 
 template <class T>
 Elements<T> Elements<T>::operator/(T A) const
 {
-	Elements<T> B;
-	B.Array[0] = Array[0] / A;
-	B.Array[1] = Array[1] / A;
-	B.Array[2] = Array[2] / A;
-	B.Array[3] = Array[3] / A;
-	B.Array[4] = Array[4] / A;
-	B.Array[5] = Array[5] / A;
+	Elements<T> B(Size);
+	for(int i = 0; i < Size; i++)
+		B.Array[i] = Array[i] / A;
 	return(B);
 }
 
 template <typename T>
-Elements<T> Elements<T>::abs(const Elements<T>& A)
+Elements<T> Elements<T>::abs(const Elements<T>& A) const
 {
 	using std::abs;
-	return(Elements<T>(abs(A[0]),abs(A[1]),abs(A[2]),abs(A[3]),abs(A[4]),abs(A[5])));
+	Elements<T> B(A.Size);
+	for(int i = 0; i < Size; i++)
+		B.Array[i] = abs(Array[i]);
+	return(B);
 }
 
 template <typename T>
 Elements<T> Elements<T>::abs() const
 {
 	using std::abs;
-	return(Elements<T>(abs(Array[0]),abs(Array[1]),abs(Array[2]),abs(Array[3]),abs(Array[4]),abs(Array[5])));
+	Elements<T> B(Size);
+	for(int i = 0; i < Size; i++)
+		B.Array[i] = abs(Array[i]);
+	return(B);
 }
 
 template <typename T>
@@ -326,18 +328,14 @@ Elements<T> abs(const Elements<T>& A)
 template <class T>
 void Elements<T>::null()
 {
-	Array[0] = T(0);
-	Array[1] = T(0);
-	Array[2] = T(0);
-	Array[3] = T(0);
-	Array[4] = T(0);
-	Array[5] = T(0);
+	for(int i = 0; i < Size; i++)
+		Array[i] = 0;
 }
 
 template <class T>
-T Elements<T>::operator[](int i)
+T* Elements<T>::operator[](int i)
 {
-	return(Array[i]);
+	return(&Array[i]);
 }
 
 #endif

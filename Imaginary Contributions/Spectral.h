@@ -3,15 +3,17 @@
 #include<cstdlib>
 #include<cfloat>
 #include<queue>
+#include<complex>
 #include"Elements.h"
+#include"Around.h"
 using namespace std;
 
 Elements<Around> theta_Int(long double[], int);			//Theta integral
 Elements<Around> theta_Int(long double[], int, long double, long double, int);
 Elements<Around> k_Int(long double[], int, long double);
 Elements<Around> k_Int(long double[], int, long double, long double, long double, int, int);
-Around k0_Int(long double[], int, long double, long double);	//k0 integral aka energy integral
-Around k0_Int(long double[], int, long double, long double, long double, long double, int);
+Elements<Around> k0_Int(long double[], int, long double, long double);	//k0 integral aka energy integral
+Elements<Around> k0_Int(long double[], int, long double, long double, long double, long double, int);
 
 Elements<Around> Integrand(long double[], long double, long double, int);
 long double ReG12Reverse(long double, long double, long double, long double, long double, int);
@@ -19,8 +21,8 @@ long double ImG12Reverse(long double, long double, long double, long double, lon
 
 //Functions for finding points of interest in the k0 integral
 void Characterize_k0_Int(long double[], int, long double, long double, long double[], long double[], int&);	//Returns the poles of the k0 integral's integrands
-long double Newton_Method_k0(long double, long double[], long double, long double, int, int, long double (*)(long double[], long double, long double, long double, int, int));	//Returns the k0 of the on-shell peak using Newton's method on 1/f
-long double omega_Width(long double, long double[], long double, long double, int, int, long double (*)(long double[], long double, long double, long double, int, int));	//Returns the width of on-shell peak using the assumption of a breit-wigner peak 
+long double Newton_Method_k0(long double, long double[], long double, long double, int, int, Elements<long double> (*)(long double[], long double, long double, long double, int, int));	//Returns the k0 of the on-shell peak using Newton's method on 1/f
+long double omega_Width(long double, long double[], long double, long double, int, int, Elements<long double> (*)(long double[], long double, long double, long double, int, int));	//Returns the width of on-shell peak using the assumption of a breit-wigner peak 
 
 //Functions for finding points of interest in the k integral
 void Characterize_k_Int(long double[], int, long double, long double[], long double[], int&);	//Returns the poles of the k integral's integrands
@@ -39,7 +41,6 @@ long double Lower_Bound(long double, long double, long double, long double, long
 //Functions for finding points of interest in the k0 integral
 void Characterize_k0_Int(long double[], int, long double, long double, long double[], long double[], int&);	//Returns the poles of the k0 integral's integrands
 long double Newton_Method_k0(long double, long double[], long double, long double, int, long double (*)(long double[], long double, long double, long double, int));	//Returns the k0 of the on-shell peak using Newton's method on 1/f
-long double omega_Width(long double, long double[], long double, long double, int, long double (*)(long double[], long double, long double, long double, int));	//Returns the width of on-shell peak using the assumption of a breit-wigner peak 
 
 //Functions that return physics for the integrand
 void ImSelf_Energy(long double, long double[], long double[], int, long double[]);			//Returns the imaginary single quark self-energies for both quarks, contains an alternate T=194 MeV solution
@@ -55,7 +56,7 @@ long double Potential2(long double[], long double, long double);					//Two verti
 long double Non_Interacting_Trace(long double[], long double, long double, long double);		//Non-interacting trace
 long double Interacting_Linear_Trace(long double[]);							//Linear (linear in sqrt(s)) contribution to the interacting trace
 long double Interacting_Quad_Trace(long double[], long double, long double);				//Quadratic contribution to the interacting trace
-long double Imk0_Integrand(long double[], long double, long double, long double, int, int);		//Integrand of the k0 integral for positive energy
+Elements<long double> k0_Integrand(long double[], long double, long double, long double, int, int);//Integrand of the k0 integral for positive energy for ImG12
 
 //Merge Sort. There are a number of semi-sorted lists that need sorting. This will probably beat quick sort under similar conditions.
 void mergeSort(long double List[], int a, int b)
@@ -96,6 +97,22 @@ void mergeSort(long double List[], int a, int b)
 	return;
 }
 
+Elements<Around> Estimation(Elements<long double> Low, Elements<long double> High)
+{
+	Elements<Around> Answer(High.size());
+	for(int i = 0; i < High.size(); i++)
+		*Answer[i] = Around(*High[i],abs(*High[i]-*Low[i]));
+	return(Answer);
+}
+
+Elements<Around> Estimation(Elements<Around> Low, Elements<Around> High)
+{
+	Elements<Around> Answer(High.size());
+	for(int i = 0; i < High.size(); i++)
+		*Answer[i] = Around(*High[i],abs(*High[i]-*Low[i]));
+	return(Answer);
+}
+
 #ifndef BBS_GAMMA	//use option -D BBS_GAMMA=<number> to alter BbS vacuum width, default value 2.03 MeV short of pi*32MeV
 #define BBS_GAMMA -0.032400653275761415	//Width of single quark propagator
 #endif
@@ -106,14 +123,15 @@ void mergeSort(long double List[], int a, int b)
 Elements<Around> theta_Int(long double Par[], int Temp)
 {
 	if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
-		return(k_Int(Par, Temp, M_PI/2.)/pow(2.*M_PI,2)*2.);
+		return(k_Int(Par, Temp, M_PI/2.)*Around(2./pow(2.*M_PI,2)));
 
 	long double x1;
 	long double a = 0, b;					//Sub-interval limits of integration
 	long double Boundary_theta[] = {1./17., 0.3, 0.08};	//Extra boundary values
 	Elements<Around> F[2];					//Sum of ordinate*weights
-	Elements<Around> Answer(0,0,0,0,0,0);			//Answer to be returned
+	Elements<Around> Answer(10);				//Answer to be returned
 	int i, j;						//Counters
+	Answer.null();
 
 	if(Par[4] > 0 && Par[3] > sqrt(Par[4]/2.)) //Where the maximum of the theta integral ought to land. It might only be correct for BbS reduction, but is close enough for all other cases. Only valid for s>0 and P>sqrt(s/2)
 		x1 = asin(sqrt(Par[4]/2.)/Par[3]);
@@ -150,7 +168,7 @@ Elements<Around> theta_Int(long double Par[], int Temp)
 		a = b;	//Upper edge becomes lower edge
 	}
 
-	return(Answer/pow(2.*M_PI,2)*2.);
+	return(Answer*Around(2./pow(2.*M_PI,2)));
 }
 
 Elements<Around> theta_Int(long double Par[], int Temp, long double a, long double b, int deep)
@@ -174,11 +192,12 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 	long double wl[] = {0, 0.0965400885147278005667648, 0, 0.0956387200792748594190820, 0, 0.09384439908080456563918024, 0, 0.09117387869576388471286858, 0, 0.08765209300440381114277146, 0, 0.08331192422694675522219907, 0, 0.07819389578707030647174092, 0, 0.07234579410884850622539936, 0, 0.06582222277636184683765006, 0, 0.05868409347853554714528364, 0, 0.05099805926237617619616324, 0, 0.04283589802222668065687865, 0, 0.03427386291302143310268773, 0, 0.02539206530926205945575259, 0, 0.016274394730905670605170562, 0, 0.007018610009470096600407064, 0};	//63rd order Gauss-Legendre weight
 	long double wh[] = {0.048326383986567758375445434, 0.0482701930757773855987121, 0.048100969185457746927846544, 0.04781890873698847221226358, 0.047426061873882382362879950, 0.04692296828170361110348071, 0.046308756738025713240381298, 0.04558582656454707028057546, 0.044758638749766937295199192, 0.04382754403013974904681615, 0.042791115596446746933654925, 0.04165401998564305139829641, 0.040423492370373096672349269, 0.03909942013330661120748213, 0.037679130645613398514895974, 0.03616976947564229986095839, 0.034582122744733034130726383, 0.03291507764390360026329648, 0.031163325561973737171155849, 0.02933695668962066136861561, 0.027452098422210403783147707, 0.02550569548089465281452890, 0.023486659672163324592087913, 0.02140891318482191595577752, 0.019298771430326811294403740, 0.01714980520978425325608583, 0.014936103606086027385096751, 0.01267605480665440285936888, 0.010423987398806818828034251, 0.008172504038531668414343805, 0.0058417370791666933039479766, 0.003426818775772370935574576, 0.0012233608179514718002930372};	//97th order Gauss-Kronrod weight
 #endif
-	long double x1, x2;			//Abscissa
-	Elements<Around> F[2];			//Sum of ordinate*weights
-	Elements<Around> Answer(0,0,0,0,0,0);	//Answer to be returned
+	long double x1, x2;		//Abscissa
+	Elements<Around> F[2];		//Sum of ordinate*weights
+	Elements<Around> Answer(10);	//Answer to be returned
+	Answer.null();
 	Elements<Around> Holder;
-	int i, j = 0;				//Counters
+	int i, j = 0;			//Counters
 
 	F[0].null();	//Zero out F for a new round
 	F[1].null();	//Zero out F for a new round
@@ -188,24 +207,24 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 		x1 = (b+a-Disp[j]*(b-a))/2.;
 		x2 = (b+a+Disp[j]*(b-a))/2.;
 
-		Holder = k_Int(Par, Temp, x1);
-		F[0] += Holder*w9[j+1];
-		F[1] += Holder*w16[j+1];
+		Holder = k_Int(Par, Temp, x1)*Around(sin(x1));
+		F[0] += Holder*Around(w9[j+1]);
+		F[1] += Holder*Around(w16[j+1]);
 //cerr << Par[3] << "," << Par[4] << "," << x1 << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
 
-		Holder = k_Int(Par, Temp, x2);
-		F[0] += Holder*w9[j+1];
-		F[1] += Holder*w16[j+1];
+		Holder = k_Int(Par, Temp, x2)*Around(sin(x2));
+		F[0] += Holder*Around(w9[j+1]);
+		F[1] += Holder*Around(w16[j+1]);
 //cerr << Par[3] << "," << Par[4] << "," << x2 << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
 	}
-	Holder = k_Int(Par, Temp, (a+b)/2.);
-	F[0] += Holder*w9[0];
-	F[1] += Holder*w16[0];
+	Holder = k_Int(Par, Temp, (a+b)/2.)*Around(sin((a+b)/2.));
+	F[0] += Holder*Around(w9[0]);
+	F[1] += Holder*Around(w16[0]);
 //cerr << Par[3] << "," << Par[4] << "," << (a+b)/2. << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
 
-	//Answer = Elements<Around>(Around(F[1][0].Value(),abs(F[0][0].Value()-F[1][0].Value())),Around(F[1][1].Value(),abs(F[0][1].Value()-F[1][1].Value())),Around(F[1][2].Value(),abs(F[0][2].Value()-F[1][2].Value())),Around(F[1][3].Value(),abs(F[0][3].Value()-F[1][3].Value())),Around(F[1][4].Value(),abs(F[0][4].Value()-F[1][4].Value())),Around(F[1][5].Value(),abs(F[0][5].Value()-F[1][5].Value())))*(b-a)/2.;	//Add the subinterval to total of the integral
+	//Answer = Estimation(F[0], F[1])*Around((b-a)/2.);	//Add the subinterval to total of the integral
 
-	if(abs(F[0]-F[1])*2./abs(F[0]+F[1]) > 1 && abs(b-a) > FLT_EPSILON && deep > 4)
+	if(abs(F[0]-F[1])*Around(2.)/abs(F[0]+F[1]) > 1 && abs(b-a) > FLT_EPSILON && deep > 4)
 		Answer = theta_Int(Par, Temp, a, (a+b)/2., deep+1) + theta_Int(Par, Temp, (a+b)/2., b, deep+1);
 	else
 	{
@@ -221,21 +240,21 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 			x1 = (b+a-Disp[j]*(b-a))/2.;
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			Holder = k_Int(Par, Temp, x1);
-			F[0] += Holder*wl[j+1];
-			F[1] += Holder*wh[j+1];
+			Holder = k_Int(Par, Temp, x1)*Around(sin(x1));
+			F[0] += Holder*Around(wl[j+1]);
+			F[1] += Holder*Around(wh[j+1]);
 //cerr << Par[3] << "," << Par[4] << "," << x1 << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
 
-			Holder = k_Int(Par, Temp, x2);
-			F[0] += Holder*wl[j+1];
-			F[1] += Holder*wh[j+1];
+			Holder = k_Int(Par, Temp, x2)*Around(sin(x2));
+			F[0] += Holder*Around(wl[j+1]);
+			F[1] += Holder*Around(wh[j+1]);
 //cerr << Par[3] << "," << Par[4] << "," << x2 << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
 		}
-		Holder = k_Int(Par, Temp, (a+b)/2.);
-		F[0] += Holder*wl[0];
-		F[1] += Holder*wh[0];
+		Holder = k_Int(Par, Temp, (a+b)/2.)*Around(sin((a+b)/2.));
+		F[0] += Holder*Around(wl[0]);
+		F[1] += Holder*Around(wh[0]);
 //cerr << Par[3] << "," << Par[4] << "," << (a+b)/2. << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
-	Answer = Elements<Around>(Around(F[1][0],abs(F[0][0]-F[1][0])),Around(F[1][1],abs(F[0][1]-F[1][1])),Around(F[1][2],abs(F[0][2]-F[1][2])),Around(F[1][3],abs(F[0][3]-F[1][3])),Around(F[1][4],abs(F[0][4]-F[1][4])),Around(F[1][5],abs(F[0][5]-F[1][5])))*(b-a)/2.;	//Add the subinterval to total of the integral
+	Answer = Estimation(F[0], F[1])*Around((b-a)/2.);	//Add the subinterval to total of the integral
 	}
 
 	return(Answer);
@@ -244,21 +263,26 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 Elements<Around> Integrand(long double Par[], long double k, long double theta, int Temp, bool fancy)
 {
 	long double k0 = (Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2., -k, theta))/2.;
+	Around Array[6] = {2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k)};
+	Elements<Around> ReElements, ImElements;
 //	Elements<long double> Holder = Elements<long double>(2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ImG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp);
 //cerr << Par[3] << "," << Par[4] << "," << k << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp) << endl;
 	if(fancy && Temp != 0)
 	{
-		return(Elements<Around>(2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*k0_Int(Par,Temp,k,theta)*pow(k,2)*sin(theta));
+		return(k0_Int(Par,Temp,k,theta));
 	}
-	return(Elements<Around>(2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*Around(ImG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp))*pow(k,2)*sin(theta));
+	ImElements = Elements<Around>(Array,6)*Around(ImG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp));
+	ReElements = Elements<Around>(&Array[2],4)*Around(ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp));
+	return(ReElements.concat(ImElements));
 }
 
 Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 {
 	long double a, b;	//Sub-interval limits of integration
 
-	Elements<Around> Answer(0,0,0,0,0,0);	//Answer to be returned
-	Elements<Around> Partial;		//Answer for sub-interval for determining completeness
+	Elements<Around> Answer(10);	//Answer to be returned
+	Answer.null();
+	Elements<Around> Partial;	//Answer for sub-interval for determining completeness
 
 	int Poles;		//Number of poles
 	long double zero[26];	//The real part of the signular pole
@@ -373,8 +397,11 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 	long double x1, x2;	//Abscissa
 	long double k01, k02;	//On-shell relative energy at the abscissa
 
-	Elements<Around> F[2] = {Elements<Around>(0,0,0,0,0,0),Elements<Around>(0,0,0,0,0,0)};	//Sum of ordinates*weights
-	Elements<Around> Answer(0,0,0,0,0,0);	//Answer to be returned
+	Elements<Around> F[2] = {Elements<Around>(10),Elements<Around>(10)};	//Sum of ordinates*weights
+	Elements<Around> Answer(10);	//Answer to be returned
+	F[0].null();
+	F[1].null();
+	Answer.null();
 	Elements<Around> Holder;
 
 	switch(order)
@@ -385,18 +412,18 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 			x1 = (b+a-Disp16[l]*(b-a))/2.;
 			x2 = (b+a+Disp16[l]*(b-a))/2.;
 
-			Holder = Integrand(Par, x1, theta, Temp, false);
-			F[0] += Holder*w9[l+1];
-			F[1] += Holder*w16[l+1];
+			Holder = Integrand(Par, x1, theta, Temp, false)*Around(pow(x1,2));
+			F[0] += Holder*Around(w9[l+1]);
+			F[1] += Holder*Around(w16[l+1]);
 
-			Holder = Integrand(Par, x2, theta, Temp, false);
-			F[0] += Holder*w9[l+1];
-			F[1] += Holder*w16[l+1];
+			Holder = Integrand(Par, x2, theta, Temp, false)*Around(pow(x2,2));
+			F[0] += Holder*Around(w9[l+1]);
+			F[1] += Holder*Around(w16[l+1]);
 		}
 		x1 = (a+b)/2.;
-		Holder = Integrand(Par, x1, theta, Temp, false);
-		F[0] += Holder*pow((a+b)/2., 2)*w9[0];
-		F[1] += Holder*pow((a+b)/2., 2)*w16[0];
+		Holder = Integrand(Par, x1, theta, Temp, false)*Around(pow(x1,2));
+		F[0] += Holder*Around(w9[0]);
+		F[1] += Holder*Around(w16[0]);
 		break;
 	case 37:
 		for(int l = 0; l < 12; l++)//for(int l = 0; l < 12; l+=2)// //Count through points away from center
@@ -404,17 +431,17 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 			x1 = (b+a-Disp37[l]*(b-a))/2.;
 			x2 = (b+a+Disp37[l]*(b-a))/2.;
 
-			Holder = Integrand(Par, x1, theta, Temp, false);
-			F[0] += Holder*w23[l+1];
-			F[1] += Holder*w37[l+1];
-			Holder = Integrand(Par, x2, theta, Temp, false);
-			F[0] += Holder*w23[l+1];
-			F[1] += Holder*w37[l+1];
+			Holder = Integrand(Par, x1, theta, Temp, false)*Around(pow(x1,2));
+			F[0] += Holder*Around(w23[l+1]);
+			F[1] += Holder*Around(w37[l+1]);
+			Holder = Integrand(Par, x2, theta, Temp, false)*Around(pow(x2,2));
+			F[0] += Holder*Around(w23[l+1]);
+			F[1] += Holder*Around(w37[l+1]);
 		}
 		x1 = (a+b)/2.;
-		Holder = Integrand(Par, x1, theta, Temp, false);
-		F[0] += Holder*w23[0];
-		F[1] += Holder*w37[0];
+		Holder = Integrand(Par, x1, theta, Temp, false)*Around(pow(x1,2));
+		F[0] += Holder*Around(w23[0]);
+		F[1] += Holder*Around(w37[0]);
 		break;
 	case 97:
 		for(int l = 0; l < 32; l++)//for(int l = 0; l < 32; l+=2)// //Count through points away from center
@@ -422,27 +449,27 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 			x1 = (b+a-Disp97[l]*(b-a))/2.;
 			x2 = (b+a+Disp97[l]*(b-a))/2.;
 
-			Holder = Integrand(Par, x1, theta, Temp, false);
-			F[0] += Holder*w63[l+1];
-			F[1] += Holder*w97[l+1];
-			Holder = Integrand(Par, x2, theta, Temp, false);
-			F[0] += Holder*w63[l+1];
-			F[1] += Holder*w97[l+1];
+			Holder = Integrand(Par, x1, theta, Temp, false)*Around(pow(x1,2));
+			F[0] += Holder*Around(w63[l+1]);
+			F[1] += Holder*Around(w97[l+1]);
+			Holder = Integrand(Par, x2, theta, Temp, false)*Around(pow(x2,2));
+			F[0] += Holder*Around(w63[l+1]);
+			F[1] += Holder*Around(w97[l+1]);
 		}
 		x1 = (a+b)/2.;
-		Holder = Integrand(Par, x1, theta, Temp, false);
-		F[0] += Holder*w63[0];
-		F[1] += Holder*w97[0];
+		Holder = Integrand(Par, x1, theta, Temp, false)*Around(pow(x1,2));
+		F[0] += Holder*Around(w63[0]);
+		F[1] += Holder*Around(w97[0]);
 		break;
 	}
 
-	Answer = Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])), Around(F[1][4], abs(F[0][4]-F[1][4])), Around(F[1][5], abs(F[0][5]-F[1][5])))*(b-a)/2.;//F[0]*(b-a)/2.;//	//Record the subinterval to total of the integral
-	if((Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9 || Answer[0].RelErr() > 1e-9) && deep < 4 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
+	Answer = Estimation(F[0], F[1])*Around((b-a)/2.);//F[0]*(b-a)/2.;//	//Record the subinterval to total of the integral
+	if(((*Answer[0]).RelErr() > 1e-9 || (*Answer[0]).RelErr() > 1e-9 || (*Answer[0]).RelErr() > 1e-9 || (*Answer[0]).RelErr() > 1e-9) && deep < 4 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
 		Answer = k_Int(Par, Temp, theta, a, (a+b)/2., order, deep+1) + k_Int(Par, Temp, theta, (a+b)/2., b, order, deep+1);
 	else
 	{
-		F[0] = Elements<Around>(0,0,0,0,0,0);
-		F[1] = Elements<Around>(0,0,0,0,0,0);
+		F[0].null();
+		F[1].null();
 		switch(ORDER)
 		{
 		case 37:
@@ -451,17 +478,17 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 				x1 = (b+a-Disp37[l]*(b-a))/2.;
 				x2 = (b+a+Disp37[l]*(b-a))/2.;
 
-				Holder = Integrand(Par, x1, theta, Temp, true);
-				F[0] += Holder*w23[l+1];
-				F[1] += Holder*w37[l+1];
-				Holder = Integrand(Par, x2, theta, Temp, true);
-				F[0] += Holder*w23[l+1];
-				F[1] += Holder*w37[l+1];
+				Holder = Integrand(Par, x1, theta, Temp, true)*Around(pow(x1,2));
+				F[0] += Holder*Around(w23[l+1]);
+				F[1] += Holder*Around(w37[l+1]);
+				Holder = Integrand(Par, x2, theta, Temp, true)*Around(pow(x2,2));
+				F[0] += Holder*Around(w23[l+1]);
+				F[1] += Holder*Around(w37[l+1]);
 			}
 			x1 = (a+b)/2.;
-			Holder = Integrand(Par, x1, theta, Temp, true);
-			F[0] += Holder*w23[0];
-			F[1] += Holder*w37[0];
+			Holder = Integrand(Par, x1, theta, Temp, true)*Around(pow(x1,2));
+			F[0] += Holder*Around(w23[0]);
+			F[1] += Holder*Around(w37[0]);
 			break;
 		case 97:
 			for(int l = 0; l < 32; l++)//for(int l = 0; l < 32; l+=2)// //Count through points away from center
@@ -469,21 +496,21 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 				x1 = (b+a-Disp97[l]*(b-a))/2.;
 				x2 = (b+a+Disp97[l]*(b-a))/2.;
 
-				Holder = Integrand(Par, x1, theta, Temp, true);
-				F[0] += Holder*w63[l+1];
-				F[1] += Holder*w97[l+1];
-				Holder = Integrand(Par, x2, theta, Temp, true);
-				F[0] += Holder*w63[l+1];
-				F[1] += Holder*w97[l+1];
+				Holder = Integrand(Par, x1, theta, Temp, true)*Around(pow(x1,2));
+				F[0] += Holder*Around(w63[l+1]);
+				F[1] += Holder*Around(w97[l+1]);
+				Holder = Integrand(Par, x2, theta, Temp, true)*Around(pow(x2,2));
+				F[0] += Holder*Around(w63[l+1]);
+				F[1] += Holder*Around(w97[l+1]);
 			}
 			x1 = (a+b)/2.;
-			Holder = Integrand(Par, x1, theta, Temp, true);
-			F[0] += Holder*w63[0];
-			F[1] += Holder*w97[0];
+			Holder = Integrand(Par, x1, theta, Temp, true)*Around(pow(x2,2));
+			F[0] += Holder*Around(w63[0]);
+			F[1] += Holder*Around(w97[0]);
 			break;
 		}
 
-		Answer = Elements<Around>(Around(F[1][0], abs(F[0][0]-F[1][0])), Around(F[1][1], abs(F[0][1]-F[1][1])), Around(F[1][2], abs(F[0][2]-F[1][2])), Around(F[1][3], abs(F[0][3]-F[1][3])), Around(F[1][4], abs(F[0][4]-F[1][4])), Around(F[1][5], abs(F[0][5]-F[1][5])))*(b-a)/2.;//F[0]*(b-a)/2.;//	//Record the subinterval to total of the integral
+		Answer = Estimation(F[0], F[1])*Around((b-a)/2.);//F[0]*(b-a)/2.;//	//Record the subinterval to total of the integral
 	}
 
 	return(Answer);
@@ -529,20 +556,16 @@ long double ImG12Reverse(long double M, long double s, long double P, long doubl
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).imag();
 }
 
-Around k0_Int(long double Par[], int Temp, long double k, long double theta)
+Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double theta)
 {
-	if(Temp == 0 && abs(sqrt(Par[4]+pow(Par[3],2))-Energy(0,Par[3]/2.,-k,theta)-Energy(0,Par[3]/2.,k,theta)) < 1e-12)	//Vacuum and interval is going to be approximently zero
-		return(0);
-	else if(Par[4]+pow(Par[3],2) < 0)	//Bad data trap and time saver. The point is supposed to zero energy anyways but got evaluated to non-zero
-		return(0);
-
 	long double a, b;	//Sub-interval limits of integration
 	long double Max;	//Upper limit of integration
 
 	//Extra boundaries that insert extra intervals around peaks. Used a machine learn algorithm of sorts to minimize error to pick these values.
 
-	Around Answer = Around(0);	//Results to be returned
-	Around Partial;		//Partial sum to determine continuation
+	Elements<Around> Answer(10);	//Results to be returned
+	Answer.null();
+	Elements<Around> Partial;	//Partial sum to determine continuation
 
 	long double zero[12];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[12];	//Imaginary part of poles
@@ -630,7 +653,7 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta)
 	return(Answer);
 }
 
-Around k0_Int(long double Par[], int Temp, long double k, long double theta, long double a, long double b, int deep)
+Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double theta, long double a, long double b, int deep)
 {
 #if ORDER == 97	//37th order Gauss-Legendre integration
 //23th order Gauss-Legendre/37th order Gauss-Kronrod integration
@@ -646,13 +669,14 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta, lon
 	long double x1, x2;	//Abscissa
 	long double Max;	//Upper limit of integration
 
-	long double F[2];		//Sum of ordinates*weights
-	Around Answer = Around(0);	//Results to be returned
+	Elements<long double> F[2];	//Sum of ordinates*weights
+	Elements<Around> Answer(10);	//Results to be returned
 
 	int i, j, l;		//Counting varibles
 
-	F[0] = 0;	//Zero out F for next sub-interval
-	F[1] = 0;	//Zero out F for next sub-interval
+	F[0].null();	//Zero out F for next sub-interval
+	F[1].null();	//Zero out F for next sub-interval
+	Answer.null();
 
 #if ORDER == 97
 	for(l = 0; l < 12; l++) //Count through points away from center
@@ -663,20 +687,20 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta, lon
 		x1 = (b+a-Disp[l]*(b-a))/2.;
 		x2 = (b+a+Disp[l]*(b-a))/2.;
 
-		F[0] += Imk0_Integrand(Par,x1,k,theta,Temp, 0)*wl[l+1];
-		F[0] += Imk0_Integrand(Par,x2,k,theta,Temp, 0)*wl[l+1];
-		F[1] += Imk0_Integrand(Par,x1,k,theta,Temp, 0)*wh[l+1];
-		F[1] += Imk0_Integrand(Par,x2,k,theta,Temp, 0)*wh[l+1];
+		F[0] += k0_Integrand(Par,x1,k,theta,Temp, 0)*wl[l+1];
+		F[0] += k0_Integrand(Par,x2,k,theta,Temp, 0)*wl[l+1];
+		F[1] += k0_Integrand(Par,x1,k,theta,Temp, 0)*wh[l+1];
+		F[1] += k0_Integrand(Par,x2,k,theta,Temp, 0)*wh[l+1];
 	}
-	F[0] += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0)*wl[0];
-	F[1] += Imk0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0)*wh[0];
+	F[0] += k0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0)*wl[0];
+	F[1] += k0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0)*wh[0];
 
-	Answer = Around(F[1],abs(F[0]-F[1]))*(b-a)/2.;
+	Answer = Estimation(F[0], F[1])*Around((b-a)/2.);
 
 	/*if(Answer.RelErr() > 1e-8 && deep < 4 && abs(b/a-(long double)(1.)) > FLT_EPSILON)
 		Answer = k0_Int(Par, Temp, k, theta, a, (a+b)/2., deep+1) + k0_Int(Par, Temp, k, theta, (a+b)/2., b, deep+1);//*/
 
-	return(Answer/M_PI);
+	return(Answer/Around(M_PI));
 }
 
 void Characterize_k_Int(long double Par[], int Temp, long double theta, long double zero[], long double gamma[], int &Poles)
@@ -1022,11 +1046,16 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 
 	if(Temp != 0)	//media estimate
 	{
-		zero[2] = Newton_Method_k0(zero[2], Par, k, theta, Temp, 2, Imk0_Integrand);
-		zero[3] = Newton_Method_k0(zero[3], Par, k, theta, Temp, 2, Imk0_Integrand);
-		zero[4] = Newton_Method_k0(zero[4], Par, k, theta, Temp, 1, Imk0_Integrand);
-		zero[5] = Newton_Method_k0(zero[5], Par, k, theta, Temp, 1, Imk0_Integrand);
+		zero[2] = Newton_Method_k0(zero[2], Par, k, theta, Temp, 3, k0_Integrand);
+		zero[3] = Newton_Method_k0(zero[3], Par, k, theta, Temp, 4, k0_Integrand);
+		zero[4] = Newton_Method_k0(zero[4], Par, k, theta, Temp, 2, k0_Integrand);
+		zero[5] = Newton_Method_k0(zero[5], Par, k, theta, Temp, 1, k0_Integrand);
 	}
+
+	gamma[2] = omega_Width(zero[2], Par, k, theta, Temp, 3, k0_Integrand);
+	gamma[3] = omega_Width(zero[3], Par, k, theta, Temp, 4, k0_Integrand);
+	gamma[4] = omega_Width(zero[4], Par, k, theta, Temp, 2, k0_Integrand);
+	gamma[5] = omega_Width(zero[5], Par, k, theta, Temp, 1, k0_Integrand);
 
 	for(i = 0; i < 6; i++)
 	{
@@ -1043,6 +1072,9 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 				holder = zero[j+1];
 				zero[j+1] = zero[j];
 				zero[j] = holder;
+				holder = gamma[j+1];
+				gamma[j+1] = gamma[j];
+				gamma[j] = holder;
 			}
 		}
 	}
@@ -1052,8 +1084,9 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 	return;
 }
 
-long double Newton_Method_k0(long double k0, long double Par[], long double k, long double theta, int Temp, int j, long double (*Folding)(long double[], long double, long double, long double, int, int))	//Newton's method for finding poles of f by looking for zeros of 1/f, much more stable to the point of absolute confidence
+long double Newton_Method_k0(long double k0, long double Par[], long double k, long double theta, int Temp, int j, Elements<long double> (*Folding)(long double[], long double, long double, long double, int, int))	//Newton's method for finding poles of f by looking for zeros of 1/f, much more stable to the point of absolute confidence
 {
+	long double original_k0 = k0;
 	long double new_k0;
 	long double h;	//Finite difference
 	long double Exit;
@@ -1071,22 +1104,25 @@ long double Newton_Method_k0(long double k0, long double Par[], long double k, l
 		Exit = 1e-5;
 	}
 
-	new_k0 = k0 - .5*h*(1./Folding(Par, k0+h, k, theta, Temp, j)-1./Folding(Par, k0-h, k, theta, Temp, j))/((1./Folding(Par, k0-h, k, theta, Temp, j)-2./Folding(Par, k0, k, theta, Temp, j)+1./Folding(Par, k0+h, k, theta, Temp, j)));	//First iteration of Netwon's method using finite differences
+	new_k0 = k0 - .5*h*(1./(*Folding(Par, k0+h, k, theta, Temp, j)[0])-1./(*Folding(Par, k0-h, k, theta, Temp, j)[0]))/((1./(*Folding(Par, k0-h, k, theta, Temp, j)[0])-2./(*Folding(Par, k0, k, theta, Temp, j)[0])+1./(*Folding(Par, k0+h, k, theta, Temp, j)[0])));	//First iteration of Netwon's method using finite differences
 
-	while(/*abs(1.-new_k0/k0) > Exit && */i < 100)	//Allow up to 12 iterations to find the pole
+	while(/*abs(1.-new_k0/k0) > Exit && */i < 100 && (isfinite(new_k0) || abs(new_k0-original_k0)<.5))	//Allow up to 12 iterations to find the pole
 	{
 		k0 = new_k0;
-		new_k0 = k0 - .5*h*(1./Folding(Par, k0+h, k, theta, Temp, j)-1./Folding(Par, k0-h, k, theta, Temp, j))/((1./Folding(Par, k0-h, k, theta, Temp, j)-2./Folding(Par, k0, k, theta, Temp, j)+1./Folding(Par, k0+h, k, theta, Temp, j)));
+		new_k0 = k0 - .5*h*(1./(*Folding(Par, k0+h, k, theta, Temp, j)[0])-1./(*Folding(Par, k0-h, k, theta, Temp, j)[0]))/((1./(*Folding(Par, k0-h, k, theta, Temp, j)[0])-2./(*Folding(Par, k0, k, theta, Temp, j)[0])+1./(*Folding(Par, k0+h, k, theta, Temp, j)[0])));
 		i++;
 	}
 
-	return(k0);
+	if(abs(new_k0-original_k0)<.5)
+		return(k0);
+	else
+		return(original_k0);
 }
 
-long double omega_Width(long double zero, long double Par[], long double k, long double theta, int Temp, int i, long double (*Folding)(long double[], long double, long double, long double, int, int))	//Breit-Wigner width of the peak
+long double omega_Width(long double zero, long double Par[], long double k, long double theta, int Temp, int i, Elements<long double> (*Folding)(long double[], long double, long double, long double, int, int))	//Breit-Wigner width of the peak
 {
-	const long double h = 1e-13;
-	return(sqrt(abs(24.*h*h*Folding(Par, zero, k, theta, Temp, i)/(Folding(Par, zero-2.*h, k, theta, Temp, i)+16.*Folding(Par, zero-h, k, theta, Temp, i)-30.*Folding(Par, zero, k, theta, Temp, i)+16.*Folding(Par, zero+h, k, theta, Temp, i)-1.*Folding(Par, zero+2.*h, k, theta, Temp, i)))));
+	const long double h = 1e-2;
+	return(sqrt(abs(24.*h*h*(*Folding(Par, zero, k, theta, Temp, i)[0])/((*Folding(Par, zero-2.*h, k, theta, Temp, i)[0])+16.*(*Folding(Par, zero-h, k, theta, Temp, i)[0])-30.*(*Folding(Par, zero, k, theta, Temp, i)[0])+16.*(*Folding(Par, zero+h, k, theta, Temp, i)[0])-1.*(*Folding(Par, zero+2.*h, k, theta, Temp, i)[0])))));
 }
 
 void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp, long double Results[])	//Single quark self energy for both quarks
@@ -1098,14 +1134,26 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	static long double M_T, Shift;	//Default quark mass, shfift from default quark mass to given quark mass
 	static long double k_old[2] = {-1,-1}; //Previous value of k to know if the parmeters need to recalculated
 
-	if(pow(omega[0],2)>=pow(k[0],2))
+	if(false)//pow(omega[0],2)>=pow(k[0],2))
+	{
 		Results[0] = sqrt(pow(omega[0],2)-pow(k[0],2))*GAMMA;
+		Results[1] = sqrt(pow(omega[1],2)-pow(k[0],2))*GAMMA;
+	}
 	else
+	{
 		Results[0] = 0;
-	if(pow(omega[1],2)>=pow(k[1],2))
-		Results[1] = sqrt(pow(omega[1],2)-pow(k[1],2))*GAMMA;
-	else
 		Results[1] = 0;
+	}
+	if(false)//pow(omega[2],2)>=pow(k[1],2))
+	{
+		Results[2] = sqrt(pow(omega[2],2)-pow(k[1],2))*GAMMA;
+		Results[3] = sqrt(pow(omega[3],2)-pow(k[1],2))*GAMMA;
+	}
+	else
+	{
+		Results[2] = 0;
+		Results[3] = 0;
+	}
 
 	if(Temp == 0)
 		return;
@@ -1195,7 +1243,7 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 		}
 	}
 
-	long double ImSigma[2];	//Calculation of the argument to the exponential, these first 2 are approximations to avoid catastrophic loss of precision
+	long double ImSigma[4];	//Calculation of the argument to the exponential, these first 2 are approximations to avoid catastrophic loss of precision
 	if((omega[0]-omega0[0]+knee[0]*(b[0]-a[0])/(sqrt(a[0]*b[0])*(a[0]+b[0])))/knee[0] < -4.)
 		ImSigma[0] = a[0]*(omega[0]-omega0[0]+knee[0]/sqrt(a[0]*b[0]));
 	else if((omega[0]-omega0[0]+knee[0]*(b[0]-a[0])/(sqrt(a[0]*b[0])*(a[0]+b[0])))/knee[0] > 4.)
@@ -1203,19 +1251,37 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	else	//Lost of precision having been circumvented, the actual value
 		ImSigma[0] = -.5*((a[0]-b[0])*omega0[0]-((a[0]+b[0])*knee[0])/sqrt(a[0]*b[0]))+(a[0]-b[0])*omega[0]/2-sqrt(pow(((a[0]+b[0])/2.)*(omega[0]-omega0[0]+((a[0]-b[0])*knee[0])/(sqrt(a[0]*b[0])*(a[0]+b[0]))), 2)+pow(knee[0], 2));
 
-	if((omega[1]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] < -4.)
-		ImSigma[1] = a[1]*(omega[1]-omega0[1]+knee[1]/sqrt(a[1]*b[1]));
-	else if((omega[1]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] > 4.)
-		ImSigma[1] = b[1]*(omega0[1]-omega[1]+knee[1]/sqrt(a[1]*b[1]));
+	if((omega[1]-omega0[0]+knee[0]*(b[0]-a[0])/(sqrt(a[0]*b[0])*(a[0]+b[0])))/knee[0] < -4.)
+		ImSigma[1] = a[0]*(omega[1]-omega0[0]+knee[0]/sqrt(a[0]*b[0]));
+	else if((omega[1]-omega0[0]+knee[0]*(b[0]-a[0])/(sqrt(a[0]*b[0])*(a[0]+b[0])))/knee[0] > 4.)
+		ImSigma[1] = b[0]*(omega0[0]-omega[1]+knee[0]/sqrt(a[0]*b[0]));
+	else	//Lost of precision having been circumvented, the actual value
+		ImSigma[1] = -.5*((a[0]-b[0])*omega0[0]-((a[0]+b[0])*knee[0])/sqrt(a[0]*b[0]))+(a[0]-b[0])*omega[1]/2-sqrt(pow(((a[0]+b[0])/2.)*(omega[1]-omega0[0]+((a[0]-b[0])*knee[0])/(sqrt(a[0]*b[0])*(a[0]+b[0]))), 2)+pow(knee[0], 2));
+
+	if((omega[2]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] < -4.)
+		ImSigma[2] = a[1]*(omega[2]-omega0[1]+knee[1]/sqrt(a[1]*b[1]));
+	else if((omega[2]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] > 4.)
+		ImSigma[2] = b[1]*(omega0[1]-omega[2]+knee[1]/sqrt(a[1]*b[1]));
 	else
-		ImSigma[1] = -.5*((a[1]-b[1])*omega0[1]-((a[1]+b[1])*knee[1])/sqrt(a[1]*b[1]))+(a[1]-b[1])*omega[1]/2-sqrt(pow(((a[1]+b[1])/2.)*(omega[1]-omega0[1]+((a[1]-b[1])*knee[1])/(sqrt(a[1]*b[1])*(a[1]+b[1]))), 2)+pow(knee[1], 2));
+		ImSigma[2] = -.5*((a[1]-b[1])*omega0[1]-((a[1]+b[1])*knee[1])/sqrt(a[1]*b[1]))+(a[1]-b[1])*omega[2]/2-sqrt(pow(((a[1]+b[1])/2.)*(omega[2]-omega0[1]+((a[1]-b[1])*knee[1])/(sqrt(a[1]*b[1])*(a[1]+b[1]))), 2)+pow(knee[1], 2));
+
+	if((omega[3]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] < -4.)
+		ImSigma[3] = a[1]*(omega[3]-omega0[1]+knee[1]/sqrt(a[1]*b[1]));
+	else if((omega[3]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] > 4.)
+		ImSigma[3] = b[1]*(omega0[1]-omega[3]+knee[1]/sqrt(a[1]*b[1]));
+	else
+		ImSigma[3] = -.5*((a[1]-b[1])*omega0[1]-((a[1]+b[1])*knee[1])/sqrt(a[1]*b[1]))+(a[1]-b[1])*omega[3]/2-sqrt(pow(((a[1]+b[1])/2.)*(omega[3]-omega0[1]+((a[1]-b[1])*knee[1])/(sqrt(a[1]*b[1])*(a[1]+b[1]))), 2)+pow(knee[1], 2));
 
 #ifdef HALF
-	Results[0] += -M*Sigma[0]*exp(ImSigma[0]);	//ImSigma from the in-medium
-	Results[1] += -M*Sigma[1]*exp(ImSigma[1]);
+	Results[0] += -Sigma[0]*exp(ImSigma[0]);	//ImSigma from the in-medium
+	Results[1] += -Sigma[0]*exp(ImSigma[1]);
+	Results[2] += -Sigma[1]*exp(ImSigma[2]);
+	Results[3] += -Sigma[1]*exp(ImSigma[3]);
 #else
-	Results[0] += -2.*M*Sigma[0]*exp(ImSigma[0]);
-	Results[1] += -2.*M*Sigma[1]*exp(ImSigma[1]);
+	Results[0] += -2.*Sigma[0]*exp(ImSigma[0]);
+	Results[1] += -2.*Sigma[0]*exp(ImSigma[1]);
+	Results[2] += -2.*Sigma[1]*exp(ImSigma[2]);
+	Results[3] += -2.*Sigma[1]*exp(ImSigma[3]);
 #endif
 	return;
 }
@@ -1312,9 +1378,9 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		ImSigma = -.5*((a-b)*omega0-((a+b)*knee)/sqrt(a*b))+(a-b)*omega/2-sqrt(pow(((a+b)/2.)*(omega-omega0+((a-b)*knee)/(sqrt(a*b)*(a+b))), 2)+pow(knee, 2));
 
 #ifdef HALF
-	answer += -M*Sigma*exp(ImSigma);
+	answer += -Sigma*exp(ImSigma);
 #else
-	answer += -2.*M*Sigma*exp(ImSigma);
+	answer += -2.*Sigma*exp(ImSigma);
 #endif
 
 	return(answer);
@@ -1332,6 +1398,8 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	{
 		Results[0] = 0;
 		Results[1] = 0;
+		Results[2] = 0;
+		Results[3] = 0;
 		return;
 	}
 
@@ -1411,10 +1479,14 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 
 #ifdef HALF
 	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0], 2)+gamma[0])/2.;
-	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1], 2)+gamma[1])/2.;
+	Results[1] = Sigma[0]*(omega[1]-x0[0])/(pow(omega[1]-x1[0], 2)+gamma[0])/2.;
+	Results[2] = Sigma[1]*(omega[2]-x0[1])/(pow(omega[2]-x1[1], 2)+gamma[1])/2.;
+	Results[3] = Sigma[1]*(omega[3]-x0[1])/(pow(omega[3]-x1[1], 2)+gamma[1])/2.;
 #else
 	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0], 2)+gamma[0]);
-	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1], 2)+gamma[1]);
+	Results[1] = Sigma[0]*(omega[1]-x0[0])/(pow(omega[1]-x1[0], 2)+gamma[0]);
+	Results[2] = Sigma[1]*(omega[2]-x0[1])/(pow(omega[2]-x1[1], 2)+gamma[1]);
+	Results[3] = Sigma[1]*(omega[3]-x0[1])/(pow(omega[3]-x1[1], 2)+gamma[1]);
 #endif
 	return;
 }
@@ -1642,39 +1714,83 @@ long double Interacting_Quad_Trace(long double Par[], long double k0, long doubl
 	return(Par[4]/4.-pow(k0, 2)+pow(k, 2))/(2.*pow(Par[2], 2));
 }
 
-long double Imk0_Integrand(long double Par[], long double k0, long double k, long double theta, int Temp, int Factor)	//Integrand of the folding integral for positive energy
+Elements<long double> k0_Integrand(long double Par[], long double k0, long double k, long double theta, int Temp, int Factor)	//Integrand of the folding integral for positive energy
 {
-	static long double q[2] = {Energy(0, Par[3]/2., k, theta),Energy(0, Par[3]/2., -k, theta)};
-	static long double k_old = k;
-	long double omega[2] = {sqrt(Par[4]+pow(Par[3],2))/2.+k0,sqrt(Par[4]+pow(Par[3],2))/2.-k0};
-	long double fermi[2] = {Fermi(omega[0], Temp),Fermi(omega[1], Temp)};
-	long double ImSelf[2];
-	long double ReSelf[2];
-	complex<long double> M(Par[2],0);
-	complex<long double> gamma(GAMMA,0);
+	long double q[2];
+	long double omega[4] = {sqrt(Par[4]+pow(Par[3], 2))/2.+k0, -sqrt(Par[4]+pow(Par[3], 2))/2.-k0, sqrt(Par[4]+pow(Par[3], 2))/2.-k0, -sqrt(Par[4]+pow(Par[3], 2))/2.+k0};
+	long double fermi[4] = {Fermi(omega[0], Temp), Fermi(omega[1], Temp), Fermi(omega[2], Temp), Fermi(omega[3], Temp)};
+	long double ImSelf[4];
+	long double ReSelf[4];
+	long double Array[] = {2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k)};
+	Elements<long double> ReElements, ImElements;
+	complex<long double> Prop[4];
+	complex<long double> On_shell_Energy[2];
 
-	if(k_old != k)
-	{
-		k_old = k;
-		q[0] = Energy(0, Par[3]/2., k, theta);
-		q[1] = Energy(0, Par[3]/2., -k, theta);
-	}
+	q[0] = Energy(0, Par[3]/2., k, theta);
+	q[1] = Energy(0, Par[3]/2., -k, theta);
 
 	//Self_Energy(Par[2], omega, q, Par, Temp, ImSelf, ReSelf);
 	ImSelf_Energy(Par[2], omega, q, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
+	if(pow(omega[0],2) > pow(q[0],2))
+		On_shell_Energy[0] = sqrt(pow(Energy(Par[2],Par[3]/2., k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[0],2.*Par[2]*ImSelf[0]+sqrt(pow(omega[0],2)-pow(q[0],2))*GAMMA));
+	else
+		On_shell_Energy[0] = sqrt(pow(Energy(Par[2],Par[3]/2., k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[0],2.*Par[2]*ImSelf[0]));
+
+	if(pow(omega[0],2) > pow(q[0],2))
+		On_shell_Energy[1] = sqrt(pow(Energy(Par[2],Par[3]/2., k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[1],2.*Par[2]*ImSelf[1]+sqrt(pow(omega[0],2)-pow(q[0],2))*GAMMA));
+	else
+		On_shell_Energy[1] = sqrt(pow(Energy(Par[2],Par[3]/2., k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[1],2.*Par[2]*ImSelf[1]));
+
+	if(pow(omega[2],2) > pow(q[1],2))
+		On_shell_Energy[2] = sqrt(pow(Energy(Par[2],Par[3]/2.,-k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[2],2.*Par[2]*ImSelf[2]+sqrt(pow(omega[2],2)-pow(q[1],2))*GAMMA));
+	else
+		On_shell_Energy[2] = sqrt(pow(Energy(Par[2],Par[3]/2.,-k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[2],2.*Par[2]*ImSelf[2]));
+
+	if(pow(omega[2],2) > pow(q[1],2))
+		On_shell_Energy[3] = sqrt(pow(Energy(Par[2],Par[3]/2.,-k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[3],2.*Par[2]*ImSelf[3]+sqrt(pow(omega[2],2)-pow(q[1],2))*GAMMA));
+	else
+		On_shell_Energy[3] = sqrt(pow(Energy(Par[2],Par[3]/2.,-k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[3],2.*Par[2]*ImSelf[3]));
+
+	Prop[0] = Par[2]/(On_shell_Energy[1]*(omega[0]-On_shell_Energy[0]));
+	Prop[1] = -Par[2]/(On_shell_Energy[0]*(omega[0]+On_shell_Energy[1]));
+	Prop[2] = Par[2]/(On_shell_Energy[3]*(omega[2]-On_shell_Energy[2]));
+	Prop[3] = -Par[2]/(On_shell_Energy[2]*(omega[2]+On_shell_Energy[3]));
+
 	switch(Factor)
 	{
 	default:
 	case 0:
-		return(-((4.*ImSelf[0]*ImSelf[1]*pow(Par[2],2)*(1.-fermi[0]-fermi[1]))/((pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2))*(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2)+pow(ImSelf[1],2)))));
+		ReElements = -((Prop[0].imag()+Prop[1].imag())*(Prop[2].real()+Prop[3].real())+(Prop[0].real()+Prop[1].real())*(Prop[2].imag()+Prop[3].imag()))* Elements<long double>(&Array[2], 4);
+		ImElements = (Prop[0]+Prop[1]).imag()*(Prop[2]+Prop[3]).imag()*(1.-fermi[0]-fermi[2])*Elements<long double>(Array, 6);
+		return(ReElements.concat(ImElements));
 		break;
 	case 1:
-		return(ImSelf[0]/(pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2)));
-		break;
 	case 2:
-		return(ImSelf[1]/(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2)+pow(ImSelf[1],2)));
-		break;//*/
+	case 3:
+	case 4:
+		Array[0] = Prop[Factor-1].real();
+		return(Elements<long double>(Array,1));
+		break;
+	case 5:
+	case 6:
+	case 7:
+	case 8:
+		Array[0] = Prop[Factor-5].imag();
+		return(Elements<long double>(Array,1));
+		break;
+	case 9:
+	case 10:
+	case 11:
+	case 12:
+		return(Elements<long double>(&ReSelf[Factor-9],1));
+		break;
+	case 13:
+	case 14:
+	case 15:
+	case 16:
+		return(Elements<long double>(&ImSelf[Factor-13],1));
+		break;
 	}
 }

@@ -17,10 +17,10 @@ long double Set_C(long double, long double, long double, long double, long doubl
 int main(int argc, char* argv[])
 {
 #ifdef BB	//use option -D BB= to activate bottomium macro
-	char File[70] = "data/ImSpectralbb";  //Name of the file
+	char File[70] = "data/Spectralbb";  //Name of the file
 #endif
 #ifdef CC	//use option -D CC= to activate charmonium macro
-	char File[70] = "data/ImSpectralcc";
+	char File[70] = "data/Spectralcc";
 #endif
 
 #if VERSION == EXP	//use option -D VERSION={Exp,22,24,42} to select one of the potentials
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 			auto Start_Time = chrono::system_clock::now();
 			holder = theta_Int(Par, Temp);
 			auto End_Time = chrono::system_clock::now();
-			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << holder[4] << " " << holder[5] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
+			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << holder[3] << " " << holder[4] << " " << holder[5] << " " << holder[6] << " " << holder[7] << " " << holder[8] << " " << holder[9] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
 		}
 		TPlot << endl;
 	}
@@ -218,12 +218,12 @@ long double Set_C(long double f0, long double P, long double P0, long double Lam
 	long double f = (f0*pow(P0,2)+(fraction*(1-f0)+f0)*pow(P,2))/(pow(P0,2)+pow(P,2));
 
 #if VERSION == 22
-	return(332.7040863772379*f*pow(0.9753762593631373/Lambda,4));
+	return(-332.7040863772379*f*pow(0.9753762593631373/Lambda,4));
 #elif VERSION == 24
-	return(138.48957840171963*f*pow(1.7264468603176357/Lambda,8));
+	return(-138.48957840171963*f*pow(1.7264468603176357/Lambda,8));
 #elif VERSION == 42
-	return(72.44153811020188*f*pow(2.1236949508354317/Lambda,8));
+	return(-72.44153811020188*f*pow(2.1236949508354317/Lambda,8));
 #elif VERSION == Exp
-	return(95.18401144965306*f);
+	return(-95.18401144965306*f);
 #endif
 }
