@@ -210,17 +210,14 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 		Holder = k_Int(Par, Temp, x1)*Around(sin(x1));
 		F[0] += Holder*Around(w9[j+1]);
 		F[1] += Holder*Around(w16[j+1]);
-//cerr << Par[3] << "," << Par[4] << "," << x1 << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
 
 		Holder = k_Int(Par, Temp, x2)*Around(sin(x2));
 		F[0] += Holder*Around(w9[j+1]);
 		F[1] += Holder*Around(w16[j+1]);
-//cerr << Par[3] << "," << Par[4] << "," << x2 << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
 	}
 	Holder = k_Int(Par, Temp, (a+b)/2.)*Around(sin((a+b)/2.));
 	F[0] += Holder*Around(w9[0]);
 	F[1] += Holder*Around(w16[0]);
-//cerr << Par[3] << "," << Par[4] << "," << (a+b)/2. << "," << Holder[0].Value() << "," << Holder[1].Value() << "," << Holder[2].Value() << "," << Holder[3].Value() << "," << Holder[4].Value() << "," << Holder[5].Value() << endl;
 
 	//Answer = Estimation(F[0], F[1])*Around((b-a)/2.);	//Add the subinterval to total of the integral
 
@@ -414,17 +411,14 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 			x2 = (b+a+Disp16[l]*(b-a))/2.;
 
 			Holder = Integrand(Par, x1, theta, Temp, false)*Around(pow(x1,2));
-//cout << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << endl;
 			F[0] += Holder*Around(w9[l+1]);
 			F[1] += Holder*Around(w16[l+1]);
 
 			Holder = Integrand(Par, x2, theta, Temp, false)*Around(pow(x2,2));
-//cout << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << endl;
 			F[0] += Holder*Around(w9[l+1]);
 			F[1] += Holder*Around(w16[l+1]);
 		}
 		Holder = Integrand(Par, (a+b)/2., theta, Temp, false)*Around(pow((a+b)/2.,2));
-//cout << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << endl;
 		F[0] += Holder*Around(w9[0]);
 		F[1] += Holder*Around(w16[0]);
 		break;
@@ -435,15 +429,12 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 			x2 = (b+a+Disp37[l]*(b-a))/2.;
 
 			Holder = Integrand(Par, x1, theta, Temp, false)*Around(pow(x1,2));
-//cout << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << endl;
 			F[0] += Holder*Around(w23[l+1]);
 			F[1] += Holder*Around(w37[l+1]);
 			Holder = Integrand(Par, x2, theta, Temp, false)*Around(pow(x2,2));
-//cout << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << endl;
 			F[0] += Holder*Around(w23[l+1]);
 			F[1] += Holder*Around(w37[l+1]);
 		}
-//cout << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << endl;
 		Holder = Integrand(Par, (a+b)/2., theta, Temp, false)*Around(pow((a+b)/2.,2));
 		F[0] += Holder*Around(w23[0]);
 		F[1] += Holder*Around(w37[0]);
@@ -455,16 +446,13 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 			x2 = (b+a+Disp97[l]*(b-a))/2.;
 
 			Holder = Integrand(Par, x1, theta, Temp, false)*Around(pow(x1,2));
-//cout << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << endl;
 			F[0] += Holder*Around(w63[l+1]);
 			F[1] += Holder*Around(w97[l+1]);
 			Holder = Integrand(Par, x2, theta, Temp, false)*Around(pow(x2,2));
-//cout << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << endl;
 			F[0] += Holder*Around(w63[l+1]);
 			F[1] += Holder*Around(w97[l+1]);
 		}
 		Holder = Integrand(Par, (a+b)/2., theta, Temp, false)*Around(pow((a+b)/2.,2));
-//cout << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << endl;
 		F[0] += Holder*Around(w63[0]);
 		F[1] += Holder*Around(w97[0]);
 		break;
@@ -475,7 +463,6 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 		Answer = k_Int(Par, Temp, theta, a, (a+b)/2., order, deep+1) + k_Int(Par, Temp, theta, (a+b)/2., b, order, deep+1);
 	else
 	{
-//cerr << "Final Subdivision " << a << " " << b << " " << order << " " << deep << endl;
 		F[0].null();
 		F[1].null();
 		switch(ORDER)
@@ -487,16 +474,13 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 				x2 = (b+a+Disp37[l]*(b-a))/2.;
 
 				Holder = Integrand(Par, x1, theta, Temp, true)*Around(pow(x1,2));
-cout << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << l+1 << endl;
 				F[0] += Holder*Around(w23[l+1]);
 				F[1] += Holder*Around(w37[l+1]);
 				Holder = Integrand(Par, x2, theta, Temp, true)*Around(pow(x2,2));
-cout << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << -1-l << endl;
 				F[0] += Holder*Around(w23[l+1]);
 				F[1] += Holder*Around(w37[l+1]);
 			}
 			Holder = Integrand(Par, (a+b)/2., theta, Temp, true)*Around(pow((a+b)/2.,2));
-cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " 0" << endl;
 			F[0] += Holder*Around(w23[0]);
 			F[1] += Holder*Around(w37[0]);
 			break;
@@ -507,16 +491,13 @@ cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Ho
 				x2 = (b+a+Disp97[l]*(b-a))/2.;
 
 				Holder = Integrand(Par, x1, theta, Temp, true)*Around(pow(x1,2));
-cout << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << l+1 << endl;
 				F[0] += Holder*Around(w63[l+1]);
 				F[1] += Holder*Around(w97[l+1]);
 				Holder = Integrand(Par, x2, theta, Temp, true)*Around(pow(x2,2));
-cout << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << -l-1 << endl;
 				F[0] += Holder*Around(w63[l+1]);
 				F[1] += Holder*Around(w97[l+1]);
 			}
 			Holder = Integrand(Par, (a+b)/2., theta, Temp, true)*Around(pow((a+b)/2.,2));
-cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " 0" << endl;
 			F[0] += Holder*Around(w63[0]);
 			F[1] += Holder*Around(w97[0]);
 			break;
@@ -1788,8 +1769,6 @@ Elements<long double> k0_Integrand(long double Par[], long double k0, long doubl
 	Prop[1] = -Par[2]/(On_shell_Energy[0]*(omega[0]+On_shell_Energy[1]));
 	Prop[2] = Par[2]/(On_shell_Energy[3]*(omega[2]-On_shell_Energy[2]));
 	Prop[3] = -Par[2]/(On_shell_Energy[2]*(omega[2]+On_shell_Energy[3]));
-
-//cout << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << k0 << " " << -((Prop[0].imag()+Prop[1].imag())*(Prop[2].real()+Prop[3].real())+(Prop[0].real()+Prop[1].real())*(Prop[2].imag()+Prop[3].imag())) << " " << (Prop[0]+Prop[1]).imag()*(Prop[2]+Prop[3]).imag()*(1.-fermi[0]-fermi[2]) << " " << Prop[0].real() << " " << Prop[0].imag() << " " << Prop[1].real() << " " << Prop[1].imag() << " " << Prop[2].real() << " " << Prop[2].imag() << " " << Prop[3].real() << " " << Prop[3].imag() << " " << ReSelf[0] << " " << ImSelf[0] << " " << ReSelf[1] << " " << ImSelf[1] << " " << ReSelf[2] << " " << ImSelf[2] << " " << ReSelf[3] << " " << ImSelf[3] << " " << Array[0] <<  " " << Array[1] <<  " " << Array[2] <<  " " << Array[3] <<  " " << Array[4] <<  " " << Array[5] << endl;
 
 	switch(Factor)
 	{
