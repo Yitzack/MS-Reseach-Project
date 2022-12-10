@@ -1711,9 +1711,9 @@ long double Potential2(long double Par[], long double k0, long double k)	//Two v
 
 long double Non_Interacting_Trace(long double Par[], long double k0, long double k , long double theta)
 {
-	//return((Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta)-pow(Par[3],2)/4.+pow(k,2)+pow(Par[2],2))/(pow(Par[2],2)));
-	return((Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2))/(pow(Par[2],2)));
-	//return((pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta),2)-Par[3]*Par[3])/(2.*Par[2]*Par[2]));
+	//return(-(Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta)-pow(Par[3],2)/4.+pow(k,2)+pow(Par[2],2))/(pow(Par[2],2)));
+	return(-(Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2))/(pow(Par[2],2)));
+	//return(-(pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta),2)-Par[3]*Par[3])/(2.*Par[2]*Par[2]));
 }
 
 long double Interacting_Linear_Trace(long double Par[])
@@ -1733,10 +1733,10 @@ Elements<long double> k0_Integrand(long double Par[], long double k0, long doubl
 	long double fermi[4] = {Fermi(omega[0], Temp), Fermi(omega[1], Temp), Fermi(omega[2], Temp), Fermi(omega[3], Temp)};
 	long double ImSelf[4];
 	long double ReSelf[4];
-	long double Array[] = {2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k)};
+	long double Array[] = {-2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k)};
 	Elements<long double> ReElements, ImElements;
 	complex<long double> Prop[4];
-	complex<long double> On_shell_Energy[2];
+	complex<long double> On_shell_Energy[4];
 
 	q[0] = Energy(0, Par[3]/2., k, theta);
 	q[1] = Energy(0, Par[3]/2., -k, theta);
