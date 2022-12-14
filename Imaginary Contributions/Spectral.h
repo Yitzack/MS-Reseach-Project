@@ -474,13 +474,16 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 				x2 = (b+a+Disp37[l]*(b-a))/2.;
 
 				Holder = Integrand(Par, x1, theta, Temp, true)*Around(pow(x1,2));
+//cout << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << l+1 << endl;
 				F[0] += Holder*Around(w23[l+1]);
 				F[1] += Holder*Around(w37[l+1]);
 				Holder = Integrand(Par, x2, theta, Temp, true)*Around(pow(x2,2));
+//cout << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << -l-1 << endl;
 				F[0] += Holder*Around(w23[l+1]);
 				F[1] += Holder*Around(w37[l+1]);
 			}
 			Holder = Integrand(Par, (a+b)/2., theta, Temp, true)*Around(pow((a+b)/2.,2));
+//cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << 0 << endl;
 			F[0] += Holder*Around(w23[0]);
 			F[1] += Holder*Around(w37[0]);
 			break;
@@ -491,13 +494,16 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 				x2 = (b+a+Disp97[l]*(b-a))/2.;
 
 				Holder = Integrand(Par, x1, theta, Temp, true)*Around(pow(x1,2));
+//cout << Par[3] << " " << Par[4] << " " << theta << " " << x1 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << l+1 << endl;
 				F[0] += Holder*Around(w63[l+1]);
 				F[1] += Holder*Around(w97[l+1]);
 				Holder = Integrand(Par, x2, theta, Temp, true)*Around(pow(x2,2));
+//cout << Par[3] << " " << Par[4] << " " << theta << " " << x2 << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << -l-1 << endl;
 				F[0] += Holder*Around(w63[l+1]);
 				F[1] += Holder*Around(w97[l+1]);
 			}
 			Holder = Integrand(Par, (a+b)/2., theta, Temp, true)*Around(pow((a+b)/2.,2));
+//cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << 0 << endl;
 			F[0] += Holder*Around(w63[0]);
 			F[1] += Holder*Around(w97[0]);
 			break;
@@ -568,7 +574,7 @@ Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double 
 	int Intervals;		//Number of intervals required by poles and discontinuities
 
 	Characterize_k0_Int(Par, Temp, k, theta, zero, gamma, Poles);	//Get the poles that I have to be concerned about
-	long double Stops[Poles*17+6];					//Intervals that are required by integrating near poles
+	long double Stops[Poles*17+8];					//Intervals that are required by integrating near poles
 
 	l = 0;
 	for(i = 0; i < Poles; i++)
@@ -578,7 +584,7 @@ Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double 
 			for(j = 0; j < 5; j++)
 			{
 //cerr << zero[i] << " " << gamma[i] << " " << zero[i]+Range[j]*gamma[i] << endl;
-				Stops[l] = abs(zero[i]+Range[j]*gamma[i]);
+				Stops[l] = zero[i]+Range[j]*gamma[i];
 				l++;
 			}
 		}
@@ -589,13 +595,15 @@ Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double 
 			l++;
 		}
 	}
-	Stops[l] = Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.;	//Lower light-like edge
-	Stops[l+1] = sqrt(Par[4]+pow(Par[3],2))/2.-Energy(0,Par[3]/2.,-k,theta);	//Upper light-like edge
-	Stops[l+2] = Energy(0,Par[3]/2.,k,theta)+sqrt(Par[4]+pow(Par[3],2))/2.;	//Pretty sure this is the negative energy solution of the lower light-like edge
-	Stops[l+3] = sqrt(Par[4]+pow(Par[3],2))/2.+Energy(0,Par[3]/2.,-k,theta);	//Pretty sure this is the negative energy solution of the upper light-like edge
-	Stops[l+4] = sqrt(Par[4]+pow(Par[3],2))/2.;					//Upper energy boundary (E/2)
-	Stops[l+5] = -sqrt(Par[4]+pow(Par[3],2))/2.;					//Lower energy boundary (-E/2)
-
+	Stops[l] = Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.;		//Lower light-like edge
+	Stops[l+1] = sqrt(Par[4]+pow(Par[3],2))/2.-Energy(0,Par[3]/2.,-k,theta);		//Upper light-like edge
+	Stops[l+2] = Energy(0,Par[3]/2.,k,theta)+sqrt(Par[4]+pow(Par[3],2))/2.;		//Pretty sure this is the negative energy solution of the lower light-like edge
+	Stops[l+3] = sqrt(Par[4]+pow(Par[3],2))/2.+Energy(0,Par[3]/2.,-k,theta);		//Pretty sure this is the negative energy solution of the upper light-like edge
+	Stops[l+4] = sqrt(Par[4]+pow(Par[3],2))/2.;						//Upper energy boundary (E/2)
+	Stops[l+5] = -sqrt(Par[4]+pow(Par[3],2))/2.;						//Lower energy boundary (-E/2)
+	Stops[l+6] = Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta);	//Pivot point to get oppositely signed poles to line up and reduce loss of significance
+	Stops[l+7] = 2.*(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta));//Twice the pivot point, keep going to cover everything and leave no gap
+	
 	if(Temp != 0)
 	{
 		a = b = 0;					//Lower edge for non-vacuum
@@ -609,21 +617,26 @@ Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double 
 			Max = Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.;
 	}
 
-	for(i = 0; i < l+6; i++)
-	{
-		if(Stops[i] < a)
+	for(i = 0; i < l+8; i++)
+	{	//Transposes the first interval around such that real contributions are oppositely signed, reduces estimated error most everywhere
+		if(Stops[i] < a && -Stops[i] < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta))
+			Stops[i] = Stops[i]+(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta));
+		//Folds the second interval around such that the negative energy is done at the same time as the positive energy
+		else if(Stops[i] < a)
 			Stops[i] = -Stops[i];
+		if(Stops[i] > k+1000)	//If the stop is excessively large, make it 0. -O3 has this problem, -g does not. Cause unknown, but here's the solution. Prevents nan
+			Stops[i] = 0;
 	}
 
-	mergeSort(Stops, 0, l+5);	//Sort the subintervals
-	if(Max < Stops[l+5])
-		Max = Stops[l+5];
+	mergeSort(Stops, 0, l+7);	//Sort the subintervals
+	if(Max < Stops[l+7])
+		Max = Stops[l+7];
 
 	i = 0;
 	j = 0;
 	while(Stops[j] == Stops[j]+1.)	//Remove subintervals that duplicates or below the lower edge
 		j++;
-	for(; j < l+6; j++)
+	for(; j < l+8; j++)
 	{
 		if(((i > 0 && Stops[i-1] != Stops[j]) || i == 0))	//Remove dublicates and intervals above the upper edge
 		{
@@ -696,14 +709,28 @@ Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double 
 		x1 = (b+a-Disp[l]*(b-a))/2.;
 		x2 = (b+a+Disp[l]*(b-a))/2.;
 
-		Holder = k0_Integrand(Par,x1,k,theta,Temp, 0)+k0_Integrand(Par,-x1,k,theta,Temp, 0);
+		Holder = k0_Integrand(Par,x1,k,theta,Temp, 0);
+		//Negative energy interval is transposed to make odd contributions on real side cancel each other. Helps imaginary side by unknown means
+		if(x1 < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta))
+			Holder += k0_Integrand(Par,x1-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)),k,theta,Temp, 0);
+		//Prevents double counting, negative energy is folded over to count through it faster with 1 integrate to inf instead of 2
+		else
+			Holder += k0_Integrand(Par,-x1,k,theta,Temp, 0);
 		F[0] += Holder*wl[l+1];
 		F[1] += Holder*wh[l+1];
-		Holder = k0_Integrand(Par,x2,k,theta,Temp, 0)+k0_Integrand(Par,-x2,k,theta,Temp, 0);
+		Holder = k0_Integrand(Par,x2,k,theta,Temp, 0);
+		if(x2 < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta))
+			Holder += k0_Integrand(Par,x2-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)),k,theta,Temp, 0);
+		else
+			Holder +=k0_Integrand(Par,-x2,k,theta,Temp, 0);
 		F[0] += Holder*wl[l+1];
 		F[1] += Holder*wh[l+1];
 	}
-	Holder = k0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0)+k0_Integrand(Par,-(a+b)/2.,k,theta,Temp, 0);
+	Holder = k0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0);
+	if((a+b)/2. < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta))
+		Holder += k0_Integrand(Par,(a+b)/2.-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)),k,theta,Temp, 0);
+	else
+		Holder += k0_Integrand(Par,-(a+b)/2.,k,theta,Temp, 0);
 	F[0] += Holder*wl[0];
 	F[1] += Holder*wh[0];
 
@@ -1769,6 +1796,8 @@ Elements<long double> k0_Integrand(long double Par[], long double k0, long doubl
 	Prop[1] = -Par[2]/(On_shell_Energy[0]*(omega[0]+On_shell_Energy[1]));
 	Prop[2] = Par[2]/(On_shell_Energy[3]*(omega[2]-On_shell_Energy[2]));
 	Prop[3] = -Par[2]/(On_shell_Energy[2]*(omega[2]+On_shell_Energy[3]));
+
+//cout << setprecision(25) << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << k0 << " " << -((Prop[0].imag()+Prop[1].imag())*(Prop[2].real()+Prop[3].real())+(Prop[0].real()+Prop[1].real())*(Prop[2].imag()+Prop[3].imag())) << " " << (Prop[0]+Prop[1]).imag()*(Prop[2]+Prop[3]).imag()*(1.-fermi[0]-fermi[2]) << " " << Prop[0].real() << " " << Prop[0].imag() << " " << Prop[1].real() << " " << Prop[1].imag() << " " << Prop[2].real() << " " << Prop[2].imag() << " " << Prop[3].real() << " " << Prop[3].imag() << " " << ReSelf[0] << " " << ImSelf[0] << " " << ReSelf[1] << " " << ImSelf[1] << " " << ReSelf[2] << " " << ImSelf[2] << " " << ReSelf[3] << " " << ImSelf[3] << " " << Array[0] <<  " " << Array[1] <<  " " << Array[2] <<  " " << Array[3] <<  " " << Array[4] <<  " " << Array[5] << endl;
 
 	switch(Factor)
 	{
