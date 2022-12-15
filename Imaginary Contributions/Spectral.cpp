@@ -218,11 +218,11 @@ long double Set_C(long double f0, long double P, long double P0, long double Lam
 	long double f = (f0*pow(P0,2)+(fraction*(1-f0)+f0)*pow(P,2))/(pow(P0,2)+pow(P,2));
 
 #if VERSION == 22
-	return(183.153523754007926*f*pow(0.9753762593631373/Lambda,4));
+	return(183.153523754007926*f*pow(0.6121559884417913/Lambda,4));
 #elif VERSION == 24
-	return(98.859233557368792*f*pow(1.7264468603176357/Lambda,8));
+	return(98.859233557368792*f*pow(1.030189992001927/Lambda,8));
 #elif VERSION == 42
-	return(56.159739021518721*f*pow(2.1236949508354317/Lambda,8));
+	return(56.159739021518721*f*pow(1.2747017041074482/Lambda,8));
 #elif VERSION == Exp
 	return(72.018909158605462*f);
 #endif
