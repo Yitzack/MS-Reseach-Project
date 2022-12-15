@@ -14,9 +14,11 @@ class Elements
 		Elements(int);					//Null constructor with a size of array
 		Elements(T[], int);				//Array constructor
 		Elements(const Elements&);			//Copy constructor
-		Elements<T> operator=(const Elements&);	//Assignment
-		Elements<T> operator+=(const Elements &);	//Accumalate and assign
-		Elements<T> operator-=(const Elements &);	//Deaccumalate and assign
+		Elements(Elements&& other);			//Move constructor
+		Elements<T>& operator=(Elements&&);		//Move Assignment
+		Elements<T>& operator=(const Elements&);	//Assignment
+		Elements<T>& operator+=(const Elements &);	//Accumalate and assign
+		Elements<T>& operator-=(const Elements &);	//Deaccumalate and assign
 		bool operator==(T);				//This is looking for all components == 0, not any scalar. So, its actually looking for the 0 vector
 		bool operator>=(T);				//This is about accuracy, so all components must pass
 		bool operator>(const Elements<T>) const;	//This is about accuracy, so all components must pass
@@ -39,35 +41,41 @@ class Elements
 		int size(){return(Size);};			//returns the size of Array
 		T* operator[](int);				//Returns the element at int. This is not the correct way to do this as it should return a pointer to the component so it can be altered. I can get away with it as I'm only printing the the contents to an output stream.
 	private:
-		T* Array;	//The vector itself
-		int Size;	//Size of the vector
+		T* Array = nullptr;	//The vector itself
+		int Size = 0;		//Size of the vector
 };
 
 template <class T>
 Elements<T>::~Elements()
 {
 	Size = 0;
-	delete Array;
+	if(Array != nullptr)
+		delete[] Array;
 }
 
 template <class T>
-Elements<T>::Elements()
+Elements<T>::Elements():Array(nullptr)
 {
 	Size = 0;
-	Array = new T[1];
+	if(Array != nullptr)
+		delete[] Array;
 }
 
 template <class T>
-Elements<T>::Elements(int N)
+Elements<T>::Elements(int N):Array(nullptr)
 {
 	Size = N;
+	if(Array != nullptr)
+		delete[] Array;
 	Array = new T[Size];
 }
 
 template <class T>
-Elements<T>::Elements(T A[], int N)
+Elements<T>::Elements(T A[], int N):Array(nullptr)
 {
 	Size = N;
+	if(Array != nullptr)
+		delete[] Array;
 	Array = new T[Size];
 	for(int i = 0; i < Size; i++)
 		Array[i] = A[i];
@@ -75,31 +83,31 @@ Elements<T>::Elements(T A[], int N)
 
 template <class T>
 Elements<T>::Elements(const Elements<T> &A)
-{
-	if(&A != this)
-	{
-		Size = A.Size;
-		Array = new T[Size];
-		for(int i = 0; i < Size; i++)
-			Array[i] = A.Array[i];
-	}
-}
+:Elements(A.Array,A.Size)
+{}
 
 template <class T>
-Elements<T> Elements<T>::operator=(const Elements<T> &A)
+Elements<T>::Elements(Elements<T>&& A)
+:Array(std::exchange(A.Array, nullptr)),Size(std::exchange(A.Size,0))
+{}
+
+template <class T>
+Elements<T>& Elements<T>::operator=(Elements<T>&& A)
 {
-	if(&A != this)
-	{
-		Size = A.Size;
-		Array = new T[Size];
-		for(int i = 0; i < Size; i++)
-			Array[i] = A.Array[i];
-	}
+	std::swap(Array, A.Array);
+	std::swap(Size, A.Size);
+
 	return(*this);
 }
 
 template <class T>
-Elements<T> Elements<T>::operator+=(const Elements<T> &A)
+Elements<T>& Elements<T>::operator=(const Elements<T> &A)
+{
+	return(*this = Elements(A));
+}
+
+template <class T>
+Elements<T>& Elements<T>::operator+=(const Elements<T> &A)
 {
 	for(int i = 0; i < Size; i++)
 		Array[i] += A.Array[i];
@@ -107,7 +115,7 @@ Elements<T> Elements<T>::operator+=(const Elements<T> &A)
 }
 
 template <class T>
-Elements<T> Elements<T>::operator-=(const Elements<T> &A)
+Elements<T>& Elements<T>::operator-=(const Elements<T> &A)
 {
 	for(int i = 0; i < Size; i++)
 		Array[i] -= A.Array[i];
