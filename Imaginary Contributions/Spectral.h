@@ -355,13 +355,13 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 		if(i < Intervals)
 		{
 			b = Stops[i];
-			if(b-a > 25 && ((i == 0 && a > 25) || a-Stops[i-1] > 25)
+			if(b-a > 25 && ((i == 0 && a > 25) || a-Stops[i-1] > 25))
 				b = a + 25;
-			else if(b-a > 15 && ((i == 0 && a > 15) || a-Stops[i-1] > 15)
+			else if(b-a > 15 && ((i == 0 && a > 15) || a-Stops[i-1] > 15))
 				b = a + 15;
-			else if(b-a > 10 && ((i == 0 && a > 10) || a-Stops[i-1] > 10)
+			else if(b-a > 10 && ((i == 0 && a > 10) || a-Stops[i-1] > 10))
 				b = a + 10;
-			else if(b-a > 3 && ((i == 0 && a > 3) || a-Stops[i-1] > 3)
+			else if(b-a > 3 && ((i == 0 && a > 3) || a-Stops[i-1] > 3))
 				b = a + 3;
 			else
 				i++;
@@ -490,7 +490,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 				F[1] += Holder*Around(w37[l+1]);
 			}
 			Holder = Integrand(Par, (a+b)/2., theta, Temp, true)*Around(pow((a+b)/2.,2));
-cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << 0 << endl;
+//cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << 0 << endl;
 			F[0] += Holder*Around(w23[0]);
 			F[1] += Holder*Around(w37[0]);
 			break;
@@ -510,7 +510,7 @@ cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Ho
 				F[1] += Holder*Around(w97[l+1]);
 			}
 			Holder = Integrand(Par, (a+b)/2., theta, Temp, true)*Around(pow((a+b)/2.,2));
-cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << 0 << endl;
+//cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << 0 << endl;
 			F[0] += Holder*Around(w63[0]);
 			F[1] += Holder*Around(w97[0]);
 			break;
