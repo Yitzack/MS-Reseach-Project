@@ -352,21 +352,28 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 	do
 	{
 		a = b;
-		if(((i < Intervals && b+100 < Stops[i]) && (i > 0 && b-Stops[i-1] > 100)) || Stops[Intervals-1] < a-100)	//Middle of nowhere intervals not specified by Stops
-			b += 100;
-		else if(((i < Intervals && 50 < Stops[i]-b) && (i > 0 && b-Stops[i-1] > 50)) || Stops[Intervals-1] < a-50)
-			b += 50;
-		else if(((i < Intervals && 10 < Stops[i]-b) && (i > 0 && b-Stops[i-1] > 10)) || Stops[Intervals-1] < a-10)
-			b += 10;
-		else if(((i < Intervals && 3 < Stops[i]-b) && (i > 0 && b-Stops[i-1] > 3)) || Stops[Intervals-1] < a-3)
-			b += 3;
-		else if(i < Intervals)
+		if(i < Intervals)
 		{
 			b = Stops[i];
-			i++;
+			if(b-a > 25 && ((i == 0 && a > 25) || a-Stops[i-1] > 25)
+				b = a + 25;
+			else if(b-a > 15 && ((i == 0 && a > 15) || a-Stops[i-1] > 15)
+				b = a + 15;
+			else if(b-a > 10 && ((i == 0 && a > 10) || a-Stops[i-1] > 10)
+				b = a + 10;
+			else if(b-a > 3 && ((i == 0 && a > 3) || a-Stops[i-1] > 3)
+				b = a + 3;
+			else
+				i++;
 		}
-		else
-			b += 3;
+		else if(a-Stops[i-1] > 25)
+			b = a + 25;
+		else if(a-Stops[i-1] > 15)
+			b = a + 15;
+		else if(a-Stops[i-1] > 10)
+			b = a + 10;
+		else if(a-Stops[i-1] > 3)
+			b = a + 3;
 
 		if(b-a < 1)	//use a higher order when the interval is large
 			Partial = k_Int(Par, Temp, theta, a, b, 37, 0);
@@ -483,7 +490,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 				F[1] += Holder*Around(w37[l+1]);
 			}
 			Holder = Integrand(Par, (a+b)/2., theta, Temp, true)*Around(pow((a+b)/2.,2));
-//cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << 0 << endl;
+cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << 0 << endl;
 			F[0] += Holder*Around(w23[0]);
 			F[1] += Holder*Around(w37[0]);
 			break;
@@ -503,7 +510,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 				F[1] += Holder*Around(w97[l+1]);
 			}
 			Holder = Integrand(Par, (a+b)/2., theta, Temp, true)*Around(pow((a+b)/2.,2));
-//cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << 0 << endl;
+cout << Par[3] << " " << Par[4] << " " << theta << " " << (a+b)/2. << " " << *Holder[0] << " " << *Holder[1] << " " << *Holder[2] << " " << *Holder[3] << " " << *Holder[4] << " " << *Holder[5] << " " << *Holder[6] << " " << *Holder[7] << " " << *Holder[8] << " " << *Holder[9] << " " << 0 << endl;
 			F[0] += Holder*Around(w63[0]);
 			F[1] += Holder*Around(w97[0]);
 			break;
@@ -1803,10 +1810,10 @@ Elements<long double> k0_Integrand(long double Par[], long double k0, long doubl
 	{
 	default:
 	case 0:
-		ReElements = ((Prop[0].imag()+Prop[1].imag())*(Prop[2].real()+Prop[3].real())+(Prop[0].real()+Prop[1].real())*(Prop[2].imag()+Prop[3].imag()))*(1.-fermi[0]-fermi[2])*Elements<long double>(&Array[2], 4);
+		ReElements = ((Prop[0].imag()+Prop[1].imag())*(Prop[2].real()+Prop[3].real())+(Prop[0].real()+Prop[1].real())*(Prop[2].imag()+Prop[3].imag()))*Elements<long double>(&Array[2], 4);//*(1.-fermi[0]-fermi[2]);
 		ImElements = -(Prop[0]+Prop[1]).imag()*(Prop[2]+Prop[3]).imag()*(1.-fermi[0]-fermi[2])*Elements<long double>(Array, 6);
-		if(pow(omega[0],2) < pow(q[0],2) || pow(omega[2],2) < pow(q[1],2))
-			ReElements.null();	//Resticts Real elements to time-like quarks in vacuum as the imaginary eleements are also non-zero in the same space for the same reason.
+		//if(pow(omega[0],2) < pow(q[0],2) || pow(omega[2],2) < pow(q[1],2))
+		//	ReElements.null();	//Resticts Real elements to time-like quarks in vacuum as the imaginary eleements are also non-zero in the same space for the same reason.
 		return(ReElements.concat(ImElements));
 		break;
 	case 1:
