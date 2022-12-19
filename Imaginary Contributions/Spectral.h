@@ -355,10 +355,10 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 		if(i < Intervals)
 		{
 			b = Stops[i];
-			if(b-a > 25)
-				b = a + 25;
-			else if(b-a > 15)
-				b = a + 15;
+			if(b-a > 100)
+				b = a + 100;
+			else if(b-a > 50)
+				b = a + 50;
 			else if(b-a > 10)
 				b = a + 10;
 			else if(b-a > 3)
@@ -366,10 +366,10 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 			else
 				i++;
 		}
-		else if(a-Stops[i-1] > 25)
-			b = a + 25;
-		else if(a-Stops[i-1] > 15)
-			b = a + 15;
+		else if(a-Stops[i-1] > 100)
+			b = a + 100;
+		else if(a-Stops[i-1] > 50)
+			b = a + 50;
 		else if(a-Stops[i-1] > 10)
 			b = a + 10;
 		else if(a-Stops[i-1] > 3)
@@ -381,7 +381,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 			Partial = k_Int(Par, Temp, theta, a, b, 97, 0);
 
 		Answer += Partial;	//Add the subinterval to total of the integral
-	}while((i < Intervals) || (a < Max)); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
+	}while((i < Intervals || a < Max || abs(Partial/Answer) > 1e-3) && !(Partial == 0)); //Keep going so long as the last subinterval isn't zero and the intervals haven't been exhausted and the last partial answer for all functions isn't too big compared to the total answer and the highest sub-interval is less than 20E. k bigger than 20E is getting pretty stupid, should be sneaking up on 10^-5 of the answer left
 
 	return(Answer);
 }

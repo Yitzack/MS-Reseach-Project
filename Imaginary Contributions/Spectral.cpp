@@ -203,13 +203,13 @@ long double Set_Lambda(long double G0, long double P, long double P0, long doubl
 	long double Temp = TempList[T];
 
 #if VERSION == 22
-	return(sqrt(pow(0.6121559884417913,2)+pow(G*Temp,2)));
+	return(sqrt(pow(0.41823481496776355,2)+pow(G*Temp,2)));
 #elif VERSION == 24
-	return(sqrt(pow(1.030189992001927,2)+pow(G*Temp,2)/2));
+	return(sqrt(pow(0.5757813934099015,2)+pow(G*Temp,2)/2));
 #elif VERSION == 42
-	return(pow(pow(1.2747017041074482,4)+pow(G*Temp,4),.25));
+	return(pow(pow(0.647369422102948,4)+pow(G*Temp,4),.25));
 #elif VERSION == Exp
-	return(sqrt(pow(1.409538604962966,2)+pow(G*Temp,2)));
+	return(sqrt(pow(0.722004296099887,2)+pow(G*Temp,2)));
 #endif
 }
 
@@ -218,12 +218,12 @@ long double Set_C(long double f0, long double P, long double P0, long double Lam
 	long double f = (f0*pow(P0,2)+(fraction*(1-f0)+f0)*pow(P,2))/(pow(P0,2)+pow(P,2));
 
 #if VERSION == 22
-	return(183.153523754007926*f*pow(0.6121559884417913/Lambda,4));
+	return(314.0810377631154*f*pow(0.41823481496776355/Lambda,4));
 #elif VERSION == 24
-	return(98.859233557368792*f*pow(1.030189992001927/Lambda,8));
+	return(245.10205818574204*f*pow(0.5757813934099015/Lambda,8));
 #elif VERSION == 42
-	return(56.159739021518721*f*pow(1.2747017041074482/Lambda,8));
+	return(162.88944802726525*f*pow(0.647369422102948/Lambda,8));
 #elif VERSION == Exp
-	return(72.018909158605462*f);
+	return(206.6807171113474*f);
 #endif
 }
