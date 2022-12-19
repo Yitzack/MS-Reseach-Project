@@ -128,7 +128,7 @@ bool Elements<T>::operator==(T A)
 	int i = 0;
 	while(i < Size)
 	{
-		if(Array[i] != A)
+		if(!(Array[i] == A))
 			return(false);
 		i++;
 	}
