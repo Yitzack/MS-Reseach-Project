@@ -323,7 +323,7 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 	}
 
 	mergeSort(Stops, 0, l+21);	//Sort the list of sub-intervals
-	Stops[l+22] = 660;
+	Stops[l+22] = 100;
 
 	i = 0;
 	j = 0;
@@ -601,7 +601,7 @@ Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double 
 	Stops[l+5] = -sqrt(Par[4]+pow(Par[3],2))/2.;						//Lower energy boundary (-E/2)
 	Stops[l+6] = Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta);	//Pivot point to get oppositely signed poles to line up and reduce loss of significance
 	Stops[l+7] = 2.*(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta));//Twice the pivot point, keep going to cover everything and leave no gap
-	
+
 	if(Temp != 0)
 	{
 		a = b = 0;					//Lower edge for non-vacuum
@@ -667,7 +667,7 @@ Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double 
 		Partial = k0_Int(Par, Temp, k, theta, a, b, 0);
 		Answer += Partial;		//Add the subinterval to the total
 		a = b;
-	}while(i < Intervals || abs(Partial/Answer) >= .0001 || a < Max+3);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded
+	}while(i < Intervals || a < Max);	//Keep going while intervals aren't exhausted and upper limit of integration not excceeded
 
 	return(Answer);
 }
@@ -687,16 +687,22 @@ Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double 
 #endif
 	long double x1, x2;	//Abscissa
 	long double Max;	//Upper limit of integration
+	long double Min;	//Lower limit of integration
 
 	Elements<long double> F[2] = {Elements<long double>(10),Elements<long double>(10)};	//Sum of ordinates*weights
 	Elements<Around> Answer(10);	//Results to be returned
-	Elements<long double> Holder;
+	Elements<long double> Holder = Elements<long double>(10);
 
 	int i, j, l;		//Counting varibles
 
 	F[0].null();	//Zero out F for next sub-interval
 	F[1].null();	//Zero out F for next sub-interval
 	Answer.null();
+
+	if(Temp != 0)
+		Min = -sqrt(Par[4]+pow(Par[3],2))/2.;
+	else
+		Min = Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.;
 
 #if ORDER == 37
 	for(l = 0; l < 12; l++) //Count through points away from center
@@ -707,27 +713,36 @@ Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double 
 		x1 = (b+a-Disp[l]*(b-a))/2.;
 		x2 = (b+a+Disp[l]*(b-a))/2.;
 
-		Holder = k0_Integrand(Par,x1,k,theta,Temp, 0);
+		if(Min < x1)
+			Holder = k0_Integrand(Par,x1,k,theta,Temp, 0);
+		else
+			Holder.null();
 		//Negative energy interval is transposed to make odd contributions on real side cancel each other. Helps imaginary side by unknown means
-		if(x1 < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta))
+		if(x1 < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta) && Min < x1-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)))
 			Holder += k0_Integrand(Par,x1-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)),k,theta,Temp, 0);
 		//Prevents double counting, negative energy is folded over to count through it faster with 1 integrate to inf instead of 2
-		else
+		else if(Min < -x1)
 			Holder += k0_Integrand(Par,-x1,k,theta,Temp, 0);
 		F[0] += Holder*wl[l+1];
 		F[1] += Holder*wh[l+1];
-		Holder = k0_Integrand(Par,x2,k,theta,Temp, 0);
-		if(x2 < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta))
-			Holder += k0_Integrand(Par,x2-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)),k,theta,Temp, 0);
+		if(Min < x2)
+			Holder = k0_Integrand(Par,x2,k,theta,Temp, 0);
 		else
+			Holder.null();
+		if(x2 < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta) && Min < x2-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)))
+			Holder += k0_Integrand(Par,x2-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)),k,theta,Temp, 0);
+		else if(Min < -x2)
 			Holder +=k0_Integrand(Par,-x2,k,theta,Temp, 0);
 		F[0] += Holder*wl[l+1];
 		F[1] += Holder*wh[l+1];
 	}
-	Holder = k0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0);
-	if((a+b)/2. < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta))
-		Holder += k0_Integrand(Par,(a+b)/2.-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)),k,theta,Temp, 0);
+	if(Min < (a+b)/2.)
+		Holder = k0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0);
 	else
+		Holder.null();
+	if((a+b)/2. < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta) && Min < (a+b)/2.-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)))
+		Holder += k0_Integrand(Par,(a+b)/2.-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)),k,theta,Temp, 0);
+	else if(Min < -(a+b)/2.)
 		Holder += k0_Integrand(Par,-(a+b)/2.,k,theta,Temp, 0);
 	F[0] += Holder*wl[0];
 	F[1] += Holder*wh[0];
