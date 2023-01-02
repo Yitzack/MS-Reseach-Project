@@ -128,7 +128,7 @@ Elements<Around> theta_Int(long double Par[], int Temp)
 	long double x1;
 	long double a = 0, b;					//Sub-interval limits of integration
 	long double Boundary_theta[] = {1./17., 0.3, 0.08};	//Extra boundary values
-	Elements<Around> Answer(10);				//Answer to be returned
+	Elements<Around> Answer(6);				//Answer to be returned
 	int i, j;						//Counters
 	Answer.null();
 
@@ -192,8 +192,8 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 	long double wh[] = {0.048326383986567758375445434, 0.0482701930757773855987121, 0.048100969185457746927846544, 0.04781890873698847221226358, 0.047426061873882382362879950, 0.04692296828170361110348071, 0.046308756738025713240381298, 0.04558582656454707028057546, 0.044758638749766937295199192, 0.04382754403013974904681615, 0.042791115596446746933654925, 0.04165401998564305139829641, 0.040423492370373096672349269, 0.03909942013330661120748213, 0.037679130645613398514895974, 0.03616976947564229986095839, 0.034582122744733034130726383, 0.03291507764390360026329648, 0.031163325561973737171155849, 0.02933695668962066136861561, 0.027452098422210403783147707, 0.02550569548089465281452890, 0.023486659672163324592087913, 0.02140891318482191595577752, 0.019298771430326811294403740, 0.01714980520978425325608583, 0.014936103606086027385096751, 0.01267605480665440285936888, 0.010423987398806818828034251, 0.008172504038531668414343805, 0.0058417370791666933039479766, 0.003426818775772370935574576, 0.0012233608179514718002930372};	//97th order Gauss-Kronrod weight
 #endif
 	long double x1, x2;		//Abscissa
-	Elements<Around> F[2] = {Elements<Around>(10),Elements<Around>(10)};//Sum of ordinate*weights
-	Elements<Around> Answer(10);	//Answer to be returned
+	Elements<Around> F[2] = {Elements<Around>(6),Elements<Around>(6)};//Sum of ordinate*weights
+	Elements<Around> Answer(6);	//Answer to be returned
 	Answer.null();
 	Elements<Around> Holder;
 	int i, j = 0;			//Counters
@@ -258,23 +258,23 @@ Elements<Around> Integrand(long double Par[], long double k, long double theta, 
 {
 	long double k0 = (Energy(Par[2], Par[3]/2., k, theta)-Energy(Par[2], Par[3]/2., -k, theta))/2.;
 	Around Array[6] = {2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k)};
-	Elements<Around> ReElements, ImElements;
+	Elements<Around> ImElements;//, ImElements;
 //	Elements<long double> Holder = Elements<long double>(2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k))*ImG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp);
 //cerr << Par[3] << "," << Par[4] << "," << k << "," << theta << "," << Holder[0] << "," << Holder[1] << "," << Holder[2] << "," << Holder[3] << "," << ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp) << endl;
-	if(fancy)
+	if(fancy && Temp != 0)
 	{
 		return(k0_Int(Par,Temp,k,theta));
 	}
 	ImElements = Elements<Around>(Array,6)*Around(ImG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp));
-	ReElements = Elements<Around>(&Array[2],4)*Around(ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp));
-	return(ReElements.concat(ImElements));
+	//ReElements = Elements<Around>(&Array[2],4)*Around(ReG12Reverse(Par[2], Par[4], Par[3], k, theta, Temp));
+	return(ImElements);
 }
 
 Elements<Around> k_Int(long double Par[], int Temp, long double theta)
 {
 	long double a, b;	//Sub-interval limits of integration
 
-	Elements<Around> Answer(10);	//Answer to be returned
+	Elements<Around> Answer(6);	//Answer to be returned
 	Answer.null();
 	Elements<Around> Partial;	//Answer for sub-interval for determining completeness
 
@@ -399,8 +399,8 @@ Elements<Around> k_Int(long double Par[], int Temp, long double theta, long doub
 	long double x1, x2;	//Abscissa
 	long double k01, k02;	//On-shell relative energy at the abscissa
 
-	Elements<Around> F[2] = {Elements<Around>(10),Elements<Around>(10)};	//Sum of ordinates*weights
-	Elements<Around> Answer(10);	//Answer to be returned
+	Elements<Around> F[2] = {Elements<Around>(6),Elements<Around>(6)};	//Sum of ordinates*weights
+	Elements<Around> Answer(6);	//Answer to be returned
 	F[0].null();
 	F[1].null();
 	Answer.null();
@@ -529,7 +529,7 @@ long double ReG12Reverse(long double M, long double s, long double P, long doubl
 	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp)/2.;
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
 
-	if(s >= 0)
+	if(s >= pow(M_TH,2))
 		Vacuum_Width = -BBS_GAMMA*pow((s-pow(M_TH,2))/(9.2416-pow(M_TH,2)),POWER)*pow((9.2416+9.2416)/(s+9.2416),POWER)*sqrt(s);
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).real();
@@ -549,7 +549,7 @@ long double ImG12Reverse(long double M, long double s, long double P, long doubl
 	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp)/2.;
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
 
-	if(s >= 0.6859734802602255)
+	if(s >= pow(M_TH,2))//0.6859734802602255)
 		Vacuum_Width = -BBS_GAMMA*pow((s-pow(M_TH,2))/(9.2416-pow(M_TH,2)),POWER)*pow((9.2416+9.2416)/(s+9.2416),POWER)*sqrt(s);
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).imag();
@@ -563,7 +563,7 @@ Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double 
 
 	//Extra boundaries that insert extra intervals around peaks. Used a machine learn algorithm of sorts to minimize error to pick these values.
 
-	Elements<Around> Answer = Elements<Around>(10);	//Results to be returned
+	Elements<Around> Answer = Elements<Around>(6);	//Results to be returned
 	Answer.null();
 	Elements<Around> Partial;		//Partial sum to determine continuation
 
@@ -689,9 +689,9 @@ Elements<Around> k0_Int(long double Par[], int Temp, long double k, long double 
 	long double Max;	//Upper limit of integration
 	long double Min;	//Lower limit of integration
 
-	Elements<long double> F[2] = {Elements<long double>(10),Elements<long double>(10)};	//Sum of ordinates*weights
-	Elements<Around> Answer(10);	//Results to be returned
-	Elements<long double> Holder = Elements<long double>(10);
+	Elements<long double> F[2] = {Elements<long double>(6),Elements<long double>(6)};	//Sum of ordinates*weights
+	Elements<Around> Answer(6);	//Results to be returned
+	Elements<long double> Holder = Elements<long double>(6);
 
 	int i, j, l;		//Counting varibles
 
@@ -1774,7 +1774,7 @@ Elements<long double> k0_Integrand(long double Par[], long double k0, long doubl
 	long double ImSelf[4];
 	long double ReSelf[4];
 	long double Array[] = {2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k)};
-	Elements<long double> ReElements, ImElements;
+	Elements<long double> ImElements;//, ImElements;
 	complex<long double> Prop[4];
 	complex<long double> On_shell_Energy[4];
 
@@ -1816,11 +1816,11 @@ Elements<long double> k0_Integrand(long double Par[], long double k0, long doubl
 	{
 	default:
 	case 0:
-		ReElements = ((Prop[0].imag()+Prop[1].imag())*(Prop[2].real()+Prop[3].real())+(Prop[0].real()+Prop[1].real())*(Prop[2].imag()+Prop[3].imag()))*Elements<long double>(&Array[2], 4);//*(1.-fermi[0]-fermi[2]);
+		//ReElements = ((Prop[0].imag()+Prop[1].imag())*(Prop[2].real()+Prop[3].real())+(Prop[0].real()+Prop[1].real())*(Prop[2].imag()+Prop[3].imag()))*Elements<long double>(&Array[2], 4);//*(1.-fermi[0]-fermi[2]);
 		ImElements = -(Prop[0]+Prop[1]).imag()*(Prop[2]+Prop[3]).imag()*(1.-fermi[0]-fermi[2])*Elements<long double>(Array, 6);
 		//if(pow(omega[0],2) < pow(q[0],2) || pow(omega[2],2) < pow(q[1],2))
 		//	ReElements.null();	//Resticts Real elements to time-like quarks in vacuum as the imaginary eleements are also non-zero in the same space for the same reason.
-		return(ReElements.concat(ImElements));
+		return(ImElements);
 		break;
 	case 1:
 	case 2:
