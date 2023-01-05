@@ -603,31 +603,22 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta)
 
 	if(Temp != 0)
 	{
-		a = b = 0;					//Lower edge for non-vacuum
+		a = b = -sqrt(Par[4]+pow(Par[3],2))/2.;	//Lower edge for non-vacuum
 		Max = sqrt(Par[4]+pow(Par[3],2))/2.;		//Upper edge for non-vacuum
 	}
 	else
 	{
-		a = b = 0;	//Lower edge for vacuum
+		a = b = Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.;	//Lower edge for vacuum
 		Max = sqrt(Par[4]+pow(Par[3],2))/2.-Energy(0,Par[3]/2.,-k,theta);	//Upper edge for vacuum
-		if(Max < Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.)
-			Max = Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.;
 	}
 
-	for(i = 0; i < l+8; i++)
-	{	//Transposes the first interval around such that real contributions are oppositely signed, reduces estimated error most everywhere
-		if(Stops[i] < a && -Stops[i] < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta))
-			Stops[i] = Stops[i]+(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta));
-		//Folds the second interval around such that the negative energy is done at the same time as the positive energy
-		else if(Stops[i] < a)
+	for(i = 0; i < l+6; i++)
+	{
+		if(Stops[i] < a)
 			Stops[i] = -Stops[i];
-		if(Stops[i] > k+1000)	//If the stop is excessively large, make it 0. -O3 has this problem, -g does not. Cause unknown, but here's the solution. Prevents nan
-			Stops[i] = 0;
 	}
 
 	mergeSort(Stops, 0, l+7);	//Sort the subintervals
-	if(Max < Stops[l+7])
-		Max = Stops[l+7];
 
 	i = 0;
 	j = 0;
@@ -660,7 +651,7 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta)
 			i++;
 		}
 
-		if(b > Max && a < Max && a != b)
+		if(b > Max && a <= Max)
 			b = Max;	//Be sure E/2 is and sub-interval boundary
 
 		Partial = k0_Int(Par, Temp, k, theta, a, b, 0);
@@ -694,11 +685,6 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta, lon
 
 	int i, j, l;		//Counting varibles
 
-	if(Temp != 0)
-		Min = -sqrt(Par[4]+pow(Par[3],2))/2.;
-	else
-		Min = Energy(0,Par[3]/2.,k,theta)-sqrt(Par[4]+pow(Par[3],2))/2.;
-
 #if ORDER == 37
 	for(l = 0; l < 12; l++) //Count through points away from center
 #elif ORDER == 97
@@ -708,37 +694,15 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta, lon
 		x1 = (b+a-Disp[l]*(b-a))/2.;
 		x2 = (b+a+Disp[l]*(b-a))/2.;
 
-		if(Min < x1)
-			Holder = k0_Integrand(Par,x1,k,theta,Temp, 0);
-		else
-			Holder = 0;
-		//Negative energy interval is transposed to make odd contributions on real side cancel each other. Helps imaginary side by unknown means
-		if(x1 < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta) && Min < x1-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)))
-			Holder += k0_Integrand(Par,x1-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)),k,theta,Temp, 0);
-		//Prevents double counting, negative energy is folded over to count through it faster with 1 integrate to inf instead of 2
-		else if(Min < -x1)
-			Holder += k0_Integrand(Par,-x1,k,theta,Temp, 0);
+		Holder = k0_Integrand(Par,x1,k,theta,Temp, 0);
 		F[0] += Holder*wl[l+1];
 		F[1] += Holder*wh[l+1];
-		if(Min < x2)
-			Holder = k0_Integrand(Par,x2,k,theta,Temp, 0);
-		else
-			Holder = 0;
-		if(x2 < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta) && Min < x2-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)))
-			Holder += k0_Integrand(Par,x2-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)),k,theta,Temp, 0);
-		else if(Min < -x2)
-			Holder += k0_Integrand(Par,-x2,k,theta,Temp, 0);
+
+		Holder = k0_Integrand(Par,x2,k,theta,Temp, 0);
 		F[0] += Holder*wl[l+1];
 		F[1] += Holder*wh[l+1];
 	}
-	if(Min < (a+b)/2.)
-		Holder = k0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0);
-	else
-		Holder = 0;
-	if((a+b)/2. < Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta) && Min < (a+b)/2.-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)))
-		Holder += k0_Integrand(Par,(a+b)/2.-(Energy(Par[2],Par[3]/2.,k,theta)+Energy(Par[2],Par[3]/2.,-k,theta)),k,theta,Temp, 0);
-	else if(Min < -(a+b)/2.)
-		Holder += k0_Integrand(Par,-(a+b)/2.,k,theta,Temp, 0);
+	Holder = k0_Integrand(Par,(a+b)/2.,k,theta,Temp, 0);
 	F[0] += Holder*wl[0];
 	F[1] += Holder*wh[0];
 
@@ -1748,7 +1712,7 @@ long double Non_Interacting_Trace(long double Par[], long double k0, long double
 {
 	//return(-(Energy(Par[2], Par[3]/2., k, theta)*Energy(Par[2], Par[3]/2., -k, theta)-pow(Par[3],2)/4.+pow(k,2)+pow(Par[2],2))/(pow(Par[2],2)));
 	//return((Par[4]/4.+pow(k,2)-pow(k0,2)+pow(Par[2],2))/(pow(Par[2],2)));
-	return(-(pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta),2)-Par[3]*Par[3])/(2.*Par[2]*Par[2]));
+	return((pow(Energy(Par[2], Par[3]/2., k, theta)+Energy(Par[2], Par[3]/2.,-k, theta),2)-Par[3]*Par[3])/(2.*Par[2]*Par[2]));
 }
 
 long double Interacting_Linear_Trace(long double Par[])
