@@ -38,10 +38,6 @@ long double Epp(long double, long double, long double, long double, long double)
 long double Upper_Bound(long double, long double, long double, long double, long double);	//light-like boundaries, where the imaginary self-energy has a known cusp
 long double Lower_Bound(long double, long double, long double, long double, long double);
 
-//Functions for finding points of interest in the k0 integral
-void Characterize_k0_Int(long double[], int, long double, long double, long double[], long double[], int&);	//Returns the poles of the k0 integral's integrands
-long double Newton_Method_k0(long double, long double[], long double, long double, int, long double (*)(long double[], long double, long double, long double, int));	//Returns the k0 of the on-shell peak using Newton's method on 1/f
-
 //Functions that return physics for the integrand
 void ImSelf_Energy(long double, long double[], long double[], int, long double[]);			//Returns the imaginary single quark self-energies for both quarks, contains an alternate T=194 MeV solution
 long double ImSelf_Energy(long double, long double, long double, int);				//Returns the imaginary single quark self-energies for one quark, contains an alternate T=194 MeV solution
@@ -588,7 +584,7 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta)
 		}
 		else if(!isnan(zero[i]))	//At lease insert the central point of the pole if the width isn't properly measured
 		{
-			Stops[l] = abs(zero[i]);
+			Stops[l] = zero[i];
 			l++;
 		}
 	}
@@ -1727,83 +1723,40 @@ long double Interacting_Quad_Trace(long double Par[], long double k0, long doubl
 
 long double k0_Integrand(long double Par[], long double k0, long double k, long double theta, int Temp, int Factor)	//Integrand of the folding integral for positive energy
 {
-	long double q[2];
-	long double omega[4] = {sqrt(Par[4]+pow(Par[3], 2))/2.+k0, -sqrt(Par[4]+pow(Par[3], 2))/2.-k0, sqrt(Par[4]+pow(Par[3], 2))/2.-k0, -sqrt(Par[4]+pow(Par[3], 2))/2.+k0};
-	long double fermi[4] = {Fermi(omega[0], Temp), Fermi(omega[1], Temp), Fermi(omega[2], Temp), Fermi(omega[3], Temp)};
+	static long double q[2] = {Energy(0, Par[3]/2., k, theta),Energy(0, Par[3]/2., -k, theta)};
+	static long double k_old = k;
+	long double omega[2] = {sqrt(Par[4]+pow(Par[3],2))/2.+k0,sqrt(Par[4]+pow(Par[3],2))/2.-k0};
+	long double fermi[2] = {Fermi(omega[0], Temp),Fermi(omega[1], Temp)};
 	long double ImSelf[4];
 	long double ReSelf[4];
-	//long double Array[] = {2., Non_Interacting_Trace(Par, k0, k, theta), Potential1(Par, k0, k), Interacting_Linear_Trace(Par)*Potential1(Par, k0, k), Interacting_Quad_Trace(Par, k0, k)*Potential1(Par, k0, k), Potential2(Par, k0, k)};
-	long double ImElements;//, ImElements;
-	complex<long double> Prop[4];
-	complex<long double> On_shell_Energy[4];
 
-	q[0] = Energy(0, Par[3]/2., k, theta);
-	q[1] = Energy(0, Par[3]/2., -k, theta);
+	if(k_old != k)
+	{
+		k_old = k;
+		q[0] = Energy(0, Par[3]/2., k, theta);
+		q[1] = Energy(0, Par[3]/2., -k, theta);
+	}
 
 	//Self_Energy(Par[2], omega, q, Par, Temp, ImSelf, ReSelf);
 	ImSelf_Energy(Par[2], omega, q, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
-	if(pow(omega[0],2) > pow(q[0],2))
-		On_shell_Energy[0] = sqrt(pow(Energy(Par[2],Par[3]/2., k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[0],2.*Par[2]*ImSelf[0]+sqrt(pow(omega[0],2)-pow(q[0],2))*GAMMA));
-	else
-		On_shell_Energy[0] = sqrt(pow(Energy(Par[2],Par[3]/2., k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[0],2.*Par[2]*ImSelf[0]));
-
-	if(pow(omega[0],2) > pow(q[0],2))
-		On_shell_Energy[1] = sqrt(pow(Energy(Par[2],Par[3]/2., k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[1],2.*Par[2]*ImSelf[1]+sqrt(pow(omega[0],2)-pow(q[0],2))*GAMMA));
-	else
-		On_shell_Energy[1] = sqrt(pow(Energy(Par[2],Par[3]/2., k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[1],2.*Par[2]*ImSelf[1]));
-
-	if(pow(omega[2],2) > pow(q[1],2))
-		On_shell_Energy[2] = sqrt(pow(Energy(Par[2],Par[3]/2.,-k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[2],2.*Par[2]*ImSelf[2]+sqrt(pow(omega[2],2)-pow(q[1],2))*GAMMA));
-	else
-		On_shell_Energy[2] = sqrt(pow(Energy(Par[2],Par[3]/2.,-k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[2],2.*Par[2]*ImSelf[2]));
-
-	if(pow(omega[2],2) > pow(q[1],2))
-		On_shell_Energy[3] = sqrt(pow(Energy(Par[2],Par[3]/2.,-k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[3],2.*Par[2]*ImSelf[3]+sqrt(pow(omega[2],2)-pow(q[1],2))*GAMMA));
-	else
-		On_shell_Energy[3] = sqrt(pow(Energy(Par[2],Par[3]/2.,-k, theta),2)-complex<long double>(2.*Par[2]*ReSelf[3],2.*Par[2]*ImSelf[3]));
-
-	Prop[0] = Par[2]/(On_shell_Energy[1]*(omega[0]-On_shell_Energy[0]));
-	Prop[1] = -Par[2]/(On_shell_Energy[0]*(omega[0]+On_shell_Energy[1]));
-	Prop[2] = Par[2]/(On_shell_Energy[3]*(omega[2]-On_shell_Energy[2]));
-	Prop[3] = -Par[2]/(On_shell_Energy[2]*(omega[2]+On_shell_Energy[3]));
-
-//cout << setprecision(25) << Par[3] << " " << Par[4] << " " << theta << " " << k << " " << k0 << " " << -((Prop[0].imag()+Prop[1].imag())*(Prop[2].real()+Prop[3].real())+(Prop[0].real()+Prop[1].real())*(Prop[2].imag()+Prop[3].imag())) << " " << (Prop[0]+Prop[1]).imag()*(Prop[2]+Prop[3]).imag()*(1.-fermi[0]-fermi[2]) << " " << Prop[0].real() << " " << Prop[0].imag() << " " << Prop[1].real() << " " << Prop[1].imag() << " " << Prop[2].real() << " " << Prop[2].imag() << " " << Prop[3].real() << " " << Prop[3].imag() << " " << ReSelf[0] << " " << ImSelf[0] << " " << ReSelf[1] << " " << ImSelf[1] << " " << ReSelf[2] << " " << ImSelf[2] << " " << ReSelf[3] << " " << ImSelf[3] << " " << Array[0] <<  " " << Array[1] <<  " " << Array[2] <<  " " << Array[3] <<  " " << Array[4] <<  " " << Array[5] << endl;
+	if(pow(omega[0],2)-pow(q[0],2) > 0)
+		ImSelf[0] += sqrt(pow(omega[0],2)-pow(q[0],2))*GAMMA;
+	if(pow(omega[1],2)-pow(q[1],2) > 0)
+		ImSelf[2] += sqrt(pow(omega[1],2)-pow(q[1],2))*GAMMA;
 
 	switch(Factor)
 	{
 	default:
 	case 0:
-		//ReElements = ((Prop[0].imag()+Prop[1].imag())*(Prop[2].real()+Prop[3].real())+(Prop[0].real()+Prop[1].real())*(Prop[2].imag()+Prop[3].imag()))*Elements<long double>(&Array[2], 4);//*(1.-fermi[0]-fermi[2]);
-		ImElements = -(Prop[0]+Prop[1]).imag()*(Prop[2]+Prop[3]).imag()*(1.-fermi[0]-fermi[2]);
-		//if(pow(omega[0],2) < pow(q[0],2) || pow(omega[2],2) < pow(q[1],2))
-		//	ReElements.null();	//Resticts Real elements to time-like quarks in vacuum as the imaginary eleements are also non-zero in the same space for the same reason.
-		return(ImElements);
+		return(-((4.*ImSelf[0]*ImSelf[2]*pow(Par[2],2)*(1.-fermi[0]-fermi[1]))/((pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2))*(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[2],2)+pow(ImSelf[2],2)))));
 		break;
 	case 1:
+		return(ImSelf[0]/(pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2)));
+		break;
 	case 2:
-	case 3:
-	case 4:
-		return(Prop[Factor-1].real());
-		break;
-	case 5:
-	case 6:
-	case 7:
-	case 8:
-		return(Prop[Factor-5].imag());
-		break;
-	case 9:
-	case 10:
-	case 11:
-	case 12:
-		return(ReSelf[Factor-9]);
-		break;
-	case 13:
-	case 14:
-	case 15:
-	case 16:
-		return(ImSelf[Factor-13]);
+		return(ImSelf[1]/(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2)+pow(ImSelf[1],2)));
 		break;
 	}
 }
