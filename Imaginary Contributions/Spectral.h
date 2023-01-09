@@ -558,9 +558,8 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta)
 	long double Range[] = {-1,-.5,0,.5,1};
 
 	//Extra boundaries that insert extra intervals around peaks. Used a machine learn algorithm of sorts to minimize error to pick these values.
-
-	Around Answer = Around(0);	//Results to be returned
-	Around Partial;		//Partial sum to determine continuation
+	Around Answer = 0;	//Results to be returned
+	Around Partial;	//Partial sum to determine continuation
 
 	long double zero[12];	//Real part of poles, up to 2 come from potential and up to 2 come from single quark spectrum
 	long double gamma[12];	//Imaginary part of poles
@@ -648,7 +647,7 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta)
 		}
 
 		if(b > Max && a <= Max)
-			b = Max;	//Be sure E/2 is and sub-interval boundary
+			b = Max;	//Be sure E/2 is and sub-interval boundary*/
 
 		Partial = k0_Int(Par, Temp, k, theta, a, b, 0);
 		Answer += Partial;		//Add the subinterval to the total
@@ -676,7 +675,7 @@ Around k0_Int(long double Par[], int Temp, long double k, long double theta, lon
 	long double Min;	//Lower limit of integration
 
 	long double F[2] = {0,0};	//Sum of ordinates*weights
-	Around Answer = Around(0);	//Results to be returned
+	Around Answer = 0;	//Results to be returned
 	long double Holder;
 
 	int i, j, l;		//Counting varibles
@@ -1053,16 +1052,21 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 
 	if(Temp != 0)	//media estimate
 	{
-		zero[2] = Newton_Method_k0(zero[2], Par, k, theta, Temp, 7, k0_Integrand);
-		zero[3] = Newton_Method_k0(zero[3], Par, k, theta, Temp, 8, k0_Integrand);
-		zero[4] = Newton_Method_k0(zero[4], Par, k, theta, Temp, 6, k0_Integrand);
-		zero[5] = Newton_Method_k0(zero[5], Par, k, theta, Temp, 5, k0_Integrand);
-	}
+		zero[2] = Newton_Method_k0(zero[2], Par, k, theta, Temp, 2, k0_Integrand);
+		zero[3] = Newton_Method_k0(zero[3], Par, k, theta, Temp, 2, k0_Integrand);
+		zero[4] = Newton_Method_k0(zero[4], Par, k, theta, Temp, 1, k0_Integrand);
+		zero[5] = Newton_Method_k0(zero[5], Par, k, theta, Temp, 1, k0_Integrand);
 
-	gamma[2] = omega_Width(zero[2], Par, k, theta, Temp, 7, k0_Integrand);
-	gamma[3] = omega_Width(zero[3], Par, k, theta, Temp, 8, k0_Integrand);
-	gamma[4] = omega_Width(zero[4], Par, k, theta, Temp, 6, k0_Integrand);
-	gamma[5] = omega_Width(zero[5], Par, k, theta, Temp, 5, k0_Integrand);
+		gamma[2] = omega_Width(zero[2], Par, k, theta, Temp, 2, k0_Integrand);
+		gamma[3] = omega_Width(zero[3], Par, k, theta, Temp, 2, k0_Integrand);
+		gamma[4] = omega_Width(zero[4], Par, k, theta, Temp, 1, k0_Integrand);
+		gamma[5] = omega_Width(zero[5], Par, k, theta, Temp, 1, k0_Integrand);
+	}
+	else	//Finish up exact vacuum calculations
+	{
+		gamma[2] = gamma[3] = abs(.5*imag(sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)-k*Par[3]*cos(theta))+pow(Par[3],2)-2.*pow(GAMMA,2),2.*sqrt(4.*pow(Par[2]*GAMMA,2)-pow(GAMMA,4))))));
+		gamma[4] = gamma[5] = abs(.5*imag(sqrt(complex<long double>(4.*(pow(k,2)+pow(Par[2],2)+k*Par[3]*cos(theta))+pow(Par[3],2)-2.*pow(GAMMA,2),2.*sqrt(4.*pow(Par[2]*GAMMA,2)-pow(GAMMA,4))))));
+	}
 
 	for(i = 0; i < 6; i++)
 	{
@@ -1093,7 +1097,7 @@ void Characterize_k0_Int(long double Par[], int Temp, long double k, long double
 
 long double Newton_Method_k0(long double k0, long double Par[], long double k, long double theta, int Temp, int j, long double (*Folding)(long double[], long double, long double, long double, int, int))	//Newton's method for finding poles of f by looking for zeros of 1/f, much more stable to the point of absolute confidence
 {
-	long double original_k0 = k0;
+
 	long double new_k0;
 	long double h;	//Finite difference
 	long double Exit;
@@ -1111,19 +1115,16 @@ long double Newton_Method_k0(long double k0, long double Par[], long double k, l
 		Exit = 1e-5;
 	}
 
-	new_k0 = k0 - .5*h*(1./(Folding(Par, k0+h, k, theta, Temp, j))-1./(Folding(Par, k0-h, k, theta, Temp, j)))/((1./(Folding(Par, k0-h, k, theta, Temp, j))-2./(Folding(Par, k0, k, theta, Temp, j))+1./(Folding(Par, k0+h, k, theta, Temp, j))));	//First iteration of Netwon's method using finite differences
+	new_k0 = k0 - .5*h*(1./Folding(Par, k0+h, k, theta, Temp, j)-1./Folding(Par, k0-h, k, theta, Temp, j))/((1./Folding(Par, k0-h, k, theta, Temp, j)-2./Folding(Par, k0, k, theta, Temp, j)+1./Folding(Par, k0+h, k, theta, Temp, j)));	//First iteration of Netwon's method using finite differences
 
-	while(/*abs(1.-new_k0/k0) > Exit && */i < 100 && (isfinite(new_k0) || abs(new_k0-original_k0)<.5))	//Allow up to 12 iterations to find the pole
+	while(/*abs(1.-new_k0/k0) > Exit && */i < 100)	//Allow up to 12 iterations to find the pole
 	{
 		k0 = new_k0;
-		new_k0 = k0 - .5*h*(1./(Folding(Par, k0+h, k, theta, Temp, j))-1./(Folding(Par, k0-h, k, theta, Temp, j)))/((1./(Folding(Par, k0-h, k, theta, Temp, j))-2./(Folding(Par, k0, k, theta, Temp, j))+1./(Folding(Par, k0+h, k, theta, Temp, j))));
+		new_k0 = k0 - .5*h*(1./Folding(Par, k0+h, k, theta, Temp, j)-1./Folding(Par, k0-h, k, theta, Temp, j))/((1./Folding(Par, k0-h, k, theta, Temp, j)-2./Folding(Par, k0, k, theta, Temp, j)+1./Folding(Par, k0+h, k, theta, Temp, j)));
 		i++;
 	}
 
-	if(abs(new_k0-original_k0)<.5)
-		return(k0);
-	else
-		return(original_k0);
+	return(k0);
 }
 
 long double omega_Width(long double zero, long double Par[], long double k, long double theta, int Temp, int i, long double (*Folding)(long double[], long double, long double, long double, int, int))	//Breit-Wigner width of the peak
@@ -1376,8 +1377,6 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	{
 		Results[0] = 0;
 		Results[1] = 0;
-		Results[2] = 0;
-		Results[3] = 0;
 		return;
 	}
 
@@ -1457,14 +1456,10 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 
 #ifdef HALF
 	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0], 2)+gamma[0])/2.;
-	Results[1] = Sigma[0]*(omega[1]-x0[0])/(pow(omega[1]-x1[0], 2)+gamma[0])/2.;
-	Results[2] = Sigma[1]*(omega[2]-x0[1])/(pow(omega[2]-x1[1], 2)+gamma[1])/2.;
-	Results[3] = Sigma[1]*(omega[3]-x0[1])/(pow(omega[3]-x1[1], 2)+gamma[1])/2.;
+	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1], 2)+gamma[1])/2.;
 #else
 	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0], 2)+gamma[0]);
-	Results[1] = Sigma[0]*(omega[1]-x0[0])/(pow(omega[1]-x1[0], 2)+gamma[0]);
-	Results[2] = Sigma[1]*(omega[2]-x0[1])/(pow(omega[2]-x1[1], 2)+gamma[1]);
-	Results[3] = Sigma[1]*(omega[3]-x0[1])/(pow(omega[3]-x1[1], 2)+gamma[1]);
+	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1], 2)+gamma[1]);
 #endif
 	return;
 }
