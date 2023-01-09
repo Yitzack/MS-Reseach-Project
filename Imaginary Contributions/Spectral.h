@@ -1141,26 +1141,15 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	static long double M_T, Shift;	//Default quark mass, shfift from default quark mass to given quark mass
 	static long double k_old[2] = {-1,-1}; //Previous value of k to know if the parmeters need to recalculated
 
-	if(false)//pow(omega[0],2)>=pow(k[0],2))
-	{
+	if(pow(omega[0],2)>=pow(k[0],2))
 		Results[0] = sqrt(pow(omega[0],2)-pow(k[0],2))*GAMMA;
-		Results[1] = sqrt(pow(omega[1],2)-pow(k[0],2))*GAMMA;
-	}
 	else
-	{
 		Results[0] = 0;
-		Results[1] = 0;
-	}
-	if(false)//pow(omega[2],2)>=pow(k[1],2))
-	{
-		Results[2] = sqrt(pow(omega[2],2)-pow(k[1],2))*GAMMA;
-		Results[3] = sqrt(pow(omega[3],2)-pow(k[1],2))*GAMMA;
-	}
+
+	if(pow(omega[1],2)>=pow(k[1],2))
+		Results[1] = sqrt(pow(omega[1],2)-pow(k[1],2))*GAMMA;
 	else
-	{
-		Results[2] = 0;
-		Results[3] = 0;
-	}
+		Results[1] = 0;
 
 	if(Temp == 0)
 		return;
@@ -1258,37 +1247,19 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 	else	//Lost of precision having been circumvented, the actual value
 		ImSigma[0] = -.5*((a[0]-b[0])*omega0[0]-((a[0]+b[0])*knee[0])/sqrt(a[0]*b[0]))+(a[0]-b[0])*omega[0]/2-sqrt(pow(((a[0]+b[0])/2.)*(omega[0]-omega0[0]+((a[0]-b[0])*knee[0])/(sqrt(a[0]*b[0])*(a[0]+b[0]))), 2)+pow(knee[0], 2));
 
-	if((omega[1]-omega0[0]+knee[0]*(b[0]-a[0])/(sqrt(a[0]*b[0])*(a[0]+b[0])))/knee[0] < -4.)
-		ImSigma[1] = a[0]*(omega[1]-omega0[0]+knee[0]/sqrt(a[0]*b[0]));
-	else if((omega[1]-omega0[0]+knee[0]*(b[0]-a[0])/(sqrt(a[0]*b[0])*(a[0]+b[0])))/knee[0] > 4.)
-		ImSigma[1] = b[0]*(omega0[0]-omega[1]+knee[0]/sqrt(a[0]*b[0]));
+	if((omega[1]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] < -4.)
+		ImSigma[1] = a[1]*(omega[1]-omega0[1]+knee[1]/sqrt(a[1]*b[1]));
+	else if((omega[1]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] > 4.)
+		ImSigma[1] = b[1]*(omega0[1]-omega[1]+knee[1]/sqrt(a[1]*b[1]));
 	else	//Lost of precision having been circumvented, the actual value
-		ImSigma[1] = -.5*((a[0]-b[0])*omega0[0]-((a[0]+b[0])*knee[0])/sqrt(a[0]*b[0]))+(a[0]-b[0])*omega[1]/2-sqrt(pow(((a[0]+b[0])/2.)*(omega[1]-omega0[0]+((a[0]-b[0])*knee[0])/(sqrt(a[0]*b[0])*(a[0]+b[0]))), 2)+pow(knee[0], 2));
-
-	if((omega[2]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] < -4.)
-		ImSigma[2] = a[1]*(omega[2]-omega0[1]+knee[1]/sqrt(a[1]*b[1]));
-	else if((omega[2]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] > 4.)
-		ImSigma[2] = b[1]*(omega0[1]-omega[2]+knee[1]/sqrt(a[1]*b[1]));
-	else
-		ImSigma[2] = -.5*((a[1]-b[1])*omega0[1]-((a[1]+b[1])*knee[1])/sqrt(a[1]*b[1]))+(a[1]-b[1])*omega[2]/2-sqrt(pow(((a[1]+b[1])/2.)*(omega[2]-omega0[1]+((a[1]-b[1])*knee[1])/(sqrt(a[1]*b[1])*(a[1]+b[1]))), 2)+pow(knee[1], 2));
-
-	if((omega[3]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] < -4.)
-		ImSigma[3] = a[1]*(omega[3]-omega0[1]+knee[1]/sqrt(a[1]*b[1]));
-	else if((omega[3]-omega0[1]+knee[1]*(b[1]-a[1])/(sqrt(a[1]*b[1])*(a[1]+b[1])))/knee[1] > 4.)
-		ImSigma[3] = b[1]*(omega0[1]-omega[3]+knee[1]/sqrt(a[1]*b[1]));
-	else
-		ImSigma[3] = -.5*((a[1]-b[1])*omega0[1]-((a[1]+b[1])*knee[1])/sqrt(a[1]*b[1]))+(a[1]-b[1])*omega[3]/2-sqrt(pow(((a[1]+b[1])/2.)*(omega[3]-omega0[1]+((a[1]-b[1])*knee[1])/(sqrt(a[1]*b[1])*(a[1]+b[1]))), 2)+pow(knee[1], 2));
+		ImSigma[1] = -.5*((a[1]-b[1])*omega0[1]-((a[1]+b[1])*knee[1])/sqrt(a[1]*b[1]))+(a[1]-b[1])*omega[1]/2-sqrt(pow(((a[1]+b[1])/2.)*(omega[1]-omega0[1]+((a[1]-b[1])*knee[1])/(sqrt(a[1]*b[1])*(a[1]+b[1]))), 2)+pow(knee[1], 2));
 
 #ifdef HALF
 	Results[0] += -Sigma[0]*exp(ImSigma[0]);	//ImSigma from the in-medium
-	Results[1] += -Sigma[0]*exp(ImSigma[1]);
-	Results[2] += -Sigma[1]*exp(ImSigma[2]);
-	Results[3] += -Sigma[1]*exp(ImSigma[3]);
+	Results[1] += -Sigma[1]*exp(ImSigma[1]);
 #else
 	Results[0] += -2.*Sigma[0]*exp(ImSigma[0]);
-	Results[1] += -2.*Sigma[0]*exp(ImSigma[1]);
-	Results[2] += -2.*Sigma[1]*exp(ImSigma[2]);
-	Results[3] += -2.*Sigma[1]*exp(ImSigma[3]);
+	Results[1] += -2.*Sigma[1]*exp(ImSigma[1]);
 #endif
 	return;
 }
@@ -1727,8 +1698,8 @@ long double k0_Integrand(long double Par[], long double k0, long double k, long 
 	static long double k_old = k;
 	long double omega[2] = {sqrt(Par[4]+pow(Par[3],2))/2.+k0,sqrt(Par[4]+pow(Par[3],2))/2.-k0};
 	long double fermi[2] = {Fermi(omega[0], Temp),Fermi(omega[1], Temp)};
-	long double ImSelf[4];
-	long double ReSelf[4];
+	long double ImSelf[2];
+	long double ReSelf[2];
 
 	if(k_old != k)
 	{
@@ -1741,16 +1712,11 @@ long double k0_Integrand(long double Par[], long double k0, long double k, long 
 	ImSelf_Energy(Par[2], omega, q, Temp, ImSelf);
 	ReSelf_Energy(Par[2], omega, q, Temp, ReSelf);
 
-	if(pow(omega[0],2)-pow(q[0],2) > 0)
-		ImSelf[0] += sqrt(pow(omega[0],2)-pow(q[0],2))*GAMMA;
-	if(pow(omega[1],2)-pow(q[1],2) > 0)
-		ImSelf[2] += sqrt(pow(omega[1],2)-pow(q[1],2))*GAMMA;
-
 	switch(Factor)
 	{
 	default:
 	case 0:
-		return(-((4.*ImSelf[0]*ImSelf[2]*pow(Par[2],2)*(1.-fermi[0]-fermi[1]))/((pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2))*(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[2],2)+pow(ImSelf[2],2)))));
+		return(-((4.*ImSelf[0]*ImSelf[1]*pow(Par[2],2)*(1.-fermi[0]-fermi[1]))/((pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2))*(pow(pow(omega[1],2)-pow(q[1],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[1],2)+pow(ImSelf[1],2)))));
 		break;
 	case 1:
 		return(ImSelf[0]/(pow(pow(omega[0],2)-pow(q[0],2)-pow(Par[2],2)-2.*Par[2]*ReSelf[0],2)+pow(ImSelf[0],2)));
