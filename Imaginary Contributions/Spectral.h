@@ -1258,6 +1258,9 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 #ifdef HALF
 	Results[0] += -Sigma[0]*exp(ImSigma[0]);	//ImSigma from the in-medium
 	Results[1] += -Sigma[1]*exp(ImSigma[1]);
+#elif defined QUARTER
+	Results[0] += -1.5*Sigma[0]*exp(ImSigma[0]);	//ImSigma from the in-medium
+	Results[1] += -1.5*Sigma[1]*exp(ImSigma[1]);
 #else
 	Results[0] += -2.*Sigma[0]*exp(ImSigma[0]);
 	Results[1] += -2.*Sigma[1]*exp(ImSigma[1]);
@@ -1358,6 +1361,8 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 
 #ifdef HALF
 	answer += -Sigma*exp(ImSigma);
+#elif defined QUARTER
+	answer += -1.5*Sigma*exp(ImSigma);
 #else
 	answer += -2.*Sigma*exp(ImSigma);
 #endif
@@ -1457,6 +1462,9 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 #ifdef HALF
 	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0], 2)+gamma[0])/2.;
 	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1], 2)+gamma[1])/2.;
+#elif defined QUARTER
+	Results[0] = .75*Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0], 2)+gamma[0]);
+	Results[1] = .75*Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1], 2)+gamma[1]);
 #else
 	Results[0] = Sigma[0]*(omega[0]-x0[0])/(pow(omega[0]-x1[0], 2)+gamma[0]);
 	Results[1] = Sigma[1]*(omega[1]-x0[1])/(pow(omega[1]-x1[1], 2)+gamma[1]);
@@ -1526,6 +1534,8 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 
 #ifdef HALF
 	Results = Sigma*(omega-x0)/(pow(omega-x1, 2)+gamma)/2.;
+#elif defined QUARTER
+	Results = .75*Sigma*(omega-x0)/(pow(omega-x1, 2)+gamma);
 #else
 	Results = Sigma*(omega-x0)/(pow(omega-x1, 2)+gamma);
 #endif
@@ -1606,6 +1616,11 @@ void Self_Energy(long double M, long double omega[], long double k[], int Temp, 
 	ImSelf[1] += -M*Sigma[1]*omega[1]*gamma[1]/(M_PI*(pow(omega[1]-omega0[1], 2)+pow(omega[1]*gamma[1], 2)));
 	ReSelf[0] += Sigma[0]*(omega[0]-omega0[0])/(M_PI*(pow(omega[0]-omega0[0], 2)+pow(omega[0]*gamma[0], 2)))/2.;
 	ReSelf[1] += Sigma[1]*(omega[1]-omega0[1])/(M_PI*(pow(omega[1]-omega0[1], 2)+pow(omega[1]*gamma[1], 2)))/2.;
+#elif defined QUARTER
+	ImSelf[0] += -1.5*M*Sigma[0]*omega[0]*gamma[0]/(M_PI*(pow(omega[0]-omega0[0], 2)+pow(omega[0]*gamma[0], 2)));
+	ImSelf[1] += -1.5*M*Sigma[1]*omega[1]*gamma[1]/(M_PI*(pow(omega[1]-omega0[1], 2)+pow(omega[1]*gamma[1], 2)));
+	ReSelf[0] += .75*Sigma[0]*(omega[0]-omega0[0])/(M_PI*(pow(omega[0]-omega0[0], 2)+pow(omega[0]*gamma[0], 2)));
+	ReSelf[1] += .75*Sigma[1]*(omega[1]-omega0[1])/(M_PI*(pow(omega[1]-omega0[1], 2)+pow(omega[1]*gamma[1], 2)));
 #else
 	ImSelf[0] += -2.*M*Sigma[0]*omega[0]*gamma[0]/(M_PI*(pow(omega[0]-omega0[0], 2)+pow(omega[0]*gamma[0], 2)));
 	ImSelf[1] += -2.*M*Sigma[1]*omega[1]*gamma[1]/(M_PI*(pow(omega[1]-omega0[1], 2)+pow(omega[1]*gamma[1], 2)));

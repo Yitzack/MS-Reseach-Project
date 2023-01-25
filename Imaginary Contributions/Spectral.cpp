@@ -41,6 +41,8 @@ int main(int argc, char* argv[])
 
 #ifdef HALF	//use option -D HALF= to divide self-energy in half
 	strcat(File, "Half.");
+#elif defined QUARTER	//use option -D HALF= to divide self-energy in half
+	strcat(File, "Quarter.");
 #endif
 
 	char* Process = argv[1];
@@ -207,7 +209,7 @@ long double Set_Lambda(long double G0, long double P, long double P0, long doubl
 #elif VERSION == 24
 	return(sqrt(pow(1.732331256719942,2)+pow(G*Temp,2)/2));
 #elif VERSION == 42
-	return(pow(pow(2.130373691130171,4)+pow(G*Temp,4),.25));
+	return(pow(pow(2.433406283602878,4)+pow(G*Temp,4),.25));
 #elif VERSION == Exp
 	return(sqrt(pow(2.349715597072211,2)+pow(G*Temp,2)));
 #endif
@@ -222,7 +224,7 @@ long double Set_C(long double f0, long double P, long double P0, long double Lam
 #elif VERSION == 24
 	return(137.486542567774*f*pow(1.732331256719942/Lambda,8));
 #elif VERSION == 42
-	return(71.96458035040038*f*pow(2.130373691130171/Lambda,8));
+	return(50.63740814101998*f*pow(2.433406283602878/Lambda,8));
 #elif VERSION == Exp
 	return(94.5592511090581*f);
 #endif
