@@ -120,6 +120,11 @@ Elements<Around> theta_Int(long double Par[], int Temp)
 {
 	if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
 		return(k_Int(Par, Temp, M_PI/2.)*Around(2./pow(2.*M_PI,2)));
+	else if(Par[4]+pow(Par[3],2)<1e-9)
+	{
+		Around Answer[6] = {0,0,0,0,0,0};
+		return(Elements<Around>(Answer,6));
+	}
 
 	long double x1;
 	long double a = 0, b;					//Sub-interval limits of integration
