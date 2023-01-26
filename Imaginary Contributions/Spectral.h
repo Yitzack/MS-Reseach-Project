@@ -1183,7 +1183,7 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 			case 1://194MeV
 				M_T = 1.84184;
 				Shift = M-M_T;
-				Sigma[0] = .569969/sqrt(pow(k[0], 2)+pow(1.75236, 2))+.0187484;
+				/*Sigma[0] = .569969/sqrt(pow(k[0], 2)+pow(1.75236, 2))+.0187484;
 				Sigma[1] = .569969/sqrt(pow(k[1], 2)+pow(1.75236, 2))+.0187484;
 				a[0] = 12.5349/(pow(k[0], 2)+pow(1.63711, 2))+5.026;
 				a[1] = 12.5349/(pow(k[1], 2)+pow(1.63711, 2))+5.026;
@@ -1192,7 +1192,17 @@ void ImSelf_Energy(long double M, long double omega[], long double k[], int Temp
 				omega0[0] = sqrt(pow(1.51443+Shift, 2)+pow(k[0], 2))+.232841;
 				omega0[1] = sqrt(pow(1.51443+Shift, 2)+pow(k[1], 2))+.232841;
 				knee[0] = 3.78956*pow(k[0]+1., (long double)-.530289)+.305*(tanh((k[0]-48.4)/11.1111)+1);
-				knee[1] = 3.78956*pow(k[1]+1., (long double)-.530289)+.305*(tanh((k[1]-48.4)/11.1111)+1);
+				knee[1] = 3.78956*pow(k[1]+1., (long double)-.530289)+.305*(tanh((k[1]-48.4)/11.1111)+1);*/
+				Sigma[0] = .569969/sqrt(pow(1.75236, 2))+.0187484;
+				Sigma[1] = .569969/sqrt(pow(1.75236, 2))+.0187484;
+				a[0] = 12.5349/(pow(1.63711, 2))+5.026;
+				a[1] = 12.5349/(pow(1.63711, 2))+5.026;
+				b[0] = -291.579/(pow(15.2519, 2)+pow(.0614821, 2))+3.36681;
+				b[1] = -291.579/(pow(15.2519, 2)+pow(.0614821, 2))+3.36681;
+				omega0[0] = sqrt(pow(1.51443+Shift, 2)+pow(k[0], 2));
+				omega0[1] = sqrt(pow(1.51443+Shift, 2)+pow(k[1], 2));
+				knee[0] = 3.78956+.305*(tanh((-48.4)/11.1111)+1);
+				knee[1] = 3.78956+.305*(tanh((-48.4)/11.1111)+1);
 				break;
 			case 2://285MeV
 				M_T = 1.69584;
@@ -1305,11 +1315,16 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 		case 1://194MeV
 			M_T = 1.84184;
 			Shift = M-M_T;
-			Sigma = .569969/sqrt(pow(k, 2)+pow(1.75236, 2))+.0187484;
+			/*Sigma = .569969/sqrt(pow(k, 2)+pow(1.75236, 2))+.0187484;
 			a = 12.5349/(pow(k, 2)+pow(1.63711, 2))+5.026;
 			b = -291.579/(pow(k+15.2519, 2)+pow(.0614821, 2))+3.36681;
 			omega0 = sqrt(pow(1.51443+Shift, 2)+pow(k, 2))+.232841;
-			knee = 3.78956*pow(k+1., (long double)-.530289)+.305*(tanh((k-48.4)/11.1111)+1);
+			knee = 3.78956*pow(k+1., (long double)-.530289)+.305*(tanh((k-48.4)/11.1111)+1);*/
+			Sigma = .569969/sqrt(pow(1.75236, 2))+.0187484;
+			a = 12.5349/(pow(1.63711, 2))+5.026;
+			b = -291.579/(pow(15.2519, 2)+pow(.0614821, 2))+3.36681;
+			omega0 = sqrt(pow(1.51443+Shift, 2)+pow(k, 2));
+			knee = 3.78956+.305*(tanh((-48.4)/11.1111)+1);
 			break;
 		case 2://285MeV
 			M_T = 1.69584;
@@ -1411,14 +1426,22 @@ void ReSelf_Energy(long double M, long double omega[], long double k[], int Temp
 			case 1://194MeV
 				M_T = 1.84184;
 				Shift = M-M_T;
-				Sigma[0] = .212571/sqrt(pow(k[0], 2)+pow(1.17821, 2))+.00762638;
+				/*Sigma[0] = .212571/sqrt(pow(k[0], 2)+pow(1.17821, 2))+.00762638;
 				Sigma[1] = .212571/sqrt(pow(k[1], 2)+pow(1.17821, 2))+.00762638;
 				x0[0] = sqrt(pow(k[0], 2)+pow(1.57536+Shift, 2))+.259147;
 				x0[1] = sqrt(pow(k[1], 2)+pow(1.57536+Shift, 2))+.259147;
 				x1[0] = sqrt(pow(k[0], 2)+pow(1.50194+Shift, 2))+.222526;
 				x1[1] = sqrt(pow(k[1], 2)+pow(1.50194+Shift, 2))+.222526;
 				gamma[0] = .336699/sqrt(pow(k[0], 2)+pow(1.87956, 2))+.0651449;
-				gamma[1] = .336699/sqrt(pow(k[1], 2)+pow(1.87956, 2))+.0651449;
+				gamma[1] = .336699/sqrt(pow(k[1], 2)+pow(1.87956, 2))+.0651449;*/
+				Sigma[0] = .212571/sqrt(pow(1.17821, 2))+.00762638;
+				Sigma[1] = .212571/sqrt(pow(1.17821, 2))+.00762638;
+				x0[0] = sqrt(pow(k[0], 2)+pow(1.57536+Shift, 2));
+				x0[1] = sqrt(pow(k[1], 2)+pow(1.57536+Shift, 2));
+				x1[0] = sqrt(pow(k[0], 2)+pow(1.50194+Shift, 2));
+				x1[1] = sqrt(pow(k[1], 2)+pow(1.50194+Shift, 2));
+				gamma[0] = .336699/sqrt(pow(1.87956, 2))+.0651449;
+				gamma[1] = .336699/sqrt(pow(1.87956, 2))+.0651449;
 				break;
 			case 2://258MeV
 				M_T = 1.69584;
@@ -1501,10 +1524,14 @@ long double ReSelf_Energy(long double M, long double omega, long double k, int T
 		case 1://194MeV
 			M_T = 1.84184;
 			Shift = M-M_T;
-			Sigma = .212571/sqrt(pow(k, 2)+pow(1.17821, 2))+.00762638;
+			/*Sigma = .212571/sqrt(pow(k, 2)+pow(1.17821, 2))+.00762638;
 			x0 = sqrt(pow(k, 2)+pow(1.57536+Shift, 2))+.259147;
 			x1 = sqrt(pow(k, 2)+pow(1.50194+Shift, 2))+.222526;
-			gamma = .336699/sqrt(pow(k, 2)+pow(1.87956, 2))+.0651449;
+			gamma = .336699/sqrt(pow(k, 2)+pow(1.87956, 2))+.0651449;*/
+			Sigma = .212571/sqrt(pow(1.17821, 2))+.00762638;
+			x0 = sqrt(pow(k, 2)+pow(1.57536+Shift, 2));
+			x1 = sqrt(pow(k, 2)+pow(1.50194+Shift, 2));
+			gamma = .336699/sqrt(pow(1.87956, 2))+.0651449;
 			break;
 		case 2://258MeV
 			M_T = 1.69584;
