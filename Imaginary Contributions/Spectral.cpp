@@ -44,7 +44,8 @@ int main(int argc, char* argv[])
 #elif defined QUARTER	//use option -D HALF= to divide self-energy in half
 	strcat(File, "Quarter.");
 #endif
-	//strcat(File, "Experimental8.");
+//	strcat(File, "Lambda.");
+//	strcat(File, "500M");
 
 	char* Process = argv[1];
 	strcat(File, argv[3]);	//Appends the temprature to the file name
@@ -60,7 +61,8 @@ int main(int argc, char* argv[])
 		TPlot << argv[4] << " " << argv[5] << " " << argv[6] << " " << argv[9] << " " << argv[10] << endl;
 	}
 	else	//If not starting from the beginning, append
-		TPlot.open(File, ios::app);
+		TPlot.open(File, ios::app);// */
+	//cout << argv[4] << " " << argv[5] << " " << argv[6] << " " << argv[9] << " " << argv[10] << endl;
 
 	int i,j;					//Counters
 	int Start, Finish;
@@ -78,11 +80,13 @@ int main(int argc, char* argv[])
 	Elements<Around> holder;					//Calculated value before distribution to Table
 	time_t Start_Time, End_Time;				//Time at the start and end of calculation
 
+	long double GaussLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integration
+
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	//cout << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = Start; i <= Finish; i++)
 	{
-		for(j = iProcess+151; j < 576; j+=Total)	//Does the subset of j that has been assigned to this process
+		for(j = iProcess; j < 625; j+=Total)	//Does the subset of j that has been assigned to this process
 		{
 			if(j <= 150)
 			{
@@ -109,15 +113,19 @@ int main(int argc, char* argv[])
 					Par[4] = pow((j-161.)/10.+.1,2);
 				else if(j <= 390)
 					Par[4] = pow((j-190.)/100.+3.,2);
-				else
+				else if(j <= 575)
 					Par[4] = pow((j-390.)/10.+5.,2);
+				else
+					Par[4] = 552.25+GaussLa[j-576];
 #else
 				if(j <= 251)
 					Par[4] = pow((j-151.)/10.,2);
 				else if(j <= 451)
 					Par[4] = pow((j-251.)/100.+10.,2);
-				else
+				else if(j <= 566)
 					Par[4] = pow((j-451.)/10.+12.,2);
+				else
+					Par[4] = 552.25+GaussLa[j-567];
 #endif
 			}
 
@@ -215,11 +223,13 @@ long double Set_Lambda(long double G0, long double P, long double P0, long doubl
 	Average_Lorentz = Average_Lorentz_List[i][1];	//Store the average value for the given P*/
 
 #if VERSION == 22
-	return(sqrt(pow(0.979707909261032,2)+pow(G*Temp,2)));
+	return(sqrt(pow(1.23792404139016,2)+pow(G*Temp,2)));
 #elif VERSION == 24
 	return(sqrt(pow(1.732331256719942,2)+pow(G*Temp,2)/2));
 #elif VERSION == 42
-	return(pow(pow(2.433406283602878,4)+pow(G*Temp,4),.25));
+	return(pow(pow(2.433406283602878*1.25,4)+pow(G*Temp,4),.25));
+	//return(pow(pow(5.0,4)+pow(G*Temp,4),.25));
+	//return(pow(pow(.5,4)+pow(G*Temp,4),.25));
 #elif VERSION == Exp
 	return(sqrt(pow(2.349715597072211,2)+pow(G*Temp,2)));
 #endif
@@ -237,11 +247,14 @@ long double Set_C(long double f0, long double P, long double P0, long double Lam
 	Average_Lorentz = Average_Lorentz_List[i][1];	//Store the average value for the given P*/
 
 #if VERSION == 22
-	return(329.4505337035902*f*pow(0.979707909261032/Lambda,4));
+	return(181.0395540963551*f*pow(1.23792404139016/Lambda,4));
 #elif VERSION == 24
 	return(137.486542567774*f*pow(1.732331256719942/Lambda,8));
 #elif VERSION == 42
-	return(50.63740814101998*f*pow(2.433406283602878/Lambda,8));
+//	return(f*pow(.5/Lambda,8));
+//	return(50.63740814101998*f*pow(2.433406283602878/Lambda,8));
+	return(33.06143111723497*f*pow(2.433406283602878*1.25/Lambda,8));
+//	return(14.7835935366527*f*pow(5.0/Lambda,8));
 #elif VERSION == Exp
 	return(94.5592511090581*f);
 #endif
