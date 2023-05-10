@@ -3,20 +3,27 @@
 #include<iomanip>
 #include<fstream>
 #include<cstring>
+#include<cfloat>
 #include<complex>
 #include<chrono>
+#include"Around.h"
 using namespace std;
 
 int Start_Point(int, char[70]);						//Find highest line calculated and returns it, as written causes last line to be recalculated
 bool Restart_Check(char[70], char*, char*, char*, char*, char*);		//Checks to see if file header matches input parameters and clears it if not
 long double Set_Mq(long double, long double, long double);			//Momentum dependence for the quark mass, <number> 0 causes it to be constant
+void mergeSort(long double[], int, int);
+
+Around theta_Int(long double[], int, long double(*Rho_Int)(long double, long double, long double, long double, int));
+Around theta_Int(long double[], int, long double, long double, int, long double(*Rho_Int)(long double, long double, long double, long double, int));
 
 long double RhoInt1(long double, long double, long double, long double, int);
 long double RhoInt2(long double, long double, long double, long double, int);
+long double RhoInt3(long double, long double, long double, long double, int);
 
 int main(int argc, char* argv[])
 {
-	char File[70] = "data/Zero_Mode";  //Name of the file
+	char File[70] = "data/Zero_Mode.";  //Name of the file
 
 	char* Process = argv[1];
 	strcat(File, argv[3]);	//Appends the temprature to the file name
@@ -48,67 +55,34 @@ int main(int argc, char* argv[])
 	const int Temp = atoi(argv[3]);			//Temprature enumeration
 	long double Table[616][5];				//Table of calculated values
 	long double Par[5];					//Parameters to be used in calculation {Coupling constant, potential cutoff, quark mass, P, s}
-	Elements<Around> holder;					//Calculated value before distribution to Table
+	Around holder[2];					//Calculated value before distribution to Table
 	time_t Start_Time, End_Time;				//Time at the start and end of calculation
-
-	long double GaussLa[] = {0.0292089494940390418, 0.1539325380822080769, 0.3784519114339929046, 0.703043968841429832, 1.12804449030959115901, 1.65388906539884363591, 2.28111923347644653209, 3.01038628120128830529, 3.84245522739668292116, 4.77820943138205453677, 5.81865597642423461728, 6.96493193346708690195, 8.2183116110416122313, 9.58021491185883249065, 11.0522169380215279328, 12.63605901385725832108, 14.33366132857440339499, 16.14713744153402449126, 18.07881094274913343943, 20.13123462273780157763, 22.3072125823387678126, 24.60982580889231094881, 27.04246186610561423232, 29.60884949880154539486, 32.31309915127963456172, 35.15975065392247902555, 38.15382966748456817771, 41.3009149171740471975, 44.60721884062876818128, 48.0796850753673570501, 51.72610731101421216486, 55.55527556274067844963, 59.5771580886221159235, 63.80313029304261238365, 68.24626653908353044698, 72.92171766800947991981, 77.84720759844820215182, 83.04369909859864667464, 88.53630611197943572002, 94.35557619641319288989, 100.53934816696116679177, 107.13554136224855814149, 114.20653122712858723725, 121.83639878660318539969, 130.14381522449526055617, 139.30719756334274304328, 149.62081975792771442406, 161.64877015704720903095, 176.84630940701588372409};	//Displacement from 0 for Gauss-Laguerre integration
 
 	TPlot << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	//cout << setprecision(18);	//18 digits is the "Number of decimal digits that can be rounded into a floating-point and back without change in the number of decimal digits" for long double.
 	for(i = Start; i <= Finish; i++)
 	{
-		for(j = iProcess+151; j < 625; j+=Total)	//Does the subset of j that has been assigned to this process
+		for(j = iProcess; j < 151; j+=Total)	//Does the subset of j that has been assigned to this process
 		{
-			if(j <= 150)
+			if(i <= 208)
 			{
-				if(i <= 208)
-				{
-					Par[3] = i/10.+j/10.;
-					Par[4] = -i*j/50.-j*j/100.;
-				}
-				else
-				{
-					Par[3] = i+j/10.-187.2;
-					Par[4] = -j/5.*(i-187.2)-j*j/100.;
-				}
+				Par[3] = i/10.+j/10.;
+				Par[4] = -i*j/50.-j*j/100.;
 			}
 			else
 			{
-				Par[3] = i*.8;
-				if(i < 0)
-					Par[3] = ((long double)(i%7)/8.-.125-floor((long double)(i)/7.))*.8;
-#ifndef BB
-				if(j <= 161)
-					Par[4] = pow((j-151.)/100.,2);
-				else if(j <= 190)
-					Par[4] = pow((j-161.)/10.+.1,2);
-				else if(j <= 390)
-					Par[4] = pow((j-190.)/100.+3.,2);
-				else if(j <= 575)
-					Par[4] = pow((j-390.)/10.+5.,2);
-				else
-					Par[4] = 552.25+GaussLa[j-576];
-#else
-				if(j <= 251)
-					Par[4] = pow((j-151.)/10.,2);
-				else if(j <= 451)
-					Par[4] = pow((j-251.)/100.+10.,2);
-				else if(j <= 566)
-					Par[4] = pow((j-451.)/10.+12.,2);
-				else
-					Par[4] = 552.25+GaussLa[j-567];
-#endif
+				Par[3] = i+j/10.-187.2;
+				Par[4] = -j/5.*(i-187.2)-j*j/100.;
 			}
 
-			Par[1] = Set_Lambda(atof(argv[5]), Par[3], atof(argv[9]), atof(argv[10]), Temp);
-			Par[0] = -Set_C(atof(argv[4]), Par[3], atof(argv[9]), Par[1], atof(argv[10]));
 			Par[2] = atof(argv[6]);
 
 			auto Start_Time = chrono::system_clock::now();
-			holder = theta_Int(Par, Temp);
+			holder[0] = theta_Int(Par, Temp, RhoInt1);
+			holder[1] = theta_Int(Par, Temp, RhoInt2);
+			holder[2] = theta_Int(Par, Temp, RhoInt3);
 			auto End_Time = chrono::system_clock::now();
-			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << *holder[0] << " " << *holder[1] << " " << *holder[2] << " " << *holder[3] << " " << *holder[4] << " " << *holder[5] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
-			//cout << i << " " << j << " " << Par[3] << " " << Par[4] << " " << *holder[0] << " " << *holder[1] << " " << *holder[2] << " " << *holder[3] << " " << *holder[4] << " " << *holder[5] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
+			TPlot << i << " " << j << " " << Par[3] << " " << Par[4] << " " << holder[0] << " " << holder[1] << " " << holder[2] << " " << chrono::duration_cast<chrono::nanoseconds>(End_Time-Start_Time).count()/1000000000. << endl;
 		}
 		TPlot << endl;
 	}
@@ -171,71 +145,55 @@ bool Restart_Check(char File[70], char* g, char* Lambda, char* Mq, char* P0, cha
 long double Set_Mq(long double Mq0, long double P, long double P0)
 {
 #ifndef BB
-	long double Mqf = 1.8;
+	long double Mqf = 1.85;
 #else
 	long double Mqf = 5.25;
 #endif
 
 	return((Mq0*pow(P0,2)+Mqf*pow(P,2))/(pow(P0,2)+pow(P,2)));
 }
+//\[Rho]1[s_,P_,M_,T_]:=If[s<2 M^2-Sqrt[2] Sqrt[2 M^4+2 M^2 P^2],NIntegrate[\[Rho]Int1[s,P,M,\[Theta],T],{\[Theta],0,\[Pi]}],NIntegrate[\[Rho]Int1[s,P,M,\[Theta],T],{\[Theta],0,1/2 ArcCos[(2 M^2 P^2+4 M^2 s-s^2)/(2 M^2 P^2)]}]+NIntegrate[\[Rho]Int1[s,P,M,\[Theta],T],{\[Theta],\[Pi]-1/2 ArcCos[(2 M^2 P^2+4 M^2 s-s^2)/(2 M^2 P^2)],\[Pi]}]]
+//ArcSin[Sqrt[-s]/P]
+//1/2 ArcCos[(2 M^2 P^2+4 M^2 s-s^2)/(2 M^2 P^2)]=arccos(1+(2 s)/P^2-s^2/(2 M^2 P^2))/2
+//\[Pi]-1/2 ArcCos[(2 M^2 P^2+4 M^2 s-s^2)/(2 M^2 P^2)],
+//\[Pi]-ArcSin[Sqrt[-s]/P]}]]
 
-Elements<Around> theta_Int(long double Par[], int Temp)
+Around theta_Int(long double Par[], int Temp, long double(*Rho_Int)(long double, long double, long double, long double, int))
 {
-	if(Par[3] == 0)	//Short cut for P=0, theta integral is analytic
-		return(k_Int(Par, Temp, M_PI/2.)*Around(2./pow(2.*M_PI,2)));
-	else if(Par[4]+pow(Par[3],2)<1e-9)
-	{
-		Around Answer[6] = {0,0,0,0,0,0};
-		return(Elements<Around>(Answer,6));
-	}
+	if(Par[4] >= 0 || Par[4] <= -pow(Par[3],2)+.001)	//Short cut for s>=0 || s=-P^2 answer is zero
+		return(Around(0,0));
 
 	long double x1;
 	long double a = 0, b;					//Sub-interval limits of integration
-	long double Boundary_theta[] = {1./17., 0.3, 0.08};	//Extra boundary values
-	Elements<Around> Answer(6);				//Answer to be returned
+	Around Answer(0,0);				//Answer to be returned
 	int i, j;						//Counters
-	Answer.null();
-
-	if(Par[4] > 0 && Par[3] > sqrt(Par[4]/2.)) //Where the maximum of the theta integral ought to land. It might only be correct for BbS reduction, but is close enough for all other cases. Only valid for s>0 and P>sqrt(s/2)
-		x1 = asin(sqrt(Par[4]/2.)/Par[3]);
-	else
-		x1 = M_PI/10.;	//If it isn't valid, value is needed anyways to split up the integral
-
-	//Don't get too close to the pole or details might get lost
-	if(x1>M_PI/10.)
-		x1 = M_PI/10.;
 
 	//List of boundaries between subintervals
-	long double Range[] = {x1*Boundary_theta[0], x1*Boundary_theta[1], x1, x1*(2.-Boundary_theta[1]), x1*(2.-Boundary_theta[1])*(1.-Boundary_theta[2])+M_PI/2.*Boundary_theta[2], M_PI/2., asin(sqrt(-Par[4])/Par[3]),0,0};
+	long double Range[27] = {0., .05*M_PI, .1*M_PI, .15*M_PI, .2*M_PI, .25*M_PI, .3*M_PI, .35*M_PI, .4*M_PI, .45*M_PI, .5*M_PI, .55*M_PI, .6*M_PI, .65*M_PI, .7*M_PI, .75*M_PI, .8*M_PI, .85*M_PI, .9*M_PI, .95*M_PI, M_PI, asin(sqrt(-Par[4])/Par[3]), acos(1.+2.*Par[4]/pow(Par[3],2)-pow(Par[4]/(Par[2]*Par[3]),2)/2.)/2., M_PI-acos(1.+2.*Par[4]/pow(Par[3],2)-pow(Par[4]/(Par[2]*Par[3]),2)/2.)/2., M_PI-asin(sqrt(-Par[4])/Par[3]),acos(-(sqrt(Par[4]+pow(Par[3],2))/Par[3])), acos((sqrt(Par[4]+pow(Par[3],2))/Par[3]))};
 
-	//Some kind of intersection, probably between the simultanous on-shell and potential peak, don't rightly remember
-	Range[7] = sqrt(4.*pow(Par[3],4)+8.*pow(Par[3],2)*Par[4]+4.*pow(Par[4],2)-pow(Par[1],4))/pow(256.*pow(Par[3],4)+512.*pow(Par[3],2)*Par[4]+256.*pow(Par[4],2),(long double).25);
-	Range[7] = acos((pow(Range[7],2)+pow(Par[2],2)-Par[4]-(long double).75*pow(Par[3],2))/(Range[7]*Par[3]));
-	Range[8] = sqrt(4.*pow(Par[3],4)+8.*pow(Par[3],2)*Par[4]+4.*pow(Par[4],2)-pow(Par[1],4))/pow(256.*pow(Par[3],4)+512.*pow(Par[3],2)*Par[4]+256.*pow(Par[4],2),(long double).25);
-	Range[8] = acos((pow(Range[8],2)+pow(Par[2],2)-Par[4]-(long double).75*pow(Par[3],2))/(-Range[8]*Par[3]));
-
-	//Bad data trap for NaN and negative boundaries. These are only ones that can NaN or return negative numbers
-	if(isnan(Range[6]) || Range[6] < 0) Range[6] = M_PI;
-	if(isnan(Range[7])) Range[7] = M_PI;
-	if(isnan(Range[8])) Range[8] = M_PI;
+	for(i = 21; i < 27; i++)	//Replace NaN with pi and send to end of range
+		if(isnan(Range[i]))
+			Range[i] = M_PI;
 
 	//Put in asending order
-	mergeSort(Range, 0, 8);
+	mergeSort(Range, 0, 26);
 
-	for(i = 0; i < 8 && a < M_PI/2.; i++)	//Count through pre-determined intervals
+	for(i = 0; i < 27 && Range[i] < M_PI; i++)	//Count through pre-determined intervals
 	{
 		b = Range[i];	//Upper edge
 
-		Answer += theta_Int(Par, Temp, a, b, 0);	//Add the subinterval to total of the integral
-
+		Answer += theta_Int(Par, Temp, a, b, 0, Rho_Int);	//Add the subinterval to total of the integral
 		a = b;	//Upper edge becomes lower edge
 	}
 
-	return(Answer*Around(2./pow(2.*M_PI,2)));
+	return(Answer);
 }
 
-Elements<Around> theta_Int(long double Par[], int Temp, long double a, long double b, int deep)
+Around theta_Int(long double Par[], int Temp, long double a, long double b, int deep, long double(*Rho_Int)(long double, long double, long double, long double, int))
 {
+	if(abs(a/b-1.) < DBL_EPSILON)	//Shortcut zero width interval and prevents returning nan
+		return(Around(0,0));
+
 /*9th order Gauss-Legendre integration/16th order Gauss-Kronrod weight
 	long double Disp9[] = {0.2796304131617831934134665, sqrt(5.-2.*sqrt(10./7.))/3., 0.7541667265708492204408172, sqrt(5.+2.*sqrt(10./7.))/3., 0.9840853600948424644961729};	//Displacement from center
 	long double w9[] = {128./225., 0., (322.+13.*sqrt(70.))/900., 0., (322.-13.*sqrt(70.))/900., 0.};	//9th order Gauss-Legendre weights
@@ -256,40 +214,36 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 	long double wh[] = {0.048326383986567758375445434, 0.0482701930757773855987121, 0.048100969185457746927846544, 0.04781890873698847221226358, 0.047426061873882382362879950, 0.04692296828170361110348071, 0.046308756738025713240381298, 0.04558582656454707028057546, 0.044758638749766937295199192, 0.04382754403013974904681615, 0.042791115596446746933654925, 0.04165401998564305139829641, 0.040423492370373096672349269, 0.03909942013330661120748213, 0.037679130645613398514895974, 0.03616976947564229986095839, 0.034582122744733034130726383, 0.03291507764390360026329648, 0.031163325561973737171155849, 0.02933695668962066136861561, 0.027452098422210403783147707, 0.02550569548089465281452890, 0.023486659672163324592087913, 0.02140891318482191595577752, 0.019298771430326811294403740, 0.01714980520978425325608583, 0.014936103606086027385096751, 0.01267605480665440285936888, 0.010423987398806818828034251, 0.008172504038531668414343805, 0.0058417370791666933039479766, 0.003426818775772370935574576, 0.0012233608179514718002930372};	//97th order Gauss-Kronrod weight
 #endif
 	long double x1, x2;		//Abscissa
-	Elements<Around> F[2] = {Elements<Around>(6),Elements<Around>(6)};//Sum of ordinate*weights
-	Elements<Around> Answer(6);	//Answer to be returned
-	Answer.null();
-	Elements<Around> Holder;
+	long double F[2] = {0,0};	//Sum of ordinate*weights
+	Around Answer;			//Answer to be returned
+	long double Holder;
 	int i, j = 0;			//Counters
-
-	F[0].null();	//Zero out F for a new round
-	F[1].null();	//Zero out F for a new round
 
 	//for(j = 0; j < 5; j++)	//Count through points away from center
 	{
 		x1 = (b+a-Disp[j]*(b-a))/2.;
 		x2 = (b+a+Disp[j]*(b-a))/2.;
 
-		Holder = k_Int(Par, Temp, x1)*Around(sin(x1));
-		F[0] += Holder*Around(w9[j+1]);
-		F[1] += Holder*Around(w16[j+1]);
+		Holder = Rho_Int(Par[4], Par[3], Par[2], x1, Temp);
+		F[0] += Holder*w9[j+1];
+		F[1] += Holder*w16[j+1];
 
-		Holder = k_Int(Par, Temp, x2)*Around(sin(x2));
-		F[0] += Holder*Around(w9[j+1]);
-		F[1] += Holder*Around(w16[j+1]);
+		Holder = Rho_Int(Par[4], Par[3], Par[2], x2, Temp);
+		F[0] += Holder*w9[j+1];
+		F[1] += Holder*w16[j+1];
 	}
-	Holder = k_Int(Par, Temp, (a+b)/2.)*Around(sin((a+b)/2.));
-	F[0] += Holder*Around(w9[0]);
-	F[1] += Holder*Around(w16[0]);
+	Holder = Rho_Int(Par[4], Par[3], Par[2], (a+b)/2., Temp);
+	F[0] += Holder*w9[0];
+	F[1] += Holder*w16[0];
 
 	//Answer = Estimation(F[0], F[1])*Around((b-a)/2.);	//Add the subinterval to total of the integral
 
 	if(abs(F[0]-F[1])*Around(2.)/abs(F[0]+F[1]) > 1 && abs(b-a) > FLT_EPSILON && deep > 4)
-		Answer = theta_Int(Par, Temp, a, (a+b)/2., deep+1) + theta_Int(Par, Temp, (a+b)/2., b, deep+1);
+		Answer = theta_Int(Par, Temp, a, (a+b)/2., deep+1, Rho_Int) + theta_Int(Par, Temp, (a+b)/2., b, deep+1, Rho_Int);
 	else
 	{
-		F[0].null();	//Zero out F for a new round
-		F[1].null();	//Zero out F for a new round
+		F[0] = 0;	//Zero out F for a new round
+		F[1] = 0;	//Zero out F for a new round
 
 #if ORDER == 37	//Count through points away from center
 		for(j = 0; j < 12; j++)
@@ -300,19 +254,19 @@ Elements<Around> theta_Int(long double Par[], int Temp, long double a, long doub
 			x1 = (b+a-Disp[j]*(b-a))/2.;
 			x2 = (b+a+Disp[j]*(b-a))/2.;
 
-			Holder = k_Int(Par, Temp, x1)*Around(sin(x1));
-			F[0] += Holder*Around(wl[j+1]);
-			F[1] += Holder*Around(wh[j+1]);
+			Holder = Rho_Int(Par[4], Par[3], Par[2], x1, Temp);
+			F[0] += Holder*wl[j+1];
+			F[1] += Holder*wh[j+1];
 
-			Holder = k_Int(Par, Temp, x2)*Around(sin(x2));
-			F[0] += Holder*Around(wl[j+1]);
-			F[1] += Holder*Around(wh[j+1]);
+			Holder = Rho_Int(Par[4], Par[3], Par[2], x2, Temp);
+			F[0] += Holder*wl[j+1];
+			F[1] += Holder*wh[j+1];
 		}
-		Holder = k_Int(Par, Temp, (a+b)/2.)*Around(sin((a+b)/2.));
-		F[0] += Holder*Around(wl[0]);
-		F[1] += Holder*Around(wh[0]);
+		Holder = Rho_Int(Par[4], Par[3], Par[2], (a+b)/2., Temp);
+		F[0] += Holder*wl[0];
+		F[1] += Holder*wh[0];
 
-		Answer = Estimation(F[0], F[1])*Around((b-a)/2.);	//Add the subinterval to total of the integral
+		Answer = Around(F[1], abs(F[0]-F[1]))*Around((b-a)/2.);	//Add the subinterval to total of the integral
 	}
 
 	return(Answer);
@@ -341,6 +295,8 @@ long double RhoInt1(long double s, long double P, long double M, long double the
 
 	if(2.*pow(M,2)-s-2.*sqrt(pow(M,4)+pow(M*P*sin(theta),2)) < 0.)
 		return(0);
+	if(-(P*s*cos(theta)+sqrt((pow(P,2)+s)*(-4*pow(M,2)*s+pow(s,2)-4*pow(M,2)*pow(P,2)*pow(sin(theta),2))))/(2.*(s+pow(P,2)*pow(sin(theta),2))) < 0)
+		return(0);
 
 	return((6.*(1./(1.+exp(sqrt(4.*pow(M,2)+pow(P*s*cos(theta)+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))),2)/pow(s+pow(P*sin(theta),2),2))/(2.*T)))-1./(1.+exp((sqrt(pow(P,2)+s)+sqrt(4.*pow(M,2)+pow(P*s*cos(theta)+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))),2)/pow(s+pow(P*sin(theta),2),2))/2.)/T)))*sin(theta)*(-((P*cos(theta)*(P*s*cos(theta)+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2)))))/(-pow(P,2)-2.*s+pow(P,2)*cos(2.*theta)))+(sqrt(pow(P,2)+s)*sqrt(4.*pow(M,2)+pow(P*s*cos(theta)+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))),2)/pow(s+pow(P*sin(theta),2),2)))/2.))/(M_PI*abs(((sqrt(2)*(-2.*pow(P,3)*cos(theta)-P*s*cos(theta)+2.*pow(P,3)*pow(cos(theta),3)+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2)))))/sqrt((-(pow(M,2)*pow(P,4))+3.*pow(P,6)-4.*pow(M*P,2)*s+7.*pow(P,4)*s+10.*pow(P*s,2)+2.*pow(s,3)-6.*pow(P*s*cos(theta),2)-4.*pow(P,2)*(pow(P,4)+pow(M,2)*s+2.*pow(P,2)*s)*cos(2.*theta)+pow(M,2)*pow(P,4)*cos(4.*theta)+pow(P,6)*cos(4.*theta)+pow(P,4)*s*cos(4.*theta)+4.*P*cos(theta)*(-pow(P,2)-s+pow(P,2)*cos(2.*theta))*sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))))/pow(s+pow(P*sin(theta),2),2))+(-(P*s*cos(theta))-sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))))/sqrt(4.*pow(M,2)+pow(P*s*cos(theta)+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))),2)/pow(s+pow(P*sin(theta),2),2)))/(s+pow(P*sin(theta),2)))*sqrt(pow(M,2)+pow(P,2)+(P*cos(theta)*(P*s*cos(theta)+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2)))))/(-pow(P,2)-2.*s+pow(P,2)*cos(2.*theta))+pow(P*s*cos(theta)+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))),2)/(4.*pow(s+pow(P*sin(theta),2),2)))*sqrt(4.*pow(M,2)+pow(P*s*cos(theta)+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))),2)/pow(s+pow(P*sin(theta),2),2))));
 }
@@ -368,7 +324,73 @@ long double RhoInt2(long double s, long double P, long double M, long double the
 
 	if(s+pow(P*sin(theta),2) < 0 || 2.*pow(M,2)-s-2.*sqrt(pow(M,4)+pow(M*P*sin(theta),2)) < 0)
 		return(0);
+	if((-P*s*cos(theta)+sqrt((pow(P,2)+s)*(-4*pow(M,2)*s+pow(s,2)-4*pow(M,2)*pow(P,2)*pow(sin(theta),2))))/(2.*(s+pow(P,2)*pow(sin(theta),2))) < 0)
+		return(0);
 
 	return((6.*(1./(1.+exp(sqrt(4.*pow(M,2)+pow(-(P*s*cos(theta))+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))),2)/pow(s+pow(P*sin(theta),2),2))/(2.*T)))-1./(1.+exp((sqrt(pow(P,2)+s)+sqrt(4.*pow(M,2)+pow(-(P*s*cos(theta))+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))),2)/pow(s+pow(P*sin(theta),2),2))/2.)/T)))*sin(theta)*(-((P*cos(theta)*(P*s*cos(theta)-sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2)))))/(-pow(P,2)-2.*s+pow(P,2)*cos(2.*theta)))+(sqrt(pow(P,2)+s)*sqrt(4.*pow(M,2)+pow(-(P*s*cos(theta))+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))),2)/pow(s+pow(P*sin(theta),2),2)))/2.))/(M_PI*abs((-((sqrt(2)*(2.*pow(P,3)*cos(theta)+P*s*cos(theta)-2.*pow(P,3)*pow(cos(theta),3)+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2)))))/sqrt((-(pow(M,2)*pow(P,4))+3.*pow(P,6)-4.*pow(M*P,2)*s+7.*pow(P,4)*s+10.*pow(P*s,2)+2.*pow(s,3)-6.*pow(P*s*cos(theta),2)-4.*pow(P,2)*(pow(P,4)+pow(M,2)*s+2.*pow(P,2)*s)*cos(2.*theta)+pow(M,2)*pow(P,4)*cos(4.*theta)+pow(P,6)*cos(4.*theta)+pow(P,4)*s*cos(4.*theta)-4.*P*cos(theta)*(-pow(P,2)-s+pow(P,2)*cos(2.*theta))*sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))))/pow(s+pow(P*sin(theta),2),2)))+(-(P*s*cos(theta))+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))))/sqrt(4.*pow(M,2)+pow(-(P*s*cos(theta))+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))),2)/pow(s+pow(P*sin(theta),2),2)))/(s+pow(P*sin(theta),2)))*sqrt(pow(M,2)+pow(P,2)+(P*cos(theta)*(P*s*cos(theta)-sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2)))))/(-pow(P,2)-2.*s+pow(P,2)*cos(2.*theta))+pow(-(P*s*cos(theta))+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))),2)/(4.*pow(s+pow(P*sin(theta),2),2)))*sqrt(4.*pow(M,2)+pow(-(P*s*cos(theta))+sqrt((pow(P,2)+s)*(-4.*pow(M,2)*s+pow(s,2)-4.*pow(M*P*sin(theta),2))),2)/pow(s+pow(P*sin(theta),2),2))));
 }
 
+long double RhoInt3(long double s, long double P, long double M, long double theta, int Temp)
+{
+	long double T;
+	switch(Temp)
+	{
+	case 0:
+		return(0);
+	case 1:
+		T = .194;
+		break;
+	case 2:
+		T = .258;
+		break;
+	case 3:
+		T = .320;
+		break;
+	case 4:
+		T = .400;
+		break;
+	}
+
+	if(s+pow(P*sin(theta),2) >= 0 || theta > M_PI/2.)
+		return(0);
+
+	return((12.*(-(1./(1.+exp(sqrt(4.*pow(M,2)+pow(P,2)+2.*P*cos(theta)*sqrt(((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))+((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))/(2.*T))))+1./(1.+exp((-2.*sqrt(pow(P,2)+s)+sqrt(4.*pow(M,2)+pow(P,2)+2.*P*cos(theta)*sqrt(((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))+((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2))))/(2.*T))))*(pow(P,2)+P*cos(theta)*sqrt(((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))-sqrt(pow(P,2)+s)*sqrt(4.*pow(M,2)+pow(P,2)+2.*P*cos(theta)*sqrt(((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))+((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))))/(M_PI*abs((-4.*P*cos(theta)+4.*sqrt(((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2))))/(2.*sqrt(4.*pow(M,2)+pow(P,2)-2.*P*cos(theta)*sqrt(((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))+((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2))))-(2.*(P*cos(theta)+sqrt(-(((4.*pow(M,2)-s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2))))))/sqrt(4.*pow(M,2)+pow(P,2)+2.*P*cos(theta)*sqrt(((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))+((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2))))*sqrt(4.*pow(M,2)+pow(P,2)-2.*P*cos(theta)*sqrt(((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))+((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))*sqrt(4.*pow(M,2)+pow(P,2)+2.*P*cos(theta)*sqrt(((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))+((-4.*pow(M,2)+s)*(pow(P,2)+s))/(s+pow(P*sin(theta),2)))));
+}
+
+void mergeSort(long double List[], int a, int b)
+{
+	int i, j, k;
+	long double Temp[(a+b)/2-a+1];
+
+	if(b-a > 1)	//Divide...
+	{
+		mergeSort(List, a, (a+b)/2);
+		mergeSort(List, (a+b)/2+1, b);
+	}
+
+	for(i = 0; i <= (a+b)/2-a; i++)	//Copy out the lower half array in prep for copy over
+		Temp[i] = List[i+a];
+
+	j = 0;
+	k = (a+b)/2+1;
+	for(i = a; i <= b && j <= (a+b)/2-a && k <= b; i++)	//... and conqure while both half lists have not been exhausted
+	{
+		if(Temp[j] <= List[k])
+		{
+			List[i] = Temp[j];
+			j++;
+		}
+		else
+		{
+			List[i] = List[k];
+			k++;
+		}
+	}
+	for(; i <= b && j <= (a+b)/2-a; i++)	//If the Temp list has not been exhausted, complete the job
+	{
+		List[i] = Temp[j];
+		j++;
+	}
+
+	return;
+}
