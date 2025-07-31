@@ -110,7 +110,7 @@ Elements<Around> Estimation(Elements<Around> Low, Elements<Around> High)
 }
 
 #ifndef BBS_GAMMA	//use option -D BBS_GAMMA=<number> to alter BbS vacuum width, default value 2.03 MeV short of pi*32MeV
-#define BBS_GAMMA -0.032400653275761415	//Width of single quark propagator
+#define BBS_GAMMA -0.0305;//0.032400653275761415	//Width of single quark propagator
 #endif
 #ifndef GAMMA	//use option -D GAMMA=<number> to alter single particle vacuum width, default value is 15MeV
 #define GAMMA -0.015	//Width of single quark propagator
@@ -530,8 +530,8 @@ long double ReG12Reverse(long double M, long double s, long double P, long doubl
 	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp)/2.;
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
 
-	if(s >= pow(M_TH,2))
-		Vacuum_Width = -BBS_GAMMA*pow((s-pow(M_TH,2))/(9.2416-pow(M_TH,2)),POWER)*pow((9.2416+9.2416)/(s+9.2416),POWER)*sqrt(s);
+	//if(s >= pow(M_TH,2))
+	//	Vacuum_Width = -BBS_GAMMA*pow((s-pow(M_TH,2))/(9.2416-pow(M_TH,2)),POWER)*pow((9.2416+9.2416)/(s+9.2416),POWER)*sqrt(s);
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).real();
 }
@@ -544,14 +544,20 @@ long double ImG12Reverse(long double M, long double s, long double P, long doubl
 	long double ImSelf[2];
 	long double ReSelf[2];
 	long double Vacuum_Width = 0;
+#ifdef CC
+	const long double MJPsi = 3.0687;
+#else
+	const long double MJPsi = 9.444975;
+#endif
+	const long double MJPsiSqrd = pow(MJPsi,2);
 
 	ImSelf[0] = ImSelf_Energy(M, omega[0], q[0], Temp)/5.;
 	ImSelf[1] = ImSelf_Energy(M, omega[1], q[1], Temp)/5.;
 	ReSelf[0] = ReSelf_Energy(M, omega[0], q[0], Temp)/2.;
 	ReSelf[1] = ReSelf_Energy(M, omega[1], q[1], Temp)/2.;
 
-	if(s >= pow(M_TH,2))//0.6859734802602255)
-		Vacuum_Width = -BBS_GAMMA*pow((s-pow(M_TH,2))/(9.2416-pow(M_TH,2)),POWER)*pow((9.2416+9.2416)/(s+9.2416),POWER)*sqrt(s);
+	if(s >= pow(M_TH,2))
+		Vacuum_Width = -pow((s-pow(M_TH,2))/(MJPsiSqrd-pow(M_TH,2)),POWER)*pow((2.*MJPsiSqrd)/(s+MJPsiSqrd),POWER)*MJPsi*BBS_GAMMA;
 
 	return(2.*pow(M,2)*(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta))/(Energy(M,P/2.,k,theta)*Energy(M,P/2.,-k,theta)*(s+pow(P,2)-pow(Energy(M,P/2.,k,theta)+Energy(M,P/2.,-k,theta)+complex<long double>(ReSelf[0],ImSelf[0])+complex<long double>(ReSelf[1],ImSelf[1]),2)+complex<long double>(0,Vacuum_Width)))).imag();
 }
@@ -1299,13 +1305,13 @@ long double ImSelf_Energy(long double M, long double omega, long double k, int T
 	long double M_T, Shift=0;
 	long double answer;
 
+	if(Temp == 0)
+		return(0);
+
 	if(pow(omega,2)>=pow(k,2))
 		answer = sqrt(pow(omega,2)-pow(k,2))*GAMMA;
 	else
 		answer = 0;
-
-	if(Temp == 0)
-		return(answer);
 
 	switch(Temp)
 	{
